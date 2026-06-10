@@ -24,7 +24,6 @@
   line-height: 26rpx;
 }
 
-.bottom-nav-item image,
 .bottom-nav-icon {
   width: 54rpx;
   height: 50rpx;

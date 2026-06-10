@@ -21,8 +21,6 @@ const QUIZ_AUTO_ADVANCE_MS = 900
 Page({
   data: {
     pageAnimState: 'listen-page-preenter',
-    statusBarHeight: wx.getStorageSync('statusBarHeight') || 20,
-    navBarHeight: wx.getStorageSync('navigationBarHeight') || 44,
     safeAreaBottom: Math.max((wx.getStorageSync('windowHeight') || 0) - ((wx.getStorageSync('safeArea') || {}).bottom || wx.getStorageSync('windowHeight') || 0), 0),
 
     loading: true,
@@ -54,6 +52,8 @@ Page({
     // 课文页：跟读测评展开项（-1 表示未展开）及各句得分缓存
     expandedIndex: -1,
     trackScores: {},
+    // 课文滚动位置（受控 scroll-top）。激活/展开时只在必要时滚动，不再贴顶
+    scrollTop: 0,
 
     quizMode: false,
     quizQuestions: [],
@@ -76,7 +76,6 @@ Page({
 
   onLoad(options) {
     options = options || {}
-    this.setupNavTitle()
     const book = (getApp().globalData && getApp().globalData.book) || {}
     this.resBookId = options.resBookId || book.resBookId || ''
     this.targetUnitId = options.unitId || ''
@@ -110,23 +109,6 @@ Page({
       bookCover,
       targetUnitId: this.targetUnitId
     }))
-  },
-
-  // 按胶囊位置同步状态栏与导航栏高度，避免真机与缓存值不一致。
-  setupNavTitle() {
-    try {
-      const rect = wx.getMenuButtonBoundingClientRect()
-      const sys = (wx.getWindowInfo && wx.getWindowInfo()) || wx.getSystemInfoSync()
-      const statusBarHeight = sys.statusBarHeight || this.data.statusBarHeight
-      const next = {}
-      if (rect && rect.top && rect.height) {
-        next.statusBarHeight = statusBarHeight
-        next.navBarHeight = (rect.top - statusBarHeight) * 2 + rect.height
-      }
-      this.setData(next)
-    } catch (e) {
-      // 兜底用默认值
-    }
   },
 
   onReady() {
@@ -706,8 +688,40 @@ Page({
     this.scrollToIndex(this.data.current)
   },
 
+  // 激活/展开时把条目带进可视区——但只在被遮挡时滚动，且保留顶部留白，
+  // 不再把条目硬顶到最上面（那样会丢失上下文，观感很差）
   scrollToIndex(index) {
-    this.setData({ scrollIntoId: 'track-' + index })
+    const q = this.createSelectorQuery()
+    q.select('.lyrics').fields({ rect: true, size: true, scrollOffset: true })
+    q.select('#track-' + index).boundingClientRect()
+    q.exec(res => {
+      const view = res && res[0]
+      const item = res && res[1]
+      if (!view || !item) {
+        return
+      }
+      const margin = view.height * 0.12 // 顶部/底部留白，避免贴边
+      const itemTop = item.top - view.top // 相对可视区顶部
+      const itemBottom = item.bottom - view.top
+      let target = view.scrollTop
+      if (item.height > view.height - margin) {
+        // 展开后比可视区还高：让条目顶部停在留白处，优先露出句子+面板上半
+        target = view.scrollTop + itemTop - margin
+      } else if (itemBottom > view.height) {
+        // 下方（含展开面板）被截断：上滚刚好露出，并留底边距
+        target = view.scrollTop + (itemBottom - view.height) + margin
+      } else if (itemTop < margin) {
+        // 顶部被截断或贴顶：下滚到留白处
+        target = view.scrollTop + itemTop - margin
+      } else {
+        // 已在可视区内：不滚动
+        return
+      }
+      if (target < 0) {
+        target = 0
+      }
+      this.setData({ scrollTop: target })
+    })
   },
 
   /* ----------------------------- 进度条 ----------------------------- */

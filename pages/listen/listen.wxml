@@ -2,7 +2,7 @@
   <!-- 小测：对齐新词学习页自定义导航 -->
   <block wx:if="{{quizMode}}">
     <view class="listen-quiz-nav">
-      <navigation bindback="close" backInner="{{false}}" background="transparent" backIcon="icon_back_deep.svg">
+      <navigation bindback="close" backInner="{{false}}" background="transparent">
         <view class="listen-nav-title-wrap">
           <view class="listen-nav-title">{{unitName}}</view>
         </view>
@@ -12,15 +12,14 @@
       </view>
     </view>
   </block>
-  <!-- 随身听：关闭按钮 -->
+  <!-- 随身听 -->
   <block wx:else>
-    <view class="listen-nav" style="padding-top: {{statusBarHeight}}px;">
-      <view class="listen-nav-bar" style="height: {{navBarHeight}}px;">
-        <view class="listen-nav-back" bindtap="close">
-          <image class="nav-action-icon" src="/images/icon_close_deep.svg" mode="heightFix" />
+    <view class="listen-nav">
+      <navigation bindback="close" backInner="{{false}}" background="transparent" backIcon="icon_arrow_down.svg">
+        <view class="listen-nav-title-wrap">
+          <view class="listen-nav-title">{{unitName}}</view>
         </view>
-        <view class="listen-nav-title">{{unitName}}</view>
-      </view>
+      </navigation>
     </view>
 
     <!-- 页码指示：封面 / 课文 两页 -->
@@ -126,7 +125,7 @@
         </view>
 
         <view class="quiz-audio-hint" bindtap="replayQuizAudio">
-          <image class="quiz-hint-bulb {{quizAudioPlaying ? 'quiz-hint-bulb-playing' : ''}}" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+          <image class="quiz-hint-bulb {{quizAudioPlaying ? 'quiz-hint-bulb-playing' : ''}}" src="../../images/word-new/hint-bulb.svg" mode="aspectFit" />
           <text class="quiz-hint-label">提示一下</text>
         </view>
       </block>
@@ -155,9 +154,11 @@
               </view>
             </view>
           </view>
-          <view class="tonearm-pivot {{playing ? 'tonearm-on' : ''}}">
-            <image class="tonearm-img" src="/images/listen/tonearm.png" mode="widthFix" />
-          </view>
+          <image
+            class="tonearm-overlay"
+            src="{{playing ? '/images/listen/tonearm-overlay-playing.png' : '/images/listen/tonearm-overlay-parked.png'}}"
+            mode="aspectFill"
+          />
         </view>
         <view class="cover-hint">向左滑动可查看课文</view>
       </view>
@@ -165,7 +166,7 @@
 
     <!-- 第二页：课文（单词列表） -->
     <swiper-item>
-      <scroll-view class="lyrics" scroll-y scroll-into-view="{{scrollIntoId}}" scroll-top="{{lyricsScrollTop}}" scroll-with-animation bindscroll="onLyricsScroll">
+      <scroll-view class="lyrics" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
         <view class="lyrics-pad"></view>
         <view
           wx:for="{{tracks}}"

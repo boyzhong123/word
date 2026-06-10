@@ -12,12 +12,7 @@ function getSafeAreaBottom() {
 function buildGradient(rgb) {
   const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)))
   const mix = (c, target, t) => clamp(c + (target - c) * t)
-  // 平均色容易发灰，绕亮度中点拉一档饱和度，贴近封面观感
-  const avg = (rgb[0] + rgb[1] + rgb[2]) / 3
-  const sat = 1.4
-  const r = clamp(avg + (rgb[0] - avg) * sat)
-  const g = clamp(avg + (rgb[1] - avg) * sat)
-  const b = clamp(avg + (rgb[2] - avg) * sat)
+  const [r, g, b] = rgb
   const lr = mix(r, 255, 0.34)
   const lg = mix(g, 255, 0.34)
   const lb = mix(b, 255, 0.34)
@@ -43,11 +38,13 @@ Component({
     miniBg: ''
   },
 
-  // 封面主色缓存：key=封面地址，value=渐变串；避免每帧重复取色
-  _coverColorCache: {},
-  _colorCover: '',
-
   lifetimes: {
+    // Component 顶层自定义字段不会挂到 this，必须在生命周期里初始化到实例上
+    created() {
+      this._coverColorCache = {} // key=封面地址，value=渐变串；避免每帧重复取色
+      this._colorCover = ''
+    },
+
     attached() {
       this.setData({ safeAreaBottom: getSafeAreaBottom() })
       this.onPlayerState = this.onPlayerState.bind(this)
@@ -78,6 +75,10 @@ Component({
 
     // 取封面主色作迷你播放条底色：命中缓存直接用，否则用 1×1 canvas 取平均色
     applyCoverColor(cover) {
+      // 兜底：created 万一未执行也不至于读 undefined 报错
+      if (!this._coverColorCache) {
+        this._coverColorCache = {}
+      }
       const cached = this._coverColorCache[cover]
       if (cached) {
         this.setData({ miniBg: cached })

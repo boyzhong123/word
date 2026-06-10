@@ -2,7 +2,7 @@
 <view class="container" wx:if="{{!loading}}">
   <view class="{{isWordNewMode ? 'wn-bg' : 'practice-bg'}}"></view>
   <view class="practice-nav">
-    <navigation bindback="back" backInner="{{from == 'search'}}" background="transparent" backIcon="icon_back_deep.svg">
+    <navigation bindback="back" backInner="{{from == 'search'}}" background="transparent">
       <view class="nav-title-wrap">
         <view class="nav-title">{{navTitle}}</view>
       </view>
@@ -11,7 +11,7 @@
       <view class="practice-top-progress-fill" style="width: {{contents[current].progressPercent}}%;"></view>
     </view>
   </view>
-  <view wx:if="{{isWordNewMode && wordToast.visible}}" class="wn-toast">
+  <view wx:if="{{wordToast.visible}}" class="wn-toast">
     <image class="wn-toast-image" src="{{wordToast.image}}" mode="aspectFit" />
     <text class="wn-toast-title">{{wordToast.title}}</text>
   </view>
@@ -52,7 +52,7 @@
                     <view wx:if="{{item.hinted}}" class="wn-ex-cn wn-ex-cn-with-speaker">{{item.proverb[0].translation}}</view>
                   </view>
                   <view class="wn-hint" catchtap="showHint">
-                    <image class="wn-bulb-icon" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+                    <image class="wn-bulb-icon" src="../../images/word-new/hint-bulb.svg" mode="aspectFit" />
                     <text class="wn-hint-label">提示一下</text>
                   </view>
                 </view>
