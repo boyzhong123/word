@@ -96,25 +96,6 @@
   background: transparent;
 }
 
-.listen-nav-bar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.listen-nav-back {
-  position: absolute;
-  left: 18rpx;
-  top: 0;
-  bottom: 0;
-  width: 64rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-
 .listen-nav-title {
   max-width: 52%;
   font-size: 34rpx;
@@ -539,6 +520,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 }
 .turntable {
   position: relative;
@@ -613,20 +595,20 @@
 /* 唱臂：枢轴锚定在白色卡片右上角，磁头落在碟面纹路上 */
 .tonearm-pivot {
   position: absolute;
-  top: -104rpx;
-  right: -16rpx;
-  width: 380rpx;
+  top: -140rpx;
+  right: -40rpx;
+  width: 400rpx;
   z-index: 5;
   pointer-events: none;
-  transform-origin: 93.5% 18%;
+  transform-origin: 85.1% 16.8%;
   /* 停止时唱臂停在碟面外缘（抬起待命） */
-  transform: rotate(-32deg);
+  transform: rotate(-70deg);
   transition: transform 0.72s cubic-bezier(0.45, 0.05, 0.25, 1);
   filter: drop-shadow(0 4rpx 10rpx rgba(0, 0, 0, 0.1));
 }
 /* 播放时唱臂顺时针落下，磁头压在碟面纹路上 */
 .tonearm-pivot.tonearm-on {
-  transform: rotate(14deg);
+  transform: rotate(19deg);
 }
 .tonearm-img {
   display: block;
@@ -643,7 +625,7 @@
   height: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding: 0 56rpx;
+  padding: 0;
   text-align: left;
 }
 .lyrics-pad {
@@ -658,10 +640,10 @@
   padding: 26rpx 0 12rpx;
 }
 .lyric-sentence {
-  padding: 10rpx 0 10rpx 36rpx;
-  margin-left: 8rpx;
+  padding: 10rpx 0;
 }
 .lyric-en {
+  padding: 0 56rpx;
   font-size: 36rpx;
   color: #41514a;
   line-height: 1.35;
@@ -669,6 +651,7 @@
 }
 .lyric-cn {
   margin-top: 6rpx;
+  padding: 0 56rpx;
   font-size: 36rpx;
   color: #51605a;
   line-height: 1.35;
@@ -685,8 +668,11 @@
 }
 
 /* ---------------- 跟读测评：展开面板（全屏白色遮罩，黑色图标居中） ---------------- */
+/* .lyrics 已无左右内边距，例句/单词的缩进改放在文字上，
+   所以面板直接 width:100% 就能铺满整屏，不再依赖 100vw + 负 margin（会被 scroll-view 裁切） */
 .follow-panel {
-  margin: 24rpx -56rpx 0;
+  width: 100%;
+  margin: 24rpx 0 0;
   box-sizing: border-box;
   position: relative;
   overflow: visible;
@@ -705,8 +691,7 @@
 .follow-media {
   width: 100%;
   box-sizing: border-box;
-  justify-content: center !important;
-  column-gap: 104rpx;
+  justify-content: space-around !important;
   padding: 32rpx 0 28rpx !important;
   min-height: 200rpx;
 }

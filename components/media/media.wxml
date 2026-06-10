@@ -2,7 +2,7 @@
 <view class="media">
   <wxs src='/pages/tool.wxs' module="tool"></wxs>
   <image animation="{{animation}}" class="feedback {{score >= 55 ? 'feedback-good' : 'feedback-bad'}}" />
-  <frame-animation style="visibility: {{tool.visible(media_state)}};" class="frames media-action-icon" url="https://17ks.chivoxapp.com/proverbs/audio.png" width='55' height='47' count='3' duration='0.5' bindend="end" bindtap="playAudio"></frame-animation>
+  <frame-animation style="visibility: {{tool.visible(media_state)}};" class="frames media-action-icon" url="../../images/audio.png" width='55' height='47' count='3' duration='0.5' bindend="end" bindtap="playAudio"></frame-animation>
   <image style="visibility: {{tool.visible(media_state)}};" class="record media-action-icon" src="../../images/record.png" bindtap="startRecord" mode="widthFix"/>
   <view style="visibility: {{tool.visible(media_state)}};" class="replay" bindtap="replay">
     <image wx:if="{{score == ''}}" class="media-action-icon" style="width: 56rpx;height: 51rpx;" src="../../images/replay.png" />

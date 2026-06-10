@@ -1,1 +1,1 @@
-<canvas type="2d" id="my-canvas" class="wave-canvas"></canvas>
+<canvas canvas-id="waveCanvas" class="wave-canvas"></canvas>
