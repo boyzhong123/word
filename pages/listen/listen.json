@@ -3,6 +3,7 @@
   "navigationStyle": "custom",
   "navigationBarTextStyle": "black",
   "usingComponents": {
-    "frame-animation": "../../components/frame-animation/frame-animation"
+    "frame-animation": "../../components/frame-animation/frame-animation",
+    "media": "../../components/media/media"
   }
 }
