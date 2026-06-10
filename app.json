@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/index/index",
+    "pages/practice/practice",
+    "pages/advertisement/advertisement",
+    "pages/vip/vip",
+    "pages/finish/today",
+    "pages/catalogue/catalogue",
+    "pages/listen/listen",
+    "pages/checkin/calendar",
+    "pages/me/me",
+    "pages/plan/plan",
+    "pages/report/report"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#151515",
+    "selectedColor": "#2f80ed",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "学习"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "useExtendedLib": {
+    "weui": true
+  },
+  "usingComponents": {
+    "media": "/components/media/media",
+    "frame-animation": "/components/frame-animation/frame-animation",
+    "dialog": "/components/dialog/dialog",
+    "navigation": "/components/navigation/navigation"
+  }
+}

@@ -1,0 +1,24 @@
+.triangle-bottom {
+  margin-top: -1rpx;
+  width: 0;
+  height: 0;
+  border-top: 18rpx solid #B8B8B8;
+  border-left: 11rpx solid transparent;
+  border-right: 11rpx solid transparent;
+}
+
+.tip-text {
+  background-color: #B8B8B8;
+  padding: 10rpx;
+  border-radius: 10rpx;
+  font-size: 20rpx;
+  color: #FFFFFF;
+}
+
+.anchor-stress {
+  z-index: 3;
+}
+
+.anchor-tone {
+    z-index: 4;
+}

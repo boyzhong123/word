@@ -1,0 +1,7 @@
+/* components/wave/wave.wxss */
+canvas {
+  display: block;
+  width: 100%;
+  min-width: 480rpx;
+  height: 106rpx;
+}

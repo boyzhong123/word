@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  /* 1rpx ≈ 0.5px at 750rpx design width on a 375pt screen */
+  :root { --u: 0.5px; }
+  body { margin:0; background:linear-gradient(180deg,#dbeafe,#eff6ff); display:flex; flex-direction:column; align-items:center; padding-top:60px; font-family:sans-serif;}
+  .player-card {
+    position: relative;
+    width: calc(620 * var(--u));
+    height: calc(620 * var(--u));
+    border-radius: calc(56 * var(--u));
+    background: #ffffff;
+    box-shadow: 0 18px 48px rgba(0,0,0,.13);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .turntable { position:relative; width:calc(520*var(--u)); height:calc(520*var(--u)); }
+  .disc-stack {
+    position:relative; width:calc(520*var(--u)); height:calc(520*var(--u));
+    border-radius:50%; overflow:hidden;
+    background: radial-gradient(circle, #58c0e8 0 26%, #e8e8ea 26% 100%);
+    box-shadow: inset 0 8px 24px rgba(0,0,0,.1);
+  }
+  .disc-stack::after{ /* groove rings */
+    content:""; position:absolute; inset:0; border-radius:50%;
+    background: repeating-radial-gradient(circle, rgba(0,0,0,.05) 0 2px, rgba(255,255,255,.05) 2px 4px);
+  }
+  /* ---- TONEARM (the bit being tuned) ---- */
+  .tonearm-pivot {
+    position:absolute;
+    top: calc(var(--top) * var(--u));
+    right: calc(var(--right) * var(--u));
+    width: calc(var(--w) * var(--u));
+    z-index:5;
+    transform-origin: 78% 14%;
+    transform: rotate(var(--rot));
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.18));
+  }
+  .tonearm-img { display:block; width:100%; }
+  .cover-hint{ margin-top:35px; color:#5d6e66; letter-spacing:2px; }
+  .label{position:fixed;top:6px;left:6px;font-size:12px;color:#333;}
+</style>
+</head>
+<body>
+  <div class="label" id="lbl"></div>
+  <div class="player-card">
+    <div class="turntable">
+      <div class="disc-stack"></div>
+    </div>
+    <div class="tonearm-pivot" id="arm">
+      <img class="tonearm-img" src="../images/listen/tonearm.png">
+    </div>
+  </div>
+  <div class="cover-hint">向左滑动可查看课文</div>
+<script>
+  // current values
+  let cfg = { w:188, top:-58, right:-18, rot:-28 };
+  function apply(){
+    const a=document.getElementById('arm');
+    a.style.setProperty('--w',cfg.w);
+    a.style.setProperty('--top',cfg.top);
+    a.style.setProperty('--right',cfg.right);
+    a.style.setProperty('--rot',cfg.rot+'deg');
+    document.getElementById('lbl').textContent=JSON.stringify(cfg);
+  }
+  apply();
+  window.setCfg = (o)=>{ Object.assign(cfg,o); apply(); };
+</script>
+</body>
+</html>

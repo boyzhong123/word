@@ -1,0 +1,79 @@
+<view class="calendar-page">
+  <view class="nav" style="padding-top: {{safeAreaTop}}px;">
+    <view class="nav-btn" bindtap="back">
+      <image class="nav-icon" src="../../images/icon_back.png" mode="heightFix" />
+    </view>
+    <view class="nav-actions">
+      <image class="help-icon" src="../../images/checkin/help.svg" mode="aspectFit" />
+      <image class="gift-icon" src="../../images/checkin/gift.svg" mode="aspectFit" />
+    </view>
+  </view>
+
+  <scroll-view class="calendar-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="streak-hero">
+      <view class="streak-left">
+        <view class="avatar-shell">
+          <image
+            class="avatar-image"
+            src="{{avatarSrc}}"
+            mode="aspectFill"
+          />
+        </view>
+        <view class="streak-copy">
+          <view class="streak-line">
+            <text class="streak-number">{{displayContinuousDays}}</text>
+            <text class="streak-day">天</text>
+            <image class="charge-icon" src="../../images/checkin/charge.svg" mode="aspectFit" />
+          </view>
+          <view class="streak-title">连续不断电</view>
+        </view>
+      </view>
+      <view class="bolt-wrap">
+        <image class="bolt-main" src="../../images/checkin/bolt.svg" mode="aspectFit" />
+        <view class="spark spark-a"></view>
+        <view class="spark spark-b"></view>
+      </view>
+    </view>
+
+    <view class="power-card">
+      <view class="power-copy">
+        {{todayChecked ? '今天的电力已经续上。继续学习，让你的战绩持续常亮。' : '嗨，今天的电力还没续上。花3分钟，保持你的战绩常亮。'}}
+      </view>
+      <button class="power-button" hover-class="power-button-hover" bindtap="startLearning">开始背单词</button>
+    </view>
+
+    <view class="calendar-card">
+      <view class="calendar-head">
+        <view class="calendar-title">{{yearMonth}}</view>
+        <view class="month-actions">
+          <view class="month-btn" bindtap="prevMonth">
+            <image src="../../images/checkin/chevron-left.svg" mode="aspectFit" />
+          </view>
+          <view class="month-btn" bindtap="nextMonth">
+            <image src="../../images/checkin/chevron-right.svg" mode="aspectFit" />
+          </view>
+        </view>
+      </view>
+      <view class="weekday-row">
+        <view class="weekday" wx:for="{{weekdays}}" wx:key="*this">{{item}}</view>
+      </view>
+      <view class="day-grid">
+        <view
+          class="day-cell {{item.inMonth ? '' : 'day-cell-empty'}} {{item.checked ? 'day-cell-checked' : ''}} {{item.isToday ? 'day-cell-today' : ''}} {{item.inMonth && item.day === rewardDay ? 'day-cell-reward' : ''}}"
+          wx:for="{{calendarDays}}"
+          wx:key="date"
+        >
+          <block wx:if="{{item.inMonth}}">
+            <block wx:if="{{item.day === rewardDay}}">
+              <image class="day-reward-icon" src="../../images/checkin/gift-day.svg" mode="aspectFit" />
+              <view class="day-number day-number-reward">{{item.day}}</view>
+            </block>
+            <view wx:else class="day-number">{{item.day}}</view>
+          </block>
+        </view>
+      </view>
+    </view>
+
+    <view class="scroll-spacer" style="height: {{120 + safeAreaBottom}}rpx;"></view>
+  </scroll-view>
+</view>

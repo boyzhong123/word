@@ -1,0 +1,63 @@
+<import src="../../template/templates.wxml"></import>
+<view class="container" wx:if="{{!loading}}">
+  <navigation bindback="back" backInner="{{from == 'search'}}">
+    <view class="title">
+      <text class="sub-title-1">第{{contents[current].unit.sort}}期</text>
+      <text class="sub-title-2">{{contents[current].word.sort}}</text>/{{wordTotal}}
+    </view>
+  </navigation>
+  <template is="tip" data="{{...axis['anchor-page']}}"></template>
+  <swiper indicator-dots="{{false}}" autoplay="{{false}}" circular="{{false}}" vertical="{{false}}" style="height: {{scrollHeight}}px;width: 100%;" bindchange="swiperChanged" bindtransition="touchMove" bindtouchend="touchEnd" bindanimationfinish="animationfinish" capture-catch:tap="{{marking ? 'disable': ''}}">
+    <block wx:for="{{contents}}" wx:key="item">
+      <swiper-item skip-hidden-item-layout="true" catch:touchmove="{{needVip == 1 ? 'disable':''}}">
+        <view wx:if="{{current == index}}" style="height: 100%;">
+          <view class="top-container">
+            <image class="anchor-page" src="../../images/icon_tip.png" style="width: 26rpx;height: 26rpx;margin-left: 18rpx;vertical-align: middle;padding: 10rpx;" bindtap="showTipPopup" />
+            <text style="color: #989898;font-size: 24rpx;">{{item.word.page ? 'P' + item.word.page : ''}}</text>
+            <image wx:if="{{from != 'search'}}" src="../../images/icon_route.png" style="width: 45rpx;height: 37rpx;right: 30rpx;position: absolute;top: 27rpx;" mode="aspectFit" bindtap="goRoute" />
+          </view>
+          <scroll-view scroll-y class="scroll-container" scroll-into-view="v{{item.selectedIndex}}" scroll-with-animation="true" bindscroll="onScroll" capture-catch:tap="{{needVip == 1 ? 'showVip':''}}">
+            <view class="word-container" bindtap="onItemClick" id="v0" data-index="0">
+              <wxs src='/pages/paint.wxs' module="paintHandler"></wxs>
+              <text style="margin-top: 84rpx;color: {{paintHandler.paintColor(item.word.result)}};font-size: 54rpx;font-weight: bold;line-height: 60rpx;">{{item.word.content}}</text>
+              <text style="margin-top: 24rpx;color: #989898;font-size: 32rpx;line-height: 32rpx;">[{{item.word.symbol}}]</text>
+              <text style="margin-top: 30rpx;margin-bottom:101rpx;color: #666666;font-size: 30rpx;line-height: 40rpx;">{{item.word.attribute}}{{item.word.translation}}</text>
+            </view>
+            <template is="tip" data="{{...axis['anchor-stress']}}"></template>
+            <template is="tip" data="{{...axis['anchor-tone']}}"></template>
+            <template is='bottom' data="{{showMedia:0 == item.selectedIndex,index:0,autoplay:from != 'search' && !needVip,audio:item.word.audio,refText:item.word.content,coreType:'en.word.score',score:item.word.result.score}}" />
+            <view wx:for="{{contents[index].proverb}}" wx:for-index="pIndex" wx:for-item="proverb" wx:key="proverb" class="item" id="v{{pIndex + 1}}" bindtap="onItemClick" data-index="{{pIndex + 1}}">
+              <text class="order">{{pIndex + 1}}</text>
+              <view class="text">
+                <text wx:for="{{paintHandler.splitText(proverb.label ? proverb.label:proverb.content,proverb.result.detail,item.word.exchange,item.word.content)}}" wx:for-index="tIndex" wx:for-item="text" wx:key="tIndex" class="{{text.class}}" style="{{text.style}}">{{text.value}}</text>
+                <image wx:if="{{paintHandler.containsTone(proverb.label ? proverb.label:proverb.content)}}" src="https://17ks.chivoxapp.com/proverbs/rising_tone.png" class="tone anchor-tone"></image>
+              </view>
+              <view class="translation">
+                <text>{{proverb.translation}}</text>
+                <frame-animation wx:if="{{proverb.translationAudio}}" class="audio-{{pIndex + 1}}" style="padding: 10rpx;" url="https://17ks.chivoxapp.com/proverbs/audio_gray.png" width='29' height='22' count='3' duration='0.5' catchtap="playTranslationAudio" data-index="{{pIndex + 1}}" data-src="{{proverb.translationAudio}}"></frame-animation>
+              </view>
+              <template is='bottom' data="{{showMedia:pIndex + 1 == item.selectedIndex,index:pIndex + 1,autoplay:from != 'search',audio:proverb.audio,refText:proverb.content,coreType:'en.sent.score',score:proverb.result.score}}" />
+              </view>
+            <view style="height: 84rpx;"></view>
+          
+            <!-- 各种tip -->
+            <template is="tip" data="{{...axis['anchor-record']}}"></template>
+            <template is="tip" data="{{...axis['anchor-replay']}}"></template>
+            <template is="tip" data="{{...axis['anchor-proverb']}}"></template>
+          </scroll-view>
+        </view>
+      </swiper-item>
+    </block>
+  </swiper>
+  <view wx:if="{{from != 'search'}}" style="text-align: center;font-size: 24rpx;color: #999999;padding: 30rpx 0;position: fixed;bottom: {{safeAreaBottom}}px;left: 0;right: 0;background-color: #fbfbfc;">向左滑动继续学习</view>
+</view>
+<template name="bottom">
+  <media class="media" wx:if="{{showMedia}}" _index="{{index}}" _autoplay="{{autoplay}}" _audio="{{audio}}" _refText="{{refText}}" _coreType="{{coreType}}" score="{{score == undefine ?'':score}}" bindresult="onResult" bindaudioEnd="onAudioEnd" bindmediaStateChange="onMediaStateChange" bindunauthorized="unauthorized"></media>
+  <block wx:elif="{{score != undefine}}">
+    <text class="score" wx:if="{{score >= 55}}">{{score}}</text>
+    <image class="cry" wx:else src="../../images/icon_cry.png" />
+  </block>
+</template>
+<dialog dialog="{{dialog}}"></dialog>
+<import src="../practice/practice.skeleton.wxml" />
+<template is="skeleton" wx:if="{{loading}}" />

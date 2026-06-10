@@ -1,0 +1,701 @@
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .shell {
+          width: min(100% - 20px, 1500px);
+          padding-top: 16px;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .hero-main,
+        .hero-side,
+        .section {
+          padding: 16px;
+          border-radius: 17px;
+        }
+
+        .gallery,
+        .cards,
+        .split,
+        .modal-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .extra {
+          grid-template-columns: 1fr;
+        }
+
+        .shot-image {
+          height: 205px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">C</span>
+          <span>Chivox<em>MCP</em> · 海外开发者门户</span>
+        </div>
+        <div class="date">API GAP REVIEW · 2026-06-01</div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-main">
+          <div class="eyebrow">Control Plane API Review</div>
+          <h1>海外开发者页面与后端接口对接差异看板</h1>
+          <p class="hero-copy">
+            用于和后端同事逐项确认：页面需要哪些接口、后端目前是否提供、字段是否满足，以及哪些能力可以利用后端已有接口继续补到页面中。
+          </p>
+          <div class="scope-note">
+            <strong>范围说明</strong>
+            <span>只核对国外开发者门户的控制面接口。按要求不参考 MCP Runtime、Internal 和 Admin 接口。</span>
+          </div>
+        </div>
+        <aside class="hero-side">
+          <div>
+            <div class="eyebrow">Quick Count</div>
+            <p class="side-note" style="margin-top: 12px">
+              当前主干已经存在，但不能仅按“路由有无”判断完成度。同名接口的字段、单位和业务模型也需要一起验收。
+            </p>
+          </div>
+          <div class="stats" id="stats"></div>
+        </aside>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>页面截图</h2>
+            <p class="section-desc">真实演示账号页面。点击图片可查看完整长图。</p>
+          </div>
+        </div>
+        <div class="gallery" id="gallery"></div>
+      </section>
+
+      <section class="section" id="matrix">
+        <div class="section-head">
+          <div>
+            <h2>页面需求与后端接口对应表</h2>
+            <p class="section-desc">按页面分区查看。缺失归属会明确说明由前端、后端、双方还是产品处理。</p>
+          </div>
+        </div>
+        <div class="matrix-layout">
+          <aside class="page-nav" aria-label="页面分区">
+            <div class="page-nav-title">页面分区</div>
+            <div class="page-nav-list" id="pageNav"></div>
+          </aside>
+          <div class="matrix-main">
+            <div class="toolbar">
+              <div class="toolbar-group">
+                <span class="toolbar-label">状态</span>
+                <button class="filter status-filter active" data-filter="all">全部</button>
+                <button class="filter status-filter" data-filter="ok">已满足</button>
+                <button class="filter status-filter" data-filter="partial">部分满足</button>
+                <button class="filter status-filter" data-filter="missing">缺失</button>
+                <button class="filter status-filter" data-filter="optional">可选 / 待决策</button>
+              </div>
+              <div class="toolbar-group">
+                <span class="toolbar-label">归属</span>
+                <button class="filter owner-filter active" data-owner="all">全部归属</button>
+                <button class="filter owner-filter" data-owner="backend">后端处理</button>
+                <button class="filter owner-filter" data-owner="frontend">前端处理</button>
+                <button class="filter owner-filter" data-owner="both">双方对齐</button>
+                <button class="filter owner-filter" data-owner="product">产品确认</button>
+                <button class="filter owner-filter" data-owner="none">无需补充</button>
+              </div>
+              <div class="toolbar-group">
+                <span class="toolbar-label">搜索</span>
+                <input class="search" id="search" placeholder="搜索页面、模块或接口，例如 billing / OAuth" />
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>模块</th>
+                    <th>页面 / 功能</th>
+                    <th>后端对应接口</th>
+                    <th>状态</th>
+                    <th>缺失归属</th>
+                    <th>结论</th>
+                    <th>详情</th>
+                  </tr>
+                </thead>
+                <tbody id="apiRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>当前欠缺的接口与字段</h2>
+            <p class="section-desc">下面这些内容会直接影响页面完整度或真实数据接入。</p>
+          </div>
+        </div>
+        <div class="cards" id="missingCards"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>后端已提供，页面可以继续补充</h2>
+            <p class="section-desc">后端给出的接口比当前页面更多。下面这些能力可以补成页面、抽屉或操作入口。</p>
+          </div>
+        </div>
+        <div class="split">
+          <div id="extraPages"></div>
+          <div>
+            <div class="callout">
+              <strong>建议先做的三个补充页面</strong><br />
+              邮箱验证、忘记 / 重置密码、Webhook 管理。它们都有现成后端接口，页面工作量相对可控，也能明显提高海外开发者门户的完整度。
+            </div>
+            <div class="callout" style="margin-top: 10px; border-color: rgba(124, 197, 255, 0.25); background: var(--blue-soft)">
+              <strong style="color: var(--blue)">无需新增页面的接口</strong><br />
+              <code>POST /api/billing/webhook</code> 属于 PayPal 服务端回调；<code>GET /api/billing/summary</code> 和
+              <code>GET /api/billing/balance</code> 应直接接入 Overview / Billing，不需要新页面。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>优先级建议</h2>
+            <p class="section-desc">先统一产品口径，再接主链路，最后补完整度。</p>
+          </div>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <span class="priority">P0 · 先确认</span>
+            <h3>统一海外计费模型</h3>
+            <p>确认账户共享钱包、PayPal-only、调用单价、充值最低金额、充值预设、试用包数量和金额单位。</p>
+          </article>
+          <article class="card">
+            <span class="priority">P1 · 主链路</span>
+            <h3>让 Overview / Billing / Keys / Usage 使用真实数据</h3>
+            <p>补钱包汇总、Usage 明细、交易 envelope、Keys 字段和四维 limits，并把当前本地 mock 接线替换掉。</p>
+          </article>
+          <article class="card">
+            <span class="priority">P2 · 完整度</span>
+            <h3>补项目与账号体验</h3>
+            <p>新增 Projects、头像上传、低余额阈值，并补邮箱验证、重置密码和 Webhook 页面。</p>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        数据来源：海外开发者门户源码、真实演示页面截图、后端提供的 <code>api.md</code>。本看板不包含 MCP Runtime。
+      </footer>
+    </div>
+
+    <div class="modal" id="detailModal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-head">
+          <div>
+            <span class="badge partial" id="modalBadge">部分满足</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+          </div>
+          <button class="close" data-close="detailModal" aria-label="关闭">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="lightbox" aria-hidden="true">
+      <div class="lightbox-card" role="dialog" aria-modal="true">
+        <div class="modal-head">
+          <div>
+            <div class="eyebrow">Page Preview</div>
+            <h2 class="modal-title" id="lightboxTitle"></h2>
+          </div>
+          <button class="close" data-close="lightbox" aria-label="关闭">×</button>
+        </div>
+        <img class="lightbox-img" id="lightboxImg" alt="" />
+      </div>
+    </div>
+
+    <script>
+      const statuses = {
+        ok: { label: "已满足", symbol: "✓" },
+        partial: { label: "部分满足", symbol: "!" },
+        missing: { label: "缺失", symbol: "×" },
+        optional: { label: "可选 / 待决策", symbol: "?" },
+      };
+
+      const imageSources = {
+        overview: "./images/dev-en/overview-alerts.png",
+        keys: "./images/dev-en/keys-page.png",
+        usage: "./images/dev-en/usage-page.png",
+        billing: "./images/dev-en/billing-page.png",
+        limits: "./images/dev-en/limits-page.png",
+        settings: "./images/dev-en/settings-notifications.png",
+        login: "./images/dev-en/login.png",
+      };
+
+      const shots = [
+        ["Overview", "钱包、试用包、关键指标与最近充值", imageSources.overview],
+        ["API Keys", "Key 生命周期、项目筛选与单 Key 限额", imageSources.keys],
+        ["Usage", "按项目和 Key 查看调用与消费", imageSources.usage],
+        ["Billing", "共享钱包、充值、账单与支付方式", imageSources.billing],
+        ["Limits", "账户级每日 / 每月四维限额", imageSources.limits],
+        ["Settings", "通知偏好与低余额提醒", imageSources.settings],
+        ["Login", "密码、OTP 与 OAuth 登录入口", imageSources.login],
+      ];
+
+      const detailVisuals = {
+        "Auth|邮箱 OTP 登录": {
+          src: imageSources.login,
+          note: "登录页已有 OTP 入口，但首次 OTP 注册时还缺少条款确认交互。",
+          boxes: [{ x: 18, y: 62, w: 64, h: 9, label: "OTP 登录入口 / 条款确认" }],
+        },
+        "Auth|GitHub / Google OAuth": {
+          src: imageSources.login,
+          note: "页面上的 OAuth 登录入口需要与后端统一回调地址和参数。",
+          boxes: [{ x: 18, y: 31, w: 64, h: 15, label: "OAuth 登录入口" }],
+        },
+        "Auth|注册与邮箱验证": {
+          src: imageSources.login,
+          note: "当前只有注册入口，注册完成后的邮箱验证码页面尚未补充。",
+          boxes: [{ x: 22, y: 82, w: 56, h: 7, label: "注册入口：后续缺邮箱验证页" }],
+        },
+        "Overview|共享钱包与试用包": {
+          src: imageSources.overview,
+          note: "红框区域依赖真实钱包汇总字段。截图中的金额目前仍来自演示数据。",
+          boxes: [
+            { x: 4, y: 15, w: 42, h: 17, label: "钱包余额 / 累计充值" },
+            { x: 49, y: 15, w: 46, h: 17, label: "试用剩余次数 / 有效期" },
+            { x: 4, y: 34, w: 91, h: 16, label: "月度消费与调用汇总" },
+          ],
+        },
+        "Projects|项目列表、创建项目、Key 归属项目": {
+          src: imageSources.keys,
+          note: "项目接口缺失会影响 Key 列表中的项目归属，以及 Usage / Billing 的项目筛选。",
+          boxes: [{ x: 3, y: 13, w: 94, h: 18, label: "项目筛选与 Key 归属" }],
+        },
+        "API Keys|Key 生命周期": {
+          src: imageSources.keys,
+          note: "列表需要补项目、环境、最近使用时间和限额字段。",
+          boxes: [{ x: 3, y: 23, w: 94, h: 49, label: "Key 列表字段" }],
+        },
+        "Usage|调用图表、按项目 / Key 筛选、CSV": {
+          src: imageSources.usage,
+          note: "筛选器、汇总卡片和图表都依赖 key_id、project_id、cost_cents 等明细字段。",
+          boxes: [
+            { x: 3, y: 12, w: 94, h: 15, label: "项目 / Key 筛选" },
+            { x: 3, y: 29, w: 94, h: 24, label: "调用、消费与 savings 图表" },
+          ],
+        },
+        "Billing|PayPal 钱包充值": {
+          src: imageSources.billing,
+          note: "充值按钮和钱包到账需要接入 PayPal order / capture，而不是继续使用本地模拟。",
+          boxes: [{ x: 3, y: 11, w: 94, h: 18, label: "钱包余额与充值入口" }],
+        },
+        "Billing|定价与充值档位": {
+          src: imageSources.billing,
+          note: "调用单价、最低金额和充值预设需要先统一产品口径。",
+          boxes: [{ x: 3, y: 28, w: 94, h: 23, label: "调用单价与充值预设" }],
+        },
+        "Billing|交易历史与发票": {
+          src: imageSources.billing,
+          note: "交易列表展示依赖统一的返回结构和补充字段。",
+          boxes: [{ x: 3, y: 53, w: 94, h: 28, label: "交易历史与发票" }],
+        },
+        "Billing|保存卡管理": {
+          src: imageSources.billing,
+          note: "PayPal-only 模式下建议移除保存卡区域，不要求后端补接口。",
+          boxes: [{ x: 3, y: 81, w: 94, h: 15, label: "保存卡区域：建议隐藏" }],
+        },
+        "Limits|账户级四维限额": {
+          src: imageSources.limits,
+          note: "每日 / 每月、金额 / 次数四个输入项都需要后端持久化。",
+          boxes: [{ x: 3, y: 18, w: 94, h: 63, label: "账户级四维上限" }],
+        },
+        "Limits|单 Key 四维限额": {
+          src: imageSources.keys,
+          note: "Key Settings 弹窗中的四维上限需要由 PATCH /api/keys/:id/settings 持久化。",
+          boxes: [{ x: 3, y: 23, w: 94, h: 49, label: "单 Key 设置入口与限额" }],
+        },
+        "Settings|账户低余额提醒": {
+          src: imageSources.settings,
+          note: "开关与阈值输入项已经存在，但阈值目前只保存在浏览器本地。",
+          boxes: [{ x: 3, y: 55, w: 94, h: 26, label: "低余额提醒开关与阈值" }],
+        },
+      };
+
+      const rows = [
+        {
+          module: "Auth",
+          page: "邮箱 + 密码登录",
+          endpoints: ["POST /api/auth/login"],
+          status: "ok",
+          owner: "无需补充",
+          summary: "请求和返回结构可直接支撑当前页面。",
+        },
+        {
+          module: "Auth",
+          page: "邮箱 OTP 登录",
+          endpoints: ["POST /api/auth/otp/send", "POST /api/auth/otp/verify"],
+          status: "partial",
+          owner: "前端需补交互",
+          summary: "主流程可用，首次 OTP 注册的条款确认还需对齐。",
+          issue: "后端在新用户 OTP 注册场景支持 terms_accepted；当前登录页校验 OTP 时没有让用户明确同意条款。",
+          current: "页面已经支持验证码发送与 6 位码校验，但条款确认只存在于密码注册页。",
+          action: "确认 OTP 是否允许创建新账号。若允许，首次 OTP 用户需增加条款勾选，并传 terms_accepted=true。",
+          fields: "channel=email、identifier、code、terms_accepted",
+        },
+        {
+          module: "Auth",
+          page: "GitHub / Google OAuth",
+          endpoints: ["GET /api/auth/oauth/:provider/start", "GET /api/auth/oauth/:provider/callback"],
+          status: "partial",
+          owner: "双方需对齐",
+          summary: "接口已给出，但回调契约目前无法直接联通。",
+          issue: "前端发起时传 redirect，后端文档要求 state；前端监听 /auth/callback?token=，后端文档回跳 /oauth/callback#token=。",
+          current: "当前页面展示 GitHub 和 Google 两个入口，Microsoft 后端支持但页面未展示。",
+          action: "统一 callback pathname、token 传递方式、state 校验和 is_new_user 标记。建议最终使用一次性 code 换 token。",
+          fields: "state、redirect、token、role、is_new_user",
+        },
+        {
+          module: "Auth",
+          page: "注册与邮箱验证",
+          endpoints: ["POST /api/auth/register", "POST /api/auth/verify-email", "POST /api/auth/resend-verification"],
+          status: "partial",
+          owner: "前端需补页面",
+          summary: "后端验证链路完整，前端少了验证中间页。",
+          issue: "后端注册后发送邮箱验证码，未验证用户登录会返回 EMAIL_NOT_VERIFIED；当前前端注册完成后立刻调用登录。",
+          current: "页面有注册表单和条款勾选，但没有输入邮箱验证码与重发入口。",
+          action: "增加邮箱验证页面：注册成功后进入验证码页，验证成功后保存 token 并进入 Overview。",
+          fields: "email、code、EMAIL_NOT_VERIFIED、EMAIL_ALREADY_VERIFIED",
+        },
+        {
+          module: "Auth",
+          page: "个人资料",
+          endpoints: ["GET /api/auth/me", "PATCH /api/auth/me", "POST /api/auth/logout"],
+          status: "ok",
+          owner: "无需补充",
+          summary: "姓名、邮箱、头像 URL 和登出均可支撑当前页面。",
+        },
+        {
+          module: "Overview",
+          page: "共享钱包与试用包",
+          endpoints: ["GET /api/billing/balance", "GET /api/billing/summary", "GET /api/usage/account-summary"],
+          status: "partial",
+          owner: "双方需补充",
+          summary: "接口方向正确，但钱包字段未完全满足，前端也还没读取并展示真实数据。",
+          issue: "页面展示钱包余额、累计消费、累计充值、试用剩余次数和有效期。后端已有 balance / summary，但缺少部分累计字段。",
+          current: "Overview 当前仍由 mock store 提供钱包数据，真实后端数据尚未写入页面缓存。",
+          action: "建议把 /api/billing/summary 作为统一入口，补 paid_credits_cents、paid_credits_used_cents，并在登录后请求真实数据。",
+          fields: "balance_mills、trial_calls_remaining、trial_expires_at、paid_credits_cents、paid_credits_used_cents",
+        },
+        {
+          module: "Projects",
+          page: "项目列表、创建项目、Key 归属项目",
+          endpoints: ["建议新增 GET /api/projects", "建议新增 POST /api/projects", "扩展 GET/POST /api/keys"],
+          status: "missing",
+          owner: "后端需补接口",
+          summary: "Keys、Usage、Billing 三个页面都会受影响。",
+          issue: "页面大量使用项目筛选和项目聚合，但后端文档没有 Projects API，Key 也没有 project_id。",
+          current: "前端只能生成 Default project，项目筛选无法反映真实数据。",
+          action: "新增项目列表与创建接口；Key 列表返回 project_id；创建 Key 时接收 project_id。",
+          fields: "Project.id、name、slug、created_at；ApiKey.project_id",
+        },
+        {
+          module: "API Keys",
+          page: "Key 生命周期",
+          endpoints: ["GET /api/keys", "POST /api/keys", "PATCH /api/keys/:id", "POST /api/keys/:id/rotate", "POST /api/keys/:id/pause|resume|revoke", "DELETE /api/keys/:id"],
+          status: "partial",
+          owner: "后端需补字段",
+          summary: "生命周期接口较完整，列表字段仍需增强。",
+          issue: "页面还需要项目、环境、最后使用时间和完整限额字段。Starter Key 自动下发时机也需由后端明确保证。",
+          current: "创建、重命名、轮换、暂停、恢复、撤销和删除已经有对应接口。",
+          action: "扩展 ApiKey 字段；确认 Starter Key 在注册或首次登录时只创建一次。",
+          fields: "project_id、env、last_used_at、is_starter、status、enabled",
+        },
+        {
+          module: "Usage",
+          page: "调用图表、按项目 / Key 筛选、CSV",
+          endpoints: ["GET /api/usage/points", "GET /api/usage/account-summary", "GET /api/usage/export.csv"],
+          status: "partial",
+          owner: "后端需补字段",
+          summary: "路由存在，字段文档不足以支撑页面。",
+          issue: "当前真实数据映射会把后端 usage 降级成单一虚拟 Key，且 cost / savings 固定为 0。",
+          current: "页面要按 project 和 key 切片，并展示 calls、cost 和 savings。",
+          action: "points 至少返回 date/time、key_id、calls、cost_cents、savings_cents；新增 projectId 筛选；明确 CSV 列。",
+          fields: "date/time、key_id、project_id、calls、cost_cents、savings_cents",
+        },
+        {
+          module: "Billing",
+          page: "PayPal 钱包充值",
+          endpoints: ["POST /api/billing/topups/order", "POST /api/billing/topups/:id/capture", "POST /api/billing/webhook"],
+          status: "partial",
+          owner: "前端需接入",
+          summary: "后端方向与当前 PayPal-only 页面一致，前端仍是本地模拟。",
+          issue: "当前充值弹窗会直接在浏览器本地给钱包加余额，没有调用 PayPal 下单和 capture。",
+          current: "页面采用账户共享钱包，不再按 Key 单独充值。",
+          action: "接入 order / capture。Capture 成功后原子写钱包、交易记录和回执邮件，并刷新 summary / transactions。",
+          fields: "amount_cents、paypal_order_id、transaction_id、credited_cents",
+        },
+        {
+          module: "Billing",
+          page: "定价与充值档位",
+          endpoints: ["GET /api/billing/pricing"],
+          status: "partial",
+          owner: "产品先确认",
+          summary: "路由存在，但产品参数不一致。",
+          issue: "页面规则为 $1 / 1K calls、最低充值 $20、$20/$50/$100/$300/$500/$1000 预设；后端示例是另一套价格和预设。",
+          current: "页面已经在 Billing Rates 和充值弹窗中展示固定单价和充值预设。",
+          action: "产品先确认正式口径，再统一后端 pricing 返回和前端展示。",
+          fields: "unit_price、min_topup_cents、topup_presets、trial_calls、trial_days",
+        },
+        {
+          module: "Billing",
+          page: "交易历史与发票",
+          endpoints: ["GET /api/billing/transactions", "GET /api/billing/transactions/:id", "GET /api/billing/invoices/:number"],
+          status: "partial",
+          owner: "双方需对齐",
+          summary: "发票接口可用，交易列表 envelope 必须统一。",
+          issue: "后端返回 { items }，当前前端 client 读取 { transactions }，会导致交易列表读取不到真实数据。",
+          current: "页面需要搜索发票号、支付方式、金额、状态和日期。",
+          action: "统一 envelope；建议交易补 credited_cents，便于解释充值到账金额。",
+          fields: "items / transactions、description、invoice_number、credited_cents",
+        },
+        {
+          module: "Limits",
+          page: "账户级四维限额",
+          endpoints: ["GET/PUT /api/billing/spend-limit", "GET/PUT /api/billing/daily-limit"],
+          status: "partial",
+          owner: "后端需补接口",
+          summary: "后端仅覆盖部分维度，单位也不统一。",
+          issue: "页面需要每日 / 每月、金额 / 次数四维上限；后端现有接口只能覆盖月度消费和每日调用。",
+          current: "Limits 页面已经提供四个独立输入项。",
+          action: "建议统一成 GET/PUT /api/billing/limits；控制面金额对外统一使用整数 cents。",
+          fields: "monthly_spend_cap_cents、monthly_call_cap、daily_spend_cap_cents、daily_call_cap、warn_at_percents",
+        },
+        {
+          module: "Limits",
+          page: "单 Key 四维限额",
+          endpoints: ["PATCH /api/keys/:id/settings"],
+          status: "partial",
+          owner: "后端需补字段",
+          summary: "路由存在，但 body 文档仍是空对象。",
+          issue: "页面需要单 Key 的每日 / 每月、金额 / 次数上限；当前桥接层只可能转发月度金额上限。",
+          current: "Key Settings 弹窗已经有四个输入项。",
+          action: "明确 settings 请求体并持久化四个 cap 字段；列表接口也应返回当前值。",
+          fields: "monthly_spend_cap_cents、monthly_call_cap、daily_spend_cap_cents、daily_call_cap",
+        },
+        {
+          module: "Settings",
+          page: "邮件通知偏好",
+          endpoints: ["GET /api/notifications/settings", "PATCH /api/notifications/settings"],
+          status: "ok",
+          owner: "无需补充",
+          summary: "7 个通知字段与当前页面基本一致。",
+        },
+        {
+          module: "Settings",
+          page: "账户低余额提醒",
+          endpoints: ["建议扩展 GET/PATCH /api/notifications/settings"],
+          status: "missing",
+          owner: "后端需补字段",
+          summary: "只有邮件总开关，没有阈值保存字段。",
+          issue: "页面允许设置账户级低余额提醒开关和美元阈值。",
+          current: "阈值目前只写浏览器本地数据。",
+          action: "通知设置增加 low_balance_alert_enabled 和 low_balance_threshold_cents。",
+          fields: "low_balance_alert_enabled、low_balance_threshold_cents",
+        },
+        {
+          module: "Profile",
+          page: "头像上传",
+          endpoints: ["建议新增 POST /api/upload/avatar"],
+          status: "missing",
+          owner: "后端需补接口",
+          summary: "页面已调用上传接口，后端文档未提供。",
+          issue: "个人资料页允许上传 PNG / JPG，最大 2 MB，并期待返回 CDN URL。",
+          current: "页面直接 fetch /api/upload/avatar。",
+          action: "新增 multipart/form-data 上传接口，返回 { url }；再通过 PATCH /api/auth/me 保存 avatar_url。",
+          fields: "file、url、avatar_url",
+        },
+        {
+          module: "Webhooks",
+          page: "开发者 Webhook 管理",
+          endpoints: ["GET /api/webhooks/endpoints", "POST /api/webhooks/endpoints", "DELETE /api/webhooks/endpoints/:id", "POST /api/webhooks/endpoints/:id/test"],
+          status: "optional",
+          owner: "前端可补页面",
+          summary: "后端已经提供，当前控制台还没有管理页面。",
+          issue: "API client 已经存在，但控制台没有展示入口。后端示例里的 enabled_events 看起来像 JSON 字符串。",
+          current: "可以作为 Settings 下的新页面或区块。",
+          action: "补 Webhook 管理页；后端建议直接返回 enabled_events: string[]。",
+          fields: "id、url、secret、enabled_events: string[]、created_at",
+        },
+        {
+          module: "Billing",
+          page: "保存卡管理",
+          endpoints: ["当前后端无保存卡接口"],
+          status: "optional",
+          owner: "产品待决策",
+          summary: "PayPal-only 时建议隐藏这块 UI，不一定补接口。",
+          issue: "页面仍保留保存卡列表、设默认卡和删除卡的演示能力，但当前海外充值已收口为 PayPal。",
+          current: "全部保存卡操作仍是本地模拟。",
+          action: "近期只做 PayPal：删除或隐藏保存卡 UI。未来恢复 Stripe：再补 payment-methods API。",
+          fields: "取决于是否保留 Stripe",
+        },
+      ];
+
+      const pageSections = [
+        ["all", "全部页面"],
+        ["Auth", "登录与账号"],
+        ["Overview", "概览"],
+        ["Projects", "项目"],
+        ["API Keys", "API 密钥"],
+        ["Usage", "用量"],
+        ["Billing", "账单"],
+        ["Limits", "上限"],
+        ["Settings", "设置"],
+        ["Profile", "个人资料"],
+        ["Webhooks", "Webhooks"],
+      ];
+
+      const missing = [
+        {
+          title: "Projects API",
+          priority: "P1",
+          desc: "项目筛选会影响 Keys、Usage 和 Billing，建议优先补。",
+          chips: ["GET /api/projects", "POST /api/projects", "ApiKey.project_id"],
+        },
+        {
+          title: "钱包汇总字段",
+          priority: "P1",
+          desc: "Overview 和 Billing 需要真实钱包、累计使用和累计充值。",
+          chips: ["paid_credits_cents", "paid_credits_used_cents"],
+        },
+        {
+          title: "Usage 明细字段",
+          priority: "P1",
+          desc: "缺少 Key、消费和 savings 后，图表无法按页面设计展示。",
+          chips: ["key_id", "project_id", "cost_cents", "savings_cents"],
+        },
+        {
+          title: "账户级与 Key 级四维 Limits",
+          priority: "P1",
+          desc: "页面已经支持每日 / 每月、金额 / 次数四个轴，需要后端完整持久化。",
+          chips: ["monthly_spend_cap_cents", "monthly_call_cap", "daily_spend_cap_cents", "daily_call_cap"],
+        },
+        {
+          title: "头像上传与低余额阈值",
+          priority: "P2",
+          desc: "两个页面入口已经存在，但后端文档没有持久化能力。",
+          chips: ["POST /api/upload/avatar", "low_balance_alert_enabled", "low_balance_threshold_cents"],
+        },
+      ];
+
+      const extras = [
+        {
+          title: "邮箱验证页",
+          endpoints: ["POST /api/auth/verify-email", "POST /api/auth/resend-verification"],
+          action: "注册成功后跳转到验证码页，支持重发。后端接口已经齐全。",
+        },
+        {
+          title: "忘记密码 / 重置密码",
+          endpoints: ["POST /api/auth/forgot-password", "POST /api/auth/reset-password"],
+          action: "登录页增加 Forgot password 链接，再做验证码 + 新密码页面。",
+        },
+        {
+          title: "修改密码",
+          endpoints: ["POST /api/auth/change-password"],
+          action: "在 Profile 下增加 Security 区块或单独页面。",
+        },
+        {
+          title: "Webhook 管理",
+          endpoints: ["GET/POST/DELETE /api/webhooks/endpoints*", "POST /api/webhooks/endpoints/:id/test"],
+          action: "在 Settings 下增加 Webhooks 标签页，支持创建、测试和删除。",
+        },
+        {
+          title: "交易详情抽屉",
+          endpoints: ["GET /api/billing/transactions/:id"],
+          action: "在充值历史列表点击一行打开详情，不必新增独立路由。",
+        },
+        {
+          title: "Microsoft OAuth",
+          endpoints: ["GET /api/auth/oauth/microsoft/start"],
+          action: "后端 provider 已支持 microsoft；如果要覆盖企业客户，可在登录页增加按钮。",
+        },
+      ];
+
+      function endpointHtml(items) {
+        return items.map((item) => `<code class="endpoint">${escapeHtml(item)}</code>`).join("");
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function renderStats() {
+        const order = ["ok", "partial", "missing", "optional"];
+        document.querySelector("#stats").innerHTML = order
+          .map((status) => {
+            const count = rows.filter((row) => row.status === status).length;
+            return `<div class="stat"><div class="stat-value">${count}</div><div class="stat-label">${statuses[status].label}</div></div>`;
+          })
+          .join("");
+      }
+
+      function renderGallery() {
+        document.querySelector("#gallery").innerHTML = shots
+          .map(
+            ([title, desc, src]) => `
+              <button class="shot" data-shot="${escapeHtml(src)}" data-title="${escapeHtml(title)} · ${escapeHtml(desc)}">
+                <img class="shot-image" src="${escapeHtml(src)}" alt="${escapeHtml(title)} 页面截图" />
+                <span class="shot-label"><span>${escapeHtml(title)}</span><span>查看长图 ↗</span></span>
+              </button>`,
+          )
+          .join("");
+      }
+
+      function renderPageNav() {
+        document.querySelector("#pageNav").innerHTML = pageSections
+          .map(([module, label]) => {
+            const count = module === "all" ? rows.length : rows.filter((row) => row.module === module).length;
+            return `
+              <button class="page-nav-btn${module === activeModule ? " active" : ""}" data-module="${escapeHtml(module)}">
+                <span>${escapeHtml(label)}</span>
+                <span class="page-nav-count">${count}</span>
+              </button>`;
+          })
+          .join("");
+      }
+
+      function ownerGroup(owner) {
+        if (owner.startsWith("后端")) return "backend";
+        if (owner.startsWith("前端")) return "frontend";
+        if (owner.startsWith("双方")) return "both";
+        if (owner.startsWith("产品")) return "product";
+        return "none";
+      }
+
+      function renderRows(filter = "all", query = "", module = "all", owner = "all") {
+        const normalized = query.trim().toLowerCase();
+        const visible = rows.filter((row) => {
+          const statusMatch = filter === "all" || row.status === filter;
+          const moduleMatch = module === "all" || row.module === module;
+          const ownerMatch = owner === "all" || ownerGroup(row.owner) === owner;
+          const text = [row.module, row.page, row.summary, ...row.endpoints].join(" ").toLowerCase();
+          return statusMatch && moduleMatch && ownerMatch && (!normalized || text.includes(normalized));
+        });
+        document.querySelector("#apiRows").innerHTML = visible

@@ -1,0 +1,303 @@
+<view class="listen-page {{pageAnimState}} {{quizMode ? 'listen-quiz-shell' : ''}}">
+  <!-- 小测：对齐新词学习页自定义导航 -->
+  <block wx:if="{{quizMode}}">
+    <view class="listen-quiz-nav">
+      <navigation bindback="close" backInner="{{false}}" background="transparent" backIcon="icon_back_deep.svg">
+        <view class="listen-nav-title-wrap">
+          <view class="listen-nav-title">{{unitName}}</view>
+        </view>
+      </navigation>
+      <view wx:if="{{quizQuestion && !quizAllDone}}" class="listen-quiz-top-progress">
+        <view class="listen-quiz-top-progress-fill" style="width: {{quizProgressPercent}}%;"></view>
+      </view>
+    </view>
+  </block>
+  <!-- 随身听：关闭按钮 -->
+  <block wx:else>
+    <view class="listen-nav" style="padding-top: {{statusBarHeight}}px;">
+      <view class="listen-nav-bar" style="height: {{navBarHeight}}px;">
+        <view class="listen-nav-back" bindtap="close">
+          <image class="nav-action-icon" src="/images/icon_close_deep.svg" mode="heightFix" />
+        </view>
+        <view class="listen-nav-title">{{unitName}}</view>
+      </view>
+    </view>
+
+    <!-- 页码指示：封面 / 课文 两页 -->
+    <view wx:if="{{!loading}}" class="page-dots">
+      <view class="page-dot {{currentPage == 0 ? 'page-dot-active' : ''}}"></view>
+      <view class="page-dot {{currentPage == 1 ? 'page-dot-active' : ''}}"></view>
+    </view>
+  </block>
+
+  <block wx:if="{{!loading && quizMode}}">
+    <view class="quiz-page" style="padding-bottom: {{safeAreaBottom + 16}}px;">
+      <view wx:if="{{quizQuestion && !quizAllDone}}" class="quiz-step-row">
+        <view class="quiz-step {{quizPhase === 'fill' ? 'quiz-step-active' : 'quiz-step-done'}}">
+          <text class="quiz-step-no">1</text>
+          <text class="quiz-step-label">听音填空</text>
+        </view>
+        <view class="quiz-step-line"></view>
+        <view class="quiz-step {{quizPhase === 'recite' ? 'quiz-step-active' : ''}}">
+          <text class="quiz-step-no">2</text>
+          <text class="quiz-step-label">背诵评测</text>
+        </view>
+      </view>
+
+      <view wx:if="{{quizAllDone}}" class="quiz-done-panel">
+        <view class="quiz-done-card">
+          <view class="quiz-done-title">关卡小测完成</view>
+          <view class="quiz-done-copy">听音填空和背诵评测都做完啦，可以生成报告看看表现。</view>
+        </view>
+        <view class="quiz-report-btn" bindtap="openQuizReport">生成听力报告</view>
+      </view>
+
+      <block wx:elif="{{quizQuestion}}">
+        <view class="quiz-head">
+          <view class="quiz-tip" wx:if="{{quizPhase === 'fill'}}">听音频，把缺的单词填进去</view>
+          <view class="quiz-tip" wx:else>看着中文默念，然后开口背诵</view>
+        </view>
+
+        <view class="quiz-card {{quizPhase === 'recite' ? 'quiz-card-recite' : ''}}">
+          <view wx:if="{{quizPhase === 'recite' && quizReciteScore}}" class="quiz-score-badge">
+            <text class="quiz-score-badge-text">{{quizReciteScore}}分</text>
+          </view>
+
+          <block wx:if="{{quizPhase === 'fill'}}">
+            <view class="quiz-guide">点击下方单词填空，点已填词可撤销</view>
+            <view class="quiz-sentence">
+              <block wx:for="{{quizQuestion.parts}}" wx:key="index">
+                <text wx:if="{{item.type === 'text'}}">{{item.text}}</text>
+                <text
+                  wx:else
+                  class="quiz-blank quiz-blank-{{item.status}}"
+                  data-gap-index="{{item.gapIndex}}"
+                  bindtap="onQuizBlankTap"
+                >{{item.value || ' '}}</text>
+              </block>
+            </view>
+            <view wx:if="{{quizQuestion.translation}}" class="quiz-translation">{{quizQuestion.translation}}</view>
+            <view wx:if="{{quizResultText}}" class="quiz-result">{{quizResultText}}</view>
+          </block>
+
+          <block wx:else>
+            <view class="quiz-guide">先看着中文默念几遍，准备好了再录音</view>
+            <view class="quiz-recite-sentence">
+              <block wx:for="{{quizReciteParts}}" wx:key="index">
+                <text wx:if="{{item.type === 'text'}}">{{item.text}}</text>
+                <text wx:else class="quiz-recite-blank" style="min-width: {{item.width * 18}}rpx;"> </text>
+              </block>
+            </view>
+            <view wx:if="{{quizQuestion.translation}}" class="quiz-translation quiz-translation-recite">{{quizQuestion.translation}}</view>
+          </block>
+        </view>
+
+        <view wx:if="{{quizPhase === 'recite'}}" class="quiz-recite-panel listen-full-bleed">
+          <media
+            class="quiz-recite-media"
+            _index="{{quizIndex}}"
+            _autoplay="{{false}}"
+            _audio="{{quizQuestion.audio}}"
+            _refText="{{quizQuestion.sentence}}"
+            _coreType="en.sent.score"
+            score="{{quizReciteScore}}"
+            bindresult="onQuizReciteResult"
+            bindmediaStateChange="onQuizReciteStateChange"
+            bindunauthorized="onQuizReciteUnauthorized"
+          ></media>
+          <text wx:if="{{quizMarking}}" class="quiz-recite-status">录音中，点击波纹结束</text>
+        </view>
+
+        <view wx:if="{{quizPhase === 'fill'}}" class="quiz-options">
+          <view
+            wx:for="{{quizQuestion.options}}"
+            wx:key="index"
+            class="quiz-option {{item.used ? 'quiz-option-used' : ''}}"
+            data-index="{{index}}"
+            bindtap="onQuizOptionTap"
+          >
+            {{item.text}}
+          </view>
+          <view
+            wx:if="{{quizHasAnswers && !quizChecked}}"
+            class="quiz-option quiz-option-clear"
+            bindtap="onQuizClearAll"
+          >清空</view>
+        </view>
+
+        <view class="quiz-audio-hint" bindtap="replayQuizAudio">
+          <image class="quiz-hint-bulb {{quizAudioPlaying ? 'quiz-hint-bulb-playing' : ''}}" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+          <text class="quiz-hint-label">提示一下</text>
+        </view>
+      </block>
+
+      <view wx:else class="quiz-card quiz-empty">
+        <view class="quiz-empty-title">本期暂无可测试例句</view>
+        <view class="quiz-tip">可以先切换到其他关卡练习</view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{!loading}}">
+  <!-- 主体：封面 / 课文 双页 -->
+  <swiper class="stage" current="{{currentPage}}" bindchange="onSwiperChange" indicator-dots="{{false}}" duration="280">
+    <!-- 第一页：封面 -->
+    <swiper-item>
+      <view class="cover-page">
+        <view class="player-card">
+          <view class="turntable">
+            <view class="disc-well">
+              <view class="disc-stack {{playing ? 'spinning' : ''}}">
+                <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" />
+                <image class="disc-texture" src="/images/listen/disc-texture-overlay.png" mode="aspectFill" />
+                <view class="disc-label-ring"></view>
+                <view class="disc-sheen"></view>
+              </view>
+            </view>
+          </view>
+          <view class="tonearm-pivot {{playing ? 'tonearm-on' : ''}}">
+            <image class="tonearm-img" src="/images/listen/tonearm.png" mode="widthFix" />
+          </view>
+        </view>
+        <view class="cover-hint">向左滑动可查看课文</view>
+      </view>
+    </swiper-item>
+
+    <!-- 第二页：课文（单词列表） -->
+    <swiper-item>
+      <scroll-view class="lyrics" scroll-y scroll-into-view="{{scrollIntoId}}" scroll-top="{{lyricsScrollTop}}" scroll-with-animation bindscroll="onLyricsScroll">
+        <view class="lyrics-pad"></view>
+        <view
+          wx:for="{{tracks}}"
+          wx:key="index"
+          id="track-{{index}}"
+          class="lyric-item lyric-{{item.type}} {{index == current ? 'lyric-active' : ''}} {{expandedIndex == index ? 'lyric-expanded' : ''}}"
+          data-index="{{index}}"
+          bindtap="onTrackTap"
+        >
+          <view class="lyric-en">{{item.content}}</view>
+          <view wx:if="{{item.translation}}" class="lyric-cn">{{item.translation}}</view>
+
+          <!-- 跟读测评：点击句子直接展开（样式对齐小测卡片） -->
+          <view wx:if="{{expandedIndex == index}}" class="follow-panel" catchtap="noop">
+            <view class="follow-card">
+              <view class="follow-recite-panel">
+                <media
+                  class="follow-media"
+                  _index="{{index}}"
+                  _autoplay="{{true}}"
+                  _audio="{{item.audio}}"
+                  _refText="{{item.content}}"
+                  _coreType="{{item.type == 'word' ? 'en.word.score' : 'en.sent.score'}}"
+                  score="{{trackScores[index] ? trackScores[index] : ''}}"
+                  bindresult="onMediaResult"
+                  bindmediaStateChange="onMediaStateChange"
+                  bindunauthorized="onMediaUnauthorized"
+                ></media>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="lyrics-pad"></view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 底部控制区 -->
+  <view class="controls" style="padding-bottom: {{safeAreaBottom + 16}}px;">
+    <!-- 整期进度条（覆盖本期所有单词+例句） -->
+    <view class="seek-row">
+      <view
+        class="seek"
+        catchtouchstart="onSeekStart"
+        catchtouchmove="onSeekMove"
+        catchtouchend="onSeekEnd"
+      >
+        <view class="seek-track">
+          <view class="seek-fill" style="width: {{progress}}%;"></view>
+        </view>
+        <image
+          class="seek-thumb"
+          src="../../images/listen/seek-thumb-mascot.png"
+          mode="aspectFit"
+          style="left: {{progress}}%;"
+        />
+      </view>
+      <view class="speed-badge" bindtap="toggleSpeed">{{speedLabel}}</view>
+    </view>
+    <view class="time-row">
+      <text>{{current + 1}} / {{tracks.length}}</text>
+      <text>{{currentTime}}</text>
+    </view>
+
+    <!-- 控制按钮 -->
+    <view class="buttons">
+      <view class="ctrl ctrl-loop" bindtap="toggleLoop">
+        <image class="loop-icon" src="/images/listen/loop.svg" mode="aspectFit" />
+        <view class="loop-label">{{loopLabel}}</view>
+      </view>
+
+      <view class="ctrl" bindtap="playPrev">
+        <image class="ctrl-icon" src="/images/listen/prev.svg" mode="aspectFit" />
+      </view>
+
+      <view class="ctrl ctrl-play" bindtap="togglePlay">
+        <image class="play-icon" src="{{playing ? '/images/listen/pause.svg' : '/images/listen/play.svg'}}" mode="aspectFit" />
+      </view>
+
+      <view class="ctrl" bindtap="playNext">
+        <image class="ctrl-icon" src="/images/listen/next.svg" mode="aspectFit" />
+      </view>
+
+      <view class="ctrl" bindtap="openPlaylist">
+        <image class="ctrl-icon" src="/images/listen/list.svg" mode="aspectFit" />
+      </view>
+    </view>
+  </view>
+  </block>
+
+  <!-- 期切换面板 -->
+  <view class="sheet-mask {{showPlaylist ? 'sheet-show' : ''}}" bindtap="closePlaylist">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-head">
+        <text class="sheet-title">选择期数</text>
+        <text class="sheet-count">共 {{units.length}} 期</text>
+      </view>
+      <scroll-view class="sheet-list" scroll-y>
+        <view
+          wx:for="{{units}}"
+          wx:key="unitId"
+          class="sheet-item {{index == unitIndex ? 'sheet-item-active' : ''}}"
+          data-index="{{index}}"
+          bindtap="onUnitTap"
+        >
+          <view class="sheet-item-main">
+            <text class="sheet-item-name">{{item.unitName || ('第' + (item.sort || index + 1) + '期')}}</text>
+            <text wx:if="{{item.wordTotal}}" class="sheet-item-sub">{{item.wordTotal}} 词</text>
+          </view>
+          <view wx:if="{{item.needVip}}" class="sheet-vip">会员</view>
+          <view wx:elif="{{index == unitIndex}}" class="sheet-playing">播放中</view>
+        </view>
+      </scroll-view>
+      <view class="sheet-close" bindtap="closePlaylist">关闭</view>
+    </view>
+  </view>
+
+  <!-- 加载态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-panel">
+      <view class="loading-mascot-wrap">
+        <frame-animation
+          url="../../images/listen/loading-mascot-sprite.png"
+          count="10"
+          width="168"
+          height="168"
+          duration="2.5"
+          state="running"
+        />
+      </view>
+      <view class="loading-title">{{quizMode ? '正在准备关卡小测' : '正在准备随身听'}}</view>
+      <view class="loading-sub">{{quizMode ? '随机生成填空中' : '马上开始播放'}}</view>
+    </view>
+  </view>
+</view>

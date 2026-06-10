@@ -1,0 +1,12 @@
+module.exports = {
+  onTap: function (event, instance) {
+    event.instance.setStyle({
+      "display": "none"
+    })
+    instance.callMethod('hideTip', event.currentTarget.dataset.type)
+    return false
+  },
+  visible: function (media_state) {
+    return media_state == 2 || media_state == 4 ? 'hidden' : 'visible'
+  }
+}

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1334" viewBox="0 0 750 1334">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#6a7c72" flood-opacity="0.18"/>
+    </filter>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ecfff4"/>
+      <stop offset="1" stop-color="#fff8e8"/>
+    </linearGradient>
+    <linearGradient id="sign" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8c76a"/>
+      <stop offset="1" stop-color="#d99031"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#41dda2"/>
+      <stop offset="1" stop-color="#16bd78"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6ed8ff"/>
+      <stop offset="1" stop-color="#2f91f4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="750" height="1334" fill="url(#bg)"/>
+  <circle cx="95" cy="250" r="42" fill="#a8e9c4" opacity="0.35"/>
+  <circle cx="646" cy="386" r="58" fill="#bfead1" opacity="0.35"/>
+  <circle cx="96" cy="1068" r="80" fill="#c4edb5" opacity="0.28"/>
+  <circle cx="640" cy="1080" r="84" fill="#c5e8ff" opacity="0.26"/>
+
+  <rect x="54" y="38" width="642" height="172" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="84" y="67" width="108" height="132" rx="14" fill="#d7c0ea"/>
+  <text x="223" y="93" font-size="28" font-weight="700" fill="#151515">小学英语图解词汇词典</text>
+  <text x="223" y="132" font-size="24" fill="#1d51c9">单词进度：138 / 1918</text>
+  <rect x="223" y="154" width="386" height="12" rx="6" fill="#eeeeee"/>
+  <rect x="223" y="154" width="66" height="12" rx="6" fill="#176cf0"/>
+
+  <text x="76" y="275" font-size="32" font-weight="800" fill="#161616">🎯 本书学习路径</text>
+  <rect x="531" y="239" width="146" height="48" rx="24" fill="#ffad17" filter="url(#shadow)"/>
+  <text x="560" y="271" font-size="22" font-weight="700" fill="#ffffff">学习计划</text>
+
+  <path d="M375 340 C365 420 392 470 375 540 C350 638 398 692 375 778 C352 874 395 930 375 1014 C360 1080 378 1138 375 1236" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" filter="url(#shadow)"/>
+  <path d="M375 340 C365 420 392 470 375 540 C350 638 398 692 375 778 C352 874 395 930 375 1014 C360 1080 378 1138 375 1236" fill="none" stroke="#b9d9c8" stroke-width="8" stroke-linecap="round" stroke-dasharray="3 24" opacity="0.95"/>
+
+  <g transform="translate(180 318)" filter="url(#shadow)">
+    <rect x="0" y="0" width="210" height="58" rx="15" fill="url(#sign)"/>
+    <rect x="188" y="48" width="14" height="44" rx="7" fill="#a66c28"/>
+    <text x="27" y="38" font-size="25" font-weight="800" fill="#ffffff">关卡 1 · 40词</text>
+  </g>
+
+  <g transform="translate(306 406)" filter="url(#shadow)">
+    <circle cx="69" cy="69" r="58" fill="url(#green)"/>
+    <circle cx="69" cy="69" r="45" fill="#ffffff" opacity="0.15"/>
+    <text x="32" y="76" font-size="24" font-weight="800" fill="#ffffff">新词</text>
+    <text x="47" y="112" font-size="28" fill="#ffffff">✓</text>
+    <text x="156" y="76" font-size="25" font-weight="700" fill="#1b7e5a">单词新学</text>
+  </g>
+
+  <g transform="translate(306 526)" filter="url(#shadow)">
+    <circle cx="69" cy="69" r="58" fill="url(#green)"/>
+    <text x="32" y="76" font-size="24" font-weight="800" fill="#ffffff">跟读</text>
+    <text x="156" y="76" font-size="25" font-weight="700" fill="#1b7e5a">跟读背诵</text>
+  </g>
+
+  <g transform="translate(306 646)" filter="url(#shadow)">
+    <circle cx="69" cy="69" r="58" fill="url(#green)"/>
+    <text x="32" y="76" font-size="24" font-weight="800" fill="#ffffff">听力</text>
+    <text x="156" y="76" font-size="25" font-weight="700" fill="#1b7e5a">听力小测</text>
+  </g>
+
+  <g transform="translate(188 766)" filter="url(#shadow)">
+    <ellipse cx="116" cy="78" rx="120" ry="58" fill="#c9f0bb"/>
+    <circle cx="80" cy="60" r="46" fill="#72d86f"/>
+    <circle cx="123" cy="64" r="58" fill="#55c85b"/>
+    <circle cx="162" cy="68" r="39" fill="#74d56e"/>
+    <path d="M78 92 Q122 126 170 91" fill="none" stroke="#237636" stroke-width="7" stroke-linecap="round"/>
+    <text x="270" y="58" font-size="30" fill="#ffce37">★ ★ ★</text>
+    <text x="268" y="96" font-size="22" font-weight="700" fill="#3d8b46">小怪兽已击败</text>
+  </g>
+
+  <g transform="translate(180 902)" filter="url(#shadow)">
+    <rect x="0" y="0" width="210" height="58" rx="15" fill="url(#sign)"/>
+    <rect x="188" y="48" width="14" height="44" rx="7" fill="#a66c28"/>
+    <text x="27" y="38" font-size="25" font-weight="800" fill="#ffffff">关卡 2 · 50词</text>
+  </g>
+
+  <g transform="translate(306 990)" filter="url(#shadow)">
+    <circle cx="69" cy="69" r="58" fill="url(#blue)"/>
+    <text x="32" y="76" font-size="24" font-weight="800" fill="#ffffff">新词</text>
+    <text x="156" y="76" font-size="25" font-weight="700" fill="#2668a7">单词新学</text>
+  </g>
+
+  <g transform="translate(306 1110)" filter="url(#shadow)">
+    <circle cx="69" cy="69" r="58" fill="url(#blue)"/>
+    <text x="32" y="76" font-size="24" font-weight="800" fill="#ffffff">跟读</text>
+    <text x="156" y="76" font-size="25" font-weight="700" fill="#2668a7">跟读背诵</text>
+  </g>
+
+  <g transform="translate(306 1230)" opacity="0.86" filter="url(#shadow)">
+    <circle cx="69" cy="69" r="58" fill="#cfd4d6"/>
+    <text x="32" y="76" font-size="24" font-weight="800" fill="#ffffff">听力</text>
+    <text x="156" y="76" font-size="25" font-weight="700" fill="#7d8589">听力小测</text>
+  </g>
+</svg>

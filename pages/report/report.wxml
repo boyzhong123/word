@@ -1,0 +1,137 @@
+<!--pages/report/report.wxml-->
+<view class="report-page">
+  <view class="nav" style="padding-top: {{safeAreaTop}}px;">
+    <view class="nav-btn" bindtap="back">
+      <image class="nav-action-icon" src="../../images/icon_back_deep.svg" mode="heightFix" />
+    </view>
+    <view class="nav-title">学习报告</view>
+  </view>
+
+  <scroll-view class="report-scroll" scroll-y enhanced show-scrollbar="{{false}}" wx:if="{{report}}">
+    <!-- 顶部薄荷绿大框：关卡标题 + 谚语 + 星级 + 胶冻吉祥物 -->
+    <view class="hero">
+      <view class="hero-head">
+        <image class="hero-flag" src="../../images/home/icon-report-jelly.png" mode="aspectFit" />
+        <text>本关学习报告</text>
+      </view>
+
+      <view class="hero-body">
+        <view class="hero-copy">
+          <view class="hero-title-row">
+            <text class="hero-title">{{report.title}}</text>
+            <view class="hero-stars">
+              <image
+                class="hero-star"
+                wx:for="{{report.stageStars}}"
+                wx:for-item="on"
+                wx:key="index"
+                src="{{on ? '../../images/home/stage-star-filled.png' : '../../images/home/stage-star-empty.png'}}"
+                mode="aspectFit"
+              />
+            </view>
+          </view>
+          <view wx:if="{{report.showSaying}}" class="hero-saying">
+            <text class="hero-saying-en">{{report.enSaying}}</text>
+            <text wx:if="{{report.zhSaying}}" class="hero-saying-zh">{{report.zhSaying}}</text>
+          </view>
+        </view>
+        <image class="hero-mascot" src="../../images/home/mascot-progress.png" mode="aspectFit" />
+      </view>
+
+      <!-- 四个关键指标 -->
+      <view class="metrics">
+        <view class="metric metric-acc">
+          <view class="metric-number">{{report.accuracy}}<text>%</text></view>
+          <view class="metric-label">正确率</view>
+        </view>
+        <view class="metric metric-mastered">
+          <view class="metric-number">{{report.masteredCount}}<text>词</text></view>
+          <view class="metric-label">已掌握</view>
+        </view>
+        <view class="metric metric-wrong">
+          <view class="metric-number">{{report.wrongCount}}<text>词</text></view>
+          <view class="metric-label">待复习</view>
+        </view>
+        <view class="metric metric-time">
+          <view class="metric-number">{{report.minutes}}<text>分</text></view>
+          <view class="metric-label">用时</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 三个环节得分 -->
+    <view class="section">
+      <view class="section-title">
+        <text class="section-title-main">环节表现</text>
+        <text class="section-title-sub">{{report.encourage}}</text>
+      </view>
+      <view class="task-grid">
+        <view class="task-card" wx:for="{{report.taskStats}}" wx:for-item="task" wx:key="type">
+          <view class="task-top">
+            <view class="task-icon-wrap" style="background: {{task.iconBg}};">
+              <image class="task-icon" src="{{task.icon}}" mode="aspectFit" />
+            </view>
+            <view class="task-score" style="color: {{task.color}};">{{task.score}}<text>分</text></view>
+          </view>
+          <view class="task-name">{{task.label}}</view>
+          <view class="task-caption">{{task.caption}}</view>
+          <view class="task-track">
+            <view class="task-fill" style="width: {{task.score}}%; background: {{task.color}};"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 待复习错词 -->
+    <view class="section" wx:if="{{report.hasReviewWords}}">
+      <view class="section-title">
+        <text class="section-title-main">待复习的词</text>
+        <text class="section-title-tag tag-warn">{{report.wrongCount}} 个</text>
+      </view>
+      <view class="word-list">
+        <view class="word-row word-row-review" wx:for="{{report.reviewWords}}" wx:for-item="word" wx:key="spell">
+          <view class="word-main">
+            <view class="word-spell-row">
+              <text class="word-spell">{{word.spell}}</text>
+              <text class="word-phonetic">{{word.phonetic}}</text>
+            </view>
+            <view class="word-meaning">{{word.meaning}}</view>
+          </view>
+          <view class="word-status status-review">{{word.rate}}%</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 已掌握 -->
+    <view class="section">
+      <view class="section-title">
+        <text class="section-title-main">已掌握的词</text>
+        <text class="section-title-tag tag-ok">{{report.masteredCount}} 个</text>
+      </view>
+      <view class="word-list">
+        <view class="word-row" wx:for="{{report.masteredWords}}" wx:for-item="word" wx:key="spell">
+          <view class="word-main">
+            <view class="word-spell-row">
+              <text class="word-spell">{{word.spell}}</text>
+              <text class="word-phonetic">{{word.phonetic}}</text>
+            </view>
+            <view class="word-meaning">{{word.meaning}}</view>
+          </view>
+          <view class="word-status status-ok">✓</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="footer-space"></view>
+  </scroll-view>
+
+  <!-- 底部操作条 -->
+  <view class="action-bar" wx:if="{{report}}">
+    <view
+      wx:if="{{report.hasReviewWords}}"
+      class="action-btn action-btn-primary"
+      bindtap="reviewWrongWords"
+    >再练错词</view>
+    <view class="action-btn {{report.hasReviewWords ? 'action-btn-ghost' : 'action-btn-primary'}}" bindtap="back">返回学习</view>
+  </view>
+</view>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --u: 0.5px; }
+  html,body{margin:0;}
+  body{ background:#fffdf8; font-family:'PingFang SC',sans-serif; }
+  .phone{ position:relative; width:calc(750*var(--u)); margin:0 auto; min-height:1200px; background:#fffdf8; overflow:hidden;}
+
+  .hero-section{ position:relative; height:calc(var(--heroH)*var(--u)); }
+  .hero-image-clip{ position:absolute; z-index:0; top:0; left:0; width:calc(750*var(--u)); height:calc(var(--clipH)*var(--u)); overflow:hidden; }
+  .hero-image{ position:absolute; top:0; left:0; width:calc(750*var(--u)); height:calc(590*var(--u)); object-fit:cover; object-position:left top; }
+  .hero-fade{
+    position:absolute; z-index:1; left:0;
+    top:calc(var(--fadeTop)*var(--u));
+    width:calc(750*var(--u)); height:calc(var(--fadeH)*var(--u));
+    background: linear-gradient(180deg, rgba(255,253,248,0) 0%, rgba(255,253,248,var(--fadeMid)) 62%, #fffdf8 100%);
+    pointer-events:none;
+  }
+  .hero-copy{ position:absolute; z-index:3; left:calc(56*var(--u)); top:calc(var(--copyTop)*var(--u)); }
+  .hero-title{ color:#17406f; font-size:calc(51*var(--u)); line-height:calc(64*var(--u)); font-weight:700; text-shadow:0 2px 5px rgba(255,255,255,.72);}
+  .hero-subtitle{ margin-top:calc(5*var(--u)); color:#2f6f93; font-size:calc(23*var(--u)); line-height:calc(32*var(--u)); font-weight:500; text-shadow:0 2px 4px rgba(255,255,255,.78);}
+
+  .book-card{ position:absolute; z-index:3; left:calc(29*var(--u)); top:calc(var(--cardTop)*var(--u));
+    width:calc(692*var(--u)); height:calc(275*var(--u)); box-sizing:border-box; padding:calc(19*var(--u)) calc(25*var(--u));
+    background:rgba(255,255,255,.985); border-radius:calc(29*var(--u)); box-shadow:0 4px 11px rgba(116,92,42,.08); display:flex; gap:calc(20*var(--u));}
+  .book-cover{ width:calc(154*var(--u)); height:calc(228*var(--u)); background:linear-gradient(160deg,#7fc4e8,#2f6f93); border-radius:calc(12*var(--u)); flex:none;}
+  .book-summary{font-size:calc(30*var(--u)); color:#17406f; font-weight:700;}
+
+  .learning-section{ position:relative; margin-top:calc(44*var(--u)); padding:0 calc(29*var(--u)); }
+  .section-heading{ height:calc(67*var(--u)); display:flex; align-items:center; font-size:calc(30*var(--u)); font-weight:700;}
+  .today-group{ margin-top:calc(20*var(--u)); border-radius:calc(28*var(--u)); padding:calc(24*var(--u)); background:linear-gradient(180deg,#e8f8ee,#dff3e6); min-height:calc(360*var(--u));}
+  .today-group-title{font-size:calc(30*var(--u)); font-weight:700; color:#2a8a52;}
+
+  .lbl{position:fixed; top:4px; left:4px; font-size:11px; color:#333; background:#fff8; padding:2px;}
+</style>
+</head>
+<body>
+  <div class="lbl" id="lbl"></div>
+  <div class="phone">
+    <div class="hero-section" id="sec">
+      <div class="hero-image-clip" id="clip">
+        <img class="hero-image" src="../images/home/hero-campus-jelly-v4.png">
+        <div class="hero-fade" id="fade"></div>
+      </div>
+      <div class="hero-copy" id="copy">
+        <div class="hero-title">Hi，小明</div>
+        <div class="hero-subtitle">每天进步一点点，词汇量大大！</div>
+      </div>
+      <div class="book-card" id="card">
+        <div class="book-cover"></div>
+        <div class="book-summary">初中英语词汇格言谚语词典<br>解锁单词：25 / 1413</div>
+      </div>
+    </div>
+    <div class="learning-section">
+      <div class="section-heading">📕 本书学习路径</div>
+      <div class="today-group"><div class="today-group-title">📌 今日要学</div></div>
+    </div>
+  </div>
+<script>
+  // baseline derived from a 375px-wide iPhone
+  let cfg = {
+    copyTop: 190,      // heroContentTop
+    cardTop: 307,      // bookCardTop = copyTop + 101 + 16
+    heroH: 562,        // heroSectionHeight = cardTop + 275 - 20
+    clipH: 562,        // hero-image-clip height (=section, currently 100%)
+    fadeTop: 382,      // fade top (currently heroH-180)
+    fadeH: 180,        // fade height
+    fadeMid: 0.86      // fade middle opacity
+  };
+  function apply(){
+    const r=document.documentElement.style;
+    for(const k in cfg){ document.getElementById('sec').style.setProperty('--'+k, cfg[k]); }
+    // set on :root so all calc() see them
+    const root=document.querySelector('.phone');
+    for(const k in cfg){ document.documentElement.style.setProperty('--'+k, cfg[k]); }
+    document.getElementById('lbl').textContent=JSON.stringify(cfg);
+  }
+  apply();
+  window.setCfg=(o)=>{Object.assign(cfg,o);apply();};
+</script>
+</body>
+</html>

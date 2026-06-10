@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>wave verify</title>
+<style>
+  body { margin:0; background:#eef6ff; font-family:sans-serif; }
+  .box { margin:40px auto; width:600px; height:200px; background:rgba(255,255,255,0.34);
+         display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  #my-canvas { display:block; width:100%; min-width:480px; height:106px; }
+  .tip { color:#4e6a70; font-size:14px; margin-top:8px; }
+  .status { text-align:center; font-family:monospace; color:#333; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <canvas id="my-canvas"></canvas>
+    <div class="tip">点击波纹，结束录音</div>
+  </div>
+  <div class="status" id="status">init…</div>
+<script>
+// 完全照搬 components/wave/wave.js 的常量与绘制逻辑
+const samplingSize = 64
+const offsetSpeed = 290
+const pathFuncs = [0.6, 0.25, 0.1, -0.1]
+function calcValue(mapX, offset) {
+  offset %= 2
+  const sinFunc = Math.sin(Math.PI * mapX - offset * Math.PI)
+  return sinFunc * 4 / (4 + Math.pow(mapX, 4))
+}
+const dpr = window.devicePixelRatio || 2
+const canvas = document.getElementById('my-canvas')
+const rect = canvas.getBoundingClientRect()
+let width = rect.width, height = rect.height
+document.getElementById('status').textContent =
+  'layout size width=' + width.toFixed(1) + ' height=' + height.toFixed(1) + ' dpr=' + dpr
+const ctx = canvas.getContext('2d')
+canvas.width = width * dpr
+canvas.height = height * dpr
+ctx.scale(dpr, dpr)
+const startTime = Date.now()
+const amplitude = height / 2
+const gap = width / samplingSize
+const samplingX = [], mapX = []
+for (let i = 0; i <= samplingSize; i++) {
+  samplingX[i] = i * gap
+  mapX[i] = (samplingX[i] / width) * 4 - 2
+}
+function draw() {
+  const offset = (Date.now() - startTime) / offsetSpeed
+  ctx.clearRect(0, 0, width, height)
+  for (let index = 3; index >= 0; index--) {
+    if (index === 0) { ctx.lineWidth = 3; ctx.strokeStyle = 'rgb(47,128,237)' }
+    else { ctx.lineWidth = 1; ctx.strokeStyle = 'rgb(159,195,245)' }
+    samplingX.forEach((item, i) => {
+      const realY = amplitude * calcValue(mapX[i], offset) * pathFuncs[index] * 80 * 0.01
+      if (i === 0) { ctx.beginPath(); ctx.moveTo(item, amplitude + realY) }
+      else { ctx.lineTo(item, amplitude + realY) }
+    })
+    ctx.stroke()
+  }
+  requestAnimationFrame(draw)
+}
+draw()
+</script>
+</body>
+</html>

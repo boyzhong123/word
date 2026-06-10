@@ -1,0 +1,90 @@
+var colors = { good: '#3cc668', medium: '#999999', bad: '#ff6666' }
+var markerReg = getRegExp('(\\(|s:1,t:1,g:1|s:1,t:1|g:1,s:1|s:1|t:1|g:1|\\))', 'g')
+var stripWordReg = getRegExp('[^a-zA-Z]', 'g')
+var markCleanWordToken = function (token) {
+  return token ? token.replace(markerReg, '') : ''
+}
+var getStyle = function (score) {
+  if (score >= 70) {
+    return colors.good
+  } else if (score < 55) {
+    return colors.bad
+  } else {
+    return colors.medium
+  }
+}
+
+module.exports = {
+  paintColor: function (result) {
+    if (result.score == undefined) {
+      return '#333333'
+    } else {
+      return getStyle(result.score)
+    }
+  },
+  containsTone: function (text) {
+    return text && text.search(getRegExp('t:1', 'g')) != -1
+  },
+  splitText: function (text, detail, exchange, word) {
+    var array = []
+    var count = 0
+    var spaces = ""
+    var spacesCount = 0
+    var reg = getRegExp('(\(|s:1,t:1,g:1|s:1,t:1|g:1,s:1|s:1|t:1|g:1|\))', 'g') // wxs 正则表达式两边不用定界符 /
+    var reg2 = getRegExp('s:1', 'g')
+    var reg3 = getRegExp('[^a-z]', 'g')
+    if (text) {
+      var exchanges = exchange ? (exchange + ";" + word).split(';') : [word]
+      text.split(" ").map(function (item, index) {
+        if (item) {
+          if (spaces.length > 0) {
+            array[count] = {
+              value: spaces
+            }
+            count++
+            spaces = ''
+          }
+          var w = item.replace(reg, '')
+          array[count] = {
+            value: w + " ",
+            class: (item.search(reg2) != -1 ? "anchor-stress stress" : ""),
+            style: "color:" + (detail ? getStyle(detail[index - spacesCount].score) : "#696969") + (exchanges.indexOf(w.toLowerCase().replace(reg3, '')) != -1 ? ";font-style: italic;" : "")
+          }
+          count++
+        } else {
+          spacesCount++
+          spaces += ' '
+        }
+      })
+    }
+    return array
+  },
+  markWord: function (text, word, exchange) {
+    var res = []
+    if (!text) {
+      return res
+    }
+    if (!word) {
+      res[0] = { value: text, bold: false }
+      return res
+    }
+    var targets = exchange ? (exchange + ';' + word).split(';') : [word]
+    var targetMap = {}
+    targets.map(function (item) {
+      var cleaned = markCleanWordToken(item).toLowerCase().replace(stripWordReg, '')
+      if (cleaned) {
+        targetMap[cleaned] = true
+      }
+    })
+    text.split(' ').map(function (tok, i) {
+      var cleanTok = markCleanWordToken(tok)
+      var core = cleanTok.toLowerCase().replace(stripWordReg, '')
+      var bold = !!core && !!targetMap[core]
+      res[i] = { value: (i > 0 ? ' ' : '') + cleanTok, bold: bold }
+    })
+    return res
+  },
+  getNodes: function (text, detail, word) {
+    var array = []
+    var beginindex = 0
+    if (detail) {

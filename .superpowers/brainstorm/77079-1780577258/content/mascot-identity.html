@@ -1,0 +1,226 @@
++<style>
++  .mascot-grid {
++    display: grid;
++    grid-template-columns: repeat(3, minmax(0, 1fr));
++    gap: 18px;
++    margin-top: 24px;
++  }
++  .mascot-card {
++    position: relative;
++    min-height: 330px;
++    padding: 22px 18px 18px;
++    border: 2px solid #e8ebef;
++    border-radius: 24px;
++    background: linear-gradient(180deg, #ffffff, #fffdf6);
++    cursor: pointer;
++    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
++  }
++  .mascot-card:hover {
++    transform: translateY(-4px);
++    border-color: #ffb72b;
++    box-shadow: 0 14px 36px rgba(160, 115, 24, .14);
++  }
++  .mascot-card.selected {
++    border-color: #ffad13;
++    box-shadow: 0 0 0 4px rgba(255, 173, 19, .16);
++  }
++  .choice-letter {
++    position: absolute;
++    top: 14px;
++    left: 14px;
++    width: 32px;
++    height: 32px;
++    display: grid;
++    place-items: center;
++    border-radius: 50%;
++    color: #805600;
++    background: #fff1b6;
++    font-weight: 800;
++  }
++  .monster-row {
++    height: 150px;
++    display: flex;
++    align-items: end;
++    justify-content: center;
++    gap: 8px;
++    margin-bottom: 18px;
++  }
++  .monster {
++    --body: #93df22;
++    position: relative;
++    width: 82px;
++    height: 70px;
++    border: 3px solid #4e8f0a;
++    border-radius: 48% 48% 42% 42%;
++    background: var(--body);
++    box-shadow: inset 8px 8px 0 rgba(255,255,255,.18);
++  }
++  .monster.small {
++    width: 61px;
++    height: 54px;
++  }
++  .horn {
++    position: absolute;
++    top: -13px;
++    width: 14px;
++    height: 20px;
++    border: 2px solid #d88b00;
++    border-radius: 80% 12% 70% 12%;
++    background: #ffc325;
++  }
++  .horn.left { left: 11px; transform: rotate(-22deg); }
++  .horn.right { right: 11px; transform: rotate(22deg) scaleX(-1); }
++  .eye {
++    position: absolute;
++    top: 20px;
++    width: 19px;
++    height: 22px;
++    border: 2px solid #222;
++    border-radius: 50%;
++    background: white;
++  }
++  .eye:after {
++    content: "";
++    position: absolute;
++    width: 8px;
++    height: 10px;
++    top: 6px;
++    left: 5px;
++    border-radius: 50%;
++    background: #202020;
++  }
++  .eye.left { left: 17px; }
++  .eye.right { right: 17px; }
++  .mouth {
++    position: absolute;
++    left: 50%;
++    bottom: 11px;
++    width: 24px;
++    height: 12px;
++    transform: translateX(-50%);
++    border: 2px solid #222;
++    border-top: 0;
++    border-radius: 0 0 30px 30px;
++    background: #ff6d74;
++  }
++  .sleep .eye {
++    height: 7px;
++    top: 29px;
++    border: 0;
++    border-bottom: 3px solid #263511;
++    border-radius: 50%;
++    background: transparent;
++  }
++  .sleep .eye:after { display: none; }
++  .sleep .mouth {
++    height: 8px;
++    border: 0;
++    border-top: 3px solid #263511;
++    border-radius: 50%;
++    background: transparent;
++  }
++  .alert .mouth {
++    width: 19px;
++    height: 23px;
++    border: 2px solid #222;
++    border-radius: 50%;
++    background: #52242b;
++  }
++  .progress .eye:after {
++    width: 12px;
++    height: 12px;
++    top: 4px;
++    left: 2px;
++    background: repeating-radial-gradient(circle, #222 0 2px, white 2px 4px);
++  }
++  .teal { --body: #35d8bf; border-color: #108c79; }
++  .orange { --body: #ff9e3e; border-color: #c65f00; }
++  .purple { --body: #b58cff; border-color: #6e45bf; }
++  .card-copy h3 { margin: 0 0 8px; font-size: 20px; }
++  .card-copy p { margin: 0; color: #626a73; line-height: 1.55; font-size: 14px; }
++  .recommended {
++    display: inline-block;
++    margin-top: 14px;
++    padding: 5px 10px;
++    border-radius: 99px;
++    color: #0a7f38;
++    background: #ddf9e7;
++    font-size: 12px;
++    font-weight: 700;
++  }
++  @media (max-width: 850px) {
++    .mascot-grid { grid-template-columns: 1fr; }
++  }
++</style>
++
++<h2>三个状态之间，应该是什么关系？</h2>
++<p class="subtitle">点击选择一个方向。后续会基于它设计每种状态的动作帧。</p>
++
++<div class="mascot-grid">
++  <div class="mascot-card" data-choice="a" onclick="toggleSelect(this)">
++    <div class="choice-letter">A</div>
++    <div class="monster-row">
++      <div class="monster small progress">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++      <div class="monster alert">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++      <div class="monster small sleep">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++    </div>
++    <div class="card-copy">
++      <h3>同一只绿怪兽</h3>
++      <p>保留现有角色认知，只通过表情、姿势和特效区分完成、待学习、锁定。</p>
++      <span class="recommended">推荐：最统一、最适合连续关卡</span>
++    </div>
++  </div>
++
++  <div class="mascot-card" data-choice="b" onclick="toggleSelect(this)">
++    <div class="choice-letter">B</div>
++    <div class="monster-row">
++      <div class="monster small progress teal">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++      <div class="monster alert">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++      <div class="monster small sleep purple">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++    </div>
++    <div class="card-copy">
++      <h3>同族三兄妹</h3>
++      <p>轮廓与画风统一，但每个状态拥有专属颜色和小特征，更容易一眼识别。</p>
++    </div>
++  </div>
++
++  <div class="mascot-card" data-choice="c" onclick="toggleSelect(this)">
++    <div class="choice-letter">C</div>
++    <div class="monster-row">
++      <div class="monster small progress teal">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++      <div class="monster alert orange" style="border-radius:46% 46% 18% 18%; height:86px;">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++      <div class="monster small sleep purple" style="width:88px; height:44px; border-radius:50%;">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i>
++      </div>
++    </div>
++    <div class="card-copy">
++      <h3>三只独立怪兽</h3>
++      <p>每种状态都有完全不同的角色轮廓与性格，变化最大，但整体统一感稍弱。</p>
++    </div>
++  </div>
++</div>

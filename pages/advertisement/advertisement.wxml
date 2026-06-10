@@ -1,0 +1,6 @@
+<view class="page">
+  <navigation class="title-box">
+    <view class="nav-title">谚语词典</view>
+  </navigation>
+
+  <scroll-view scroll-y="{{true}}" class="content" style="height: {{scrollHeight}}px;">

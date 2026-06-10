@@ -1,0 +1,56 @@
+<view class="dialog" wx:if="{{dialog.type == 'general'}}">
+  <view class='dialog-bg'>
+    <view class="dialog-title">{{dialog.title}}</view>
+    <view class="dialog-content">{{dialog.content}}</view>
+    <view class="dialog-button-container">
+      <view class="dialog-button negetive" bindtap="onCancel">{{dialog.cancelText}}</view>
+      <view class="dialog-button positive" bindtap="onConfirm">{{dialog.confirmText}}</view>
+    </view>
+  </view>
+</view>
+<view class="dialog" wx:elif="{{dialog.type == 'instruction'}}">
+  <view class='dialog-bg normal-text'>
+    <view style="height: 1rpx;"></view>
+    <view class="title-row">
+      <view class="dot"></view>
+      <view class="dot-title">\t页码信息\t</view>
+      <view class="dot"></view>
+    </view>
+    <view class="text-bg" style="padding: 23rpx 18rpx;">为对应实体书本中该内容所在页码/页码范围，示例：第1页，标识为：P1，第11页到第15页，标识为：P11~P15。</view>
+    <view class="title-row">
+      <view class="dot"></view>
+      <view class="dot-title">\t句子标记\t</view>
+      <view class="dot"></view>
+    </view>
+    <view class="text-bg">
+      <view style="text-align: center;padding: 35rpx;">加粗：需要重读的单词，示例：</view>
+    </view>
+    <view style="margin-top: 23rpx; font-size: 34rpx;font-family: OPPOSans;font-weight: bold;text-align: center;">shortest</view>
+    <view class="text-bg">
+      <view style="padding: 66rpx 18rpx 0;">上箭头：句末需要升调，无标记表示降调，</view>
+      <view class="title-row" style="margin-top:38rpx;padding-bottom: 26rpx;">
+        示例：<view style="font-size: 34rpx;font-weight: bold;"> 升调 </view>
+        <image src="../../images/rising_tone.png" class="img" />
+      </view>
+    </view>
+    <view class="title-row">
+      <view class="dot"></view>
+      <text class="dot-title">内容标色</text>
+      <view class="dot"></view>
+    </view>
+    <view class="text-bg" style="padding: 37rpx 36rpx;line-height: 46rpx;margin-bottom: 35rpx;">
+      <text><text style="color: #3CC668;font-weight: bold;">绿色：</text>读得很好，智能评分80分以上；\n</text>
+      <text><text style="font-weight: bold;">灰色：</text>读得一般，智能评分60~80分；\n</text>
+      <text><text style="color: #FF6666;font-weight: bold;">红色：</text>读得不够好，智能评分低于60分。\n</text>
+    </view>
+    <text class="dialog-button positive" bindtap="onConfirm">知道了</text>
+    <view style="margin-top: 39rpx;height: 1rpx;"></view>
+  </view>
+</view>
+<view class="dialog" style="display: block;" wx:elif="{{dialog.type == 'vip'}}">
+  <view class="dialog-bg go-vip-bg slide-bottom">
+    <image src="/images/gray_close.png" class="close-img" bindtap="onCancel" />
+    <view class="vip-tip">付费资源，开通会员后可查看</view>
+    <view class="vip-btn" bindtap="onConfirm">开通会员</view>
+  </view>
+</view>

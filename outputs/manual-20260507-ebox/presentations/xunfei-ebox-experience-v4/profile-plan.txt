@@ -1,0 +1,83 @@
+task mode: create / reference-improvement
+primary deck-profile: consumer-retail
+secondary gates: product-platform, strategy-leadership
+
+audience:
+Internal Chivox leadership and colleagues who need to understand iFLYTEK AI英语宝 EBOX Pro and its possible impact.
+
+required proof objects:
+- Tmall detail-page evidence images for positioning, 6-in-1 feature set, content resources, oral practice, vocabulary, parent controls, and specs.
+- Chivox classroom-product comparison based on the user-provided AI智慧课堂 deck.
+- A short verification plan for the purchased device.
+
+asset rules:
+- Use user-provided / downloaded Tmall detail-page images as visual proof.
+- Do not fabricate iFLYTEK, Chivox, Spark, DeepSeek, or app identity marks.
+- Use simple editable shapes for diagrams and comparison tables.
+
+known constraints:
+- Avoid “增强版”, “Enhanced”, “先买真机”, “建议采购”, “采购 Pro”.
+- Avoid dense pages and any objects extending outside the slide.
+- Keep the Chivox comparison to one section; the core deck remains an EBOX Pro experience report.
+Thesis:
+EBOX Pro is best understood as a 2C family-side English learning terminal: it packages speech evaluation, English practice, parent control, and low-cost hardware into a daily home entrance. It does not currently replace a classroom listening-speaking training system, but it creates a credible upgrade path if iFLYTEK adds teacher-side and school-channel capabilities.
+
+Slide spine:
+01 Cover: why EBOX Pro deserves tracking.
+02 Executive conclusion: three takeaways and one watchpoint.
+03 Product definition: a small-screen English learning terminal, not a classroom system.
+04 6-in-1 packaging: learning, safety, and parent convenience in one device.
+05 Category positioning: the detail page sells a full learning loop, not a single function.
+06 Usage loop: content selection, practice, AI feedback, weak-point retry, parent view.
+07 Content map: textbooks, news, classics, exam questions, oral topics, vocabulary camps.
+08 Synchronous textbook: pre-study and review are a strong home-use entry.
+09 Listening and reading: teacher explanation makes listening less passive.
+10 Oral AI tutor: low-friction speaking practice.
+11 Scoring feedback: grammar/pronunciation/fluency reports need true-device validation.
+12 Oral topics: near-400 new-curriculum topics support expression practice.
+13 Vocabulary system: diagnostic plan plus multiple review modes.
+14 Vocabulary explanation: real-voice explanation and exam-point analysis.
+15 Exam practice: real questions turn memory into test performance.
+16 Story memory: generated contexts reduce rote memorization.
+17 Motivation: training camps and PK convert practice into routine.
+18 Writing/homework: parent-assist features expand the household value.
+19 Parent control: content, time, calls, and safety are central to adoption.
+20 Mobility: offline/SIM use gives the device phone-watch-like utility.
+21 Specs: 3-inch screen, 105g, 1800mAh, USB-C, 3.5mm.
+22 Hands-on validation: what must be tested on the purchased device.
+23 Competitive impact: current risk is indirect, upgrade risk is material.
+24 Chivox difference: classroom workflow and complete listening-speaking tests remain distinct.
+25 Response: monitor teacher-side signals and strengthen classroom moat.
+Slide size: 1280 x 720.
+
+Background:
+Warm ivory and cool light-blue chapter bands, with large proof images as the main visual object.
+
+Typography:
+PingFang SC for Chinese text. Large claim titles are 34-42px; body copy is 17-22px; footnotes are 10-12px.
+
+Palette:
+Ink #111827, muted #667085, paper #FFF9F2, white #FFFFFF, orange #FF6A00, teal #12B8A6, blue #2474FF, green #00A86B, red #EF3340, gold #F2A000.
+
+Layout grammar:
+- Every slide has a kicker, claim title, proof object, and concise interpretation.
+- Keep all content inside 52px horizontal safe margins and 32px top / 680px bottom bands.
+- No diagonal connector lines; only short horizontal rules and native boxes.
+- No dense paragraphs inside small cards.
+- Use detail-page images as evidence panels, usually one large image per slide.
+
+Footer/source grammar:
+Use quiet 10-11px footers: “来源：用户提供天猫详情页截图/公开页面；参数与价格按页面口径，真机体验需复核。”
+Macro-layout families:
+1. Cover with tall product image and metric rail.
+2. Executive summary with three thesis cards.
+3. Image-led evidence page with right-side interpretation rail.
+4. Split comparison page with native table.
+5. Workflow page with five stages and no connector clutter.
+6. Chapter opener with large quote/claim and detail-page proof.
+7. Chivox comparison and response pages with simple structured matrices.
+
+Rhythm rules:
+- No more than two consecutive slides use the same image-left/text-right structure.
+- Feature pages use one dominant proof image; comparison pages use structured shapes.
+- Avoid repeated six-card grids.

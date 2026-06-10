@@ -1,0 +1,24 @@
+<!--components/meida/media.wxml-->
+<view class="media">
+  <wxs src='/pages/tool.wxs' module="tool"></wxs>
+  <image animation="{{animation}}" class="feedback {{score >= 55 ? 'feedback-good' : 'feedback-bad'}}" />
+  <frame-animation style="visibility: {{tool.visible(media_state)}};" class="frames media-action-icon" url="https://17ks.chivoxapp.com/proverbs/audio.png" width='55' height='47' count='3' duration='0.5' bindend="end" bindtap="playAudio"></frame-animation>
+  <image style="visibility: {{tool.visible(media_state)}};" class="record media-action-icon" src="../../images/record.png" bindtap="startRecord" mode="widthFix"/>
+  <view style="visibility: {{tool.visible(media_state)}};" class="replay" bindtap="replay">
+    <image wx:if="{{score == ''}}" class="media-action-icon" style="width: 56rpx;height: 51rpx;" src="../../images/replay.png" />
+    <view class="good" wx:elif="{{score >= 55}}">
+      <image class="media-action-icon" style="width: 25rpx;height: 46rpx;" wx:if="{{media_state == 3}}" src="../../images/pass_playing.png" />
+      <image style="width: 56rpx;height: 51rpx;" class="bad media-action-icon" wx:else src="../../images/pass_paused.png" />
+      <text class="score">{{score}}</text>
+    </view>
+    <image class="bad media-action-icon" wx:elif="{{media_state == 3}}" src="../../images/cry_playing.png" />
+    <image class="bad media-action-icon" wx:else src="../../images/cry_paused.png" />
+  </view>
+  <view class="recording" catchtap="record" wx:if="{{media_state == 2 && !_overlayRecord}}">
+    <wave-line id="recording-wave" class="recording-wave"></wave-line>
+    <text class="stop-record-tip">点击波纹，结束录音</text>
+  </view>
+  <view class="recording" wx:elif="{{media_state == 4 && !_overlayRecord}}">
+    <text class="stop-record-tip">评分中...</text>
+  </view>
+</view>

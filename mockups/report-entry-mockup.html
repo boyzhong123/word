@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>报告入口 · 设计示意</title>
+<style>
+  :root{
+    --green:#0f9b4e; --green-l:#22c55e; --ink:#1a2430; --gray:#8a94a6;
+    --line:#eef1f6; --bg:#eef1f4; --orange:#ff7a1a; --blue:#3a86ff;
+    --mint-1:#e9fff3; --mint-2:#f3fff9; --mint-line:#aee9c2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#e7ebf2;color:var(--ink);padding:30px 16px 70px}
+  h1{text-align:center;font-size:21px;font-weight:800;margin-bottom:5px}
+  p.sub{text-align:center;color:#5a6678;font-size:13px;margin-bottom:30px;line-height:1.6}
+  .stage{display:flex;flex-wrap:wrap;gap:34px;justify-content:center;align-items:flex-start}
+  .col{width:360px}
+  .cap{margin-top:16px;text-align:center}
+  .cap .t{font-size:14px;font-weight:700;color:#2a3340}
+  .cap .d{display:block;margin-top:6px;font-size:12px;color:#6a7686;line-height:1.7}
+  .tag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:7px;margin-bottom:8px}
+  .tag.rec{background:#e8f7ef;color:var(--green)}
+  .tag.alt{background:#eaf1ff;color:var(--blue)}
+  .tag.no{background:#fdeceb;color:#e0483b}
+
+  /* ---- phone frame ---- */
+  .screen{background:var(--bg);border-radius:26px;padding:16px 14px 22px;box-shadow:0 10px 34px rgba(31,39,51,.12)}
+
+  /* ---- today group (mint) ---- */
+  .today{padding:14px 13px 15px;background:linear-gradient(160deg,var(--mint-1) 0%,var(--mint-2) 55%,#fff 100%);
+    border:1.5px solid var(--mint-line);border-radius:24px;box-shadow:0 8px 20px rgba(18,160,80,.10)}
+  .today-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 12px}
+  .today-title{display:flex;align-items:center;gap:7px;color:var(--green);font-size:16px;font-weight:800}
+  .today-count{padding:3px 12px;background:rgba(255,255,255,.8);border:1px solid #c4eed1;border-radius:14px;color:#1aa85a;font-size:12px;font-weight:700}
+
+  /* ---- unit card ---- */
+  .card{background:rgba(255,255,255,.82);border:1px solid rgba(235,237,240,.85);border-radius:18px;
+    padding:13px 13px 14px;box-shadow:0 4px 10px rgba(115,91,45,.04);position:relative;overflow:hidden}
+  .card + .card{margin-top:11px}
+  .card.active{background:linear-gradient(155deg,#dcffec 0%,#fff 46%,#e8f4ff 100%);border:1.5px solid var(--green-l);
+    box-shadow:0 10px 22px rgba(34,197,94,.18)}
+  .card.review{background:rgba(255,255,255,.92)}
+
+  .top{display:flex;justify-content:space-between;align-items:flex-start}
+  .copy{flex:1;min-width:0}
+  .hrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .ttl{font-size:16px;font-weight:800}
+  .badge{font-size:10.5px;font-weight:700;color:#fff;background:var(--orange);padding:2px 9px;border-radius:9px}
+  .stars{display:flex;gap:2px}
+  .star{width:17px;height:17px;display:inline-block;color:#ffc93c;font-size:16px;line-height:17px}
+  .star.off{color:#d6dbe1}
+  .sub{margin-top:6px;display:flex;align-items:center;gap:7px}
+  .sub .en{font-size:12px;color:var(--blue)}
+  .sub .review-en{color:var(--orange)}
+  .toggle{flex:none;font-size:10px;font-weight:700;color:#9c6a00;background:#fff8df;border:1px solid #ffd77a;border-radius:9px;padding:2px 7px}
+  .mon{width:54px;height:42px;flex:none;border-radius:12px;background:radial-gradient(circle at 60% 40%,#bdeacb,#8fd6a6);
+    display:flex;align-items:center;justify-content:center;font-size:24px;margin-left:8px}
+  .mon.lock{filter:grayscale(.3);opacity:.7}
+
+  .grid{display:flex;gap:9px;margin-top:12px}
+  .task{flex:1;background:#fff;border:1px solid #eef0f3;border-radius:13px;padding:9px 7px 8px;text-align:center}
+  .task.lock{background:#f5f6f8;opacity:.85}
+  .ti{width:26px;height:26px;border-radius:9px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .ti.g{background:#e4f8ec}.ti.o{background:#fff1e3}.ti.b{background:#e8f1ff}
+  .tn{font-size:11.5px;color:#3a4452;font-weight:600}
+  .tc{font-size:11px;color:#9aa3b0;margin-top:2px}
+  .track{height:4px;border-radius:3px;background:#eef0f3;margin-top:7px;overflow:hidden}
+  .fill{height:100%;border-radius:3px;background:var(--green-l)}
+
+  /* ====== REPORT ENTRY VARIANTS ====== */
+
+  /* A: heading pill */
+  .rep-pill{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:800;color:#a15b00;
+    background:linear-gradient(135deg,#fff3d0,#ffe6a8);border:1px solid #ffd27a;border-radius:11px;padding:3px 9px}
+
+  /* B: footer bar */
+  .rep-bar{margin-top:11px;display:flex;align-items:center;justify-content:space-between;
+    padding:9px 13px;border-radius:13px;background:linear-gradient(135deg,#fff6e0,#fef0fb);
+    border:1px solid #ffe3b0}
+  .rep-bar .l{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#9a5a00}
+  .rep-bar .r{font-size:11.5px;font-weight:700;color:#b07400}
+  .rep-bar .dot{font-size:14px}
+
+  /* C: group-level entry */
+  .rep-group{margin-top:12px;display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:16px;
+    background:linear-gradient(135deg,#fff 0%,#fffaf0 100%);border:1.5px dashed #ffd98a}
+  .rep-group .ic{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#ffd27a,#ffb74d);
+    display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+  .rep-group .tx{flex:1}
+  .rep-group .tx .a{font-size:13.5px;font-weight:800;color:#2a3340}
+  .rep-group .tx .b{font-size:11px;color:#8a94a6;margin-top:2px}
+  .rep-group .go{font-size:12px;font-weight:700;color:var(--green);flex:none}
+
+  /* D: 4th task tile */
+  .task.report-tile{background:linear-gradient(160deg,#fff7e6,#fff);border:1px solid #ffe1a8}
+  .task.report-tile .ti{background:#fff0d0}
+</style>
+</head>
+<body>
+  <h1>「报告」入口 · 设计示意</h1>
+  <p class="sub">在「今日要学」列表里给学习报告找一个入口。下面是 4 种落点，可单选或组合。<br>报告 = 某一关（或当天）的学情：正确率 / 掌握词 / 错词 / 用时。</p>
+
+  <div class="stage">
+
+    <!-- ============ OPTION A ============ -->
+    <div class="col">
+      <div class="screen">
+        <div class="today">
+          <div class="today-head">
+            <div class="today-title">📌 今日要学</div>
+            <div class="today-count">1/5 关</div>
+          </div>
+
+          <!-- completed card with pill -->
+          <div class="card">
+            <div class="top">
+              <div class="copy">
+                <div class="hrow">
+                  <span class="ttl">关卡 1 · 12词</span>
+                  <span class="stars"><i class="star">★</i><i class="star">★</i><i class="star">★</i></span>
+                  <span class="rep-pill">📊 报告</span>
+                </div>
+                <div class="sub"><span class="en">Learn a little every day.</span><span class="toggle">中</span></div>
+              </div>
+              <div class="mon">🥳</div>
+            </div>
+            <div class="grid">
+              <div class="task"><div class="ti g">📖</div><div class="tn">单词新学</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti o">🎤</div><div class="tn">跟读背诵</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti b">🎧</div><div class="tn">听力小测</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+            </div>
+          </div>
+
+          <!-- active card, no pill yet -->
+          <div class="card active">
+            <div class="top">
+              <div class="copy">
+                <div class="hrow">
+                  <span class="ttl">关卡 2 · 13词</span>
+                  <span class="stars"><i class="star off">★</i><i class="star off">★</i><i class="star off">★</i></span>
+                </div>
+                <div class="sub"><span class="en">A curious mind is never empty.</span><span class="toggle">中</span></div>
+              </div>
+              <div class="mon">😈</div>
+            </div>
+            <div class="grid">
+              <div class="task"><div class="ti g">📖</div><div class="tn">单词新学</div><div class="tc">4/13</div><div class="track"><div class="fill" style="width:30%"></div></div></div>
+              <div class="task"><div class="ti o">🎤</div><div class="tn">跟读背诵</div><div class="tc">0/13</div><div class="track"><div class="fill" style="width:0%"></div></div></div>
+              <div class="task"><div class="ti b">🎧</div><div class="tn">听力小测</div><div class="tc">0/13</div><div class="track"><div class="fill" style="width:0%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="t"><span class="tag rec">推荐</span>A · 标题栏小药丸</div>
+        <small class="d">三星点亮（本关全通）后，标题右侧出现「📊 报告」小标签。<br>最轻量，不占额外高度；未完成的关卡天然不显示，不打扰。</small>
+      </div>
+    </div>
+
+    <!-- ============ OPTION B ============ -->
+    <div class="col">
+      <div class="screen">
+        <div class="today">
+          <div class="today-head">
+            <div class="today-title">📌 今日要学</div>
+            <div class="today-count">1/5 关</div>
+          </div>
+          <div class="card">
+            <div class="top">
+              <div class="copy">
+                <div class="hrow">
+                  <span class="ttl">关卡 1 · 12词</span>
+                  <span class="stars"><i class="star">★</i><i class="star">★</i><i class="star">★</i></span>
+                </div>
+                <div class="sub"><span class="en">Learn a little every day.</span><span class="toggle">中</span></div>
+              </div>
+              <div class="mon">🥳</div>
+            </div>
+            <div class="grid">
+              <div class="task"><div class="ti g">📖</div><div class="tn">单词新学</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti o">🎤</div><div class="tn">跟读背诵</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti b">🎧</div><div class="tn">听力小测</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+            </div>
+            <!-- footer report bar -->
+            <div class="rep-bar">
+              <div class="l"><span class="dot">📊</span>本关学习报告 · 正确率 92%</div>
+              <div class="r">查看 ›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="t"><span class="tag alt">备选</span>B · 卡片底部报告条</div>
+        <small class="d">完成的关卡卡片底部出现一条报告 banner，可直接预览一个亮点指标（正确率）。<br>信息量大、点击区域大；但每张完成卡都加高约 40px。</small>
+      </div>
+    </div>
+
+    <!-- ============ OPTION C ============ -->
+    <div class="col">
+      <div class="screen">
+        <div class="today">
+          <div class="today-head">
+            <div class="today-title">📌 今日要学</div>
+            <div class="today-count">1/5 关</div>
+          </div>
+          <div class="card">
+            <div class="top">
+              <div class="copy">
+                <div class="hrow">
+                  <span class="ttl">关卡 1 · 12词</span>
+                  <span class="stars"><i class="star">★</i><i class="star">★</i><i class="star">★</i></span>
+                </div>
+                <div class="sub"><span class="en">Learn a little every day.</span><span class="toggle">中</span></div>
+              </div>
+              <div class="mon">🥳</div>
+            </div>
+            <div class="grid">
+              <div class="task"><div class="ti g">📖</div><div class="tn">单词新学</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti o">🎤</div><div class="tn">跟读背诵</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti b">🎧</div><div class="tn">听力小测</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+            </div>
+          </div>
+          <!-- group level entry -->
+          <div class="rep-group">
+            <div class="ic">📈</div>
+            <div class="tx">
+              <div class="a">今日学习报告</div>
+              <div class="b">学了 12 词 · 正确率 92% · 用时 8 分钟</div>
+            </div>
+            <div class="go">查看 ›</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="t"><span class="tag alt">备选</span>C · 今日报告（整组一个入口）</div>
+        <small class="d">放在「今日要学」大框末尾，汇总当天全部关卡。一天一份，而非一关一份。<br>适合做「家长可看」的日报；与按关报告是不同粒度，可与 A 并存。</small>
+      </div>
+    </div>
+
+    <!-- ============ OPTION D ============ -->
+    <div class="col">
+      <div class="screen">
+        <div class="today">
+          <div class="today-head">
+            <div class="today-title">📌 今日要学</div>
+            <div class="today-count">1/5 关</div>
+          </div>
+          <div class="card">
+            <div class="top">
+              <div class="copy">
+                <div class="hrow">
+                  <span class="ttl">关卡 1 · 12词</span>
+                  <span class="stars"><i class="star">★</i><i class="star">★</i><i class="star">★</i></span>
+                </div>
+                <div class="sub"><span class="en">Learn a little every day.</span><span class="toggle">中</span></div>
+              </div>
+              <div class="mon">🥳</div>
+            </div>
+            <div class="grid">
+              <div class="task"><div class="ti g">📖</div><div class="tn">单词新学</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti o">🎤</div><div class="tn">跟读背诵</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task"><div class="ti b">🎧</div><div class="tn">听力小测</div><div class="tc">12/12</div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="task report-tile"><div class="ti">📊</div><div class="tn">学习报告</div><div class="tc">查看</div><div class="track"><div class="fill" style="width:100%;background:#ffb74d"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="t"><span class="tag no">不推荐</span>D · 第 4 个任务格</div>
+        <small class="d">和三个任务并列做第 4 格。语义不一致（前三是「要做」，报告是「看结果」），<br>且四格挤压，每格变窄、字更小。仅作对比放这里。</small>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

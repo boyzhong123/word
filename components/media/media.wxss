@@ -1,0 +1,119 @@
+/* components/meida/media.wxss */
+.media {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60rpx 84rpx 60rpx 109rpx;
+  position: relative;
+}
+
+.audio {
+  width: 55rpx;
+  height: 47rpx;
+  position: relative;
+}
+
+.media-action-icon {
+  filter: grayscale(1) brightness(0);
+}
+
+/* 评分结果图标保留原色：深色徽章上的回放箭头、哭脸表情，不能被染黑 */
+.good .media-action-icon,
+.bad.media-action-icon {
+  filter: none;
+}
+
+.record {
+  width: 92rpx;
+  max-height: 118rpx;
+  position: relative;
+}
+
+.replay {
+  position: relative;
+  width: 80rpx;
+  height: 80rpx;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.good {
+  position: absolute;
+  background-color: #111318;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score {
+  position: absolute;
+  font-size: 36rpx;
+  font-family: OPPOSans;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.bad {
+  position: absolute;
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.recording {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.recording-wave {
+  display: block;
+  width: 100%;
+  min-width: 480rpx;
+  height: 106rpx;
+}
+
+.stop-record-tip {
+  font-size: 24rpx;
+  font-family: PingFang SC;
+  font-weight: normal;
+  color: #4e6a70;
+  line-height: 24rpx;
+}
+
+.feedback {
+  position: absolute;
+  bottom: 60rpx;
+  left: 0;
+  right: 17rpx;
+  margin: auto;
+  opacity: 0;
+}
+
+.feedback-good {
+  width: 336rpx;
+  height: 123rpx;
+  background: url('https://17ks.chivoxapp.com/proverbs/feed_good.png') no-repeat;
+  background-size: contain;
+}
+
+.feedback-bad {
+  width: 274rpx;
+  height: 120rpx;
+  background: url('https://17ks.chivoxapp.com/proverbs/feed_bad.png') no-repeat;
+  background-size: contain;
+}

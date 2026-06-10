@@ -1,0 +1,55 @@
+<!-- 迷你播放器：随身听正在播放时悬浮于底栏之上 -->
+<view
+  wx:if="{{!hidden && miniActive}}"
+  class="mini-player {{miniPlaying ? 'mini-player-playing' : ''}}"
+  style="bottom: calc(87rpx + {{safeAreaBottom}}px);"
+  bindtap="openListen"
+>
+  <view class="mini-bg" aria-hidden="true">
+    <image class="mini-bg-img" src="{{miniCover}}" mode="aspectFill" />
+    <view class="mini-bg-shade"></view>
+  </view>
+  <view class="mini-progress-track">
+    <view class="mini-progress" style="width: {{miniProgress}}%;"></view>
+  </view>
+  <view class="mini-body">
+    <view class="mini-cover-wrap">
+      <image class="mini-cover {{miniPlaying ? 'mini-cover-spin' : ''}}" src="{{miniCover}}" mode="aspectFill" />
+      <view wx:if="{{miniPlaying}}" class="mini-cover-ring"></view>
+    </view>
+    <view class="mini-info">
+      <text class="mini-title">{{miniTitle}}</text>
+      <view class="mini-sub-row">
+        <text class="mini-sub">随身听</text>
+        <view wx:if="{{miniPlaying}}" class="mini-eq" aria-hidden="true">
+          <view class="mini-eq-bar"></view>
+          <view class="mini-eq-bar"></view>
+          <view class="mini-eq-bar"></view>
+        </view>
+        <text class="mini-status">{{miniPlaying ? '播放中' : '已暂停'}}</text>
+      </view>
+    </view>
+    <view class="mini-btn" catchtap="toggleMiniPlay">
+      <image
+        class="mini-btn-icon"
+        src="{{miniPlaying ? '/images/listen/pause-white.svg' : '/images/listen/play-white.svg'}}"
+        mode="aspectFit"
+      />
+    </view>
+  </view>
+</view>
+
+<view wx:if="{{!hidden}}" class="bottom-nav" style="padding-bottom: {{safeAreaBottom}}px;">
+  <view class="bottom-nav-item {{selected === 0 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
+    <image src="/images/home/nav-study-line.svg" mode="aspectFit" />
+    <text>学习</text>
+  </view>
+  <view class="bottom-nav-item" bindtap="goListen">
+    <image src="/images/home/nav-listen.png" mode="aspectFit" />
+    <text>随身听</text>
+  </view>
+  <view class="bottom-nav-item {{selected === 1 ? 'bottom-nav-active' : ''}}" data-path="/pages/me/me" bindtap="switchTab">
+    <image src="/images/home/nav-me.png" mode="aspectFit" />
+    <text>我的</text>
+  </view>
+</view>

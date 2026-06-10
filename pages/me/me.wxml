@@ -1,0 +1,117 @@
+<template name="menuInner">
+  <view class="menu-icon menu-ic-{{id}}"></view>
+  <view class="menu-copy">
+    <view class="menu-label">{{label}}</view>
+    <view wx:if="{{desc}}" class="menu-desc">{{desc}}</view>
+  </view>
+  <view class="menu-arrow">›</view>
+</template>
+
+<template name="messageInner">
+  <view class="message-dot message-dot-{{id}}"></view>
+  <view class="message-copy">
+    <view class="message-label">{{label}}</view>
+    <view class="message-desc">{{desc}}</view>
+  </view>
+</template>
+
+<view class="me-page">
+  <scroll-view class="me-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="profile-header" style="padding-top: {{safeAreaTop}}px;">
+      <view class="profile-main">
+        <view class="avatar-wrap" bindtap="handleLogin">
+          <image wx:if="{{userInfo.avatarUrl}}" class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+          <view wx:else class="avatar avatar-empty">👤</view>
+        </view>
+        <view class="profile-copy" bindtap="handleLogin">
+          <view class="nickname">{{logined ? (userInfo.nickName || '英语学习者') : '点击登录'}}</view>
+          <view class="profile-sub">{{logined ? '账号、通知和学习资料都在这里' : '登录后同步你的学习进度'}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="stats-card">
+      <view class="stat-item">
+        <view class="stat-number">{{stats.checkInDays}}</view>
+        <view class="stat-label">连续打卡</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-number">{{stats.learnedWords}}</view>
+        <view class="stat-label">累计学词</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-number">{{stats.studyMinutes}}</view>
+        <view class="stat-label">学习分钟</view>
+      </view>
+    </view>
+
+    <view class="message-section">
+      <view class="section-title">消息与关注</view>
+      <view class="message-card">
+        <view class="message-head">
+          <view class="message-head-copy">
+            <view class="message-title">开启学习提醒</view>
+            <view class="message-sub">订阅复习提醒；符合微信展示场景时，引导关注公众号领取资料。</view>
+          </view>
+          <view class="message-action" bindtap="requestSubscribe">去开启</view>
+        </view>
+        <view class="message-grid">
+          <view class="message-item" wx:for="{{messageItems}}" wx:key="id">
+            <template is="messageInner" data="{{...item}}" />
+          </view>
+        </view>
+        <view class="official-guide">
+          <view class="official-logo">号</view>
+          <view class="official-copy">
+            <view class="official-title">关注公众号，领取学习资料</view>
+            <view class="official-desc">可展示官方关注组件时显示组件，否则显示引导说明。</view>
+          </view>
+        </view>
+        <view class="official-account-wrap">
+          <official-account bindload="onOfficialAccountLoad" binderror="onOfficialAccountError"></official-account>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-section menu-section-tight">
+      <view class="section-title">常用</view>
+      <view class="menu-group">
+        <view
+          class="menu-item"
+          wx:for="{{menus}}"
+          wx:key="id"
+          data-action="{{item.action}}"
+          bindtap="handleMenuTap"
+        >
+          <template is="menuInner" data="{{...item}}" />
+          <button
+            wx:if="{{item.openType}}"
+            class="contact-hit"
+            open-type="{{item.openType}}"
+            bindcontact="onContact"
+            catchtap="onContact"
+          ></button>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="section-title">账号设置</view>
+      <view class="menu-group">
+        <view
+          class="menu-item"
+          wx:for="{{settings}}"
+          wx:key="id"
+          data-action="{{item.action}}"
+          bindtap="handleMenuTap"
+        >
+          <template is="menuInner" data="{{...item}}" />
+        </view>
+      </view>
+    </view>
+
+    <view class="scroll-spacer"></view>
+  </scroll-view>
+</view>

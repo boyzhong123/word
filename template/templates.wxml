@@ -1,0 +1,7 @@
+<wxs src='/pages/tool.wxs' module="tool"></wxs>
+<template name="tip">
+  <view class="{{class}}" style="display: flex;flex-direction: column;position: absolute;top:{{top}}px;left: {{left}}px;visibility: {{hidden}};" bindtap="{{tool.onTap}}" data-type="{{class}}">
+    <text class="tip-text">{{text}}</text>
+    <text class="triangle-bottom" style="margin-left: {{marginleft ? 'calc(26% - 11rpx)':'calc(50% - 11rpx)'}};"></text>
+  </view>
+</template>

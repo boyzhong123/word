@@ -1,0 +1,95 @@
+<!--
+此文件为开发者工具生成，生成时间: 2023/3/2下午12:05:19
+使用方法：
+在 D:\git\proverbs\pages\home\home.wxml 引入模板
+
+```
+<import src="home.skeleton.wxml"/>
+<template is="skeleton" wx:if="{{loading}}" />
+```
+
+在 D:\git\proverbs\pages\home\home.wxss 中引入样式
+```
+@import "./home.skeleton.wxss";
+```
+
+更多详细信息可以参考文档：https://developers.weixin.qq.com/miniprogram/dev/devtools/skeleton.html
+-->
+<template name="skeleton">
+  <view class="sk-container">
+    <view class="container">
+      <image class="head sk-image" mode="widthFix" style="height: 285.333px;"></image>
+      <view class="title-box" style="padding-top: {{titleBoxPaddingTop}}px;">
+        <image class="userinfo-avatar sk-image" mode="cover"></image>
+        <text class="userinfo-nickname sk-transparent sk-text-30-0000-790 sk-text">HI，孙硕</text>
+      </view>
+      <scroll-view scroll-y="true" style="position: relative;height:{{scrollHeight}}px;margin-top: 14rpx;">
+        <view is="components/searchbar/searchbar">
+          <view class="search-form searchbar--search-form">
+            <view class="search-box searchbar--search-box">
+              <image class="imgage-search searchbar--imgage-search sk-image"></image>
+              <view class="search-input searchbar--search-input sk-image" placeholder="搜索单词/谚语" placeholder-style="color:white;opacity: 0.5;" type="text" value="true"></view>
+            </view>
+          </view>
+        </view>
+        <view>
+          <view class="book">
+            <image class="book-cover sk-image"></image>
+            <view class="book-detail">
+              <view class="book-detail-row1">
+                <text class="vip sk-transparent sk-text-13-3333-842 sk-text" style="background-position-x: 50%;">VIP</text>
+                <text class="title sk-transparent sk-text-14-2857-295 sk-text">初中英语词汇格言三六九等发了的时间拉得</text>
+                <image class="toggle-book sk-image"></image>
+              </view>
+              <text class="book-detail-row2 sk-transparent sk-text-13-8889-278 sk-text">共3期 1023个单词 4243个谚语</text>
+              <view class="book-detail-row3">
+                <text class="sk-transparent sk-text-14-7059-205 sk-text">学习进度</text>
+                <text class="sk-transparent sk-text-14-7059-137 sk-text">第1期/共3期</text>
+              </view>
+              <progress active-color="#EFEFEF" background-color="#EFEFEF" border-radius="50" class="progress" percent="30"></progress>
+            </view>
+            <view class="count">
+              <view style="width: 352px;height: 0.5px;background-color: #efefef;margin-bottom: 59rpx;"></view>
+              <text class="sk-transparent sk-text-18-7500-266 sk-text">单词</text>
+              <text class="text-relative sk-transparent sk-text-18-7500-12 sk-text" style="margin-left: 336rpx;">谚语</text>
+              <view style="width:100%;height: 10rpx;"></view>
+              <text class="bold sk-transparent sk-text-18-7500-669 sk-text">30</text>
+              <text class="unit text-relative sk-transparent sk-text-18-7500-967 sk-text">个</text>
+              <text class="bold sk-transparent sk-text-18-7500-738 sk-text" style="margin-left:260rpx">6</text>
+              <text class="unit sk-transparent sk-text-18-7500-325 sk-text">个</text>
+            </view>
+            <image class="button-study sk-transparent sk-text-32-4561-160  sk-image" style="background-position-x: 50%;">开始学习</image>
+          </view>
+          <image class="ad sk-image" mode="widthFix" style="height: 68.5217px;"></image>
+          <view class="today-proverb">
+            <text class="today-proverb-text sk-transparent sk-text-14-0000-634 sk-text">今日谚语</text>
+            <view class="sentence">
+              <text style="color: rgb(105, 105, 105); background-position-x: 50%;" class="sk-transparent sk-text-18-7500-329 sk-text">The shortest answer is doing </text>
+              <view>
+                <text style="color: rgb(153, 153, 153); font-size: 28rpx;margin-top: 20rpx; background-position-x: 50%;" class="sk-transparent sk-text-18-7500-397 sk-text">最简单的回答就是干。</text>
+              </view>
+            </view>
+            <view is="components/media/media" class="media">
+              <view class="media--media">
+                <image class="media--feedback media--feedback-bad sk-image"></image>
+                <view is="components/frame-animation/frame-animation" class="media--frames">
+                  <view class="animation--frame animation--paused sk-image" style="background-image: url(https://17ks.chivoxapp.com/proverbs/audio.png);--width:31px;--height:26px;--count:3;--duration:0.5;--playNumber:infinite;--state:paused"></view>
+                </view>
+                <image class="media--record sk-image"></image>
+                <view class="media--replay">
+                  <image style="width: 31px;height: 29px;" class="sk-image"></image>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view style="text-align: center;">
+            <text class="support sk-transparent sk-text-18-7500-467 sk-text" style="background-position-x: 50%;">由苏州驰声提供技术支持</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="sk-loading-spinner">
+      <view class="circular"></view>
+    </view>
+  </view>
+</template>

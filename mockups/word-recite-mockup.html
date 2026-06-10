@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>单词新学 · 认识不 + 详情页 示意</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#e9eef0;color:#1b2b29;padding:40px 24px 80px;
+    display:flex;gap:40px;flex-wrap:wrap;justify-content:center;align-items:flex-start;
+  }
+  .frame{width:430px}
+  .caption{text-align:center;font-size:14px;color:#5a6678;margin-top:16px;font-weight:600}
+
+  /* phone */
+  .phone{
+    width:430px;height:910px;border-radius:46px;overflow:hidden;position:relative;
+    box-shadow:0 18px 50px rgba(31,39,51,.18);
+    display:flex;flex-direction:column;
+  }
+  /* mint gradient backgrounds */
+  .bg-pencil{background:
+    radial-gradient(120% 80% at 50% 6%, #dff0e9 0%, #d2ece4 38%, #c6e7de 100%);}
+  .bg-ruler{background:
+    radial-gradient(120% 80% at 50% 6%, #d3ece4 0%, #c8e8df 45%, #bfe5db 100%);}
+  .bg-pen{background:
+    radial-gradient(120% 80% at 50% 6%, #e0f1ea 0%, #d4ece5 40%, #c8e7df 100%);}
+
+  /* status bar */
+  .status{height:54px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 30px;font-size:17px;font-weight:600;color:#10211d;flex:none}
+  .status .right{display:flex;align-items:center;gap:7px;font-size:13px}
+  .battery{display:inline-flex;align-items:center;gap:3px;background:#34c759;color:#fff;
+    font-size:11px;font-weight:700;padding:2px 6px;border-radius:6px}
+
+  /* nav */
+  .nav{height:52px;display:flex;align-items:center;padding:0 22px;gap:10px;flex:none}
+  .nav .back{font-size:30px;color:#2a3a36;line-height:1;font-weight:300}
+  .nav .count{font-size:21px;color:#33433f;font-weight:500}
+
+  .body{flex:1;padding:6px 30px 0;overflow:hidden;display:flex;flex-direction:column}
+
+  /* word head */
+  .word-row{display:flex;align-items:flex-start;gap:10px;margin-top:18px}
+  .word{font-size:54px;font-weight:800;color:#121817;letter-spacing:.5px;line-height:1}
+  .dots{display:flex;flex-direction:column;gap:3px;margin-top:14px}
+  .dots i{width:5px;height:5px;border-radius:50%;background:#3aa86b;display:block}
+
+  .ipa-row{display:flex;align-items:center;gap:10px;margin-top:20px}
+  .lang-chip{background:rgba(255,255,255,.5);color:#5a6a66;font-size:15px;font-weight:600;
+    padding:4px 10px;border-radius:9px}
+  .speaker{width:20px;height:20px;opacity:.55}
+  .ipa{font-size:23px;color:#485652}
+
+  /* hidden meaning bars (quiz) */
+  .blur-bars{margin-top:24px;display:flex;flex-direction:column;gap:16px}
+  .blur-bar{height:30px;border-radius:10px;
+    background:rgba(255,255,255,.42);backdrop-filter:blur(4px);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  .blur-bar.w1{width:74%}
+  .blur-bar.w2{width:46%}
+
+  /* definitions (detail) */
+  .defs{margin-top:24px;display:flex;flex-direction:column;gap:14px}
+  .def-line{font-size:25px;color:#212c29;line-height:1.3;display:flex;flex-wrap:wrap;align-items:baseline;gap:14px}
+  .def-line .pos{font-style:italic;color:#3a4642;margin-right:2px}
+  .term{border-bottom:1.5px dashed #9fb7af;padding-bottom:3px}
+
+  /* example card */
+  .card{background:rgba(255,255,255,.40);border-radius:20px;padding:24px 24px;
+    box-shadow:0 6px 18px rgba(60,110,90,.08);position:relative}
+  .example{margin-top:40px}
+  .ex-en{font-size:25px;color:#1e2b27;line-height:1.45;display:flex;gap:8px}
+  .ex-en .spk{flex:none;width:18px;height:18px;margin-top:7px;opacity:.5}
+  .ex-en b{font-weight:800;color:#101a17}
+  .ex-cn{font-size:24px;color:#3b4945;line-height:1.5;margin-top:8px}
+  .ex-icon{position:absolute;right:18px;bottom:16px;width:30px;height:30px;border-radius:8px;
+    background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:#5a6a66}
+
+  /* phrase card */
+  .phrase-card{margin-top:24px;padding:30px 26px 0}
+  .phrase{font-size:24px;color:#212c29;line-height:1.3;margin-bottom:24px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+  .phrase .en{border-bottom:1.5px dashed #9fb7af;padding-bottom:2px}
+  .phrase .cn{color:#33433f}
+  .phrase-gap{height:6px}
+  .phrase-foot{display:flex;align-items:center;justify-content:space-between;
+    padding:22px 0;margin-top:6px}
+  .pill{background:rgba(255,255,255,.6);color:#3a4642;font-size:18px;font-weight:600;
+    padding:8px 16px;border-radius:14px}
+  .foot-icons{display:flex;gap:22px;color:#5a6a66;font-size:20px;opacity:.7}
+
+  /* hint (quiz) */
+  .hint{margin-top:auto;margin-bottom:0;display:flex;flex-direction:column;align-items:center;
+    padding-bottom:90px}
+  .hint .bulb{width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.5);
+    display:flex;align-items:center;justify-content:center;font-size:30px;color:#7b8a85;
+    box-shadow:0 4px 12px rgba(60,110,90,.08)}
+  .hint .label{margin-top:14px;font-size:21px;color:#7c8a86}
+
+  /* quiz footer */
+  .quiz-foot{flex:none;display:flex;padding:0 0 48px}
+  .quiz-foot .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .quiz-foot .t{font-size:27px;color:#2b3a36;font-weight:600}
+  .quiz-foot .u{width:46px;height:7px;border-radius:4px}
+  .quiz-foot .u.green{background:#3aa86b}
+  .quiz-foot .u.red{background:#e8654e}
+
+  /* detail footer */
+  .detail-foot{flex:none;text-align:center;padding:26px 0 48px;font-size:25px;color:#33433f}
+
+  /* spacer */
+  .grow{flex:1}
+</style>
+</head>
+<body>
+
+<!-- ===================== 1. 认识不 · 初始 ===================== -->
+<div class="frame">
+  <div class="phone bg-pencil">
+    <div class="status">
+      <span>19:36</span>
+      <span class="right">···· 5G <span class="battery">64</span></span>
+    </div>
+    <div class="nav"><span class="back">‹</span><span class="count">0/10</span></div>
+    <div class="body">
+      <div class="word-row">
+        <span class="word">pencil</span>
+        <span class="dots"><i></i><i></i><i></i></span>
+      </div>
+      <div class="ipa-row">
+        <span class="lang-chip">英</span>
+        <span class="ipa">🔈 /'pensl/</span>
+      </div>
+      <div class="blur-bars">
+        <div class="blur-bar w1"></div>
+        <div class="blur-bar w2"></div>
+      </div>
+      <div class="card example" style="margin-top:34px">
+        <div class="ex-en">
+          <span>A pencil is missing from my school bag. A <b>pencil</b> is all that I need.</span>
+        </div>
+      </div>
+      <div class="hint">
+        <div class="bulb">💡</div>
+        <div class="label">提示一下</div>
+      </div>
+    </div>
+    <div class="quiz-foot">
+      <div class="col"><div class="t">认识</div><div class="u green"></div></div>
+      <div class="col"><div class="t">不认识</div><div class="u red"></div></div>
+    </div>
+  </div>
+  <div class="caption">① 认识不 · 初始（释义被遮挡）</div>
+</div>
+
+<!-- ===================== 2. 认识不 · 提示后 ===================== -->
+<div class="frame">
+  <div class="phone bg-ruler">
+    <div class="status">
+      <span>19:41</span>
+      <span class="right">···· 5G <span class="battery">68</span></span>
+    </div>
+    <div class="nav"><span class="back">‹</span><span class="count">0/10</span></div>
+    <div class="body">
+      <div class="word-row">
+        <span class="word">ruler</span>
+        <span class="dots"><i></i><i></i><i></i></span>
+      </div>
+      <div class="ipa-row">
+        <span class="lang-chip">英</span>
+        <span class="ipa">🔈 /'ru:lə(r)/</span>
+      </div>
+      <div class="blur-bars">
+        <div class="blur-bar w1"></div>
+        <div class="blur-bar w2"></div>
+      </div>
+      <div class="card example" style="margin-top:34px">
+        <div class="ex-en">
+          <span class="spk">🔈</span>
+          <span>Let's see how long this is. Use this <b>ruler</b>.</span>
+        </div>
+        <div class="ex-cn">我们来看看这有多长。用这把尺子量。</div>
+      </div>
+      <div class="hint">
+        <div class="bulb">💡</div>
+        <div class="label">提示一下</div>
+      </div>
+    </div>
+    <div class="quiz-foot">
+      <div class="col"><div class="t">认识</div><div class="u green"></div></div>
+      <div class="col"><div class="t">不认识</div><div class="u red"></div></div>
+    </div>
+  </div>
+  <div class="caption">② 点「提示一下」：补全例句译文 + 播放音频</div>
+</div>
+
+<!-- ===================== 3. 详情页 ===================== -->
+<div class="frame">
+  <div class="phone bg-pen">
+    <div class="status">
+      <span>19:35</span>
+      <span class="right">···· 5G <span class="battery">63</span></span>
+    </div>
+    <div class="nav"><span class="back">‹</span><span class="count">0/10</span></div>
+    <div class="body">
+      <div class="word-row">
+        <span class="word">pen</span>
+        <span class="dots"><i></i><i></i><i></i></span>
+      </div>
+      <div class="ipa-row">
+        <span class="lang-chip">英</span>
+        <span class="ipa">🔈 /pen/</span>
+      </div>
+      <div class="defs">
+        <div class="def-line"><span class="pos">n.</span><span class="term">笔，钢笔</span><span class="term">围栏，畜栏</span></div>
+        <div class="def-line"><span class="pos">vt.</span><span class="term">写</span><span class="term">（把…）关起来</span></div>
+      </div>
+      <div class="card example" style="margin-top:26px">
+        <div class="ex-en">
+          <span class="spk">🔈</span>
+          <span>Daddy, can we draw with your coloring <b>pens</b>?</span>
+        </div>
+        <div class="ex-cn">爸爸，我们能用你的彩笔画画吗？</div>
+        <div class="ex-icon">⇄</div>
+      </div>
+      <div class="card phrase-card">
+        <div class="phrase"><span class="en">pen and ink</span><span class="cn">钢笔和墨水</span></div>
+        <div class="phrase"><span class="en">a pen pal</span><span class="cn">笔友</span></div>
+        <div class="phrase"><span class="en">pen your name</span><span class="cn">写下名字</span></div>
+        <div class="phrase-gap"></div>
+        <div class="phrase"><span class="en">put pen to paper</span><span class="cn">写，落笔</span></div>
+        <div class="phrase-foot">
+          <span class="pill">词组搭配</span>
+          <span class="foot-icons"><span>✎</span><span>☰</span></span>
+        </div>
+      </div>
+      <div class="grow"></div>
+    </div>
+    <div class="detail-foot">下一词</div>
+  </div>
+  <div class="caption">③ 单词详情页（认识/不认识后进入）</div>
+</div>
+
+</body>
+</html>

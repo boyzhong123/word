@@ -1,0 +1,91 @@
+/* pages/finish/today.wxss */
+.content {
+  text-align: center;
+  font-size: 80rpx;
+  font-family: OPPOSans;
+  font-weight: bold;
+  color: #2f80ed;
+}
+
+.periodical {
+  font-size: 34rpx;
+  font-family: PingFang SC;
+  font-weight: 600;
+  color: #343434;
+  text-align: center;
+  line-height: 60rpx;
+}
+
+.btn {
+  background: linear-gradient(180deg, #5aa7ff, #2f80ed);
+  height: 100rpx;
+  border-radius: 50rpx;
+  color: white;
+  font-size: 36rpx;
+  font-weight: bold;
+  line-height: 100rpx;
+  text-align: center;
+  margin: 0 66rpx;
+  box-shadow: 0 8rpx 16rpx rgba(47, 128, 237, 0.28);
+}
+
+/* 次级按钮（浅蓝填充） */
+.btn-secondary {
+  background: rgba(47, 128, 237, 0.1);
+  color: #2f80ed;
+  box-shadow: none;
+}
+
+.box {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  background-color: #2f80ed;
+}
+
+.pic {
+  position: relative;
+  width: calc(100% - 66rpx);
+  margin: 180rpx 33rpx 0;
+}
+
+.head {
+  position: fixed;
+  width: 100%;
+}
+
+.info {
+  border-radius: 30rpx;
+  margin: -20rpx 40rpx 0;
+  position: relative;
+  background: white;
+  padding: 93rpx 0 69rpx;
+  box-shadow: 0 0 20rpx 0 rgba(0, 0, 0, 0.06);
+  text-align: center;
+  font-family: PingFang SC;
+  font-weight: 500;
+}
+
+.column {
+  display: inline-block;
+  margin-top: 64rpx;
+}
+
+.num {
+  font-size: 60rpx;
+  color: #2f80ed;
+}
+
+.num2 {
+  font-size: 24rpx;
+  color: #343434;
+}
+
+.type {
+  margin: 30rpx 60rpx 0rpx;
+  font-size: 36rpx;
+  color: #343434;
+}

@@ -1,0 +1,18 @@
+<!--pages/catalogue/catalogue.wxml-->
+<view class="container">
+  <navigation>
+    <view class="nav-title">谚语词典</view>
+  </navigation>
+  <scroll-view scroll-y="true" style="height: {{scrollHeight}}px;" scroll-into-view="v{{selectedIndex}}" scroll-with-animation="true">
+    <view style="position: relative;" wx:for="{{pages}}" wx:key="index">
+      <image class="bg" src="https://17ks.chivoxapp.com/proverbs/catalogue_bg.png" mode="widthFix"> </image>
+      <view wx:for="{{item.units}}" wx:key="unit" wx:for-index="childIndex" wx:for-item="unit" id="v{{unit.unitId}}" data-index="{{childIndex + 5*index}}" class="phases" style="{{unit.style}}" bindtap="onItemClick" bindlongpress="longPress">
+        <image class="{{unit.class}}" src="{{unit.src}}" mode="widthFix" />
+        <text class="content" style="color: {{unit.color}};">{{unit.unitName}}</text>
+      </view>
+    </view>
+  </scroll-view>
+  <view wx:if="{{!isVip}}" class="vip-btn" bindtap="goVip">开通会员</view>
+</view>
+<dialog dialog="{{dialog}}"></dialog>
+<content-dialog wx:if="{{contentDialog.show}}" title="{{contentDialog.title}}" tip="{{contentDialog.tip}}" words="{{contentDialog.words}}" bindgoStudy="goStudy" binddismiss="dismiss"></content-dialog>

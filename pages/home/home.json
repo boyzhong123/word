@@ -1,0 +1,7 @@
+{
+  "disableScroll": true,
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "frame-animation": "../../components/frame-animation/frame-animation"
+  }
+}

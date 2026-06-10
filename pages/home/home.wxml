@@ -1,0 +1,521 @@
+<view class="home-page">
+  <scroll-view
+    id="home-scroll"
+    class="home-scroll"
+    style="height: {{scrollViewHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    scroll-with-animation
+    lower-threshold="240"
+    bindscroll="onHomeScroll"
+    bindscrolltolower="loadMoreUnits"
+  >
+    <view class="hero-section" style="height: {{heroSectionHeight}}rpx;">
+      <image class="hero-image" src="../../images/home/hero-campus-jelly-v4.png" mode="aspectFill" />
+
+      <view class="hero-copy" style="top: {{heroContentTop}}rpx;">
+        <view class="hero-title">
+          <text>Hi，</text>
+          <block wx:if="{{canUseUserProfile}}">
+            <text wx:if="{{nickName}}" class="hero-name-tap" bindtap="getUserProfile">{{nickName}}</text>
+            <text wx:else class="hero-name-placeholder hero-name-tap" bindtap="getUserProfile">点击授权</text>
+          </block>
+          <block wx:else>
+            <text
+              wx:if="{{nickName && !nicknameEditing}}"
+              class="hero-name-tap"
+              bindtap="getUserProfile"
+            >{{nickName}}</text>
+            <input
+              wx:else
+              class="hero-name-input"
+              type="nickname"
+              value="{{nickName}}"
+              focus="{{nicknameFocus}}"
+              maxlength="10"
+              placeholder="设置昵称"
+              placeholder-style="color: rgba(255,255,255,0.82);"
+              bindinput="nickNameChange"
+              bindblur="nickNameBlur"
+            />
+          </block>
+        </view>
+        <view class="hero-subtitle">每天进步一点点，词汇量大大！</view>
+      </view>
+
+      <view class="book-card" style="top: {{bookCardTop}}rpx;">
+        <block wx:if="{{loading}}">
+          <view class="book-cover-column">
+            <view class="book-cover sk-block"></view>
+            <view class="switch-book switch-book-cover sk-block"></view>
+          </view>
+          <view class="book-summary">
+            <view class="book-title-row">
+              <view class="sk-block sk-line" style="width: 56%;"></view>
+            </view>
+            <view class="sk-block sk-line" style="width: 42%; margin-top: 22rpx;"></view>
+            <view class="sk-block sk-line" style="width: 100%; height: 12rpx; margin-top: 16rpx;"></view>
+            <view class="book-metrics">
+              <view class="book-metric sk-block"></view>
+              <view class="book-metric sk-block"></view>
+              <view class="book-metric sk-block"></view>
+            </view>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="book-cover-column">
+            <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" />
+            <view class="switch-book switch-book-cover" bindtap="switchBook">
+              <image class="switch-icon" src="../../images/home/icon-switch-book.svg" mode="aspectFit" />
+              <text>切换教材</text>
+            </view>
+          </view>
+          <view class="book-summary">
+            <view class="book-title-row">
+              <text class="book-title">{{book.name}}</text>
+              <view class="checkin-calendar-button" bindtap="goCheckinCalendar">
+                <image src="../../images/home/icon-checkin-calendar-jelly.png" mode="aspectFit" />
+                <text>打卡日历</text>
+              </view>
+            </view>
+
+            <view class="book-progress-copy">
+              <text class="book-progress-label">解锁单词：</text>
+              <text>{{learnedWordCount}} / {{book.wordCount}}</text>
+            </view>
+            <view class="book-progress-track">
+              <view class="book-progress-fill" style="width: {{progressPercent}}%;"></view>
+            </view>
+
+            <view class="book-metrics">
+              <view class="book-metric metric-streak" bindtap="goCheckinCalendar">
+                <view class="metric-icon">
+                  <image src="../../images/home/icon-checkin-streak-jelly.png" mode="aspectFit" />
+                </view>
+                <view class="metric-copy">
+                  <view class="metric-number">{{checkin.continuousDays}}<text>天</text></view>
+                  <view class="metric-label">连续打卡</view>
+                </view>
+              </view>
+              <view class="book-metric" bindtap="goCheckinCalendar">
+                <view class="metric-icon">
+                  <image src="../../images/home/icon-checkin-total-jelly.png" mode="aspectFit" />
+                </view>
+                <view class="metric-copy">
+                  <view class="metric-number">{{checkin.totalDays}}<text>天</text></view>
+                  <view class="metric-label">累计打卡</view>
+                </view>
+              </view>
+              <view class="book-metric metric-today {{checkin.todayDone >= checkin.todayGoal ? 'metric-today-done' : ''}}" bindtap="goCheckinCalendar">
+                <view class="metric-icon">
+                  <image src="../../images/home/icon-checkin-today-jelly.png" mode="aspectFit" />
+                </view>
+                <view class="metric-copy">
+                  <view class="metric-number">{{checkin.todayDone}}<text>/{{checkin.todayGoal}}关</text></view>
+                  <view class="metric-label">{{checkin.todayDone >= checkin.todayGoal ? '已完成' : '今日任务'}}</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <view class="learning-section">
+      <view class="section-heading">
+        <view class="section-heading-title">
+          <image class="target-icon" src="../../images/home/icon-path-target-jelly.png" mode="aspectFit" />
+          <text>本书学习路径</text>
+        </view>
+        <view class="study-plan" bindtap="goStudyPlan">
+          <image class="plan-icon" src="../../images/home/icon-study-plan-jelly.png" mode="aspectFit" />
+          <text>学习计划</text>
+        </view>
+      </view>
+
+      <block wx:if="{{loading}}">
+        <view class="unit-card" wx:for="{{[1, 2, 3]}}" wx:key="*this">
+          <view class="unit-top">
+            <view class="sk-block sk-line" style="width: 38%;"></view>
+            <view class="sk-block sk-line" style="width: 52%; margin-top: 12rpx;"></view>
+          </view>
+          <view class="task-grid">
+            <view class="task-card sk-block" wx:for="{{[1, 2, 3]}}" wx:for-item="task" wx:key="*this"></view>
+          </view>
+        </view>
+      </block>
+
+      <block wx:else>
+      <block wx:if="{{levelViewMode === 'category'}}">
+      <block wx:for="{{listGroups}}" wx:for-item="group" wx:key="key">
+        <!-- 今日要学：把当天要学的关卡装进一个大框，配色区别于复习卡 -->
+        <view wx:if="{{group.today}}" id="today-group" class="today-group">
+          <view class="today-group-head">
+            <view class="today-group-title">
+              <image class="today-group-flag" src="../../images/home/icon-today-pin-jelly.png" mode="aspectFit" />
+              <text>今日要学</text>
+            </view>
+            <text class="today-group-count">{{checkin.todayDone}}/{{checkin.todayGoal}} 关</text>
+          </view>
+
+          <view
+            class="unit-card unit-card-{{unit.mapState}} {{unit.isReview ? 'unit-card-review' : ''}}"
+            id="{{unit.mapState === 'active' ? 'today-scroll-target' : ''}}"
+            wx:for="{{group.units}}"
+            wx:for-item="unit"
+            wx:key="key"
+          >
+            <view class="unit-top">
+              <view class="unit-copy">
+                <view class="unit-heading-row">
+                  <text wx:if="{{unit.isReview}}" class="unit-review-badge">复习</text>
+                  <text class="unit-title">{{unit.title}}</text>
+                  <view class="unit-stage-stars">
+                    <image
+                      class="unit-stage-star"
+                      wx:for="{{unit.stageStars}}"
+                      wx:for-item="stageDone"
+                      wx:key="index"
+                      src="{{stageDone ? '../../images/home/stage-star-filled.png' : '../../images/home/stage-star-empty.png'}}"
+                      mode="aspectFit"
+                    />
+                  </view>
+                </view>
+                <view class="unit-subtitle-row">
+                  <view class="unit-subtitle" style="color: {{unit.subtitleColor}};">
+                    {{unit.subtitleLanguage === 'en' ? unit.subtitleEnglish : unit.subtitleChinese}}
+                  </view>
+                  <view
+                    class="subtitle-language-toggle"
+                    data-unit-index="{{unit.listIndex}}"
+                    catchtap="toggleSubtitleLanguage"
+                  >
+                    {{unit.subtitleLanguage === 'en' ? '中' : 'EN'}}
+                  </view>
+                </view>
+              </view>
+              <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
+                <frame-animation
+                  wx:if="{{unit.cardMonsterState === 'fighting'}}"
+                  url="../../images/home/student-monster-pk-sprite.png"
+                  count="6"
+                  width="148"
+                  height="84"
+                  duration="1.1"
+                  state="running"
+                />
+                <frame-animation
+                  wx:else
+                  url="{{unit.cardMonsterSprite}}"
+                  count="{{unit.cardMonsterFrameCount}}"
+                  width="{{unit.cardMonsterFrameSize}}"
+                  height="{{unit.cardMonsterFrameSize}}"
+                  duration="{{unit.cardMonsterDuration}}"
+                  state="{{unit.cardMonsterState === 'fighting' ? 'running' : 'paused'}}"
+                />
+              </view>
+            </view>
+
+            <view class="task-grid">
+              <view
+                class="task-card task-card-{{task.mapState}} {{unit.locked && !unit.isReview ? 'task-card-locked' : ''}}"
+                wx:for="{{unit.tasks}}"
+                wx:for-item="task"
+                wx:key="type"
+                data-unit-index="{{unit.listIndex}}"
+                data-task-type="{{task.type}}"
+                bindtap="handleListTaskTap"
+              >
+                <block wx:if="{{unit.locked && !unit.isReview}}">
+                  <image
+                    class="task-lock-icon"
+                    src="../../images/home/task-lock.png"
+                    mode="aspectFit"
+                  />
+                </block>
+                <block wx:else>
+                  <view class="task-icon-wrap task-icon-wrap-{{task.mapState}}" style="background: {{task.iconBg}};">
+                    <image
+                      class="task-icon"
+                      src="{{task.icon}}"
+                      style="opacity: {{task.iconOpacity}};"
+                      mode="aspectFit"
+                    />
+                  </view>
+                </block>
+                <view class="task-copy">
+                  <view class="task-name">{{task.label}}</view>
+                  <view class="task-count">{{task.current}}/{{task.total}}</view>
+                </view>
+                <view class="task-track">
+                  <view
+                    class="task-fill"
+                    style="width: {{task.percent}}%; background: {{unit.locked && !unit.isReview ? '#bdbdbd' : task.displayColor}};"
+                  ></view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <block wx:else>
+        <!-- 其它关卡（含复习卡）各自单独成卡。单元素 wx:for 仅用于把 group.unit 取别名为 unit -->
+        <view
+          class="unit-card unit-card-{{group.unit.mapState}} {{group.unit.isReview ? 'unit-card-review' : ''}}"
+          wx:for="{{[group.unit]}}"
+          wx:for-item="unit"
+          wx:key="listIndex"
+        >
+          <view class="unit-top">
+            <view class="unit-copy">
+              <view class="unit-heading-row">
+                <text wx:if="{{unit.isReview}}" class="unit-review-badge">复习</text>
+                <text class="unit-title">{{unit.title}}</text>
+                <view class="unit-stage-stars">
+                  <image
+                    class="unit-stage-star"
+                    wx:for="{{unit.stageStars}}"
+                    wx:for-item="stageDone"
+                    wx:key="index"
+                    src="{{stageDone ? '../../images/home/stage-star-filled.png' : '../../images/home/stage-star-empty.png'}}"
+                    mode="aspectFit"
+                  />
+                </view>
+              </view>
+              <view class="unit-subtitle-row">
+                <view class="unit-subtitle" style="color: {{unit.subtitleColor}};">
+                  {{unit.subtitleLanguage === 'en' ? unit.subtitleEnglish : unit.subtitleChinese}}
+                </view>
+                <view
+                  class="subtitle-language-toggle"
+                  data-unit-index="{{unit.listIndex}}"
+                  catchtap="toggleSubtitleLanguage"
+                >
+                  {{unit.subtitleLanguage === 'en' ? '中' : 'EN'}}
+                </view>
+              </view>
+            </view>
+            <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
+              <frame-animation
+                wx:if="{{unit.cardMonsterState === 'fighting'}}"
+                url="../../images/home/student-monster-pk-sprite.png"
+                count="6"
+                width="148"
+                height="84"
+                duration="1.1"
+                state="running"
+              />
+              <frame-animation
+                wx:else
+                url="{{unit.cardMonsterSprite}}"
+                count="{{unit.cardMonsterFrameCount}}"
+                width="{{unit.cardMonsterFrameSize}}"
+                height="{{unit.cardMonsterFrameSize}}"
+                duration="{{unit.cardMonsterDuration}}"
+                state="{{unit.cardMonsterState === 'fighting' ? 'running' : 'paused'}}"
+              />
+            </view>
+          </view>
+
+          <view class="task-grid">
+            <view
+              class="task-card task-card-{{task.mapState}} {{unit.locked && !unit.isReview ? 'task-card-locked' : ''}}"
+              wx:for="{{unit.tasks}}"
+              wx:for-item="task"
+              wx:key="type"
+              data-unit-index="{{unit.listIndex}}"
+              data-task-type="{{task.type}}"
+              bindtap="handleListTaskTap"
+            >
+              <block wx:if="{{unit.locked && !unit.isReview}}">
+                <image
+                  class="task-lock-icon"
+                  src="../../images/home/task-lock.png"
+                  mode="aspectFit"
+                />
+              </block>
+              <block wx:else>
+                <view class="task-icon-wrap task-icon-wrap-{{task.mapState}}" style="background: {{task.iconBg}};">
+                  <image
+                    class="task-icon"
+                    src="{{task.icon}}"
+                    style="opacity: {{task.iconOpacity}};"
+                    mode="aspectFit"
+                  />
+                </view>
+              </block>
+              <view class="task-copy">
+                <view class="task-name">{{task.label}}</view>
+                <view class="task-count">{{task.current}}/{{task.total}}</view>
+              </view>
+              <view class="task-track">
+                <view
+                  class="task-fill"
+                  style="width: {{task.percent}}%; background: {{unit.locked && !unit.isReview ? '#bdbdbd' : task.displayColor}};"
+                ></view>
+              </view>
+            </view>
+          </view>
+        </view>
+        </block>
+      </block>
+      </block>
+
+      <block wx:else>
+        <view class="map-trail">
+          <view
+            class="trail-stop trail-stop-{{stop.kind}}"
+            wx:for="{{mapTrail}}"
+            wx:for-item="stop"
+            wx:key="stopIndex"
+          >
+            <view
+              wx:if="{{stop.connector}}"
+              class="trail-connector trail-connector-{{stop.connector.state}}"
+              style="left: {{stop.centerX}}rpx; width: {{stop.connector.length}}rpx; transform: rotate({{stop.connector.angle}}deg);"
+            ></view>
+
+            <view
+              wx:if="{{stop.kind === 'signpost'}}"
+              class="trail-sign trail-sign-{{stop.state}}"
+            >
+              <view class="trail-sign-flag">🚩</view>
+              <view class="trail-sign-copy">
+                <text class="trail-sign-level">关卡 {{stop.sort}}</text>
+                <text class="trail-sign-words">{{stop.levelWords}} 词</text>
+              </view>
+            </view>
+
+            <view
+              wx:elif="{{stop.kind === 'task'}}"
+              class="trail-node trail-node-{{stop.state}}"
+              style="left: {{stop.nodeLeft}}rpx;"
+              data-unit-index="{{stop.unitGlobalIndex}}"
+              data-task-type="{{stop.taskType}}"
+              bindtap="handleTaskTap"
+            >
+              <view wx:if="{{stop.state === 'active'}}" class="trail-node-current">当前</view>
+              <view class="trail-node-coin-wrap">
+                <image class="trail-node-coin" src="{{stop.mapButton}}" mode="aspectFit" />
+                <image
+                  wx:if="{{stop.state === 'locked'}}"
+                  class="trail-node-glyph trail-node-lock"
+                  src="../../images/home/task-lock.png"
+                  mode="aspectFit"
+                />
+                <image
+                  wx:else
+                  class="trail-node-glyph"
+                  src="{{stop.icon}}"
+                  mode="aspectFit"
+                />
+              </view>
+              <view class="trail-node-label trail-node-label-{{stop.state}}">{{stop.label}}</view>
+            </view>
+
+            <view
+              wx:else
+              class="trail-monster trail-monster-{{stop.monsterState}}"
+              style="left: {{stop.nodeLeft}}rpx;"
+            >
+              <frame-animation
+                url="{{stop.monsterSprite}}"
+                count="{{stop.monsterFrameCount}}"
+                width="{{stop.monsterFrameSize}}"
+                height="{{stop.monsterFrameSize}}"
+                duration="{{stop.monsterDuration}}"
+                state="{{stop.monsterState === 'fighting' ? 'running' : 'paused'}}"
+              />
+              <view class="trail-monster-tag trail-monster-tag-{{stop.monsterState}}">BOSS</view>
+            </view>
+          </view>
+        </view>
+      </block>
+      </block>
+      <view class="scroll-spacer" style="height: {{scrollSpacerRpx}}rpx;"></view>
+    </view>
+  </scroll-view>
+
+  <view
+    wx:if="{{!loading && levelViewMode === 'category' && showTodayLocateFab}}"
+    class="today-locate-fab"
+    bindtap="scrollToTodayTasks"
+  >
+    <image class="today-locate-fab-image" src="../../images/home/fab-today-locate-jelly.png" mode="aspectFit" />
+  </view>
+
+  <!-- 切换教材弹窗：点击「切换教材」后弹出，选择某本教材才真正切换 -->
+  <view wx:if="{{bookPickerVisible}}" class="book-picker-mask" bindtap="closeBookPicker">
+    <view class="book-picker" catchtap="noop">
+      <view class="book-picker-handle"></view>
+
+      <view class="book-picker-header">
+        <view class="book-picker-head-copy">
+          <view class="book-picker-head-row">
+            <image class="book-picker-head-icon" src="../../images/home/icon-book-picker.svg" mode="aspectFit" />
+            <text class="book-picker-title">选择教材</text>
+          </view>
+          <text class="book-picker-subtitle">共 {{allBooks.length}} 本，切换后立即生效</text>
+        </view>
+        <view class="book-picker-close" bindtap="closeBookPicker">
+          <image class="book-picker-close-icon" src="../../images/home/icon-picker-close.svg" mode="aspectFit" />
+        </view>
+      </view>
+
+      <scroll-view scroll-y class="book-picker-list" show-scrollbar="{{false}}">
+        <view class="book-picker-cards">
+          <view
+            class="book-picker-card {{item.resBookId === book.resBookId ? 'book-picker-card-active' : ''}} {{item.locked ? 'book-picker-card-locked' : ''}}"
+            wx:for="{{allBooks}}"
+            wx:key="resBookId"
+            data-res-book-id="{{item.resBookId}}"
+            bindtap="selectBook"
+          >
+            <view class="book-picker-cover-wrap">
+              <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" />
+              <view wx:if="{{item.locked}}" class="book-picker-cover-mask">
+                <image class="book-picker-cover-lock" src="../../images/home/icon-picker-lock.svg" mode="aspectFit" />
+              </view>
+            </view>
+
+            <view class="book-picker-info">
+              <view class="book-picker-name-row">
+                <text class="book-picker-name">{{item.name}}</text>
+                <view wx:if="{{item.resBookId === book.resBookId}}" class="book-picker-current">当前</view>
+              </view>
+              <view class="book-picker-meta">
+                <view class="book-picker-words">
+                  <image class="book-picker-words-icon" src="../../images/home/icon-picker-words.svg" mode="aspectFit" />
+                  <text>{{item.wordCount}} 词</text>
+                </view>
+                <view class="book-picker-status {{item.locked ? 'book-picker-status-locked' : 'book-picker-status-unlocked'}}">
+                  <image
+                    wx:if="{{!item.locked}}"
+                    class="book-picker-status-icon"
+                    src="../../images/home/icon-picker-unlock.svg"
+                    mode="aspectFit"
+                  />
+                  <text>{{item.locked ? '未解锁' : '已解锁'}}</text>
+                </view>
+              </view>
+            </view>
+
+            <view wx:if="{{item.locked}}" class="book-picker-buy">购买</view>
+            <view
+              wx:else
+              class="book-picker-radio {{item.resBookId === book.resBookId ? 'book-picker-radio-checked' : ''}}"
+            >
+              <image
+                wx:if="{{item.resBookId === book.resBookId}}"
+                class="book-picker-radio-check"
+                src="../../images/home/icon-picker-check.svg"
+                mode="aspectFit"
+              />
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

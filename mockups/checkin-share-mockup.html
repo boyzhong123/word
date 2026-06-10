@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打卡分享海报 · 页面示意</title>
+<style>
+  :root{
+    --green:#19c37d; --green-d:#0fa968; --ink:#1f2733; --gray:#8a94a6;
+    --line:#eef1f6; --warn:#ff9f43; --blue:#3a86ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#e7ebf2;color:var(--ink);padding:30px 18px 60px}
+  h1.page-title{text-align:center;font-size:20px;font-weight:700;margin-bottom:6px}
+  p.page-sub{text-align:center;color:var(--gray);font-size:13px;margin-bottom:6px}
+  .legend{text-align:center;font-size:12px;color:#5a6678;margin-bottom:26px}
+  .legend b{color:var(--blue)}
+  .stage{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;align-items:flex-start}
+  .col{width:340px}
+  .caption{text-align:center;font-size:13px;color:#5a6678;margin-top:14px;font-weight:600}
+  .caption small{display:block;font-weight:400;color:var(--gray);margin-top:4px;font-size:11.5px;line-height:1.6}
+
+  /* ---- 弹窗外壳（半透明遮罩 + 海报 + 按钮）---- */
+  .sheet{background:rgba(120,130,148,.55);border-radius:26px;padding:22px 22px 20px;box-shadow:0 16px 50px rgba(31,39,51,.22)}
+  .close{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(255,255,255,.85);color:#fff;display:grid;place-items:center;font-size:15px;margin:-4px -4px 12px auto}
+
+  /* ---- 海报本体 ---- */
+  .poster{position:relative;border-radius:14px;overflow:hidden;color:#fff;
+    background:linear-gradient(180deg,#1f8ad6 0%,#2c9bd8 30%,#3aa6cf 48%,#5b6fae 66%,#4a4a86 82%,#3a3a6e 100%);
+    aspect-ratio:0.78/1}
+  /* 星空 */
+  .stars{position:absolute;inset:0;
+    background-image:
+      radial-gradient(1.4px 1.4px at 12% 14%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 26% 26%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1.6px 1.6px at 18% 40%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 40% 12%, rgba(255,255,255,.7), transparent),
+      radial-gradient(1.5px 1.5px at 55% 30%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 70% 18%, rgba(255,255,255,.7), transparent),
+      radial-gradient(1.3px 1.3px at 85% 36%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 48% 46%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1.4px 1.4px at 33% 52%, rgba(255,255,255,.7), transparent);
+    background-repeat:no-repeat}
+  /* 闪烁四角星 */
+  .twinkle{position:absolute;color:#eaf6ff;font-size:13px;opacity:.9;text-shadow:0 0 6px rgba(255,255,255,.7)}
+  .moon{position:absolute;top:13%;right:14%;width:78px;height:78px;border-radius:50%;
+    background:radial-gradient(circle at 38% 38%,#fff7e6,#ffe9bf 60%,#f6d99a);
+    box-shadow:0 0 30px 8px rgba(255,236,196,.45)}
+  /* 山 + 倒影 */
+  .mountain{position:absolute;left:0;right:0;bottom:34%;height:32%;
+    background:linear-gradient(180deg,#4a4f93,#3c4080);
+    clip-path:polygon(0 60%,16% 30%,30% 55%,46% 18%,60% 50%,74% 26%,88% 52%,100% 36%,100% 100%,0 100%)}
+  .mountain.back{bottom:38%;height:26%;opacity:.55;
+    background:linear-gradient(180deg,#5a73b6,#46559a);
+    clip-path:polygon(0 70%,12% 45%,28% 64%,40% 40%,55% 62%,70% 42%,84% 60%,100% 48%,100% 100%,0 100%)}
+  /* 水面倒影区 */
+  .water{position:absolute;left:0;right:0;bottom:0;height:38%;
+    background:linear-gradient(180deg,#3a3a6e,#2d2d5a 50%,#26264e);overflow:hidden}
+  .water .glow{position:absolute;top:-6px;right:18%;width:60px;height:40px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,236,196,.4),transparent 70%);filter:blur(3px)}
+  .deer{position:absolute;left:9%;bottom:30%;font-size:22px;opacity:.75;filter:grayscale(.2)}
+
+  /* 海报顶部文案 */
+  .p-head{position:relative;z-index:2;padding:24px 22px 0}
+  .p-date{font-size:30px;font-weight:800;letter-spacing:.5px}
+  .p-en{font-size:15px;font-weight:600;margin-top:14px;opacity:.96}
+  .p-cn{font-size:13px;margin-top:6px;opacity:.9}
+
+  /* 底部信息面板（压在图片下半部） */
+  .p-info{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:18px 22px 20px;
+    background:linear-gradient(180deg,rgba(26,31,58,0) 0%,rgba(26,31,58,.55) 22%,rgba(22,26,50,.82) 60%)}
+  .p-user{display:flex;align-items:center;gap:10px}
+  .avatar{width:42px;height:42px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,.7)}
+  .nick{font-size:16px;font-weight:600}
+  .p-claim{font-size:24px;font-weight:800;line-height:1.4;margin-top:14px}
+  .p-claim .em{color:#ffe08a}
+  .p-claim .brand{color:#bfe6ff}
+  .p-stats{display:flex;gap:8px;margin-top:16px;max-width:62%}
+  .stat{flex:1}
+  .stat .n{font-size:24px;font-weight:800;line-height:1}
+  .stat .l{font-size:11px;opacity:.78;margin-top:6px}
+  /* 小程序码 */
+  .qr{position:absolute;right:22px;bottom:42px;width:78px;text-align:center}
+  .qr .code{width:78px;height:78px;border-radius:8px;background:#fff;padding:6px;display:grid;place-items:center}
+  .qr .code svg{width:100%;height:100%}
+  .qr .tip{font-size:10px;opacity:.8;margin-top:6px}
+
+  /* ---- 底部两个按钮 ---- */
+  .acts{display:flex;gap:14px;margin-top:18px}
+  .act{flex:1;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:#fff}
+  .act.save{background:var(--warn)}
+  .act.share{background:var(--green)}
+
+  /* ---- 模式开关 ---- */
+  .mode{display:flex;gap:6px;background:#dfe4ec;padding:5px;border-radius:14px;margin:0 auto 20px;width:240px}
+  .mode .m{flex:1;text-align:center;font-size:13px;padding:8px 0;border-radius:10px;color:var(--gray);font-weight:700;cursor:pointer;user-select:none}
+  .mode .m.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+
+  /* ---- 原生分享面板（第二张截图） ---- */
+  .native{margin-top:18px;background:#ededed;border-radius:18px 18px 0 0;padding:18px 0 14px}
+  .native .row{display:flex;justify-content:space-around;padding:0 8px}
+  .ni{text-align:center;width:64px}
+  .ni .ic{width:50px;height:50px;border-radius:50%;margin:0 auto 7px;display:grid;place-items:center;font-size:22px;color:#fff}
+  .ni .t{font-size:11px;color:#555}
+  .native .sep{height:8px;background:#dcdcdc;margin:14px 0 12px}
+  .native .cancel{text-align:center;font-size:15px;color:#333;padding:6px 0}
+</style>
+</head>
+<body>
+  <h1 class="page-title">打卡分享海报 · 视觉示意</h1>
+  <p class="page-sub">同一张模板，两种数据：<b>今日打卡</b>（完成今日任务后）/ <b>累计打卡</b>（日历页 · 我的页）</p>
+  <p class="legend">夜空 / 山 / 水 / 月亮全部用纯 CSS 画，转 canvas 时会换成一张背景底图；<b>橙色「保存图片」</b>→ saveImageToPhotosAlbum，<b>绿色「分享到微信」</b>→ showShareImageMenu</p>
+
+  <div class="mode" id="mode">
+    <div class="m on" data-m="dual">两张对照</div>
+    <div class="m" data-m="native">含分享面板</div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- ============ 累计打卡 ============ -->
+    <div class="col">
+      <div class="sheet">
+        <div class="close">×</div>
+        <div class="poster">
+          <div class="stars"></div>
+          <span class="twinkle" style="left:22%;top:46%">✦</span>
+          <span class="twinkle" style="left:46%;top:54%;font-size:10px">✦</span>
+          <span class="twinkle" style="left:80%;top:44%;font-size:11px">✦</span>
+          <div class="moon"></div>
+          <div class="mountain back"></div>
+          <div class="mountain"></div>
+          <div class="water"><div class="glow"></div></div>
+          <span class="deer">🦌</span>
+
+          <div class="p-head">
+            <div class="p-date">2026.06.09</div>
+            <div class="p-en">Keep going. Each step counts.</div>
+            <div class="p-cn">继续前进。每一步都重要。</div>
+          </div>
+
+          <div class="p-info">
+            <div class="p-user">
+              <div class="avatar">Hi</div>
+              <div class="nick">小宝0748</div>
+            </div>
+            <div class="p-claim">我在<span class="brand">『记忆法』</span><br>已连续打卡学习 <span class="em">126</span> 天</div>
+            <div class="p-stats">
+              <div class="stat"><div class="n">328</div><div class="l">累计掌握(个)</div></div>
+              <div class="stat"><div class="n">126</div><div class="l">累计天数(天)</div></div>
+              <div class="stat"><div class="n">540</div><div class="l">累计时长(分)</div></div>
+            </div>
+            <div class="qr">
+              <div class="code">__QR__</div>
+              <div class="tip">长按识别二维码</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acts">
+          <div class="act save">⬇ 保存图片</div>
+          <div class="act share">💬 分享到微信</div>
+        </div>
+      </div>
+      <div class="caption">累计打卡
+        <small>主标语强调「连续 N 天」，三个数字走累计口径<br>入口：打卡日历页 / 我的页</small>
+      </div>
+    </div>
+
+    <!-- ============ 今日打卡 ============ -->
+    <div class="col">
+      <div class="sheet">
+        <div class="close">×</div>
+        <div class="poster">
+          <div class="stars"></div>
+          <span class="twinkle" style="left:22%;top:46%">✦</span>
+          <span class="twinkle" style="left:46%;top:54%;font-size:10px">✦</span>
+          <span class="twinkle" style="left:80%;top:44%;font-size:11px">✦</span>
+          <div class="moon"></div>
+          <div class="mountain back"></div>
+          <div class="mountain"></div>
+          <div class="water"><div class="glow"></div></div>
+          <span class="deer">🦌</span>
+
+          <div class="p-head">
+            <div class="p-date">2026.06.09</div>
+            <div class="p-en">Small steps, big wins.</div>
+            <div class="p-cn">小小一步，也是收获。</div>
+          </div>
+
+          <div class="p-info">
+            <div class="p-user">
+              <div class="avatar">Hi</div>
+              <div class="nick">小宝0748</div>
+            </div>
+            <div class="p-claim">我在<span class="brand">『记忆法』</span><br>今天学了 <span class="em">20</span> 个单词</div>
+            <div class="p-stats">
+              <div class="stat"><div class="n">20</div><div class="l">今日学习(个)</div></div>
+              <div class="stat"><div class="n">5</div><div class="l">今日关卡(关)</div></div>
+              <div class="stat"><div class="n">12</div><div class="l">今日时长(分)</div></div>
+            </div>
+            <div class="qr">
+              <div class="code">__QR__</div>
+              <div class="tip">长按识别二维码</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acts">
+          <div class="act save">⬇ 保存图片</div>
+          <div class="act share">💬 分享到微信</div>
+        </div>
+      </div>
+      <div class="caption">今日打卡
+        <small>主标语强调「今天学了 N 个」，三个数字走当日口径<br>入口：完成今日任务的 finish 页</small>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 原生分享面板（默认隐藏） -->
+  <div class="stage" id="nativeWrap" style="display:none;margin-top:20px">
+    <div class="col">
+      <div class="native">
+        <div class="row">
+          <div class="ni"><div class="ic" style="background:#3eb575">↗</div><div class="t">发送给朋友</div></div>
+          <div class="ni"><div class="ic" style="background:linear-gradient(135deg,#ff5b5b,#ffb03a 50%,#3a86ff)">◉</div><div class="t">分享到朋友圈</div></div>
+          <div class="ni"><div class="ic" style="background:#ffb03a">★</div><div class="t">收藏</div></div>
+          <div class="ni"><div class="ic" style="background:#3a86ff">⬇</div><div class="t">保存图片</div></div>
+          <div class="ni"><div class="ic" style="background:#2f80ed">◆</div><div class="t">转发为贴图</div></div>
+        </div>
+        <div class="sep"></div>
+        <div class="cancel">取消</div>
+      </div>
+      <div class="caption">点「分享到微信」后弹出的微信原生面板
+        <small>showShareImageMenu 把生成的海报当图片消息转发<br>好友长按图内小程序码即可进入小程序</small>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // 占位小程序码（SVG 伪二维码），转 canvas 时换成 wxacode.getUnlimited 生成的真码
+  var qrSvg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+    + '<rect width="100" height="100" fill="#fff"/>';
+  function blk(x,y,s){return '<rect x="'+x+'" y="'+y+'" width="'+s+'" height="'+s+'" fill="#16a34a"/>'}
+  // 三个定位角
+  [[6,6],[70,6],[6,70]].forEach(function(p){
+    qrSvg += '<rect x="'+p[0]+'" y="'+p[1]+'" width="24" height="24" fill="#16a34a"/>'
+      + '<rect x="'+(p[0]+4)+'" y="'+(p[1]+4)+'" width="16" height="16" fill="#fff"/>'
+      + blk(p[0]+8,p[1]+8,8);
+  });
+  // 随机点阵
+  var seed=7; function rnd(){seed=(seed*9301+49297)%233280;return seed/233280;}
+  for(var y=6;y<94;y+=6){for(var x=6;x<94;x+=6){
+    if((x<34&&y<34)||(x>64&&y<34)||(x<34&&y>64))continue;
+    if(rnd()>0.55)qrSvg+=blk(x,y,5);
+  }}
+  qrSvg += '<circle cx="50" cy="50" r="13" fill="#16a34a"/><text x="50" y="55" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">英</text></svg>';
+  document.querySelectorAll('.code').forEach(function(el){el.innerHTML=qrSvg;});
+
+  // 模式切换
+  var mode=document.getElementById('mode');
+  var nativeWrap=document.getElementById('nativeWrap');
+  mode.addEventListener('click',function(e){
+    var t=e.target.closest('.m'); if(!t)return;
+    mode.querySelectorAll('.m').forEach(function(m){m.classList.remove('on')});
+    t.classList.add('on');
+    nativeWrap.style.display = t.dataset.m==='native' ? 'flex' : 'none';
+  });
+</script>
+</body>
+</html>

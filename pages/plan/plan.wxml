@@ -1,0 +1,97 @@
+<view class="plan-page">
+  <!-- 自定义导航 -->
+  <view class="nav" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+    <view class="nav-btn" style="top: {{statusBarHeight}}px;" bindtap="back">
+      <image class="nav-icon" src="../../images/icon_back.png" mode="heightFix" />
+    </view>
+    <view class="nav-title">学习计划</view>
+  </view>
+
+  <scroll-view class="plan-scroll" scroll-y enhanced show-scrollbar="{{false}}"
+    style="top: {{statusBarHeight + navBarHeight}}px;">
+
+    <!-- 教材概览 -->
+    <view class="book-card">
+      <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" />
+      <view class="book-info">
+        <view class="book-name">{{book.name}}</view>
+        <view class="book-total">共 <text class="hl">{{book.wordCount}}</text> 个单词</view>
+        <view class="book-tip">每个关卡固定 {{levelSize}} 词</view>
+      </view>
+    </view>
+
+    <!-- 每天练习组数设置 -->
+    <view class="section">
+      <view class="section-title">每天练习几组</view>
+
+      <view class="daily-display">
+        <view class="stepper {{groupsPerDay <= minGroups ? 'stepper-off' : ''}}" data-dir="-1" bindtap="onStep">−</view>
+        <view class="daily-num">
+          <text class="num">{{groupsPerDay}}</text>
+          <text class="unit">组/天</text>
+        </view>
+        <view class="stepper {{groupsPerDay >= maxGroups ? 'stepper-off' : ''}}" data-dir="1" bindtap="onStep">+</view>
+      </view>
+
+      <view class="daily-hint">每组 {{levelSize}} 词，约 <text class="hl">{{dailyWords}}</text> 词/天</view>
+
+      <slider class="daily-slider" min="{{minGroups}}" max="{{maxGroups}}" step="1"
+        value="{{groupsPerDay}}" block-size="22" activeColor="#2f80ed" backgroundColor="#eeeeee"
+        bindchanging="onSlide" bindchange="onSlide" />
+      <view class="slider-scale">
+        <text>{{minGroups}}组</text>
+        <text>{{maxGroups}}组</text>
+      </view>
+
+      <view class="presets">
+        <view wx:for="{{presets}}" wx:key="label"
+          class="preset {{item.value === groupsPerDay ? 'preset-active' : ''}}"
+          data-value="{{item.value}}" bindtap="onPreset">
+          <view class="preset-label">{{item.label}}</view>
+          <view class="preset-value">{{item.value}}组</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 动态计算结果 -->
+    <view class="result-card">
+      <view class="result-item">
+        <view class="result-num">{{totalLevels}}</view>
+        <view class="result-label">关卡数量</view>
+      </view>
+      <view class="result-divider"></view>
+      <view class="result-item">
+        <view class="result-num">{{estimatedDays}}</view>
+        <view class="result-label">预计天数</view>
+      </view>
+      <view class="result-divider"></view>
+      <view class="result-item">
+        <view class="result-num">{{estimatedWeeks}}</view>
+        <view class="result-label">约几周</view>
+      </view>
+    </view>
+
+    <!-- 关卡预览 -->
+    <view class="section">
+      <view class="section-title">关卡预览</view>
+      <view class="level-list">
+        <view wx:for="{{levelPreview}}" wx:key="sort" class="level-row">
+          <view class="level-badge">{{item.sort}}</view>
+          <view class="level-info">
+            <view class="level-name">关卡 {{item.sort}}</view>
+            <view class="level-range">第 {{item.start}} - {{item.end}} 词</view>
+          </view>
+          <view class="level-count">{{item.count}}词</view>
+        </view>
+        <view wx:if="{{hasMoreLevels}}" class="level-more">…… 共 {{totalLevels}} 关</view>
+      </view>
+    </view>
+
+    <view class="scroll-spacer"></view>
+  </scroll-view>
+
+  <!-- 底部保存 -->
+  <view class="footer" style="padding-bottom: {{safeAreaBottom}}px;">
+    <view class="save-btn" bindtap="savePlan">保存学习计划</view>
+  </view>
+</view>

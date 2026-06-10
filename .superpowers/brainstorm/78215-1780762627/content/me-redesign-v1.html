@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的页重设计预览</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: #2d2d2d;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif;
+      color: #14212a;
+      padding: 10px 0 28px;
+    }
+    .phone {
+      width: 660px;
+      min-height: 940px;
+      background: #f6f9ff;
+      border-radius: 48px 48px 0 0;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    }
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 360px;
+      height: 56px;
+      transform: translateX(-50%);
+      background: #000;
+      border-radius: 0 0 30px 30px;
+      z-index: 4;
+    }
+    .status {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      top: 30px;
+      display: flex;
+      justify-content: space-between;
+      color: #fff;
+      font-weight: 700;
+      font-size: 20px;
+      z-index: 5;
+    }
+    .hero {
+      min-height: 304px;
+      padding: 92px 32px 42px;
+      background:
+        radial-gradient(circle at 86% 18%, rgba(255,255,255,.24), transparent 28%),
+        linear-gradient(155deg, #52b8ff 0%, #2e82ef 58%, #216fe4 100%);
+      border-radius: 0 0 32px 32px;
+      color: #fff;
+      position: relative;
+    }
+    .menu-pill {
+      position: absolute;
+      right: 20px;
+      top: 88px;
+      width: 150px;
+      height: 50px;
+      border: 2px solid rgba(255,255,255,.45);
+      border-radius: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background: rgba(32, 79, 138, .32);
+    }
+    .menu-pill span { width: 8px; height: 8px; background: #fff; border-radius: 50%; }
+    .menu-pill .circle { width: 25px; height: 25px; border: 4px solid #fff; border-radius: 50%; background: transparent; }
+    .profile {
+      display: flex;
+      align-items: center;
+      max-width: 440px;
+    }
+    .avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,.86);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.7), rgba(255,255,255,.15)),
+        url("/images/home/book-cover.png");
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 10px 24px rgba(12, 75, 142, .26);
+      flex: none;
+    }
+    .identity { margin-left: 20px; min-width: 0; }
+    .name { font-size: 34px; line-height: 1.1; font-weight: 900; letter-spacing: 0; }
+    .motto { margin-top: 12px; font-size: 18px; line-height: 1.4; opacity: .86; font-weight: 600; }
+    .today-strip {
+      position: absolute;
+      left: 32px;
+      right: 32px;
+      bottom: -44px;
+      height: 92px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.96);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      box-shadow: 0 14px 32px rgba(47, 96, 150, .13);
+      border: 1px solid rgba(255,255,255,.8);
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .stat:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 24px;
+      bottom: 24px;
+      width: 1px;
+      background: #edf1f6;
+    }
+    .num { font-size: 30px; line-height: 1; font-weight: 900; color: #10141a; }
+    .label { margin-top: 10px; font-size: 15px; color: #7c8793; font-weight: 600; }
+    .content { padding: 74px 30px 38px; }
+    .section-title {
+      margin: 0 0 14px 2px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #27313a;
+    }
+    .learning-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 28px rgba(60, 107, 157, .08);
+      border: 1px solid rgba(226, 234, 244, .75);
+    }
+    .learning-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .learning-title { font-size: 24px; font-weight: 900; color: #18222b; }
+    .learning-sub { margin-top: 7px; font-size: 16px; color: #7a8794; font-weight: 600; }
+    .continue-btn {
+      flex: none;
+      height: 44px;
+      padding: 0 22px;
+      border-radius: 22px;
+      background: #111318;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .progress-box {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #f2f7ff, #edf5ff);
+    }
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      color: #52606c;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .bar {
+      height: 10px;
+      margin-top: 12px;
+      border-radius: 10px;
+      background: #d9e7fb;
+      overflow: hidden;
+    }
+    .fill { width: 63%; height: 100%; background: linear-gradient(90deg, #51b7ff, #2f80ed); border-radius: 10px; }
+    .quick-grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .quick {
+      min-height: 86px;
+      border-radius: 20px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid #e7eef7;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 8px 20px rgba(60, 107, 157, .06);
+    }
+    .qicon {
+      width: 42px;
+      height: 42px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      font-size: 23px;
+      font-weight: 900;
+    }
+    .book { background: #eaf2ff; color: #2f80ed; }
+    .bell { background: #eaf9f0; color: #24a966; }
+    .clock { background: #fff6e5; color: #db8b13; }
+    .help { background: #eef0f4; color: #5c6a77; }
+    .quick-title { font-size: 19px; font-weight: 900; color: #17212a; }
+    .quick-desc { margin-top: 5px; font-size: 14px; font-weight: 600; color: #85909b; }
+    .menu-group {
+      margin-top: 24px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid rgba(226, 234, 244, .8);
+      box-shadow: 0 10px 28px rgba(60, 107, 157, .07);
+    }
+    .row {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      border-bottom: 1px solid #f0f3f7;
+    }
+    .row:last-child { border-bottom: 0; }
+    .row-main { flex: 1; margin-left: 15px; }
+    .row-title { font-size: 19px; font-weight: 900; color: #17212a; }
+    .row-note { margin-top: 4px; font-size: 14px; color: #89939e; font-weight: 600; }
+    .arrow { color: #b8c0c9; font-size: 34px; line-height: 1; }
+    .caption {
+      margin-top: 18px;
+      text-align: center;
+      color: #9aa4ae;
+      font-size: 14px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="status"><span>0:07</span><span>⌁ ▭</span></div>
+    <section class="hero">
+      <div class="menu-pill"><span></span><span></span><span></span><div class="circle"></div></div>
+      <div class="profile">
+        <div class="avatar"></div>
+        <div class="identity">
+          <div class="name">凌动</div>
+          <div class="motto">今天继续向前一点点</div>
+        </div>
+      </div>
+      <div class="today-strip">
+        <div class="stat"><div class="num">0</div><div class="label">连续打卡</div></div>
+        <div class="stat"><div class="num">163</div><div class="label">累计学词</div></div>
+        <div class="stat"><div class="num">0</div><div class="label">学习分钟</div></div>
+      </div>
+    </section>
+    <main class="content">
+      <div class="section-title">今日学习</div>
+      <section class="learning-card">
+        <div class="learning-top">
+          <div>
+            <div class="learning-title">Book 1 · Unit 6</div>
+            <div class="learning-sub">单词新学 8/12 · 听力小测待完成</div>
+          </div>
+          <div class="continue-btn">继续学</div>
+        </div>
+        <div class="progress-box">
+          <div class="progress-head"><span>今日目标进度</span><span>63%</span></div>
+          <div class="bar"><div class="fill"></div></div>
+        </div>
+      </section>
+      <div class="quick-grid">
+        <div class="quick"><div class="qicon book">□</div><div><div class="quick-title">我的教材</div><div class="quick-desc">查看当前内容</div></div></div>
+        <div class="quick"><div class="qicon bell">◷</div><div><div class="quick-title">学习提醒</div><div class="quick-desc">设置练习节奏</div></div></div>
+        <div class="quick"><div class="qicon clock">↻</div><div><div class="quick-title">错词复习</div><div class="quick-desc">回到薄弱单词</div></div></div>
+        <div class="quick"><div class="qicon help">?</div><div><div class="quick-title">联系客服</div><div class="quick-desc">遇到问题找我们</div></div></div>
+      </div>
+      <div class="section-title" style="margin-top:26px;">设置</div>
+      <section class="menu-group">
+        <div class="row"><div class="qicon bell">◷</div><div class="row-main"><div class="row-title">每日练习目标</div><div class="row-note">按自己的节奏安排学习</div></div><div class="arrow">›</div></div>
+        <div class="row"><div class="qicon help">i</div><div class="row-main"><div class="row-title">学习数据说明</div><div class="row-note">查看统计口径</div></div><div class="arrow">›</div></div>
+      </section>
+      <div class="caption">已去掉 VIP / 开通入口，页面重点回到学习进度</div>
+    </main>
+  </div>
+</body>
+</html>

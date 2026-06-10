@@ -1,0 +1,36 @@
+.bg {
+  width: 100%;
+  min-height: 2630rpx;
+  display: block;
+}
+.phases {
+  width: 240rpx;
+  height: 240rpx;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+}
+.icon-present { width: 180rpx; height: 180rpx; }
+.icon-present2 { width: 240rpx; height: 240rpx; }
+.content {
+  position: absolute;
+  font-size: 36rpx;
+  font-weight: bold;
+  font-family: PingFang SC;
+  color: #FFFFFF;
+}
+.vip-btn {
+  position: absolute;
+  background: #FF9FC6;
+  height: 100rpx;
+  border-radius: 60rpx;
+  color: white;
+  font-size: 36rpx;
+  line-height: 100rpx;
+  text-align: center;
+  left: 36rpx;
+  right: 36rpx;
+  bottom: 50rpx;
+}

@@ -1,0 +1,56 @@
+const test = require('node:test')
+const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const path = require('node:path')
+
+const projectRoot = path.resolve(__dirname, '..')
+const meScript = fs.readFileSync(path.join(projectRoot, 'pages/me/me.js'), 'utf8')
+const meTemplate = fs.readFileSync(path.join(projectRoot, 'pages/me/me.wxml'), 'utf8')
+const meStyle = fs.readFileSync(path.join(projectRoot, 'pages/me/me.wxss'), 'utf8')
+
+test('me page keeps the menu focused on common actions', () => {
+  assert.match(meScript, /label: '我的教材'/)
+  assert.match(meScript, /label: '消息授权状态'/)
+  assert.match(meScript, /label: '联系客服'/)
+  assert.match(meScript, /label: '隐私与协议'/)
+
+  assert.doesNotMatch(meScript, /label: '会员中心'/)
+  assert.doesNotMatch(meScript, /label: '错词本'/)
+  assert.doesNotMatch(meScript, /label: '学习成就'/)
+  assert.doesNotMatch(meScript, /label: '意见反馈'/)
+  assert.doesNotMatch(meScript, /label: '关于我们'/)
+})
+
+test('me page removes VIP entry points from the profile area', () => {
+  assert.doesNotMatch(meTemplate, /vip-badge/)
+  assert.doesNotMatch(meTemplate, /bindtap="goVip"/)
+  assert.doesNotMatch(meScript, /goVip/)
+  assert.doesNotMatch(meScript, /isVip/)
+  assert.doesNotMatch(meStyle, /menu-ic-vip/)
+  assert.doesNotMatch(meTemplate, /开通/)
+})
+
+test('me page uses a message and official-account center instead of duplicated plans', () => {
+  assert.match(meScript, /messageItems/)
+  assert.match(meScript, /label: '订阅消息'/)
+  assert.match(meScript, /label: '公众号'/)
+  assert.match(meScript, /requestSubscribe\(\)/)
+  assert.match(meTemplate, /class="section-title">消息与关注/)
+  assert.match(meTemplate, /<official-account/)
+  assert.match(meTemplate, /bindtap="requestSubscribe"/)
+  assert.match(meTemplate, /关注公众号，领取学习资料/)
+  assert.doesNotMatch(meTemplate, /今日学习/)
+  assert.doesNotMatch(meTemplate, /继续学/)
+})
+
+test('me page uses a textured header and clean card stack', () => {
+  assert.match(meTemplate, /class="section-title">常用/)
+  assert.match(meTemplate, /class="section-title">账号设置/)
+  assert.match(meTemplate, /class="menu-copy"/)
+  assert.match(meTemplate, /class="menu-desc"/)
+  assert.match(meStyle, /\.profile-header::before\s*{[^}]*content:\s*'A B C'/s)
+  assert.match(meStyle, /\.profile-header::after\s*{[^}]*radial-gradient/s)
+  assert.match(meStyle, /\.stats-card\s*{[^}]*margin:\s*24rpx 31rpx 0;/s)
+  assert.doesNotMatch(meStyle, /\.stats-card\s*{[^}]*position:\s*absolute/s)
+  assert.doesNotMatch(meStyle, /bottom:\s*-56rpx/)
+})

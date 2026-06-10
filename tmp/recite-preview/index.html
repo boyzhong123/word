@@ -1,0 +1,86 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>wave fill repro</title>
+<style>
+  /* rpx -> px at /2 */
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#5b5b66; font-family:-apple-system,"PingFang SC",sans-serif; }
+  .phone{ width:375px; margin:0 auto; min-height:100vh;
+    background:linear-gradient(180deg,#e7e1f3 0%,#d8e3f9 32%,#abcaf2 66%,#84b6ee 100%); }
+  .quiz-page{ padding:15px 14.5px 0; }
+  .nav{ height:30px; }
+  .lbl{ color:#fff; font-size:11px; padding:6px 0 2px; opacity:.85; }
+
+  .quiz-recite-panel{ margin-top:8px; padding:14px 14.5px 16px; border-radius:14.5px;
+    background:rgba(255,255,255,.34); border:.5px solid rgba(255,255,255,.48); box-shadow:0 6px 15px rgba(74,126,132,.12); }
+
+  /* current applied fix */
+  .quiz-recite-media{ display:block; width:100%; padding:16px 36px 14px; min-height:100px; }
+  .media{ display:flex; flex-direction:row; align-items:center; position:relative;
+    padding:30px 0 30px 0; justify-content:space-between; }
+
+  .audio{ width:28px; height:24px; background:#263f45; border-radius:3px; }
+  .record{ width:46px; height:59px; background:#263f45; border-radius:23px; }
+  .replay{ width:40px; height:40px; border-radius:50%; background:#111318; }
+
+  .recording{ position:absolute; left:0; right:0; top:0; bottom:0; z-index:2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .recording-wave{ display:block; width:100%; min-width:240px; height:53px; }
+  .stop-record-tip{ font-size:12px; color:#4e6a70; line-height:12px; }
+
+  /* NEW: wave fills the card content width (cancel the 36px host padding) */
+  .fill .recording{ left:-36px; right:-36px; }
+
+  .guide{ position:absolute; top:0; bottom:0; width:1px; background:red; opacity:.5; z-index:9; }
+</style>
+
+<div class="phone">
+  <div class="quiz-page">
+    <div class="nav"></div>
+
+    <div class="lbl">录音中 — 波浪线撑满（buttons 不变）</div>
+    <div class="quiz-recite-panel" id="panelA">
+      <div class="quiz-recite-media fill">
+        <div class="media">
+          <div class="recording">
+            <svg class="recording-wave" id="wave" viewBox="0 0 480 106" preserveAspectRatio="none">
+              <path d="M0,53 C60,10 120,10 180,53 C240,96 300,96 360,53 C420,10 480,10 540,53" fill="none" stroke="#2f6fe0" stroke-width="3"/>
+            </svg>
+            <div class="stop-record-tip">点击波纹，结束录音</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lbl">结果态 — 按钮保持原位</div>
+    <div class="quiz-recite-panel" id="panelB">
+      <div class="quiz-recite-media fill">
+        <div class="media">
+          <div class="audio" id="ic0"></div>
+          <div class="record"></div>
+          <div class="replay" id="ic2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function mark(){
+    document.querySelectorAll('.guide').forEach(g=>g.remove());
+    const phone=document.querySelector('.phone'); const pr=phone.getBoundingClientRect();
+    const pA=document.getElementById('panelA').getBoundingClientRect();
+    const wave=document.getElementById('wave').getBoundingClientRect();
+    const ic0=document.getElementById('ic0').getBoundingClientRect();
+    const ic2=document.getElementById('ic2').getBoundingClientRect();
+    // panel content edges (inside panel padding 14.5)
+    [[pA.left+14.5,'orange'],[pA.right-14.5,'orange'],[wave.left,'red'],[wave.right,'red']].forEach(([x,c])=>{
+      const d=document.createElement('div'); d.className='guide'; d.style.left=(x-pr.left)+'px'; d.style.background=c; phone.appendChild(d);
+    });
+    return { panelContentL:(pA.left+14.5).toFixed(1), panelContentR:(pA.right-14.5).toFixed(1),
+             waveL:wave.left.toFixed(1), waveR:wave.right.toFixed(1),
+             icL:ic0.left.toFixed(1), icR:ic2.right.toFixed(1) };
+  }
+  window.__mark=mark; mark();
+</script>

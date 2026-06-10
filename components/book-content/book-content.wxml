@@ -1,0 +1,17 @@
+<!--components/dialog/book-content/book-content.wxml-->
+<view class="dialog" bindtap="hidePopup">
+  <view class="dialog-bg" catchtap='clickDialog'>
+    <view class="dialog-title">{{title}}</view>
+    <image src="/images/gray_close.png" class="close-img" bindtap="hidePopup" />
+    <view class="dialog-tip">{{tip}}</view>
+    <scroll-view scroll-y style="max-height:380rpx;">
+      <view class="list">
+        <view wx:for="{{words}}" wx:key="index" class="row2" style="width:50%;">
+          <view class="word">{{item.content}}</view>
+          <view class="page">P{{item.page}}</view>
+        </view>
+      </view>
+    </scroll-view>
+    <text class="btn" bindtap="goStudy">开始学习</text>
+  </view>
+</view>

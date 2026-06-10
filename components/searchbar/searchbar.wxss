@@ -1,0 +1,36 @@
+.search-form {
+  width: 100%;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  height: 64rpx;
+  padding: 0 24rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.imgage-search {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  color: #ffffff;
+  font-size: 26rpx;
+}
+
+.icon-clear {
+  width: 28rpx;
+  height: 28rpx;
+  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+
+.cagetgory-item {
+  font-weight: 500;
+}

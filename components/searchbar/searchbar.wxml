@@ -1,0 +1,15 @@
+<view class="search-form">
+  <view class="search-box">
+    <image class="imgage-search" src="../../images/icon_search.png" mode="aspectFit" />
+    <input
+      class="search-input"
+      placeholder="搜索单词/谚语"
+      placeholder-style="color:white;opacity: 0.5;"
+      confirm-type="search"
+      value="{{value}}"
+      bindinput="onInput"
+      bindconfirm="onConfirm"
+    />
+    <image wx:if="{{value}}" class="icon-clear" src="../../images/icon_clear.png" mode="aspectFit" bindtap="onClear" />
+  </view>
+</view>

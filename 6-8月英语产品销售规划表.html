@@ -1,0 +1,1324 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>6-8月英语产品销售规划表</title>
+  <style>
+    :root {
+      --ink: #1b2330;
+      --muted: #64748b;
+      --line: #dbe7f5;
+      --paper: #f5fbff;
+      --white: #ffffff;
+      --blue: #1688ff;
+      --cyan: #18c7e8;
+      --pink: #ff2f7d;
+      --magenta: #d934d8;
+      --green: #20a56b;
+      --orange: #ff8a24;
+      --red: #ef3e6d;
+      --violet: #7c5cff;
+      --navy: #17365c;
+      --gold: #e5a82e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.55;
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--white);
+      min-height: 100vh;
+    }
+
+    header {
+      background:
+        radial-gradient(circle at 12% 12%, rgba(24, 199, 232, 0.48), transparent 28%),
+        radial-gradient(circle at 88% 4%, rgba(255, 47, 125, 0.42), transparent 30%),
+        linear-gradient(135deg, #0759d7 0%, #12a7f5 48%, #f72585 100%);
+      color: var(--white);
+      padding: 40px 48px 34px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .logo::before {
+      content: "";
+      width: 36px;
+      height: 22px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 34% 50%, #fff 0 24%, transparent 25%),
+        radial-gradient(circle at 38% 50%, #1688ff 0 55%, transparent 56%),
+        radial-gradient(circle at 70% 50%, #ff2f7d 0 55%, transparent 56%);
+      box-shadow: 0 4px 14px rgba(15, 65, 150, 0.2);
+    }
+
+    .tag {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      padding: 6px 14px;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(34px, 4vw, 58px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 920px;
+      margin: 18px 0 0;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.84);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .metric {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 110px;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 26px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .metric span {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 14px;
+    }
+
+    main {
+      padding: 34px 48px 60px;
+    }
+
+    section {
+      margin-top: 34px;
+    }
+
+    section:first-child {
+      margin-top: 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .note {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .executive {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fdff 100%);
+      box-shadow: 0 10px 28px rgba(20, 112, 190, 0.06);
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .panel li {
+      margin: 8px 0;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .month {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      align-items: stretch;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .month b {
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--blue);
+      font-size: 18px;
+    }
+
+    .month:nth-child(2) b {
+      background: var(--cyan);
+    }
+
+    .month:nth-child(3) b {
+      background: var(--pink);
+    }
+
+    .month span {
+      padding: 12px 14px;
+      color: #344054;
+      font-size: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1240px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      padding: 14px 12px;
+      font-size: 14px;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #eaf7ff;
+      color: #20344d;
+      font-weight: 800;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    .stage {
+      width: 82px;
+      font-weight: 800;
+      color: var(--navy);
+      background: #f8fbff;
+    }
+
+    .priority {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .p1 { background: var(--pink); }
+    .p2 { background: var(--blue); }
+    .p3 { background: var(--cyan); }
+    .p4 { background: var(--orange); }
+    .p5 { background: var(--violet); }
+    .p6 { background: var(--green); }
+    .p7 { background: #3d6b91; }
+    .p8 { background: #477b49; }
+    .p9 { background: var(--gold); }
+    .p10 { background: #7b566b; }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+
+    .spotlight {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .spotlight-card {
+      border: 1px solid #bee6ff;
+      border-radius: 8px;
+      padding: 22px;
+      background: linear-gradient(180deg, #f2fbff 0%, #ffffff 100%);
+    }
+
+    .spotlight-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .spotlight-card p {
+      margin: 8px 0;
+      color: #344054;
+      font-size: 14px;
+    }
+
+    .path-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .path-step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      min-height: 108px;
+    }
+
+    .path-step b {
+      display: block;
+      color: var(--blue);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .path-step span {
+      color: #475467;
+      font-size: 13px;
+    }
+
+    .day-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .day-item {
+      display: grid;
+      grid-template-columns: 72px 1fr 52px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .day-item b {
+      color: var(--navy);
+    }
+
+    .day-item em {
+      color: var(--green);
+      font-style: normal;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .product-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(20, 112, 190, 0.05);
+    }
+
+    .product-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .product-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.3;
+    }
+
+    .product-no {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      font-weight: 800;
+    }
+
+    .product-card p {
+      margin: 8px 0;
+      color: #344054;
+      font-size: 14px;
+    }
+
+    .product-summary {
+      margin: 4px 0 16px;
+      color: #475467;
+      font-size: 15px;
+    }
+
+    .product-layout {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .product-block {
+      border: 1px solid #e3eefb;
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 14px;
+    }
+
+    .product-block h4 {
+      margin: 0 0 10px;
+      color: var(--navy);
+      font-size: 15px;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      border: 1px solid #e3eefb;
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      color: #344054;
+      font-size: 13px;
+    }
+
+    .prototype {
+      display: grid;
+      gap: 10px;
+    }
+
+    .proto-row {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .proto-label {
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(22, 136, 255, 0.12), rgba(255, 47, 125, 0.12));
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 13px;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .proto-box {
+      border: 1px solid #d9eafe;
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px 12px;
+      color: #344054;
+      font-size: 13px;
+    }
+
+    .proto-box b {
+      color: var(--blue);
+    }
+
+    .mini-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mini-flow span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #eef8ff;
+      color: #255372;
+      border: 1px solid #d8edff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .explain-list {
+      display: grid;
+      gap: 10px;
+      margin: 12px 0 14px;
+    }
+
+    .explain-item {
+      border: 1px solid #e3eefb;
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fbfdff;
+    }
+
+    .explain-item b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--blue);
+      font-size: 13px;
+    }
+
+    .explain-item span {
+      display: block;
+      color: #344054;
+      font-size: 14px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 6px 10px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .meta b {
+      color: #475467;
+    }
+
+    .meta span {
+      color: #344054;
+    }
+
+    .source {
+      background: #f4fbff;
+      border-left: 4px solid var(--blue);
+      padding: 12px 14px;
+      margin-top: 14px;
+      color: #475467;
+      font-size: 13px;
+    }
+
+    .combo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .combo {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fdff 100%);
+      padding: 16px;
+    }
+
+    .combo h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .combo p {
+      margin: 0;
+      color: #475467;
+      font-size: 14px;
+    }
+
+    footer {
+      padding: 20px 48px 38px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    @media (max-width: 960px) {
+      header,
+      main,
+      footer {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+      .hero-grid,
+      .executive,
+      .spotlight,
+      .product-layout,
+      .products,
+      .combo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .path-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        max-width: none;
+      }
+
+      header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      section {
+        break-inside: avoid;
+      }
+
+      .table-wrap {
+        overflow: visible;
+      }
+
+      table {
+        min-width: 0;
+      }
+
+      th {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="logo">驰声 · 6-8月活动产品规划</div>
+        <div class="tag">会议总结给领导版 / 2026.05.28</div>
+      </div>
+      <h1>以初中为主战场，按 10 个学段组织暑期销售打法</h1>
+      <p class="subtitle">主力客户定位为初中学生和家长，小学及学前只保留轻量入口产品；6、7、8 月重点用“期末刚需 + 新课改能力升级 + 初中专项训练 + 渠道合作分成”填补暑期收入空档。</p>
+      <div class="hero-grid" aria-label="关键结论">
+        <div class="metric">
+          <b>400万</b>
+          <span>6-8月讨论销售目标，可拆成 B2C 学习包、电商卡片增值、赛事导流分成三类收入。</span>
+        </div>
+        <div class="metric">
+          <b>9类</b>
+          <span>保留 9 类可售/可合作产品，其中重产品优先服务初一至初三。</span>
+        </div>
+        <div class="metric">
+          <b>3条线</b>
+          <span>期末冲刺、暑期能力训练、新课改升级包同步推进。</span>
+        </div>
+        <div class="metric">
+          <b>6项底座</b>
+          <span>AI语音、开口说、内容质量、显性感知、数据存档、产品化通路共同支撑销售。</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="executive">
+        <div class="panel">
+          <h2>会议结论</h2>
+          <ul>
+            <li><b>产品优先级：</b>以会议记录方向为主，聚焦暑期能快速售卖或合作分成的产品；“七剑”只作为学习包包装、定价、转化链路的参考。</li>
+            <li><b>B2C 主线：</b>期末 7 天提分、背单词、阅读、听力、说的产品、卡片售卖，适合通过学生端、家长小程序、自营商城、淘宝店快速验证。</li>
+            <li><b>新课改主线：</b>把新课改解读、能力差异诊断、核心素养训练包装成家长能买、学校能用、老师能转发的产品。</li>
+            <li><b>渠道合作主线：</b>卡片商家提供实物和流量，驰声提供二维码背后的内容、评测与数据；赛事主办方提供活动，驰声提供学生导流并赚取提成。</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h2>建议节奏</h2>
+          <div class="timeline">
+            <div class="month">
+              <b>6月</b>
+              <span>期末考试产品和比赛导流先启动；用“免费诊断 + 7天提分目标”承接家长期末焦虑。</span>
+            </div>
+            <div class="month">
+              <b>7月</b>
+              <span>初中阅读、听力、表达/作文专项进入暑期主销；小学侧只做背单词、卡片、比赛导流。</span>
+            </div>
+            <div class="month">
+              <b>8月</b>
+              <span>初中新课改产品成为主推；面向新初一、初二、初三做能力解读、诊断和开学衔接训练。</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>驰声能力底座</h2>
+        <p class="note">所有产品都要落在驰声的核心竞争力上：AI 语音能力、开口说、内容质量、用户可感知变化、数据沉淀。每个销售产品都必须有这些能力的支撑点。</p>
+        <div class="combo-grid">
+          <div class="combo">
+            <h3>AI 语音能力</h3>
+            <p>考试级口语评分引擎支持朗读、跟读、复述、口头作文等任务，对发音、流利度、完整度、内容命中进行即时评分，这是驰声区别于普通题库和扫码音频的核心。</p>
+          </div>
+          <div class="combo">
+            <h3>开口说动作</h3>
+            <p>每个产品都尽量嵌入“开口说”：单词要读、阅读要复述、听力要回答、作文先口头构思。让学生不是只刷题，而是能说出来、讲清楚。</p>
+          </div>
+          <div class="combo">
+            <h3>内容质量</h3>
+            <p>已有同步教材、听说内容授权、题库和单词小程序经验，可优先把初中词汇、阅读、听力、表达、作文包装成高质量专项任务，而不是普通资料包。</p>
+          </div>
+          <div class="combo">
+            <h3>显性化感知</h3>
+            <p>家长必须看得到变化：完成率、评分趋势、前后对比、典型表达、代表作品、阶段报告。用户能感受到，产品才有续费和分享。</p>
+          </div>
+          <div class="combo">
+            <h3>学情数据与存档</h3>
+            <p>扫码练习、App 训练、AI 陪学、赛事导流都要沉淀学生记录，形成家长可看的报告，再导向 7 天提分和专项训练。</p>
+          </div>
+          <div class="combo">
+            <h3>产品化通路</h3>
+            <p>同一套能力可以放进 App、微信小程序、H5、二维码、淘宝卡片、赛事报名页，形成家长付费、商家合作、赛事导流和复购多种销售路径。</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>10 学段产品推荐表</h2>
+        <p class="note">表格中的产品来自会议记录方向。小学及学前作为轻量入口，只保留背单词、卡片、比赛导流；初一至初三是收入主战场。</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>学段</th>
+                <th>阶段特征/6-8月触发点</th>
+                <th>建议主推产品</th>
+                <th>可搭配产品</th>
+                <th>销售话术重点</th>
+                <th>建议渠道/成交方式</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="stage">学前</td>
+                <td>非主力客户，只作为低龄启蒙和家长触达入口。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p4">卡片售卖</li>
+                    <li class="pill p6">背单词/单词应用</li>
+                  </ul>
+                </td>
+                <td><span class="pill p9">比赛导流</span></td>
+                <td>“低龄阶段不主推重课，先用卡片和轻量词汇建立入口。”</td>
+                <td>卡片二维码、亲子社群、赛事详情页；用展示舞台做轻量触达。</td>
+              </tr>
+              <tr>
+                <td class="stage">一年级</td>
+                <td>非主力客户，适合低价、低决策成本的词汇和卡片入口。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p4">卡片售卖</li>
+                    <li class="pill p6">背单词/单词应用</li>
+                  </ul>
+                </td>
+                <td><span class="pill p9">比赛导流</span></td>
+                <td>“一年级只做轻量启蒙，不推专项训练。”</td>
+                <td>卡片+二维码练习；赛事详情页拉报名，沉淀家长触点。</td>
+              </tr>
+              <tr>
+                <td class="stage">二年级</td>
+                <td>非主力客户，可用单词书、词汇卡和赛事活动承接。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p6">背单词/单词应用</li>
+                    <li class="pill p4">卡片售卖</li>
+                  </ul>
+                </td>
+                <td><span class="pill p9">比赛导流</span></td>
+                <td>“按书背词、扫码练习，先形成低成本用户入口。”</td>
+                <td>一本书 ¥39 的背词服务；卡片商家合作导入；赛事报名页做信心展示。</td>
+              </tr>
+              <tr>
+                <td class="stage">三年级</td>
+                <td>小学英语开始加重，但本轮仍以轻量产品和导流为主。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p6">背单词/单词应用</li>
+                    <li class="pill p4">卡片售卖</li>
+                  </ul>
+                </td>
+                <td><span class="pill p9">比赛导流</span></td>
+                <td>“三年级不做重提分，先用词汇和活动导入家长。”</td>
+                <td>单词书服务、卡片二维码、赛事详情页报名。</td>
+              </tr>
+              <tr>
+                <td class="stage">四年级</td>
+                <td>小学中高年级，可作为初中产品的前置蓄水池。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p6">背单词/单词应用</li>
+                    <li class="pill p4">卡片售卖</li>
+                  </ul>
+                </td>
+                <td><span class="pill p9">比赛导流</span></td>
+                <td>“小学四年级先做词汇和活动，不把新课改重产品压到小学端。”</td>
+                <td>背词服务+卡片合作+赛事报名，沉淀后续初中转化线索。</td>
+              </tr>
+              <tr>
+                <td class="stage">五年级</td>
+                <td>接近小升初，但仍建议以轻量入口为主，避免产品线过重。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p6">背单词/单词应用</li>
+                    <li class="pill p9">比赛导流</li>
+                  </ul>
+                </td>
+                <td><span class="pill p4">卡片售卖</span></td>
+                <td>“五年级先用词汇和赛事做蓄水，重点为初中产品提前建档。”</td>
+                <td>小升初词汇书 ¥39、赛事报名、卡片二维码合作。</td>
+              </tr>
+              <tr>
+                <td class="stage">六年级</td>
+                <td>小升初衔接，是初中产品的预备转化点。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p6">背单词/单词应用</li>
+                    <li class="pill p4">卡片售卖</li>
+                    <li class="pill p9">比赛导流</li>
+                  </ul>
+                </td>
+                <td><span class="pill p2">新课改产品</span></td>
+                <td>“六年级重点做初一词汇和开学衔接线索，不做复杂专项。”</td>
+                <td>七年级词汇卡/单词书预售；导入初一新课改能力包。</td>
+              </tr>
+              <tr>
+                <td class="stage">初一</td>
+                <td>主力客户起点，教材、词汇量、阅读量、听力和学习方式都发生变化。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p2">新课改产品</li>
+                    <li class="pill p5">AI产品</li>
+                    <li class="pill p6">背单词/单词应用</li>
+                  </ul>
+                </td>
+                <td><span class="pill p4">卡片售卖</span> <span class="pill p7">阅读产品</span> <span class="pill p8">听力产品</span> <span class="pill p10">说的产品：表达</span></td>
+                <td>“初一先理解新课改下的四项能力，再学会用 AI 描述问题、追问问题、完成自主学习。”</td>
+                <td>七年级上下册卡片+扫码练习；新课改能力包和 AI 学习力体验营在 8 月重点投放。</td>
+              </tr>
+              <tr>
+                <td class="stage">初二</td>
+                <td>主力客户，成绩分层扩大，阅读理解、听力、表达和作文开始成为主要失分点。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p7">阅读产品</li>
+                    <li class="pill p8">听力产品</li>
+                    <li class="pill p10">说的产品：表达/作文</li>
+                  </ul>
+                </td>
+                <td><span class="pill p1">期末考试产品</span> <span class="pill p5">AI产品</span> <span class="pill p6">背单词/单词应用</span></td>
+                <td>“初二要把输入和输出打通：读得懂、听得准、说得出、写得成。”</td>
+                <td>暑期专项包按薄弱点拆售；AI 评测报告用于提高信任和转化。</td>
+              </tr>
+              <tr>
+                <td class="stage">初三</td>
+                <td>主力客户，期末/中考强刚需，听说、阅读、作文都具备明确提分价值。</td>
+                <td>
+                  <ul class="priority">
+                    <li class="pill p1">期末考试产品</li>
+                    <li class="pill p8">听力产品</li>
+                    <li class="pill p10">说的产品：作文</li>
+                  </ul>
+                </td>
+                <td><span class="pill p7">阅读产品</span> <span class="pill p5">AI产品</span> <span class="pill p9">比赛导流</span></td>
+                <td>“围绕中考题型做 7 天诊断冲刺，听说自动评分，作文先说后写，家长能看到提分证据。”</td>
+                <td>B2C 推旗舰冲刺包；赛事渠道导流后承接听力、阅读和作文专项。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>9 个可售/可合作产品详细介绍</h2>
+        <p class="note">以下按“产品形态 + 功能清单 + 页面/流程原型 + 收费/合作”展开，便于下次汇报时直接讲清每个产品长什么样、怎么用、怎么卖。</p>
+        <div class="products">
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">期末考试产品：7天提分20分</h3>
+              <div class="product-no">1</div>
+            </div>
+            <p class="product-summary">产品形态：一个 7 天线上冲刺营，面向期末/中考前的初中学生。核心不是卖一套题，而是卖“诊断-训练-模考-报告”的完整提分闭环。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>Day 0 免费诊断：单词、语法、听说、作文 4 维雷达图</li>
+                  <li>7 天每日任务：每天 30-40 分钟，主攻 1 维并复盘旧错点</li>
+                  <li>题型训练：听默写、语法选择、听后复述、口头作文、背作文</li>
+                  <li>AI 即时评分：发音、流利度、内容命中、作文表达维度评分</li>
+                  <li>错点复测：按 1/3/7 天自动把错词、错题、错音拉回训练</li>
+                  <li>结营报告：Day 0 vs Day 7 对比、提分曲线、后续购买建议</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">落地页</div><div class="proto-box"><b>标题：</b>7天冲刺，目标提分20分<br>入口：免费测一测孩子最容易丢的分</div></div>
+                  <div class="proto-row"><div class="proto-label">诊断页</div><div class="proto-box">10-15 分钟完成 4 维诊断，生成薄弱点 Top 3 和推荐训练路径。</div></div>
+                  <div class="proto-row"><div class="proto-label">训练页</div><div class="proto-box">每日任务卡：今日主攻 + 今日复盘 + AI 评分 + 错点入库。</div></div>
+                  <div class="proto-row"><div class="proto-label">报告页</div><div class="proto-box">给家长看完成率、分数变化、开口次数、薄弱点变化和续购建议。</div></div>
+                </div>
+                <div class="mini-flow"><span>免费诊断</span><span>¥999/¥1099/¥1299</span><span>7天训练</span><span>结营报告</span><span>续购专项</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖期末/中考前的短周期提分确定性：先免费诊断，再用 7 天集中训练薄弱点，最后给家长一份提分报告。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>Day 0 诊断、单词/语法/听说/作文 4 维训练、综合模考、AI 即时评分、错点复测、家长报告。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>早鸟 ¥999 / 拼团 ¥1099 / 单买 ¥1299；优先投放初中，作为期末/中考节点主推。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>6 月期末和初三冲刺是家长付费意愿最强时点，驰声已有听说评测和题型能力，能把“冲刺”做成可执行任务。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>初一至初三，初三和期末节点优先</span>
+              <b>建议定价</b><span>早鸟 ¥999 / 拼团 ¥1099 / 单买 ¥1299</span>
+              <b>成交抓手</b><span>先免费测能力，再按弱项定制 7 天冲刺，Day 7 给家长看提分报告</span>
+            </div>
+            <div class="source">素材参考：00_给领导的项目汇报.pptx 中的 7 天备考冲刺包；七剑方案中的“7 天提分综合冲刺”和“错题举一反三”可作为包装参考。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">新课改产品</h3>
+              <div class="product-no">2</div>
+            </div>
+            <p class="product-summary">产品形态：一套“新课改能力解读 + 能力诊断 + 专项训练包”。把抽象的新课标要求翻译成家长听得懂、学生能练、老师能转发的产品。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>新课改解读课：讲清从刷题到核心素养、语篇能力、真实表达的变化</li>
+                  <li>能力差异诊断：语言能力、文化意识、思维品质、学习能力四项测评</li>
+                  <li>能力报告：孩子当前能力等级、短板解释、与年级要求的差距</li>
+                  <li>语篇训练：主题阅读、长句理解、信息提取、观点表达</li>
+                  <li>开口任务：复述、看图表达、主题演讲、口头作文</li>
+                  <li>家长讲解版：把报告转成“孩子需要补什么”的销售页</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">解读页</div><div class="proto-box"><b>问题：</b>新课改到底改了什么？<br>模块：旧要求 vs 新要求、考试变化、孩子短板。</div></div>
+                  <div class="proto-row"><div class="proto-label">诊断页</div><div class="proto-box">4 项能力测评：阅读语篇、听说输出、思维表达、学习策略。</div></div>
+                  <div class="proto-row"><div class="proto-label">训练页</div><div class="proto-box">按短板推送任务：语篇阅读、听后复述、主题表达、写作迁移。</div></div>
+                  <div class="proto-row"><div class="proto-label">报告页</div><div class="proto-box">家长可转发报告：能力差距、训练建议、7/14/21 天训练包入口。</div></div>
+                </div>
+                <div class="mini-flow"><span>¥29-99解读</span><span>能力诊断</span><span>¥199-599训练包</span><span>报告转化</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖“新课改到底改了什么、孩子差在哪里、暑期怎么补”的理解和行动方案，不是单纯卖新教材预习。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>新课改解读课、能力诊断、语言能力/文化意识/思维品质/学习能力报告、听说任务、主题阅读、表达输出训练。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>家长解读课 ¥29-99；诊断+训练包 ¥199-599；学校讲座、班级版或区域样板另行报价。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>初中家长对新课改有焦虑，但不知道该补什么；驰声能把抽象能力要求转成可测、可练、可展示的报告和任务。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>初一至初三；六年级只作为初一衔接蓄水</span>
+              <b>建议定价</b><span>家长解读课 ¥29-99；诊断+训练包 ¥199-599；学校讲座/班级版另报</span>
+              <b>成交抓手</b><span>不是卖“新教材预习”，而是卖“新课改下孩子需要补哪些能力”</span>
+            </div>
+            <div class="source">依据参考：教育部 2022 年版义务教育课程方案和课程标准强调核心素养、学业质量标准和知识运用；驰声已有同步教材、听说评测、学情报告和题型训练能力，可把抽象要求产品化。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">卡片售卖</h3>
+              <div class="product-no">3</div>
+            </div>
+            <p class="product-summary">产品形态：不从零做实体卡，而是给淘宝热销单词卡商家提供二维码背后的数字内容。实体卡负责触达，驰声负责内容、评测、记录和增值转化。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>单词详情页：释义、音标、常用搭配、谚语/短语、教材例句</li>
+                  <li>发音评测：单词朗读、例句朗读、跟读评分、错音提示</li>
+                  <li>背诵技巧：自然拼读拆解、词根词缀、记忆联想、易混词</li>
+                  <li>题型练习：听音选词、拼写默写、例句填空、选择题</li>
+                  <li>学习存档：扫码记录、错词本、完成率、家长可见报告</li>
+                  <li>升级入口：高级训练包、一本书背词、初中专项推荐</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">实体卡</div><div class="proto-box">卡面：单词 + 图片 + 二维码。商家负责印刷、店铺和订单。</div></div>
+                  <div class="proto-row"><div class="proto-label">扫码页</div><div class="proto-box">打开单词详情：释义、音频、例句、谚语、朗读按钮。</div></div>
+                  <div class="proto-row"><div class="proto-label">练习页</div><div class="proto-box">背诵、拼写、听音、题型练习，错词自动进入复习。</div></div>
+                  <div class="proto-row"><div class="proto-label">报告页</div><div class="proto-box">家长看到扫码次数、掌握词数、发音分数和升级建议。</div></div>
+                </div>
+                <div class="mini-flow"><span>商家实体卡</span><span>驰声二维码内容</span><span>扫码激活</span><span>高级训练包</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>不从零卖实体卡，而是把淘宝热销单词卡的二维码升级成“扫码即学”的数字内容和练习服务。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>单词释义、常用搭配、谚语/短语、例句朗读、实时发音评测、背诵技巧、题型练习、记录存档和家长报告。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>向卡片商家收内容授权费、按扫码激活分成，或在二维码页内向用户售卖高级训练包 ¥19.9-99。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>单词卡已有成熟店铺和销量，商家缺的是更强二维码内容；驰声能把静态卡片升级成可听、可读、可测、可留存。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>小学轻量入口 + 初一词汇卡，重点做初一教材词汇卡</span>
+              <b>建议定价</b><span>商家合作：内容授权/激活分成；用户端：高级训练 ¥19.9-99</span>
+              <b>成交抓手</b><span>同样是二维码，驰声能让卡片从“会看”升级到“会读、会测、会记录”</span>
+            </div>
+            <div class="source">素材参考：案例集中的出版社/图书二维码合作、小程序样板工程，可支撑“纸质入口+数字练习”的打法。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">AI产品</h3>
+              <div class="product-no">4</div>
+            </div>
+            <p class="product-summary">产品形态：AI时代学习力训练营。把已有英语学习任务包装成 AI 陪学流程，让学生学会提问、拆解、追问和复盘。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>免费诊断：问题表达、追问能力、拆解能力、复盘能力小测</li>
+                  <li>AI 陪学：不直接给答案，先问“你卡在哪”，再引导拆解</li>
+                  <li>每日任务：15 分钟学习方法 + 30 分钟英语真实任务</li>
+                  <li>学习卡：今日卡点、今日方法、今日练习、今日复盘</li>
+                  <li>阶段报告：3 天/7 天体验报告，21 天成长档案</li>
+                  <li>家长端：完成率、典型表达、作品样例、学习状态变化</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">落地页</div><div class="proto-box">AI 时代孩子会不会学习？入口：免费测 AI 学习力。</div></div>
+                  <div class="proto-row"><div class="proto-label">诊断页</div><div class="proto-box">例：“我不会阅读” → 引导成“because 后长句信息抓不住”。</div></div>
+                  <div class="proto-row"><div class="proto-label">陪学页</div><div class="proto-box">AI 提问、学生回答、生成今日训练卡，不直接喂答案。</div></div>
+                  <div class="proto-row"><div class="proto-label">报告页</div><div class="proto-box">孩子从“我不会”到“我知道卡在哪里”的表达变化。</div></div>
+                </div>
+                <div class="mini-flow"><span>免费诊断</span><span>¥39-69体验营</span><span>21天正式营</span><span>成长档案</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖 AI 时代学习力训练营，不是 AI 工具课。让孩子在英语任务里学会提问、拆解、追问、复盘和自主学习。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>免费 AI 学习力诊断、AI 陪学、每日任务、学习卡、英语听说/阅读/写作任务、家长报告和成长档案。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>7 天体验营 ¥39-69；21 天正式训练营 ¥199-299；后续可升级 AI 阅读力、写作力、表达力会员。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>家长焦虑从成绩扩展到“孩子不会主动学习、不会用 AI 学习”；驰声有英语场景和听说评测能力，能把 AI 学习力落地。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>新初一、新初二、新初三优先</span>
+              <b>建议定价</b><span>7 天体验营 ¥39-69；21 天正式营 ¥199-299</span>
+              <b>成交抓手</b><span>让家长看到孩子从“我不会”变成“我知道我卡在哪里、下一步怎么学”</span>
+            </div>
+            <div class="source">素材参考：# AI时代学习力训.pdf；两份 PPT 中的 AI 听说评测、自动评分、智能报告可作为训练营里的英语任务能力底座。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">背单词/单词应用</h3>
+              <div class="product-no">5</div>
+            </div>
+            <p class="product-summary">产品形态：一本书一个背词包，39 元。用户不是买泛词库，而是买“这本教材/词汇书/教辅书里的单词，我能背完、拼会、测会”。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>按书建词表：教材上下册、词汇书、教辅书、卡片词表</li>
+                  <li>单词背诵：认识/不认识、释义记忆、例句记忆</li>
+                  <li>单词拼写：听音拼写、中文写英文、错词重拼</li>
+                  <li>单词试题：选择题、例句填空、听音选词、词义辨析</li>
+                  <li>拓展学习：自然拼读、主题归类、易混词、搭配和短语</li>
+                  <li>记录报告：每日任务、连续打卡、掌握率、错词本</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">选书页</div><div class="proto-box">选择“人教版七上/七下”“中考词汇书”等，一本书 ¥39。</div></div>
+                  <div class="proto-row"><div class="proto-label">计划页</div><div class="proto-box">系统按 14 天/21 天拆分每日词量，显示预计完成日期。</div></div>
+                  <div class="proto-row"><div class="proto-label">学习页</div><div class="proto-box">背诵 → 拼写 → 听读 → 试题，发音可实时评分。</div></div>
+                  <div class="proto-row"><div class="proto-label">复习页</div><div class="proto-box">错词本、掌握率、复习提醒，给家长看“这本书背到哪了”。</div></div>
+                </div>
+                <div class="mini-flow"><span>选一本书</span><span>¥39支付</span><span>每日背词</span><span>错词复习</span><span>完成报告</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖“这本书的单词背诵服务”：用户选一本教材、词汇书或教辅书，按书生成专属词表和学习路径。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>单词背诵、拼写、听读、试题、错词复习、例句拓展、自然拼读归类、主题归类、学习记录和朗读评测。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>一本书 ¥39；多本书可做 ¥99/3 本、¥199/全年级；也可与卡片、教辅、出版社合作绑定。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>家长愿意为“背完这本书”付费，比泛词库更具体；驰声已有单词小程序和发音评测，可参考成熟背词软件快速包装。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>小学轻量入口 + 初一至初三；收入重点放初中教材上下册或词汇书</span>
+              <b>建议定价</b><span>一本书 ¥39；多本书可做套餐 ¥99/3 本、¥199/全年级</span>
+              <b>成交抓手</b><span>买的不是泛词库，而是“这本书的单词我能带孩子背完、拼会、测会”</span>
+            </div>
+            <div class="source">素材参考：案例集“单词刷刷刷”已具备听+读+发音评测的小程序基础；七剑词汇包可参考任务结构。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">阅读产品</h3>
+              <div class="product-no">6</div>
+            </div>
+            <p class="product-summary">产品形态：初中阅读能力训练营，按 14 天或 30 天售卖。重点解决语篇读不懂、长句抓不住、题型总错、阅读速度慢。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>每日语篇：按年级、教材主题、中考题型推送短文</li>
+                  <li>词汇预习：重点词、短语、搭配、熟词生义</li>
+                  <li>语篇理解：主旨、细节、推断、观点态度、结构分析</li>
+                  <li>长句拆解：从句、转折、因果、指代关系可视化</li>
+                  <li>读后开口：复述文章、解释答案、口头摘要</li>
+                  <li>错因报告：词汇不足、长句理解、题型误判、速度问题</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">任务页</div><div class="proto-box">今日阅读：主题、难度、预计用时、核心词汇。</div></div>
+                  <div class="proto-row"><div class="proto-label">阅读页</div><div class="proto-box">文章 + 重点词浮层 + 长句拆解 + 音频跟读。</div></div>
+                  <div class="proto-row"><div class="proto-label">做题页</div><div class="proto-box">阅读理解题，提交后显示错因和原文定位。</div></div>
+                  <div class="proto-row"><div class="proto-label">复述页</div><div class="proto-box">学生口头复述文章，AI 评关键点覆盖和表达清晰度。</div></div>
+                </div>
+                <div class="mini-flow"><span>词汇预习</span><span>读文章</span><span>做题</span><span>口头复述</span><span>错因报告</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖初中阅读能力提升，不只是阅读题，重点解决阅读理解提分和新课改语篇能力。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>每日短文、重点词提取、跟读/泛听、理解题、长难句拆解、错因归类、阅读速度记录和阶段报告。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>14 天/30 天阅读营 ¥99-399；可按年级、教材单元、主题语篇或中考阅读专项拆包。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>新课改和初中题型都更重语篇理解，暑期是补阅读习惯和阅读方法的窗口；驰声可把阅读与听读、词汇、报告联动。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>初一至初三，初二和初三重点推</span>
+              <b>建议定价</b><span>¥99-399，按 14 天/30 天阅读营包装</span>
+              <b>成交抓手</b><span>不是只刷题，而是把词汇、语篇、题型和阅读速度一起提升</span>
+            </div>
+            <div class="source">素材参考：七剑方案中“词汇应用包”强调完形、阅读、写作场景，可迁移到阅读产品的题型化训练。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">听力产品</h3>
+              <div class="product-no">7</div>
+            </div>
+            <p class="product-summary">产品形态：初中听力/听说专项训练包。按普通听力、听说模拟、考前专项三档包装，让学生从“听不懂”到“能听、能答、能复述”。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>听音选词：建立声音和词义对应</li>
+                  <li>句子理解：关键词捕捉、同义替换、信息定位</li>
+                  <li>短对话/短文：场景题、细节题、推断题训练</li>
+                  <li>听后回答：开放口语回答，AI 评内容和流利度</li>
+                  <li>听后复述：抓主旨、关键点、逻辑顺序</li>
+                  <li>听说模考：按地区题型组卷，生成模拟报告</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">训练页</div><div class="proto-box">选择题型：听音选词、短对话、短文理解、听后回答。</div></div>
+                  <div class="proto-row"><div class="proto-label">播放页</div><div class="proto-box">音频播放、限时作答、可设置是否允许重听。</div></div>
+                  <div class="proto-row"><div class="proto-label">口答页</div><div class="proto-box">学生开口回答或复述，AI 评发音、流利、内容命中。</div></div>
+                  <div class="proto-row"><div class="proto-label">报告页</div><div class="proto-box">正确率、反应时、错题类型、开口表现和复练建议。</div></div>
+                </div>
+                <div class="mini-flow"><span>听前词汇</span><span>听力作答</span><span>听后口答</span><span>错题重听</span><span>模拟报告</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖初中听力专项提升，重点解决听力题型、听说考试准备和听后回答能力。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>听音选词、句子理解、短对话、短文理解、听后选择、听后回答、错题重听、反应时统计和听说模拟。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>普通听力训练 ¥99-299；初中听说模拟/考前专项 ¥299-599；可与 7 天提分、阅读产品打包。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>听力是家长能感知但难辅导的短板，驰声的考试级听说评测和题库内容能形成明显差异化。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>初一至初三，初中应试优先</span>
+              <b>建议定价</b><span>¥99-599，初中听说模拟版可更高</span>
+              <b>成交抓手</b><span>听不懂不是词少，就是没形成声音和意义的对应</span>
+            </div>
+            <div class="source">素材参考：案例集听说在线、听说内容授权和各地听说备考题库，可直接支撑听力产品内容和技术背书。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">比赛导流</h3>
+              <div class="product-no">8</div>
+            </div>
+            <p class="product-summary">产品形态：赛事报名详情页 + 报名收款 + 赛前辅导/训练包。赛事给孩子舞台，驰声提供学生触达和转化承接。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>赛事详情页：赛制、组别、时间、奖项、报名入口</li>
+                  <li>报名收款：家长在我们的页面报名付费，后台导出名单</li>
+                  <li>分阶段链路：初选、市级、省半、省总，前两段免费拉参与</li>
+                  <li>入围提醒：进入省半后触发缴费提醒和辅导课推荐</li>
+                  <li>视频辅导课：省半付费后赠送或加购</li>
+                  <li>赛前训练：阅读、口语、表达、词汇小测和专项训练包</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">详情页</div><div class="proto-box">标题：阅读伴我行展示活动。重点：锻炼舞台、证书、孩子自信。</div></div>
+                  <div class="proto-row"><div class="proto-label">报名页</div><div class="proto-box">选择组别、填写学生信息、家长手机号、报名状态。</div></div>
+                  <div class="proto-row"><div class="proto-label">晋级页</div><div class="proto-box">初选/市级免费，入围省半后出现缴费和视频辅导课入口。</div></div>
+                  <div class="proto-row"><div class="proto-label">训练页</div><div class="proto-box">赛前训练包：阅读展示稿、口语表达、词汇小测、模拟展示。</div></div>
+                </div>
+                <div class="mini-flow"><span>赛事详情页</span><span>免费初选</span><span>市级展示</span><span>省半缴费</span><span>辅导/训练包</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖一个给孩子锻炼和展示的舞台。以“阅读伴我行”这类赛事为例，流程可拆成初选、市级、省半、省总，前两段免费，入围省半后进入付费环节。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>赛事详情页/报名页、学生触达、家长报名收款、名单整理、入围提醒、视频辅导课入口、赛前小测和专项训练包。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>家长在我们的报名页付费，我们按约定与赛事方结算；也可以在报名费之外售卖视频辅导课或赛前训练包 ¥49-299。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>小学阶段英语相对简单，家长愿意为孩子的舞台感和自信心付费；赛事方需要人气，我们有学生，大家各取所需。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>小学重点做信心舞台和报名转化，初中可承接阅读、口语、综合英语类赛事</span>
+              <b>建议定价</b><span>初选/市级免费；省半开始付费；视频辅导课或训练包 ¥49-299</span>
+              <b>成交抓手</b><span>免费环节拉参与，省半付费节点用“参赛资格+视频辅导+赛前训练”完成转化</span>
+            </div>
+            <div class="source">示例参考：阅读伴我行赛事链路，分为初选-市级-省半-省总；前两个环节免费，入围省半后缴费并赠送视频辅导课。核心逻辑是孩子得到锻炼和自信，赛事得到人气，驰声通过报名页、收款结算和训练包获得收入。</div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <h3 class="product-title">说的产品：表达与作文分开</h3>
+              <div class="product-no">9</div>
+            </div>
+            <p class="product-summary">产品形态：两个 SKU，不混在一起卖。表达版训练“敢说、会说、说完整”，作文版训练“先口头构思，再写成文章”。</p>
+            <div class="product-layout">
+              <div class="product-block">
+                <h4>核心功能</h4>
+                <ul class="feature-list">
+                  <li>表达版：看图说话、情景对话、口头造句、复述、主题演讲</li>
+                  <li>作文版：素材积累、范文背诵、续写、口头构思、成文训练</li>
+                  <li>AI 评分：发音、流利度、内容完整、逻辑、语法</li>
+                  <li>先说后写：作文先用口头表达搭框架，再落到文字</li>
+                  <li>范文背诵：逐句跟读、背诵检测、漏词错词提示</li>
+                  <li>报告输出：录音作品、作文作品、评分雷达和修改建议</li>
+                </ul>
+              </div>
+              <div class="product-block">
+                <h4>页面/流程原型</h4>
+                <div class="prototype">
+                  <div class="proto-row"><div class="proto-label">表达版</div><div class="proto-box">题目：描述图片/表达观点。学生录音，AI 评完整度和流利度。</div></div>
+                  <div class="proto-row"><div class="proto-label">构思页</div><div class="proto-box">作文题先拆：观点、理由、例子、连接词，生成口头提纲。</div></div>
+                  <div class="proto-row"><div class="proto-label">写作页</div><div class="proto-box">根据口头提纲写作文，AI 批改语法、逻辑和词汇丰富度。</div></div>
+                  <div class="proto-row"><div class="proto-label">作品页</div><div class="proto-box">保留录音和作文版本，家长可看到“说到写”的变化。</div></div>
+                </div>
+                <div class="mini-flow"><span>表达训练</span><span>口头构思</span><span>作文成文</span><span>AI批改</span><span>作品报告</span></div>
+              </div>
+            </div>
+            <div class="explain-list">
+              <div class="explain-item"><b>卖什么</b><span>卖“说”的能力，但拆成表达版和作文版。表达解决敢说、会说、说完整；作文解决先构思、再表达、最后写出来。</span></div>
+              <div class="explain-item"><b>驰声提供什么</b><span>看图说话、情景对话、口头造句、复述、演讲、范文背诵、续写、口头构思、AI 批改和成文报告。</span></div>
+              <div class="explain-item"><b>怎么收费或合作</b><span>表达版 ¥99-299；作文版 ¥199-499；可与阅读、听力、AI 学习力或比赛赛前训练打包。</span></div>
+              <div class="explain-item"><b>为什么现在能卖</b><span>新课改和考试都更重输出能力，家长也容易感知“孩子敢不敢说、能不能写”；驰声听说评测是天然优势。</span></div>
+            </div>
+            <div class="meta">
+              <b>适合学段</b><span>表达版：初一至初二；作文版：初二至初三</span>
+              <b>建议定价</b><span>表达版 ¥99-299；作文版 ¥199-499</span>
+              <b>成交抓手</b><span>表达是“说清楚”，作文是“写得出、写得好”，不要混成一个卖点</span>
+            </div>
+            <div class="source">素材参考：七剑方案中的作文背诵续写、口头造句+AI评分、跟读+复述，可作为表达/作文产品的能力模板。</div>
+          </article>
+        </div>
+      </section>
+
+
+    </main>
+
+    <footer>
+      说明：本稿按会议记录方向整理；涉及定价均为建议区间，需结合内容版权、研发投入、服务强度和合作政策进一步确认。
+    </footer>
+  </div>
+</body>
+</html>

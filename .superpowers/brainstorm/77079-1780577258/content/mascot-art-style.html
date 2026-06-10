@@ -1,0 +1,211 @@
++<style>
++  .style-grid {
++    display: grid;
++    grid-template-columns: repeat(3, minmax(0, 1fr));
++    gap: 18px;
++    margin-top: 24px;
++  }
++  .style-card {
++    position: relative;
++    min-height: 365px;
++    padding: 20px;
++    border: 2px solid #e8ebef;
++    border-radius: 24px;
++    background: #fff;
++    cursor: pointer;
++    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
++  }
++  .style-card:hover {
++    transform: translateY(-4px);
++    border-color: #ffb72b;
++    box-shadow: 0 14px 36px rgba(160, 115, 24, .14);
++  }
++  .style-card.selected {
++    border-color: #ffad13;
++    box-shadow: 0 0 0 4px rgba(255, 173, 19, .16);
++  }
++  .letter {
++    position: absolute;
++    z-index: 2;
++    top: 14px;
++    left: 14px;
++    width: 32px;
++    height: 32px;
++    display: grid;
++    place-items: center;
++    border-radius: 50%;
++    color: #805600;
++    background: #fff1b6;
++    font-weight: 800;
++  }
++  .stage {
++    height: 220px;
++    display: grid;
++    place-items: center;
++    overflow: hidden;
++    border-radius: 18px;
++    background: linear-gradient(180deg, #f9fcff, #fffdf5);
++  }
++  .monster {
++    position: relative;
++    width: 164px;
++    height: 132px;
++    background: #91de25;
++  }
++  .horn {
++    position: absolute;
++    top: -18px;
++    width: 25px;
++    height: 37px;
++    background: #ffc226;
++  }
++  .horn.left { left: 23px; transform: rotate(-23deg); }
++  .horn.right { right: 23px; transform: rotate(23deg) scaleX(-1); }
++  .eye {
++    position: absolute;
++    top: 40px;
++    width: 37px;
++    height: 43px;
++    border-radius: 50%;
++    background: white;
++  }
++  .eye:after {
++    content: "";
++    position: absolute;
++    width: 17px;
++    height: 22px;
++    top: 11px;
++    left: 10px;
++    border-radius: 50%;
++    background: #202020;
++  }
++  .eye.left { left: 39px; }
++  .eye.right { right: 39px; }
++  .mouth {
++    position: absolute;
++    left: 50%;
++    bottom: 20px;
++    width: 49px;
++    height: 24px;
++    transform: translateX(-50%);
++    border-radius: 0 0 30px 30px;
++    background: #ff6871;
++  }
++  .shine {
++    position: absolute;
++    top: 17px;
++    left: 35px;
++    width: 52px;
++    height: 18px;
++    border-radius: 50%;
++    background: rgba(255,255,255,.30);
++    transform: rotate(-12deg);
++  }
++  .classic {
++    border: 4px solid #4d9308;
++    border-radius: 51% 49% 43% 44%;
++    box-shadow: inset 9px 9px 0 rgba(255,255,255,.16);
++  }
++  .classic .horn {
++    border: 3px solid #ce8500;
++    border-radius: 80% 10% 70% 15%;
++  }
++  .classic .eye { border: 3px solid #242424; }
++  .classic .mouth { border: 3px solid #242424; border-top: 0; }
++  .jelly {
++    border: 0;
++    border-radius: 54% 46% 49% 46%;
++    background: radial-gradient(circle at 35% 27%, #cbff74 0 11%, #91e732 42%, #69c727 100%);
++    box-shadow: inset -12px -14px 22px rgba(52,126,12,.20), 0 16px 22px rgba(50,120,15,.16);
++  }
++  .jelly .horn {
++    border-radius: 80% 12% 70% 15%;
++    background: linear-gradient(135deg, #ffe170, #ff9c18);
++    box-shadow: inset -3px -3px 5px rgba(160,80,0,.18);
++  }
++  .jelly .eye {
++    border: 0;
++    box-shadow: 0 3px 8px rgba(60,90,40,.16);
++  }
++  .jelly .eye:after {
++    background: radial-gradient(circle at 35% 30%, #fff 0 13%, #29283b 15% 55%, #101018 57%);
++  }
++  .jelly .mouth { border-radius: 8px 8px 28px 28px; background: #fa7282; }
++  .sticker {
++    border: 7px solid white;
++    outline: 4px solid #2d5210;
++    border-radius: 47% 53% 38% 42%;
++    background: #98e533;
++    box-shadow: 0 7px 0 rgba(40,76,12,.12);
++  }
++  .sticker .horn {
++    border: 4px solid white;
++    outline: 3px solid #8d6300;
++    border-radius: 80% 10% 70% 15%;
++  }
++  .sticker .eye { border: 4px solid #263719; }
++  .sticker .mouth { border: 4px solid #263719; border-top: 0; }
++  .copy h3 { margin: 18px 0 8px; font-size: 20px; }
++  .copy p { margin: 0; color: #626a73; line-height: 1.55; font-size: 14px; }
++  .recommended {
++    display: inline-block;
++    margin-top: 13px;
++    padding: 5px 10px;
++    border-radius: 99px;
++    color: #0a7f38;
++    background: #ddf9e7;
++    font-size: 12px;
++    font-weight: 700;
++  }
++  @media (max-width: 850px) {
++    .style-grid { grid-template-columns: 1fr; }
++  }
++</style>
++
++<h2>绿色小怪兽的新版画风</h2>
++<p class="subtitle">都保留黄角、绿身体和大眼睛，只调整质感与轮廓语言。</p>
++
++<div class="style-grid">
++  <div class="style-card" data-choice="a" onclick="toggleSelect(this)">
++    <div class="letter">A</div>
++    <div class="stage">
++      <div class="monster classic">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i><i class="shine"></i>
++      </div>
++    </div>
++    <div class="copy">
++      <h3>原版精修 2D</h3>
++      <p>保留手绘黑边和现有角色气质，比例更圆、线条更干净、表情更精致。</p>
++      <span class="recommended">推荐：兼容现有首页，升级感明确</span>
++    </div>
++  </div>
++
++  <div class="style-card" data-choice="b" onclick="toggleSelect(this)">
++    <div class="letter">B</div>
++    <div class="stage">
++      <div class="monster jelly">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i><i class="shine"></i>
++      </div>
++    </div>
++    <div class="copy">
++      <h3>果冻软萌 3D</h3>
++      <p>更柔软、更有体积感，像可以捏的果冻玩偶；可爱度高，但与现有扁平图标差异较大。</p>
++    </div>
++  </div>
++
++  <div class="style-card" data-choice="c" onclick="toggleSelect(this)">
++    <div class="letter">C</div>
++    <div class="stage">
++      <div class="monster sticker">
++        <i class="horn left"></i><i class="horn right"></i>
++        <i class="eye left"></i><i class="eye right"></i><i class="mouth"></i><i class="shine"></i>
++      </div>
++    </div>
++    <div class="copy">
++      <h3>贴纸卡通</h3>
++      <p>轮廓粗、颜色亮、缩小后识别最强；风格活泼，但细腻表情空间略少。</p>
++    </div>
++  </div>
++</div>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; background:#e9edf0; }
+  #stage { transform-origin: top left; }
+  .cover-page { width:750px; padding:40px 0 60px; display:flex; flex-direction:column; align-items:center;
+    background: linear-gradient(180deg,#eef1f3,#f3ede1 70%,#f6e6c9); }
+  .player-card {
+    position: relative; width: 620px; height: 620px; border-radius: 56px; background:#fff;
+    box-shadow: 0 36px 96px rgba(0,0,0,.13), 0 14px 36px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .turntable { position: relative; width: 520px; height: 520px; }
+  .disc-well { position: relative; width: 520px; height: 520px; border-radius:50%;
+    box-shadow: inset 0 8px 24px rgba(0,0,0,.07), inset 0 2px 6px rgba(0,0,0,.04); }
+  .disc-stack { position: relative; width: 520px; height: 520px; border-radius:50%; overflow:hidden; background:#d8d8d8; }
+  .disc-stack::before{ content:""; position:absolute; inset:0; border-radius:50%;
+    background: repeating-radial-gradient(circle at 50% 50%, #cfcfcf 0 2px, #e6e6e6 2px 4px); }
+  .cover-disc { position:absolute; top:50%; left:50%; width:46%; height:46%; transform:translate(-50%,-50%);
+    border-radius:50%; background: radial-gradient(circle at 40% 35%, #6b5a45, #2c2018); z-index:1;}
+  .tonearm-pivot {
+    position: absolute; top: -95px; right: -30px; width: 300px; z-index: 5;
+    transform-origin: 78% 14%; transform: rotate(-18deg);
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.10));
+  }
+  .tonearm-img { display:block; width:100%; }
+  #label{position:fixed;top:4px;left:4px;font:14px monospace;color:#222;background:#fff8;padding:2px 6px;border-radius:6px;z-index:99;}
+</style>
+</head>
+<body>
+  <div id="label"></div>
+  <div id="stage">
+    <div class="cover-page">
+      <div class="player-card">
+        <div class="turntable"><div class="disc-well"><div class="disc-stack"><div class="cover-disc"></div></div></div></div>
+        <div class="tonearm-pivot" id="arm"><img class="tonearm-img" src="tonearm.png" /></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const stage=document.getElementById('stage');
+    function fit(){ stage.style.transform='scale('+(window.innerWidth/750)+')'; requestAnimationFrame(fit); }
+    fit();
+    window.setArm=function(w,rot){
+      const a=document.getElementById('arm');
+      a.style.width=w+'px'; a.style.transform='rotate('+rot+'deg)';
+      document.getElementById('label').textContent='w='+w+' rot='+rot;
+    };
+  </script>
+</body>
+</html>
