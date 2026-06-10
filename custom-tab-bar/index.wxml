@@ -7,6 +7,7 @@
 >
   <view class="mini-bg" aria-hidden="true">
     <image class="mini-bg-img" src="{{miniCover}}" mode="aspectFill" />
+    <view wx:if="{{miniBg}}" class="mini-bg-color" style="background: {{miniBg}};"></view>
     <view class="mini-bg-shade"></view>
   </view>
   <view class="mini-progress-track">
@@ -36,20 +37,26 @@
         mode="aspectFit"
       />
     </view>
+    <view class="mini-close" catchtap="closeMini">
+      <image class="mini-close-icon" src="/images/listen/close-white.svg" mode="aspectFit" />
+    </view>
   </view>
 </view>
 
+<!-- 离屏 canvas：仅用于取封面主色，不显示 -->
+<canvas type="2d" id="miniColorCanvas" class="mini-color-canvas"></canvas>
+
 <view wx:if="{{!hidden}}" class="bottom-nav" style="padding-bottom: {{safeAreaBottom}}px;">
   <view class="bottom-nav-item {{selected === 0 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
-    <image src="/images/home/nav-study-line.svg" mode="aspectFit" />
+    <image class="bottom-nav-icon" src="/images/home/nav-study-jelly.png" mode="aspectFit" />
     <text>学习</text>
   </view>
   <view class="bottom-nav-item" bindtap="goListen">
-    <image src="/images/home/nav-listen.png" mode="aspectFit" />
+    <image class="bottom-nav-icon" src="/images/home/nav-listen-jelly.png" mode="aspectFit" />
     <text>随身听</text>
   </view>
   <view class="bottom-nav-item {{selected === 1 ? 'bottom-nav-active' : ''}}" data-path="/pages/me/me" bindtap="switchTab">
-    <image src="/images/home/nav-me.png" mode="aspectFit" />
+    <image class="bottom-nav-icon" src="/images/home/nav-me-jelly.png" mode="aspectFit" />
     <text>我的</text>
   </view>
 </view>

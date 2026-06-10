@@ -24,7 +24,8 @@
   line-height: 26rpx;
 }
 
-.bottom-nav-item image {
+.bottom-nav-item image,
+.bottom-nav-icon {
   width: 54rpx;
   height: 50rpx;
 }
@@ -60,6 +61,21 @@
   height: 100%;
   transform: scale(1.18);
   filter: blur(18px);
+}
+
+/* 封面主色层：盖住模糊封面呈现纯色渐变；取色失败 miniBg 为空时露出模糊封面兜底 */
+.mini-bg-color {
+  position: absolute;
+  inset: 0;
+}
+
+/* 离屏取色 canvas：移出可视区，不占布局 */
+.mini-color-canvas {
+  position: fixed;
+  left: -9999rpx;
+  top: -9999rpx;
+  width: 2px;
+  height: 2px;
 }
 
 .mini-bg-shade {
