@@ -1,5 +1,6 @@
 // components/meida/media.js
 const aiengine = require('../../lib/ChivoxAiEngine.js')
+const scoringSession = require('./scoring-session.js')
 
 function createWsEngineSafe() {
   if (typeof aiengine.createWsEngine !== 'function') {
@@ -15,15 +16,194 @@ const feedBackPlayer = wx.createInnerAudioContext({
   useWebAudioImplement: false
 })
 const IDLE = 0, AUDIO_PLAYING = 1, RECORDING = 2, REPLAYING = 3, MARKING = 4
-let activeMedia = null
+const MARK_TIMEOUT_MS = 20000
+const STOP_RESULT_TIMEOUT_MS = 15000
+// 开发者工具的录音机实际产出 WebM（文件名伪装成 .mp3），驰声服务端解不了会
+// 静默不回包，导致界面卡死"评分中..."。模拟器一律走模拟评分，真机走真实评测。
+const IS_DEVTOOLS = (function () {
+  try {
+    return wx.getSystemInfoSync().platform === 'devtools'
+  } catch (e) {
+    return false
+  }
+})()
+let engineBound = false
+let recorderBound = false
+let cachedSig = null
+let sigPromise = null
 var windowWidth = wx.getStorageSync('windowWidth')
+
+function isValidSig(sig) {
+  return !!(
+    sig &&
+    typeof sig.applicationId === 'string' &&
+    typeof sig.sig === 'string' &&
+    typeof sig.alg === 'string' &&
+    typeof sig.userId === 'string'
+  )
+}
+
+function handleEngineResultFor(target, res) {
+  target.handleEngineResult(res)
+}
+
+function handleEngineErrorResultFor(target, res) {
+  target.handleEngineErrorResult(res)
+}
+
+function handleRecorderStartFor(target) {
+  target.recorderStart = true
+  console.log('recorderManager onStart')
+}
+
+function handleRecorderStopFor(target, res) {
+  target.recorderStart = false
+  console.log('recorderManager onStop')
+  if (target.data.media_state == RECORDING) {
+    target.data._temp_file_path = res.tempFilePath
+    scoringSession.beginScoring(target)
+    if (target.devtoolsMock) {
+      target.setData({ media_state: MARKING })
+      target.startMarkWatchdog()
+      setTimeout(() => {
+        if (target.data.media_state != MARKING) {
+          return
+        }
+        const overall = 60 + Math.floor(Math.random() * 36)
+        console.warn('[media] 开发者工具不支持驰声评测（录音为 WebM），返回模拟分 ' + overall + '，真实评分请用真机调试')
+        target.handleEngineResult({ result: { overall, details: [] } })
+      }, 700)
+      return
+    }
+    wsEngine.stop({
+      timeout: STOP_RESULT_TIMEOUT_MS,
+      success: () => {
+        scoringSession.beginScoring(target)
+        target.setData({
+          media_state: MARKING
+        })
+        target.startMarkWatchdog()
+        console.log('====== wsEngine stop success ======')
+      },
+      fail: (res) => {
+        console.log('====== wsEngine stop fail ======')
+        console.log(res)
+        target.resetMarkingState('评分失败，请重试')
+      },
+      complete: () => {
+        console.log('====== wsEngine stop complete ======')
+      }
+    })
+  }
+}
+
+function handleFrameRecordedFor(target, res) {
+  if (target.devtoolsMock) {
+    return
+  }
+  const { frameBuffer } = res
+  if (frameBuffer && target.data.media_state == RECORDING) {
+    console.log('frameBuffer.byteLength', frameBuffer.byteLength)
+    wsEngine.feed({
+      data: frameBuffer,
+      success: () => {
+        console.log('feed success.')
+      },
+      fail: (res) => {
+        console.log('feed fail:', JSON.stringify(res))
+      },
+      complete: () => {}
+    })
+  }
+}
+
+function handleRecorderErrorFor(target, res) {
+  console.log('recorder fail', res)
+  target.resetMarkingState('录音失败，请重试')
+}
+
+// 录音会话开始时，把引擎与录音机的回调直接绑定到发起录音的实例。
+// 结果回来时不再经过路由表，避免组件切换（展开另一句/进入下一题）后指针
+// 过期导致评分结果丢失、界面卡在"评分中..."。
+function claimSessionHandlers(media) {
+  if (!wsEngine) {
+    return
+  }
+  wsEngine.onResult(res => handleEngineResultFor(media, res))
+  wsEngine.onErrorResult(res => handleEngineErrorResultFor(media, res))
+  recorderManager.onStart(() => handleRecorderStartFor(media))
+  recorderManager.onStop(res => handleRecorderStopFor(media, res))
+  recorderManager.onFrameRecorded(res => handleFrameRecordedFor(media, res))
+  recorderManager.onError(res => handleRecorderErrorFor(media, res))
+}
+
+function bindEngineEvents() {
+  if (!wsEngine || engineBound) {
+    return
+  }
+  engineBound = true
+  wsEngine.onResult(res => {
+    const target = scoringSession.routeMediaTarget()
+    if (target) {
+      target.handleEngineResult(res)
+    } else {
+      console.warn('[media] onResult with no active scorer', JSON.stringify(res))
+    }
+  })
+  wsEngine.onErrorResult(res => {
+    const target = scoringSession.routeMediaTarget()
+    if (target) {
+      target.handleEngineErrorResult(res)
+    } else {
+      console.warn('[media] onErrorResult with no active scorer', JSON.stringify(res))
+    }
+  })
+}
+
+function bindRecorderEvents() {
+  if (recorderBound) {
+    return
+  }
+  recorderBound = true
+  recorderManager.onStart(() => {
+    const target = scoringSession.routeMediaTarget()
+    if (target) {
+      handleRecorderStartFor(target)
+    }
+  })
+  recorderManager.onStop((res) => {
+    const target = scoringSession.routeMediaTarget()
+    if (target) {
+      handleRecorderStopFor(target, res)
+    }
+  })
+  recorderManager.onInterruptionBegin((res) => {
+    console.log('onInterruptionBegin', JSON.stringify(res))
+  })
+  recorderManager.onInterruptionEnd((res) => {
+    console.log('onInterruptionEnd', JSON.stringify(res))
+  })
+  recorderManager.onFrameRecorded((res) => {
+    const target = scoringSession.routeMediaTarget()
+    if (target) {
+      handleFrameRecordedFor(target, res)
+    }
+  })
+  recorderManager.onError((res) => {
+    const target = scoringSession.routeMediaTarget()
+    if (target) {
+      handleRecorderErrorFor(target, res)
+    }
+  })
+}
+
+bindEngineEvents()
+bindRecorderEvents()
+
 Component({
   options: {
     pureDataPattern: /^_/
   },
-  /**
-   * 组件的属性列表
-   */
   properties: {
     _index: {
       type: Number,
@@ -35,19 +215,19 @@ Component({
     },
     _audio: {
       type: String,
-      value: ""
+      value: ''
     },
     _audioState: {
       type: String,
-      value: "running"
+      value: 'running'
     },
     _refText: {
       type: String,
-      value: ""
+      value: ''
     },
     _coreType: {
       type: String,
-      value: ""
+      value: ''
     },
     _temp_file_path: {
       type: String,
@@ -62,9 +242,6 @@ Component({
       value: false
     }
   },
-  /**
-   * 组件的初始数据
-   */
   data: {
     _sig: {},
     media_state: IDLE,
@@ -83,11 +260,19 @@ Component({
       this.initSDK()
     },
     hide() {
+      if (scoringSession.shouldProtectFromCancel(this)) {
+        return
+      }
+      if (this.data.media_state === RECORDING) {
+        this.stopRecording()
+        return
+      }
       this.cancel()
     }
   },
   lifetimes: {
     created() {
+      scoringSession.setFallbackMedia(this)
       this.animation = wx.createAnimation({
         duration: 200
       })
@@ -97,6 +282,7 @@ Component({
       this.initSDK()
     },
     attached() {
+      scoringSession.setFallbackMedia(this)
       this.lastTimeMillis = Date.now()
       if (this.data._autoplay && this.data._audio) {
         this.timerId = setTimeout(() => {
@@ -104,7 +290,7 @@ Component({
         }, 300)
       }
       this.data.innerAudioContext.onPlay(() => {
-        console.log("onPlay")
+        console.log('onPlay')
       })
       this.data.innerAudioContext.onEnded(() => {
         if (this.data.media_state == AUDIO_PLAYING && !wx.getStorageSync('anchor-record')) {
@@ -121,17 +307,15 @@ Component({
         console.log(res)
       })
     },
-    detached() { 
+    detached() {
       this.cancel()
+      scoringSession.clearMediaPointers(this)
       this.data.innerAudioContext.offEnded()
       this.data.innerAudioContext.offError()
       this.data.innerAudioContext.offPlay()
       this.data.innerAudioContext.destroy()
     }
   },
-  /**
-   * 组件的方法列表
-   */
   methods: {
     playAudio() {
       if (!this.stopAudio(AUDIO_PLAYING)) {
@@ -166,7 +350,7 @@ Component({
                     type: 'general',
                     title: '提示',
                     content: '未授权录音功能，无法录音评分，请完成授权。',
-                    confirmText: "去授权",
+                    confirmText: '去授权',
                     cancelText: '取消',
                     confirm: function () {
                       wx.openSetting()
@@ -203,147 +387,90 @@ Component({
       })
     },
     doRecordAction() {
-      if (this.data.media_state == MARKING) {
-        // TODO 评分中不响应播放事件
-      } else {
-        if (Date.now() - this.lastTimeMillis < 500) {
-          return
-        }
-        this.lastTimeMillis = Date.now()
-        if (this.data.media_state !== RECORDING) {
-          this.stopAudio()
-          feedBackPlayer.src = "/raw/recordstart.mp3"
-          feedBackPlayer.play()
-          this.doRecord()
-          this.lastTimeMillis += 500
-        } else if (this.data.media_state == RECORDING) {
-          this.stopRecord()
-        } else { }
+      if (scoringSession.shouldProtectFromCancel(this)) {
+        return
+      }
+      if (Date.now() - this.lastTimeMillis < 500) {
+        return
+      }
+      this.lastTimeMillis = Date.now()
+      if (this.data.media_state !== RECORDING) {
+        this.stopAudio()
+        feedBackPlayer.src = '/raw/recordstart.mp3'
+        feedBackPlayer.play()
+        this.doRecord()
+        this.lastTimeMillis += 500
+      } else if (this.data.media_state == RECORDING) {
+        this.stopRecord()
       }
     },
     showNetworkDisconnected() {
-        wx.showToast({
-          title: '网络连接已断开',
-          icon: 'none'
-        })
+      wx.showToast({
+        title: '网络连接已断开',
+        icon: 'none'
+      })
     },
     initSDK() {
       if (!wsEngine) {
         return
       }
-      if (this.sdkInitialized) {
-        this.refreshSig()
-        return
+      this.refreshSig().catch(() => {})
+    },
+    refreshSig(force) {
+      if (!force && isValidSig(cachedSig)) {
+        this.data._sig = cachedSig
+        return Promise.resolve(cachedSig)
       }
-      this.sdkInitialized = true
-      let that = this
-      wsEngine.onResult(res => {
-        const target = activeMedia || that
-        target.handleEngineResult(res)
-      })
-      wsEngine.onErrorResult(res => {
-        const target = activeMedia || that
-        target.handleEngineErrorResult(res)
-      })
-      this.refreshSig()
-      //监听录音开始事件
-      recorderManager.onStart(() => {
-        if (activeMedia !== that) {
-          return
-        }
-        that.recorderStart = true
-        console.log('recorderManager onStart')
-      })
-      //监听录音结束事件
-      recorderManager.onStop((res) => {
-        if (activeMedia !== that) {
-          return
-        }
-        that.recorderStart = false
-        console.log('recorderManager onStop')
-        if (that.data.media_state == RECORDING) {
-          that.data._temp_file_path = res.tempFilePath
-          //录音机结束后，驰声引擎执行结束操作，等待评测返回结果
-          wsEngine.stop({
-            success: () => {
-              that.setData({
-                media_state: MARKING
+
+      if (!sigPromise) {
+        sigPromise = new Promise((resolve, reject) => {
+          wx.request({
+            url: 'https://wechat.kamienglish.com/api/Sig/getInfoWord',
+            success: (res) => {
+              const sig = Object.assign({}, res.data || {}, {
+                userId: 'hello'
               })
-              that.startMarkWatchdog()
-              console.log('====== wsEngine stop success ======')
+              if (!isValidSig(sig)) {
+                reject(new Error('invalid sig'))
+                return
+              }
+              cachedSig = sig
+              resolve(sig)
             },
             fail: (res) => {
-              console.log("====== wsEngine stop fail ======")
-              console.log(res); //请关注res.errId, res.error
-              that.resetMarkingState('评分失败，请重试')
+              console.log('request sig fail')
+              reject(res)
             },
             complete: () => {
-              console.log("====== wsEngine stop complete ======")
+              sigPromise = null
             }
           })
-        }
-      })
-      recorderManager.onInterruptionBegin((res) => {
-        if (activeMedia === that) {
-          console.log('onInterruptionBegin', JSON.stringify(res))
-        }
-      })
-      recorderManager.onInterruptionEnd((res) => {
-        if (activeMedia === that) {
-          console.log('onInterruptionEnd', JSON.stringify(res))
-        }
-      })
-      //监听已录制完指定帧大小的文件事件。如果设置了 frameSize，则会回调此事件。
-      recorderManager.onFrameRecorded((res) => {
-        if (activeMedia !== that) {
-          return
-        }
-        const { frameBuffer } = res
-        if (frameBuffer && that.data.media_state == RECORDING) {
-          console.log('frameBuffer.byteLength', frameBuffer.byteLength)
-          //TODO 调用feed接口传递音频片给驰声评测引擎
-          wsEngine.feed({
-            data: frameBuffer,    // frameBuffer为微信录音机回调的音频数据
-            success: () => {
-              // feed 成功
-              console.log('feed success.')
-            },
-            fail: (res) => {
-              // feed 失败, 请关注res.errId, res.error
-              console.log('feed fail:', JSON.stringify(res))
-            },
-            complete: () => {
-              // feed 完成
-            }
-          })
-        }
-      })
-      //监听录音错误事件
-      recorderManager.onError((res) => {
-        if (activeMedia !== that) {
-          return
-        }
-        console.log('recorder fail', res)
-        that.resetMarkingState('录音失败，请重试')
+        })
+      }
+
+      return sigPromise.then(sig => {
+        this.data._sig = sig
+        return sig
       })
     },
-    refreshSig() {
-      wx.request({
-        url: 'https://wechat.kamienglish.com/api/Sig/getInfoWord',//驰声签名地址，微信要求必须是https环境的地址
-        success: (res) => {
-          this.data._sig = res.data
-          this.data._sig.userId = "hello"
-        },
-        fail: (res) => {
-          console.log("request sig fail");
-        }
+    ensureSigReady(done, force) {
+      if (!force && isValidSig(this.data._sig)) {
+        done()
+        return
+      }
+
+      this.refreshSig(!!force).then(() => {
+        done()
+      }).catch((res) => {
+        console.warn('[media] sig unavailable:', JSON.stringify(res))
+        this.preparingRecord = false
+        this.resetMarkingState('评分准备失败，请重试')
       })
     },
     handleEngineResult(res) {
       this.clearMarkWatchdog()
       let result = res && res.result
       if (!result || typeof result.overall === 'undefined') {
-        // 结果异常时也要恢复界面，避免一直停留在“评分中...”
         console.warn('onResult invalid result', JSON.stringify(res))
         this.resetMarkingState('评分失败，请重试')
         return
@@ -357,13 +484,15 @@ Component({
         score: score,
         animation: this.animation.export()
       })
-      activeMedia = null
-      feedBackPlayer.src = good ? "/raw/good.aac" : "/raw/wrong.aac"
+      this.engineStart = false
+      this.devtoolsMock = false
+      scoringSession.clearMediaPointers(this)
+      feedBackPlayer.src = good ? '/raw/good.aac' : '/raw/wrong.aac'
       feedBackPlayer.play()
       setTimeout(() => {
         this.animation.opacity(0).step()
         this.animation.translate(0, translateY).step({
-          duration: 0  //回到原位置
+          duration: 0
         })
         this.setData({
           animation: this.animation.export()
@@ -378,7 +507,7 @@ Component({
     },
     handleEngineErrorResult(res) {
       console.error('[media] wsEngine onErrorResult:', JSON.stringify(res))
-      const message = res && res.error ? res.error + " " + res.errId : '评分失败，请重试'
+      const message = res && res.error ? res.error + ' ' + res.errId : '评分失败，请重试'
       this.resetMarkingState(message)
     },
     audioPlay(src) {
@@ -390,64 +519,95 @@ Component({
       ctx.src = src
       ctx.play()
     },
-    /**
-  * 开始录音
-  */
     doRecord() {
       if (!wsEngine) {
         wx.showToast({ title: '语音评测暂不可用', icon: 'none' })
         return
       }
-      activeMedia = this
-      wsEngine.reset()
-      this.engineStart = true
-      wsEngine.start({
-        request: {
-          coreType: this.data._coreType,
-          refText: this.data._refText,
-          rank: 100,
-          attachAudioUrl: 1
-        },
-        app: this.data._sig,
-        audio: {
-          audioType: "mp3",
-          channel: 1,
-          sampleBytes: 2,
-          sampleRate: 16000
-        },
-        success: (res) => {
-          this.setData({
-            media_state: RECORDING
-          })
-          // start成功，请关注res.tokenId（本次评测的唯一标识）
-          console.log("===start======success===  " + JSON.stringify(res));
-          /*引擎启动成功，可以启动录音机开始录音，并将音频片传给引擎*/
-          const options = {
-            duration: 10000,//指定录音的时长，单位 ms
-            sampleRate: 16000,//采样率
-            numberOfChannels: 1,//录音通道数
-            encodeBitRate: 96000,//编码码率
-            format: 'mp3',//音频格式，有效值aac/mp3
-            frameSize: 1 //指定帧大小，单位 KB
-          };
-          //开始录音,在开始录音回调中feed音频片
-          this.timerId = setTimeout(() => {
-            recorderManager.start(options) //延时不要把‘叮’录进去
-          }, 500)
-        },
-        fail: (res) => {
-          console.error('[media] wsEngine start fail:', JSON.stringify(res))
-          const message = res && res.error ? res.error + " " + res.errId : '评分启动失败，请重试'
-          this.resetMarkingState(message)
-        },
-        complete: () => {
-          console.log("===start======complete=============");
+      if (this.preparingRecord) {
+        return
+      }
+
+      const startRecorder = () => {
+        const options = {
+          duration: 10000,
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          encodeBitRate: 96000,
+          format: 'mp3',
+          frameSize: 1
         }
-      });
+        this.timerId = setTimeout(() => {
+          recorderManager.start(options)
+        }, 500)
+      }
+
+      if (IS_DEVTOOLS) {
+        this.preparingRecord = false
+        scoringSession.setActiveMedia(this)
+        scoringSession.abortOtherScoring(this)
+        claimSessionHandlers(this)
+        this.devtoolsMock = true
+        this.setData({ media_state: RECORDING })
+        startRecorder()
+        return
+      }
+
+      const start = () => {
+        this.preparingRecord = false
+        scoringSession.setActiveMedia(this)
+        scoringSession.abortOtherScoring(this)
+        claimSessionHandlers(this)
+        this.devtoolsMock = false
+        if (!isValidSig(this.data._sig)) {
+          this.resetMarkingState('评分准备失败，请重试')
+          return
+        }
+        wsEngine.reset()
+        this.engineStart = true
+        wsEngine.start({
+          request: {
+            coreType: this.data._coreType,
+            refText: this.data._refText,
+            rank: 100,
+            attachAudioUrl: 1
+          },
+          app: this.data._sig,
+          audio: {
+            audioType: 'mp3',
+            channel: 1,
+            sampleBytes: 2,
+            sampleRate: 16000
+          },
+          success: (res) => {
+            this.setData({
+              media_state: RECORDING
+            })
+            console.log('===start======success===  ' + JSON.stringify(res))
+            startRecorder()
+          },
+          fail: (res) => {
+            console.error('[media] wsEngine start fail:', JSON.stringify(res))
+            const message = res && res.error ? res.error + ' ' + res.errId : '评分启动失败，请重试'
+            this.resetMarkingState(message)
+          },
+          complete: () => {
+            console.log('===start======complete=============')
+          }
+        })
+      }
+
+      if (isValidSig(this.data._sig)) {
+        start()
+        return
+      }
+
+      this.preparingRecord = true
+      scoringSession.setActiveMedia(this)
+      this.ensureSigReady(start, true)
     },
     stopRecord() {
       console.log('==stopRecord==')
-      /******先把微信录音机停掉,再停掉驰声引擎******/
       if (this.recorderStart) {
         recorderManager.stop()
       }
@@ -458,6 +618,12 @@ Component({
       }
     },
     cancelRecord() {
+      if (scoringSession.shouldProtectFromCancel(this)) {
+        if (this.data.media_state == MARKING || scoringSession.isScoringMedia(this)) {
+          this.resetMarkingState()
+        }
+        return
+      }
       this.clearMarkWatchdog()
       if (this.data.media_state == RECORDING) {
         this.setData({
@@ -466,12 +632,10 @@ Component({
         this.stopRecord()
       }
       if (this.engineStart && wsEngine) {
-          wsEngine.reset()
-          this.engineStart = false
+        wsEngine.reset()
+        this.engineStart = false
       }
-      if (activeMedia === this) {
-        activeMedia = null
-      }
+      scoringSession.clearMediaPointers(this)
     },
     resetMarkingState(title) {
       this.clearMarkWatchdog()
@@ -480,24 +644,23 @@ Component({
       }
       this.engineStart = false
       this.recorderStart = false
-      if (activeMedia === this) {
-        activeMedia = null
-      }
+      this.preparingRecord = false
+      this.devtoolsMock = false
+      scoringSession.clearMediaPointers(this)
       this.setData({ media_state: IDLE })
       if (title) {
         wx.showToast({ title, icon: 'none', duration: 3000 })
       }
     },
-    // 评分兜底：极端情况下引擎既不回结果也不回错误时，避免界面一直卡在“评分中...”
     startMarkWatchdog() {
       this.clearMarkWatchdog()
       this.markWatchdog = setTimeout(() => {
         this.markWatchdog = null
-        if (this.data.media_state == MARKING) {
+        if (this.data.media_state == MARKING || scoringSession.isScoringMedia(this)) {
           console.warn('mark watchdog fired, force reset to IDLE')
           this.resetMarkingState('评分超时，请重试')
         }
-      }, 15000)
+      }, MARK_TIMEOUT_MS)
     },
     clearMarkWatchdog() {
       if (this.markWatchdog) {

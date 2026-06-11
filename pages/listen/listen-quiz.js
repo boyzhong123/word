@@ -261,6 +261,19 @@ function buildListeningQuizQuestions(source) {
   }, [])
 }
 
+function shuffleList(list, random = Math.random) {
+  const next = list.slice()
+
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1))
+    const current = next[index]
+    next[index] = next[swapIndex]
+    next[swapIndex] = current
+  }
+
+  return next
+}
+
 function instantiateQuizQuestion(source, random = Math.random) {
   const matches = source && Array.isArray(source.matches) ? source.matches.slice() : []
   if (!matches.length) {
@@ -287,7 +300,7 @@ function instantiateQuizQuestion(source, random = Math.random) {
       gapIndex,
       answer: match.text
     })),
-    options: gapMatches.map(match => ({
+    options: shuffleList(gapMatches, random).map(match => ({
       text: match.text,
       used: false
     }))

@@ -2,7 +2,7 @@
   <scroll-view
     id="home-scroll"
     class="home-scroll"
-    style="height: {{scrollViewHeight}}px;"
+    style="{{scrollViewStyle}}"
     scroll-y
     enhanced
     show-scrollbar="{{false}}"
@@ -11,10 +11,10 @@
     bindscroll="onHomeScroll"
     bindscrolltolower="loadMoreUnits"
   >
-    <view class="hero-section" style="height: {{heroSectionHeight}}rpx;">
+    <view class="hero-section" style="{{heroSectionStyle}}">
       <image class="hero-image" src="../../images/home/hero-campus-jelly-v5.png" mode="widthFix" />
 
-      <view class="hero-copy" style="top: {{heroContentTop}}rpx;">
+      <view class="hero-copy" style="{{heroCopyStyle}}">
         <view class="hero-title">
           <text>Hi，</text>
           <block wx:if="{{canUseUserProfile}}">
@@ -44,7 +44,7 @@
         <view class="hero-subtitle">每天进步一点点，词汇量大大！</view>
       </view>
 
-      <view class="book-card" style="top: {{bookCardTop}}rpx;">
+      <view class="book-card" style="{{bookCardStyle}}">
         <block wx:if="{{loading}}">
           <view class="book-cover-column">
             <view class="book-cover sk-block"></view>
@@ -85,7 +85,7 @@
               <text>{{learnedWordCount}} / {{book.wordCount}}</text>
             </view>
             <view class="book-progress-track">
-              <view class="book-progress-fill" style="width: {{progressPercent}}%;"></view>
+              <view class="book-progress-fill" style="{{bookProgressStyle}}"></view>
             </view>
 
             <view class="book-metrics">
@@ -192,7 +192,7 @@
                   </view>
                 </view>
                 <view class="unit-subtitle-row">
-                  <view class="unit-subtitle" style="color: {{unit.subtitleColor}};">
+                  <view class="unit-subtitle" style="{{unit.subtitleStyle}}">
                     {{unit.subtitleLanguage === 'en' ? unit.subtitleEnglish : unit.subtitleChinese}}
                   </view>
                   <view
@@ -244,11 +244,11 @@
                   />
                 </block>
                 <block wx:else>
-                  <view class="task-icon-wrap task-icon-wrap-{{task.mapState}}" style="background: {{task.iconBg}};">
+                  <view class="task-icon-wrap task-icon-wrap-{{task.mapState}}" style="{{task.iconWrapStyle}}">
                     <image
                       class="task-icon"
                       src="{{task.icon}}"
-                      style="opacity: {{task.iconOpacity}};"
+                      style="{{task.iconStyle}}"
                       mode="aspectFit"
                     />
                   </view>
@@ -260,7 +260,7 @@
                 <view class="task-track">
                   <view
                     class="task-fill"
-                    style="width: {{task.percent}}%; background: {{unit.locked && !unit.isReview ? '#bdbdbd' : task.displayColor}};"
+                    style="{{task.fillStyle}}"
                   ></view>
                 </view>
               </view>
@@ -302,7 +302,7 @@
                 </view>
               </view>
               <view class="unit-subtitle-row">
-                <view class="unit-subtitle" style="color: {{unit.subtitleColor}};">
+                <view class="unit-subtitle" style="{{unit.subtitleStyle}}">
                   {{unit.subtitleLanguage === 'en' ? unit.subtitleEnglish : unit.subtitleChinese}}
                 </view>
                 <view
@@ -354,11 +354,11 @@
                 />
               </block>
               <block wx:else>
-                <view class="task-icon-wrap task-icon-wrap-{{task.mapState}}" style="background: {{task.iconBg}};">
+                <view class="task-icon-wrap task-icon-wrap-{{task.mapState}}" style="{{task.iconWrapStyle}}">
                   <image
                     class="task-icon"
                     src="{{task.icon}}"
-                    style="opacity: {{task.iconOpacity}};"
+                    style="{{task.iconStyle}}"
                     mode="aspectFit"
                   />
                 </view>
@@ -370,7 +370,7 @@
               <view class="task-track">
                 <view
                   class="task-fill"
-                  style="width: {{task.percent}}%; background: {{unit.locked && !unit.isReview ? '#bdbdbd' : task.displayColor}};"
+                  style="{{task.fillStyle}}"
                 ></view>
               </view>
             </view>
@@ -391,7 +391,7 @@
             <view
               wx:if="{{stop.connector}}"
               class="trail-connector trail-connector-{{stop.connector.state}}"
-              style="left: {{stop.centerX}}rpx; width: {{stop.connector.length}}rpx; transform: rotate({{stop.connector.angle}}deg);"
+              style="{{stop.connectorStyle}}"
             ></view>
 
             <view
@@ -408,7 +408,7 @@
             <view
               wx:elif="{{stop.kind === 'task'}}"
               class="trail-node trail-node-{{stop.state}}"
-              style="left: {{stop.nodeLeft}}rpx;"
+              style="{{stop.nodeStyle}}"
               data-unit-index="{{stop.unitGlobalIndex}}"
               data-task-type="{{stop.taskType}}"
               bindtap="handleTaskTap"
@@ -435,7 +435,7 @@
             <view
               wx:else
               class="trail-monster trail-monster-{{stop.monsterState}}"
-              style="left: {{stop.nodeLeft}}rpx;"
+              style="{{stop.nodeStyle}}"
             >
               <frame-animation
                 url="{{stop.monsterSprite}}"
@@ -451,7 +451,7 @@
         </view>
       </block>
       </block>
-      <view class="scroll-spacer" style="height: {{scrollSpacerRpx}}rpx;"></view>
+      <view class="scroll-spacer" style="{{scrollSpacerStyle}}"></view>
     </view>
   </scroll-view>
 

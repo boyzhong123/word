@@ -156,6 +156,8 @@ def remove_near_white(image):
 def content_bbox(image):
     alpha = image.getchannel("A")
     visible = alpha.point(lambda value: 255 if value > 16 else 0)
+    # Drop isolated alpha specks so keyed sheets keep a tight crop.
+    visible = visible.filter(ImageFilter.MinFilter(3))
     return visible.getbbox()
 
 

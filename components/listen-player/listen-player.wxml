@@ -57,7 +57,14 @@
           data-index="{{index}}"
           bindtap="onTrackTap"
         >
-          <view class="lyric-en">{{item.content}}</view>
+          <view class="lyric-head">
+            <image
+              class="lyric-tag"
+              src="{{item.type == 'word' ? '../../images/listen/tag-word-jelly.png' : '../../images/listen/tag-sentence-jelly.png'}}"
+              mode="aspectFit"
+            />
+            <view class="lyric-en">{{item.content}}</view>
+          </view>
           <view wx:if="{{item.translation}}" class="lyric-cn">{{item.translation}}</view>
 
           <!-- 跟读测评：点击句子直接展开（样式对齐小测卡片） -->

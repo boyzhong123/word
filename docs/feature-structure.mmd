@@ -1,0 +1,195 @@
+%% Word 英语学习小程序 · 功能结构图（含已实现 + 待开发）
+%% 图例：done=已实现 | partial=部分实现 | todo=待开发 | infra=基础设施
+
+flowchart TB
+    LEGEND["图例说明<br/>🟢 绿色=已实现且已接后端<br/>🟡 黄色=前端已有/部分实现<br/>🔴 红色=待开发占位<br/>🔵 蓝色=公共基础能力"]
+
+    subgraph ENTRY["① 用户入口层"]
+        WX["微信小程序启动"]
+        TAB["自定义 TabBar<br/>学习 · 我的 · 迷你播放条"]
+        WX --> TAB
+    end
+
+    subgraph HOME["② 学习首页 pages/home"]
+        direction TB
+        H1["词书卡片与切换 ✅"]
+        H2["关卡地图 / 分类列表 ✅"]
+        H3["今日任务与打卡进度 ⚠️本地"]
+        H4["每关三任务入口 ✅"]
+        H5["错词复习关 ⚠️Mock"]
+        H6["小怪兽 PK 动效 ✅"]
+        H1 --> H2 --> H4
+        H2 --> H5
+        H1 --> H3
+    end
+
+    subgraph LEARN["③ 核心学习流"]
+        direction LR
+        P_WORD["单词新学<br/>practice/word<br/>⚠️标记未上报"]
+        P_RECITE["跟读背诵<br/>practice/recitation<br/>⚠️分数未上报"]
+        L_QUIZ["听力小测<br/>listen/quiz ✅"]
+        FINISH["关卡完成<br/>finish/today ✅"]
+        P_WORD --> P_RECITE --> L_QUIZ --> FINISH
+    end
+
+    subgraph PRACTICE_EXT["③-A 背单词扩展"]
+        P_DETAIL["单词详情 Tab ✅"]
+        P_SEARCH["搜索查词 ✅"]
+        P_CATALOGUE["关卡目录 ✅"]
+        P_REVIEW["错词复习模式 ⚠️Mock"]
+    end
+
+    subgraph LISTEN_EXT["③-B 随身听扩展"]
+        L_PLAYER["黑胶播放器 ✅"]
+        L_FOLLOW["课文跟读评测 ✅"]
+        L_MINI["跨页迷你播放条 ✅"]
+        L_WRONG["错词本地暂存 ⚠️"]
+    end
+
+    subgraph COMMERCE["④ 商品与购买（重点待完善）"]
+        direction TB
+        AD_SUMMARY["教材商品摘要 ✅ UI"]
+        AD_PACKAGES["套餐选择<br/>学习卡 / 词典 ⚠️本地配置"]
+        AD_DETAIL["商品详情长图 ✅ UI"]
+        AD_BUY["立即购买按钮 ⚠️跳转空页"]
+        VIP_PAGE["支付确认页 pages/vip ❌空壳"]
+        VIP_PAY["微信支付调起 ❌"]
+        VIP_ORDER["订单列表 ❌"]
+        VIP_COUPON["优惠券/兑换码 ❌"]
+        AD_SUMMARY --> AD_PACKAGES --> AD_DETAIL --> AD_BUY --> VIP_PAGE --> VIP_PAY
+        VIP_PAGE -.-> VIP_ORDER
+        VIP_PAGE -.-> VIP_COUPON
+    end
+
+    subgraph SHARE["⑤ 分享体系（重点待完善）"]
+        direction TB
+        S_BASE["基础 path 分享 ⚠️practice/ad"]
+        S_CARD["分享卡片 title+imageUrl ❌"]
+        S_REPORT["报告成绩分享 ❌"]
+        S_CHECKIN["打卡天数分享 ❌"]
+        S_HOME["首页关卡分享 ❌"]
+        S_TIMELINE["朋友圈分享 ❌"]
+        S_INVITE["邀请好友/归因奖励 ❌"]
+        S_BASE -.-> S_CARD
+        S_BASE -.-> S_REPORT
+        S_BASE -.-> S_CHECKIN
+        S_BASE -.-> S_HOME
+        S_BASE -.-> S_TIMELINE
+        S_BASE -.-> S_INVITE
+    end
+
+    subgraph ME_NOW["⑥ 个人中心 · 已有 pages/me"]
+        direction TB
+        M_LOGIN["微信登录 ✅"]
+        M_STATS["学习统计 ✅"]
+        M_BOOK["我的教材 ✅"]
+        M_SUB["学习提醒订阅 ⚠️模板待配"]
+        M_OFFICIAL["公众号关注 ✅ UI"]
+        M_CS["联系客服 ✅"]
+        M_PRIVACY["隐私与协议 ❌占位"]
+    end
+
+    subgraph ME_TODO["⑥-A 个人中心 · 待开发"]
+        direction TB
+        M_PROFILE["编辑资料/换头像 ❌"]
+        M_VIP_STATUS["我的会员/权益 ❌"]
+        M_ORDERS["我的订单 ❌"]
+        M_BOOKS_ALL["已购教材管理 ❌"]
+        M_WRONG["错词本/复习本 ❌"]
+        M_HISTORY["学习记录/报告历史 ❌"]
+        M_PLAN_SYNC["学习计划云端同步 ❌"]
+        M_NOTIFY["消息中心/系统通知 ❌"]
+        M_FEEDBACK["意见反馈 ❌"]
+        M_ABOUT["关于我们/版本说明 ❌"]
+        M_LOGOUT["退出登录 ❌"]
+        M_CHILD["家长绑定/学情 ❌"]
+    end
+
+    subgraph SUPPORT["⑦ 辅助功能页"]
+        PLAN["学习计划 plan ⚠️仅本地"]
+        CHECKIN["打卡日历 checkin ⚠️混合数据"]
+        REPORT["学习报告 report ❌Mock"]
+        INDEX["遗留页 index ❌未接入"]
+    end
+
+    subgraph INFRA["⑧ 公共基础层"]
+        API["utils/api.js"]
+        LOGIN["utils/login.js"]
+        CHIVOX["Chivox 语音评测"]
+        PLAYER["utils/player.js"]
+        COMP["公共组件库"]
+    end
+
+    subgraph API_DONE["⑨ 已接后端接口"]
+        B1["login · user/info · user-books"]
+        B2["book-units · unit-resources"]
+        B3["save-record · search · word-info"]
+        B4["listening-quiz-result"]
+    end
+
+    subgraph API_TODO["⑩ 待开发后端接口"]
+        T1["错词复习 review-words"]
+        T2["关卡报告 unit-report"]
+        T3["单词标记 word-mark"]
+        T4["跟读成绩 recitation-score"]
+        T5["商品列表 book-product-list"]
+        T6["下单支付 order + 回调"]
+        T7["订单查询/会员状态"]
+        T8["学习计划 study-plan"]
+        T9["打卡写入/奖励核销"]
+        T10["分享归因 share-track"]
+        T11["头像上传 upload-avatar"]
+    end
+
+    TAB -->|学习 Tab| HOME
+    TAB -->|我的 Tab| ME_NOW
+    TAB --> L_MINI
+
+    H4 --> P_WORD
+    H4 --> P_RECITE
+    H4 --> L_QUIZ
+    H5 -.-> P_REVIEW
+    FINISH -->|刷新| HOME
+
+    HOME -.-> PLAN
+    HOME -.-> CHECKIN
+    HOME -.-> REPORT
+    HOME -.->|锁定词书| AD_SUMMARY
+    HOME -.-> L_PLAYER
+
+    P_RECITE --> P_CATALOGUE
+    P_WORD --> P_DETAIL
+    P_SEARCH --> P_WORD
+
+    ME_NOW -.-> ME_TODO
+    M_BOOK -.-> HOME
+
+    HOME --> API
+    LEARN --> API
+    LISTEN_EXT --> API
+    ME_NOW --> API
+    COMMERCE -.-> API
+    API --> API_DONE
+    API -.-> API_TODO
+
+    PRACTICE_EXT --> CHIVOX
+    LISTEN_EXT --> CHIVOX
+    LISTEN_EXT --> PLAYER
+
+    REPORT -.-> SHARE
+    CHECKIN -.-> SHARE
+    HOME -.-> SHARE
+    PRACTICE_EXT -.-> SHARE
+    COMMERCE -.-> SHARE
+
+    classDef done fill:#dcfce7,stroke:#16a34a,color:#14532d,stroke-width:2px
+    classDef partial fill:#fef9c3,stroke:#ca8a04,color:#713f12,stroke-width:2px
+    classDef todo fill:#fee2e2,stroke:#dc2626,color:#7f1d1d,stroke-width:2px
+    classDef infra fill:#dbeafe,stroke:#2563eb,color:#1e3a5f,stroke-width:2px
+    classDef legend fill:#f8fafc,stroke:#94a3b8,color:#334155,stroke-width:1px
+
+    class H1,H2,H4,H6,P_DETAIL,P_SEARCH,P_CATALOGUE,L_PLAYER,L_FOLLOW,L_MINI,L_QUIZ,FINISH,M_LOGIN,M_STATS,M_BOOK,M_CS,M_OFFICIAL,AD_SUMMARY,AD_DETAIL,B1,B2,B3,B4 done
+    class H3,H5,P_WORD,P_RECITE,P_REVIEW,L_WRONG,PLAN,CHECKIN,AD_PACKAGES,AD_BUY,M_SUB,S_BASE partial
+    class VIP_PAGE,VIP_PAY,VIP_ORDER,VIP_COUPON,S_CARD,S_REPORT,S_CHECKIN,S_HOME,S_TIMELINE,S_INVITE,M_PRIVACY,M_PROFILE,M_VIP_STATUS,M_ORDERS,M_BOOKS_ALL,M_WRONG,M_HISTORY,M_PLAN_SYNC,M_NOTIFY,M_FEEDBACK,M_ABOUT,M_LOGOUT,M_CHILD,REPORT,INDEX,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11 todo
+    class WX,TAB,API,LOGIN,CHIVOX,PLAYER,COMP,API_DONE,API_TODO infra
+    class LEGEND legend

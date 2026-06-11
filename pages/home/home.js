@@ -71,6 +71,11 @@ function positiveNumber() {
   return 0
 }
 
+function buildBookProgressStyle(progressPercent) {
+  const percent = Math.max(0, Math.min(Number(progressPercent) || 0, 100))
+  return 'width: ' + percent + '%;'
+}
+
 function countCheckinDates(info) {
   const candidates = [
     info.checkInDates,
@@ -187,13 +192,20 @@ function getHeroLayout() {
   const safeAreaBottom = getSafeAreaBottom()
   const heroContentTop = Math.ceil((menuBottom + 8) * 750 / windowWidth)
   const bookCardTop = heroContentTop + HERO_TITLE_BLOCK_HEIGHT + 40
+  const heroSectionHeight = bookCardTop + BOOK_CARD_HEIGHT
+  const scrollSpacerRpx = Math.ceil(120 + safeAreaBottom * 750 / windowWidth)
 
   return {
     heroContentTop,
     bookCardTop,
-    heroSectionHeight: bookCardTop + BOOK_CARD_HEIGHT,
+    heroSectionHeight,
     scrollViewHeight: windowHeight,
-    scrollSpacerRpx: Math.ceil(120 + safeAreaBottom * 750 / windowWidth)
+    scrollSpacerRpx,
+    scrollViewStyle: 'height: ' + windowHeight + 'px;',
+    heroSectionStyle: 'height: ' + heroSectionHeight + 'rpx;',
+    heroCopyStyle: 'top: ' + heroContentTop + 'rpx;',
+    bookCardStyle: 'top: ' + bookCardTop + 'rpx;',
+    scrollSpacerStyle: 'height: ' + scrollSpacerRpx + 'rpx;'
   }
 }
 
@@ -228,6 +240,7 @@ Page({
     otherBook: {},
     learnedWordCount: 1413,
     progressPercent: 22,
+    bookProgressStyle: buildBookProgressStyle(22),
     checkin: {
       continuousDays: 0,
       totalDays: 0,
@@ -342,6 +355,7 @@ Page({
       otherBook: otherBook || {},
       learnedWordCount,
       progressPercent,
+      bookProgressStyle: buildBookProgressStyle(progressPercent),
       'checkin.todayDone': getTodayDone(book.resBookId),
       'checkin.todayGoal': getDailyGoal(book.resBookId)
     })

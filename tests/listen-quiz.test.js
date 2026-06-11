@@ -43,6 +43,27 @@ test('listening quiz builds fill-in questions from unit example sentences', () =
   )
 })
 
+test('listening quiz shuffles option order instead of keeping sentence order', () => {
+  const question = buildListeningQuizQuestions([
+    {
+      word: { content: 'thief' },
+      proverb: [{
+        content: 'Set a thief to catch a thief.',
+        translation: '以贼捉贼。'
+      }]
+    }
+  ])[0]
+
+  const viewQuestion = instantiateQuizQuestion(question, () => 0.42)
+  const gapAnswers = viewQuestion.gaps.map(gap => gap.answer)
+  const optionTexts = viewQuestion.options.map(option => option.text)
+
+  assert.deepEqual(gapAnswers.slice().sort(), optionTexts.slice().sort())
+  if (gapAnswers.length > 1) {
+    assert.notDeepEqual(gapAnswers, optionTexts)
+  }
+})
+
 test('listening quiz instantiates random front-end blanks for the same sentence', () => {
   const question = buildListeningQuizQuestions([
     {
@@ -174,11 +195,27 @@ test('quiz mode uses standard page navigation instead of bottom sheet animation'
   assert.match(listenStyle, /\.listen-quiz-shell\s*{[^}]*transform:\s*none/s)
 })
 
+test('quiz recite media is reset before switching questions', () => {
+  assert.match(listenScript, /cancelQuizReciteMedia\(\)/)
+  assert.match(listenScript, /if\s*\(\s*this\.data\.quizPhase\s*===\s*'recite'\s*\)\s*{[\s\S]*cancelQuizReciteMedia\(\)/)
+  assert.match(listenTemplate, /wx:key="{{quizIndex}}"/)
+})
+
 test('recite countdown advances without treating a zero score as missing', () => {
   const scheduleReciteToNext = listenScript.match(/scheduleReciteToNext\(\)\s*{[\s\S]*?^  },/m)
   assert.ok(scheduleReciteToNext)
   assert.match(scheduleReciteToNext[0], /goToNextQuizQuestion\(\)/)
   assert.doesNotMatch(scheduleReciteToNext[0], /quizReciteScore/)
+  assert.match(listenTemplate, /wx:if="{{quizNextCountdown > 0 && \(quizChecked \|\| quizPhase === 'recite'\)}}"/)
+  assert.match(listenTemplate, /{{quizNextCountdown}} 秒后进入下一步/)
+  assert.doesNotMatch(listenTemplate, /wx:if="{{quizReciteScore && quizNextCountdown > 0}}"/)
+})
+
+test('fill and recite countdown use the same auto-advance copy', () => {
+  const countdownCopies = [...listenTemplate.matchAll(/>{{quizNextCountdown}} 秒后进入下一步<\/view>/g)]
+  assert.equal(countdownCopies.length, 1)
+  assert.doesNotMatch(listenTemplate, /秒后自动进入背诵/)
+  assert.doesNotMatch(listenTemplate, /秒后即将切换下一单词/)
 })
 
 test('listen page renders a home-styled fill-in quiz with top progress and new words', () => {
@@ -211,4 +248,22 @@ test('listen page renders a home-styled fill-in quiz with top progress and new w
   assert.match(listenStyle, /\.quiz-recite-media \.recording\s*{[^}]*left:\s*-48rpx/s)
   assert.match(listenStyle, /\.quiz-recite-media \.recording-wave\s*{[^}]*min-width:\s*0/s)
   assert.match(listenStyle, /\.loading-panel\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.62\)/s)
+})
+
+test('auto-advance countdown renders below the quiz card with one shared style', () => {
+  assert.match(listenTemplate, /<\/view>\s*<view\s+wx:if="{{quizNextCountdown > 0 && \(quizChecked \|\| quizPhase === 'recite'\)}}"\s+class="quiz-countdown"/)
+  assert.doesNotMatch(listenTemplate, /quiz-countdown-fill/)
+  assert.doesNotMatch(listenTemplate, /quiz-countdown-recite/)
+  assert.doesNotMatch(listenStyle, /\.quiz-countdown-fill/)
+  assert.doesNotMatch(listenStyle, /\.quiz-countdown-recite/)
+  assert.doesNotMatch(listenStyle, /\.quiz-countdown\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.72\)/s)
+})
+
+test('quiz screen keeps instructional copy and answer text lightly weighted', () => {
+  assert.match(listenStyle, /\.quiz-guide\s*{[^}]*font-weight:\s*400/s)
+  assert.match(listenStyle, /\.quiz-sentence\s*{[^}]*font-weight:\s*500/s)
+  assert.match(listenStyle, /\.quiz-recite-sentence\s*{[^}]*font-weight:\s*500/s)
+  assert.match(listenStyle, /\.quiz-option\s*{[^}]*font-weight:\s*500/s)
+  assert.doesNotMatch(listenStyle, /\.quiz-guide\s*{[^}]*font-weight:\s*[678]00/s)
+  assert.doesNotMatch(listenStyle, /\.quiz-option\s*{[^}]*font-weight:\s*[678]00/s)
 })

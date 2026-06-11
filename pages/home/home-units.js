@@ -108,7 +108,9 @@ function decorateTaskVisual(task) {
       ? palette.vivid
       : (mapState === 'locked' ? '#d5d5d5' : palette.muted),
     iconBg: isActive ? palette.iconBg : 'transparent',
-    iconOpacity: isActive ? 1 : 0.72
+    iconOpacity: isActive ? 1 : 0.72,
+    iconWrapStyle: 'background: ' + (isActive ? palette.iconBg : 'transparent') + ';',
+    iconStyle: 'opacity: ' + (isActive ? 1 : 0.72) + ';'
   })
 }
 
@@ -150,6 +152,19 @@ function isEnabled(value) {
 function toNonNegativeInteger(value) {
   const number = Number(value)
   return Number.isFinite(number) && number >= 0 ? Math.floor(number) : 0
+}
+
+function toPercent(value) {
+  return Math.min(toNonNegativeInteger(value), 100)
+}
+
+function buildSubtitleStyle(color) {
+  return 'color: ' + (color || '#111318') + ';'
+}
+
+function buildTaskFillStyle(task) {
+  const color = task.mapState === 'locked' ? '#bdbdbd' : (task.displayColor || task.color || '#111318')
+  return 'width: ' + toPercent(task.percent) + '%; background: ' + color + ';'
 }
 
 function buildStageStars(doneStages) {
@@ -279,6 +294,7 @@ function buildDisplayUnit(unit, index) {
     subtitleEnglish: saying.english,
     subtitleChinese: saying.chinese,
     subtitleLanguage: 'en',
+    subtitleStyle: buildSubtitleStyle(state.subtitleColor),
     locked,
     doneStages,
     stageStars: buildStageStars(doneStages),
@@ -302,6 +318,7 @@ function buildFallbackDisplayUnit(unit, index) {
     subtitleEnglish: saying.english,
     subtitleChinese: saying.chinese,
     subtitleLanguage: 'en',
+    subtitleStyle: buildSubtitleStyle(display.subtitleColor),
     doneStages,
     stageStars: buildStageStars(doneStages)
   })
@@ -326,10 +343,13 @@ function decorateMapProgress(units) {
         }
       }
 
-      return decorateTaskVisual(Object.assign({}, task, {
+      const visualTask = decorateTaskVisual(Object.assign({}, task, {
         mapState,
         mapPosition: MAP_POSITIONS[index % MAP_POSITIONS.length]
       }))
+      return Object.assign({}, visualTask, {
+        fillStyle: buildTaskFillStyle(visualTask)
+      })
     })
 
     let mapState = unit.locked ? 'locked' : 'upcoming'
@@ -510,6 +530,10 @@ function buildMapTrail(units) {
       stopIndex: index,
       centerX,
       nodeLeft: centerX - half,
+      nodeStyle: 'left: ' + (centerX - half) + 'rpx;',
+      connectorStyle: connector
+        ? 'left: ' + centerX + 'rpx; width: ' + connector.length + 'rpx; transform: rotate(' + connector.angle + 'deg);'
+        : '',
       connector
     })
   })
@@ -583,7 +607,7 @@ function buildReviewUnit(groupUnits, ordinal, listIndex) {
       }
     }
 
-    return decorateTaskVisual({
+    const visualTask = decorateTaskVisual({
       type: definition.type,
       label: REVIEW_TASK_LABELS[definition.type] || definition.label,
       icon: definition.icon,
@@ -592,6 +616,9 @@ function buildReviewUnit(groupUnits, ordinal, listIndex) {
       total: reviewWords,
       percent: 0,
       mapState: taskMapState
+    })
+    return Object.assign({}, visualTask, {
+      fillStyle: buildTaskFillStyle(visualTask)
     })
   })
 
@@ -609,6 +636,7 @@ function buildReviewUnit(groupUnits, ordinal, listIndex) {
     subtitleChinese: REVIEW_SAYING.chinese,
     subtitleLanguage: 'en',
     subtitleColor: REVIEW_STAGE_COLOR,
+    subtitleStyle: buildSubtitleStyle(REVIEW_STAGE_COLOR),
     stageColor: REVIEW_STAGE_COLOR,
     locked,
     lockedByVip,

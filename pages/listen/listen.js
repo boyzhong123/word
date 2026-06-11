@@ -315,8 +315,21 @@ Page({
 
   /* ----------------------------- 听力填空 ----------------------------- */
 
+  cancelQuizReciteMedia() {
+    const media = this.selectComponent('.quiz-recite-media')
+    if (!media) {
+      return
+    }
+    if (typeof media.cancel === 'function') {
+      media.cancel()
+    }
+  },
+
   showQuizQuestion(index, autoPlay) {
     this.clearQuizTimers()
+    if (this.data.quizPhase === 'recite') {
+      this.cancelQuizReciteMedia()
+    }
     const questions = this.data.quizQuestions
     const sourceQuestion = questions[index]
 
@@ -469,7 +482,7 @@ Page({
   },
 
   getQuizResultText(correct) {
-    return correct ? '全部填对了' : '再听一遍，看看哪里不同'
+    return correct ? '全部填对了' : '有些词填错了，即将进入背诵'
   },
 
   rememberQuizWordResult(question, correct) {

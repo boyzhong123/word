@@ -1,6 +1,6 @@
 // pages/advertisement/advertisement.js
 const {
-    refreshHomePage
+  refreshHomePage
 } = require('../../utils/util')
 
 const systemInfo = wx.getSystemInfoSync()
@@ -14,6 +14,38 @@ const purchaseBarHeight = Math.round(62 + safeAreaBottom)
 const scrollHeight = systemInfo.windowHeight - statusBarHeight - navigationBarHeight - purchaseBarHeight
 const encodeQueryValue = (value) => encodeURIComponent(value == null ? '' : value)
 
+const PACKAGES = [
+  {
+    id: 'full',
+    name: '学习卡套餐',
+    tag: '推荐',
+    summary: '词典 + 智能学习卡，听说读写测完整闭环',
+    items: [
+      '电子词典全部词汇与谚语',
+      '智能学习卡：单词新学 / 跟读 / 测验',
+      '记忆曲线安排科学复习',
+      '朗读评分与即时纠音反馈',
+      '打卡激励与学习进度追踪'
+    ]
+  },
+  {
+    id: 'book',
+    name: '词典套餐',
+    tag: '',
+    summary: '仅含词典内容，适合查阅与自主背诵',
+    items: [
+      '电子词典全部词汇与谚语',
+      '单词释义、例句与发音示范',
+      '谚语查阅与朗读音频',
+      '不含智能学习卡与复习计划'
+    ]
+  }
+]
+
+const DETAIL_BANNERS = [
+  { src: '/images/home/ad/detail-page.png', caption: '' }
+]
+
 function decodeQueryValue(value) {
   if (value == null || value === '') {
     return ''
@@ -25,10 +57,16 @@ function decodeQueryValue(value) {
   }
 }
 
+function getPackageById(packageId) {
+  return PACKAGES.find(item => item.id === packageId) || PACKAGES[0]
+}
+
 function applyBookDetail(page, book, unlocked) {
   const learningUnits = book.learningInfo && book.learningInfo.book
     ? book.learningInfo.book.learningUnits
     : 0
+  const selectedPackage = page.data.selectedPackage || 'full'
+  const currentPackage = getPackageById(selectedPackage)
 
   page.resBookId = book.resBookId || ''
   page.setData({
@@ -39,37 +77,43 @@ function applyBookDetail(page, book, unlocked) {
     proverbCount: Number(book.proverbCount || 0),
     press: book.press || '',
     intro: book.intro || '',
-    unlocked: !!unlocked
+    unlocked: !!unlocked,
+    packages: PACKAGES,
+    detailBanners: DETAIL_BANNERS,
+    currentPackage,
+    currentPackageItems: currentPackage.items
   })
 }
 
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
     name: '',
-    bookCover: "",
+    bookCover: '',
     total: 0,
     wordCount: 0,
     proverbCount: 0,
-    press: "",
-    intro: "",
+    press: '',
+    intro: '',
     unlocked: false,
+    skuSheetVisible: false,
+    selectedPackage: 'full',
+    packages: PACKAGES,
+    detailBanners: DETAIL_BANNERS,
+    currentPackage: PACKAGES[0],
+    currentPackageItems: PACKAGES[0].items,
     scrollHeight,
     safeAreaBottom,
     actionHeight: purchaseBarHeight
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
     const app = getApp()
     const pendingBook = app.globalData.pendingBookDetail
     const resBookId = decodeQueryValue(options.resBookId)
     const unlocked = options.unlocked === '1'
+    const selectedPackage = decodeQueryValue(options.packageId) || 'full'
+
+    this.setData({ selectedPackage: getPackageById(selectedPackage).id })
 
     if (pendingBook && pendingBook.resBookId === resBookId) {
       applyBookDetail(this, pendingBook, unlocked)
@@ -88,20 +132,47 @@ Page({
       intro: decodeQueryValue(options.intro)
     }, unlocked)
   },
+
+  noop() {},
+
+  openSkuSheet() {
+    this.setData({ skuSheetVisible: true })
+  },
+
+  closeSkuSheet() {
+    this.setData({ skuSheetVisible: false })
+  },
+
+  selectPackage(event) {
+    const packageId = event.currentTarget.dataset.id
+    const currentPackage = getPackageById(packageId)
+    this.setData({
+      selectedPackage: currentPackage.id,
+      currentPackage,
+      currentPackageItems: currentPackage.items
+    })
+  },
+
+  confirmPurchase() {
+    this.setData({ skuSheetVisible: false })
+    this.goVip()
+  },
+
   goVip() {
+    const packageId = this.data.selectedPackage || 'full'
     wx.navigateTo({
-      url: '../vip/vip?resBookId=' + encodeURIComponent(this.resBookId || '') + '&name=' + encodeURIComponent(this.data.name || ''),
+      url: '../vip/vip?resBookId=' + encodeURIComponent(this.resBookId || '')
+        + '&name=' + encodeURIComponent(this.data.name || '')
+        + '&packageId=' + encodeURIComponent(packageId),
       events: {
-        'vip': () => {
-            refreshHomePage()
-            wx.navigateBack()
+        vip: () => {
+          refreshHomePage()
+          wx.navigateBack()
         }
       }
     })
   },
-  /**
-   * 用户点击右上角分享
-   */
+
   onShareAppMessage() {
     const query = {
       name: this.data.name,
@@ -112,7 +183,8 @@ Page({
       press: this.data.press,
       intro: this.data.intro,
       resBookId: this.resBookId,
-      unlocked: this.data.unlocked ? '1' : '0'
+      unlocked: this.data.unlocked ? '1' : '0',
+      packageId: this.data.selectedPackage
     }
 
     return {

@@ -84,11 +84,23 @@ test('home hero uses the jelly campus header with safe-zone positioning', () => 
 })
 
 test('home scroll view uses explicit viewport height and tab-bar spacer', () => {
-  assert.match(homeTemplate, /style="height: {{scrollViewHeight}}px;"/)
-  assert.match(homeTemplate, /style="height: {{scrollSpacerRpx}}rpx;"/)
+  assert.match(homeTemplate, /style="{{scrollViewStyle}}"/)
+  assert.match(homeTemplate, /style="{{scrollSpacerStyle}}"/)
+  assert.match(homeScript, /scrollViewStyle:\s*'height: '\s*\+\s*windowHeight\s*\+\s*'px;'/)
+  assert.match(homeScript, /scrollSpacerStyle:\s*'height: '\s*\+\s*scrollSpacerRpx\s*\+\s*'rpx;'/)
   assert.match(homeScript, /scrollViewHeight:\s*windowHeight/)
-  assert.match(homeScript, /scrollSpacerRpx:/)
+  assert.match(homeScript, /\bscrollSpacerRpx\b/)
   assert.doesNotMatch(homeStyle, /\.scroll-spacer\s*{[^}]*height:\s*112rpx/s)
+})
+
+test('home template binds dynamic styles as complete style strings', () => {
+  const dynamicStyles = [...homeTemplate.matchAll(/style="([^"]*\{\{[^"]*)"/g)].map(match => match[1])
+  assert.ok(dynamicStyles.length > 0)
+  dynamicStyles.forEach(styleValue => {
+    assert.match(styleValue, /^\{\{[a-zA-Z0-9_.]+\}\}$/)
+  })
+  assert.doesNotMatch(homeTemplate, /style="[^"]*:\s*\{\{/)
+  assert.doesNotMatch(homeTemplate, /style="[^"]*\{\{[^"]*;\s*[a-z-]+:/)
 })
 
 test('home page uses the shared unit mapper and maintains a visible batch', () => {
