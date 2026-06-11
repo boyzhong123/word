@@ -108,9 +108,9 @@
         </view>
 
         <view
-          wx:if="{{quizPhase === 'recite' && quizNextCountdown > 0}}"
+          wx:if="{{quizNextCountdown > 0}}"
           class="quiz-next-countdown"
-        >{{quizNextCountdown}} 秒后自动进入下一题</view>
+        >{{quizNextCountdown}} 秒后自动{{quizPhase === 'fill' ? '进入背诵' : '进入下一题'}}</view>
 
         <view wx:if="{{quizPhase === 'fill'}}" class="quiz-options">
           <view

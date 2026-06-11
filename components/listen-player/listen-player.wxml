@@ -1,0 +1,185 @@
+<!-- 随身听全屏覆盖层：挂在 custom-tab-bar 内，不走页面路由，
+     打开/关闭都是纯 CSS 上滑/下滑（页面路由的系统转场是横向 push，盖不掉） -->
+<view wx:if="{{visible}}" class="listen-page {{pageAnimState}}">
+  <!-- 自建导航条：navigation 组件在页面栈长度为 1（tab 页）时会把返回钮
+       变成"回首页"，覆盖层场景下行为不对，这里直接绑 close -->
+  <view class="listen-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="listen-nav-bar" style="height: {{navigationBarHeight}}px;">
+      <view class="listen-nav-back" bindtap="close">
+        <image class="listen-nav-back-icon" mode="aspectFit" src="/images/icon_arrow_down.svg" />
+      </view>
+      <view class="listen-nav-title-wrap">
+        <view class="listen-nav-title">{{unitName}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 页码指示：封面 / 课文 两页 -->
+  <view wx:if="{{!loading}}" class="page-dots">
+    <view class="page-dot {{currentPage == 0 ? 'page-dot-active' : ''}}"></view>
+    <view class="page-dot {{currentPage == 1 ? 'page-dot-active' : ''}}"></view>
+  </view>
+
+  <block wx:if="{{!loading}}">
+  <!-- 主体：封面 / 课文 双页 -->
+  <swiper class="stage" current="{{currentPage}}" bindchange="onSwiperChange" indicator-dots="{{false}}" duration="280">
+    <!-- 第一页：封面 -->
+    <swiper-item>
+      <view class="cover-page">
+        <view class="player-card">
+          <view class="pivot-housing"></view>
+          <view class="turntable">
+            <image class="disc-tray" src="/images/listen/disc-tray.png" />
+            <view class="disc-stack {{playing ? 'spinning' : ''}}">
+              <image class="disc-texture" src="/images/listen/disc-texture-overlay.png" />
+              <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" />
+              <view class="disc-sheen"></view>
+            </view>
+            <view class="disc-spindle"></view>
+          </view>
+          <view class="tonearm {{playing ? 'tonearm-on-disc' : ''}}">
+            <image class="tonearm-img" src="/images/listen/tonearm-arm.png" />
+          </view>
+        </view>
+        <view class="cover-hint">向左滑动可查看课文</view>
+      </view>
+    </swiper-item>
+
+    <!-- 第二页：课文（单词列表） -->
+    <swiper-item>
+      <scroll-view class="lyrics" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
+        <view class="lyrics-pad"></view>
+        <view
+          wx:for="{{tracks}}"
+          wx:key="index"
+          id="track-{{index}}"
+          class="lyric-item lyric-{{item.type}} {{index == current ? 'lyric-active' : ''}} {{expandedIndex == index ? 'lyric-expanded' : ''}}"
+          data-index="{{index}}"
+          bindtap="onTrackTap"
+        >
+          <view class="lyric-en">{{item.content}}</view>
+          <view wx:if="{{item.translation}}" class="lyric-cn">{{item.translation}}</view>
+
+          <!-- 跟读测评：点击句子直接展开（样式对齐小测卡片） -->
+          <view wx:if="{{expandedIndex == index}}" class="follow-panel" catchtap="noop">
+            <view class="follow-card">
+              <view class="follow-recite-panel">
+                <media
+                  class="follow-media"
+                  _index="{{index}}"
+                  _autoplay="{{true}}"
+                  _audio="{{item.audio}}"
+                  _refText="{{item.content}}"
+                  _coreType="{{item.type == 'word' ? 'en.word.score' : 'en.sent.score'}}"
+                  score="{{trackScores[index] ? trackScores[index] : ''}}"
+                  bindresult="onMediaResult"
+                  bindmediaStateChange="onMediaStateChange"
+                  bindunauthorized="onMediaUnauthorized"
+                ></media>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="lyrics-pad"></view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 底部控制区 -->
+  <view class="controls" style="padding-bottom: {{safeAreaBottom + 16}}px;">
+    <!-- 整期进度条（覆盖本期所有单词+例句） -->
+    <view class="seek-row">
+      <view
+        class="seek"
+        catchtouchstart="onSeekStart"
+        catchtouchmove="onSeekMove"
+        catchtouchend="onSeekEnd"
+      >
+        <view class="seek-track">
+          <view class="seek-fill" style="width: {{progress}}%;"></view>
+        </view>
+        <image
+          class="seek-thumb"
+          src="../../images/listen/seek-thumb-mascot.png"
+          mode="aspectFit"
+          style="left: {{progress}}%;"
+        />
+      </view>
+      <view class="speed-badge" bindtap="toggleSpeed">{{speedLabel}}</view>
+    </view>
+    <view class="time-row">
+      <text>{{current + 1}} / {{tracks.length}}</text>
+      <text>{{currentTime}}</text>
+    </view>
+
+    <!-- 控制按钮 -->
+    <view class="buttons">
+      <view class="ctrl ctrl-loop" bindtap="toggleLoop">
+        <image class="loop-icon" src="/images/listen/loop.svg" mode="aspectFit" />
+        <view class="loop-label">{{loopLabel}}</view>
+      </view>
+
+      <view class="ctrl" bindtap="playPrev">
+        <image class="ctrl-icon" src="/images/listen/prev.svg" mode="aspectFit" />
+      </view>
+
+      <view class="ctrl ctrl-play" bindtap="togglePlay">
+        <image class="play-icon" src="{{playing ? '/images/listen/pause.svg' : '/images/listen/play.svg'}}" mode="aspectFit" />
+      </view>
+
+      <view class="ctrl" bindtap="playNext">
+        <image class="ctrl-icon" src="/images/listen/next.svg" mode="aspectFit" />
+      </view>
+
+      <view class="ctrl" bindtap="openPlaylist">
+        <image class="ctrl-icon" src="/images/listen/list.svg" mode="aspectFit" />
+      </view>
+    </view>
+  </view>
+  </block>
+
+  <!-- 期切换面板 -->
+  <view class="sheet-mask {{showPlaylist ? 'sheet-show' : ''}}" bindtap="closePlaylist">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-head">
+        <text class="sheet-title">选择期数</text>
+        <text class="sheet-count">共 {{units.length}} 期</text>
+      </view>
+      <scroll-view class="sheet-list" scroll-y>
+        <view
+          wx:for="{{units}}"
+          wx:key="unitId"
+          class="sheet-item {{index == unitIndex ? 'sheet-item-active' : ''}}"
+          data-index="{{index}}"
+          bindtap="onUnitTap"
+        >
+          <view class="sheet-item-main">
+            <text class="sheet-item-name">{{item.unitName || ('第' + (item.sort || index + 1) + '期')}}</text>
+            <text wx:if="{{item.wordTotal}}" class="sheet-item-sub">{{item.wordTotal}} 词</text>
+          </view>
+          <view wx:if="{{item.needVip}}" class="sheet-vip">会员</view>
+          <view wx:elif="{{index == unitIndex}}" class="sheet-playing">播放中</view>
+        </view>
+      </scroll-view>
+      <view class="sheet-close" bindtap="closePlaylist">关闭</view>
+    </view>
+  </view>
+
+  <!-- 加载态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-panel">
+      <view class="loading-mascot-wrap">
+        <frame-animation
+          url="../../images/listen/loading-mascot-sprite.png"
+          count="10"
+          width="168"
+          height="168"
+          duration="2.5"
+          state="running"
+        />
+      </view>
+      <view class="loading-title">正在准备随身听</view>
+      <view class="loading-sub">马上开始播放</view>
+    </view>
+  </view>
+</view>

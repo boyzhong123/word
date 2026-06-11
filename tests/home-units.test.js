@@ -281,7 +281,7 @@ test('buildListUnits inserts a review level after every three real levels', () =
   ])
 })
 
-test('a 5-card daily goal boxes up 3 new + 1 review + 1 new', () => {
+test('a 5-card daily goal boxes up exactly 5 cards, review included as a slot', () => {
   const units = buildDisplayUnits(Array.from({ length: 6 }, (_, index) => ({
     unitId: 'unit-' + (index + 1),
     sort: index + 1,
@@ -292,12 +292,13 @@ test('a 5-card daily goal boxes up 3 new + 1 review + 1 new', () => {
   const groups = groupListUnits(markTodayTasks(buildListUnits(units), goal))
 
   // Exactly one today box, holding the next five cards along the sequence with
-  // the review counted as the 4th slot.
+  // the review counted as the 3rd slot (unit-1 is demo-completed). The second
+  // review is out of reach and belongs to the next batch.
   const todayGroups = groups.filter(group => group.today)
   assert.equal(todayGroups.length, 1)
   assert.deepEqual(
     todayGroups[0].units.map(unit => unit.isReview ? 'review' : unit.unitId),
-    ['unit-2', 'unit-3', 'review', 'unit-4', 'unit-5', 'unit-6', 'review']
+    ['unit-2', 'unit-3', 'review', 'unit-4', 'unit-5']
   )
 })
 
@@ -385,16 +386,17 @@ test('groupListUnits bundles consecutive today levels into one group, others alo
 
   const groups = groupListUnits(markTodayTasks(buildListUnits(units), 2))
 
-  // Exactly one today box, holding the two consecutive today levels
+  // Exactly one today box, holding exactly the two consecutive today levels —
+  // the goal doesn't reach the review, so it stays outside (next batch).
   const todayGroups = groups.filter(group => group.today)
   assert.equal(todayGroups.length, 1)
   assert.deepEqual(
-    todayGroups[0].units.filter(unit => !unit.isReview).map(unit => unit.unitId),
+    todayGroups[0].units.map(unit => unit.isReview ? 'review' : unit.unitId),
     ['unit-2', 'unit-3']
   )
   // Each entry keeps its original listUnits index for tap/toggle handlers
   assert.deepEqual(
-    todayGroups[0].units.filter(unit => !unit.isReview).map(unit => unit.listIndex),
+    todayGroups[0].units.map(unit => unit.listIndex),
     [1, 2]
   )
   // unit-1 (done) renders on its own card, outside the box

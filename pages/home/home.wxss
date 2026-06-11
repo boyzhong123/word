@@ -215,27 +215,28 @@ page {
 
 .checkin-calendar-button {
   flex: none;
-  height: 42rpx;
-  padding: 0 13rpx 0 9rpx;
+  min-width: 162rpx;
+  height: 47rpx;
+  padding: 0 15rpx 0 12rpx;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4rpx;
+  gap: 7rpx;
   color: #25784a;
-  font-size: 19rpx;
+  font-size: 21rpx;
   line-height: 1;
   font-weight: 600;
   white-space: nowrap;
   background: #f8fcf8;
   border: 1rpx solid #dbeadc;
-  border-radius: 22rpx;
+  border-radius: 24rpx;
 }
 
 .checkin-calendar-button image {
   flex: none;
-  width: 30rpx;
-  height: 30rpx;
+  width: 32rpx;
+  height: 32rpx;
 }
 
 .checkin-calendar-button:active {
@@ -779,7 +780,7 @@ page {
 
 .unit-card-monster-fighting {
   top: -20rpx;
-  right: -10rpx;
+  right: -20rpx;
   z-index: 3;
   width: 148rpx;
   height: 84rpx;
@@ -1258,7 +1259,7 @@ page {
   font-size: 34rpx;
   line-height: 48rpx;
   font-weight: 700;
-  color: #17406f;
+  color: #111318;
   letter-spacing: 0.5rpx;
 }
 
@@ -1310,7 +1311,7 @@ page {
   padding: 22rpx 24rpx;
   border-radius: 24rpx;
   background: #ffffff;
-  border: 2rpx solid rgba(23, 64, 111, 0.08);
+  border: 2rpx solid rgba(116, 92, 42, 0.14);
   box-shadow: 0 8rpx 24rpx rgba(116, 92, 42, 0.06);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -1320,9 +1321,9 @@ page {
 }
 
 .book-picker-card-active {
-  border-color: rgba(17, 19, 24, 0.35);
-  background: linear-gradient(135deg, rgba(17, 19, 24, 0.05) 0%, rgba(255, 253, 248, 0.96) 100%);
-  box-shadow: 0 10rpx 28rpx rgba(17, 19, 24, 0.08);
+  border-color: #111318;
+  background: linear-gradient(155deg, #f2f3f5 0%, #ffffff 46%, #f7f8fa 100%);
+  box-shadow: 0 10rpx 28rpx rgba(17, 19, 24, 0.14);
 }
 
 .book-picker-card-locked {
@@ -1384,7 +1385,7 @@ page {
 }
 
 .book-picker-card-active .book-picker-name {
-  color: #17406f;
+  color: #111318;
 }
 
 .book-picker-current {
@@ -1395,8 +1396,9 @@ page {
   align-items: center;
   justify-content: center;
   border-radius: 999rpx;
-  background: rgba(17, 19, 24, 0.08);
-  color: #111318;
+  background: #111318;
+  border: 1rpx solid #111318;
+  color: #ffffff;
   font-size: 18rpx;
   line-height: 1;
   font-weight: 700;
@@ -1439,8 +1441,8 @@ page {
 }
 
 .book-picker-status-unlocked {
-  color: #1f9445;
-  background: rgba(31, 148, 69, 0.1);
+  color: #111318;
+  background: rgba(17, 19, 24, 0.07);
 }
 
 .book-picker-status-locked {
@@ -1458,11 +1460,11 @@ page {
   align-items: center;
   justify-content: center;
   border-radius: 999rpx;
-  background: #111318;
+  background: linear-gradient(180deg, #2a2d35 0%, #111318 100%);
   color: #ffffff;
   font-size: 24rpx;
   font-weight: 700;
-  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.18);
+  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.22);
 }
 
 .book-picker-radio {
@@ -1481,7 +1483,7 @@ page {
 .book-picker-radio-checked {
   border-color: #111318;
   background: #111318;
-  box-shadow: 0 6rpx 14rpx rgba(17, 19, 24, 0.18);
+  box-shadow: 0 6rpx 14rpx rgba(17, 19, 24, 0.26);
 }
 
 .book-picker-radio-check {

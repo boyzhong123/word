@@ -28,9 +28,10 @@ test('pk source frames and sprite sheet exist for seven-frame playback', () => {
     assert.equal(fs.existsSync(framePath), true, framePath + ' should exist')
   })
   assert.equal(fs.existsSync(spritePath), true)
+  // 2x assets displayed at 148x84 rpx via the frame-animation background-size
   assert.deepEqual(readPngSize(spritePath), {
-    width: 148 * 7,
-    height: 84
+    width: 296 * 7,
+    height: 168
   })
 })
 

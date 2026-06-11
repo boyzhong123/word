@@ -65,7 +65,7 @@ const TASK_DEFINITIONS = [
   },
   {
     type: 'listening',
-    label: '听力小测',
+    label: '关卡小测',
     color: '#111318',
     icon: '../../images/home/task-listening.png'
   }
@@ -524,9 +524,9 @@ function getNextVisibleCount(total, current, batchSize) {
 
 // List (category) mode inserts a review level after every REVIEW_INTERVAL real
 // levels, producing a fixed sequence of 3 new → 1 review → 3 new → 1 review …
-// The「每天练习几组」goal counts only the real levels; each review rides along
-// with the three levels it covers, so a goal of 3 boxes up 关卡1-3 plus their
-// review (see markTodayTasks).
+// The「每天练习几组」goal counts every card the same — a review consumes a goal
+// slot just like a level, and a review the goal doesn't reach falls into the
+// next batch (see markTodayTasks).
 // A review card reuses the regular unit-card layout — same structure — but its
 // content is the words the learner previously got wrong across the preceding
 // three levels.
@@ -643,32 +643,26 @@ function buildListUnits(units) {
   return result
 }
 
-// Flag the next `goal` levels along the learning sequence as today's targets so
-// the path can box them up under「今日要学」. Only real levels consume a goal
-// slot; the review interleaved after every REVIEW_INTERVAL levels rides along
-// with the levels it covers — it joins today's box whenever the level right
-// before it is a today task (i.e. its levels fall inside today's plan), without
-// eating into the goal. So a goal of 3 boxes up 关卡1-3 plus their review.
+// Flag the next `goal` cards along the learning sequence as today's targets so
+// the path can box them up under「今日要学」. A review card is a normal step in
+// the sequence and consumes a goal slot just like a level — a goal of 2 always
+// boxes up exactly 2 cards. When the goal runs out before reaching a review,
+// the review simply belongs to the next batch (e.g. tomorrow's plan).
 // Completed levels and VIP-locked content never count (the batch advances as
-// levels get finished); a VIP-locked review is excluded even when its levels
-// are due today.
+// levels get finished). A pending review (its levels not finished yet) still
+// counts as a planned step, but a VIP-locked review is excluded.
 function markTodayTasks(listUnits, goal) {
   const target = toNonNegativeInteger(goal)
   let marked = 0
-  let prevLevelIsToday = false
 
   return (Array.isArray(listUnits) ? listUnits : []).map(unit => {
-    if (unit.isReview) {
-      const isTodayTask = !unit.lockedByVip && prevLevelIsToday
-      return Object.assign({}, unit, { isTodayTask })
-    }
-
-    const eligible = !unit.locked && unit.mapState !== 'completed'
+    const eligible = unit.isReview
+      ? !unit.lockedByVip
+      : (!unit.locked && unit.mapState !== 'completed')
     const isTodayTask = eligible && marked < target
     if (isTodayTask) {
       marked += 1
     }
-    prevLevelIsToday = isTodayTask
     return Object.assign({}, unit, { isTodayTask })
   })
 }

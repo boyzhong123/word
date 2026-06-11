@@ -31,11 +31,17 @@ ICON_SET_MAPPING = {
 }
 
 # 底部导航图标改用小怪兽三联源图（v3），不再从旧 icon set 提取
-NAV_MONSTER_SET = HOME_DIR / "nav-jelly-monster-icon-set-keyed.png"
-NAV_MONSTER_MAPPING = {
-    "nav-study-jelly.png": 0,
-    "nav-listen-jelly.png": 1,
-    "nav-me-jelly.png": 2,
+NAV_MONSTER_SETS = {
+    HOME_DIR / "nav-jelly-monster-icon-set-keyed.png": {
+        "nav-study-jelly.png": 0,
+        "nav-listen-jelly.png": 1,
+        "nav-me-jelly.png": 2,
+    },
+    HOME_DIR / "nav-jelly-monster-icon-set-active-keyed.png": {
+        "nav-study-jelly-active.png": 0,
+        "nav-listen-jelly-active.png": 1,
+        "nav-me-jelly-active.png": 2,
+    },
 }
 NAV_MONSTER_ICON_SIZE = 96
 
@@ -443,17 +449,17 @@ def extract_icon_set_icons(icon_set_path):
 
 
 def extract_nav_monster_icons():
-    if not NAV_MONSTER_SET.exists():
-        print(f"skip nav icons: {NAV_MONSTER_SET} missing")
-        return
-    source = Image.open(NAV_MONSTER_SET).convert("RGBA")
-    columns = len(NAV_MONSTER_MAPPING)
-    cell_width = source.width // columns
-    for output_name, column_index in NAV_MONSTER_MAPPING.items():
-        cell = source.crop(
-            (column_index * cell_width, 0, (column_index + 1) * cell_width, source.height)
-        )
-        fit_icon(cell, size=NAV_MONSTER_ICON_SIZE).save(HOME_DIR / output_name, optimize=True)
+    for set_path, mapping in NAV_MONSTER_SETS.items():
+        if not set_path.exists():
+            print(f"skip nav icons: {set_path} missing")
+            continue
+        source = Image.open(set_path).convert("RGBA")
+        cell_width = source.width // len(mapping)
+        for output_name, column_index in mapping.items():
+            cell = source.crop(
+                (column_index * cell_width, 0, (column_index + 1) * cell_width, source.height)
+            )
+            fit_icon(cell, size=NAV_MONSTER_ICON_SIZE).save(HOME_DIR / output_name, optimize=True)
 
 
 def rasterize_svg(svg_path, output_path, size=JELLY_ICON_SIZE):

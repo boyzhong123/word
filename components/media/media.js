@@ -269,6 +269,7 @@ Component({
         })
       })
       wsEngine.onErrorResult(res => {
+        console.error('[media] wsEngine onErrorResult:', JSON.stringify(res))
         that.clearMarkWatchdog()
         wx.showToast({
           title: res.error + " " + res.errId,
@@ -407,6 +408,7 @@ Component({
           }, 500)
         },
         fail: (res) => {
+          console.error('[media] wsEngine start fail:', JSON.stringify(res))
           wx.showToast({
             title: res.error + " " + res.errId,
             icon: 'none',

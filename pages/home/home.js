@@ -425,6 +425,17 @@ Page({
     this.setTabBarHidden(false)
   },
 
+  openBookDetail(event) {
+    const resBookId = event.currentTarget.dataset.resBookId
+    const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
+
+    if (!target) {
+      return
+    }
+
+    this.goBuyBook(target)
+  },
+
   selectBook(event) {
     const resBookId = event.currentTarget.dataset.resBookId
     const currentBook = this.data.book
@@ -845,7 +856,8 @@ Page({
       'wordCount=' + encodeURIComponent(book.wordCount || 0),
       'proverbCount=' + encodeURIComponent(book.proverbCount || 0),
       'press=' + encodeURIComponent(book.press || ''),
-      'intro=' + encodeURIComponent(book.intro || '')
+      'intro=' + encodeURIComponent(book.intro || ''),
+      'unlocked=' + (book.locked ? '0' : '1')
     ].join('&')
 
     wx.navigateTo({

@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-"""Split a PK sprite sheet into 7 normalized frames and build the home-page sprite."""
+"""Compose the 7-frame home-page PK battle sprite from extracted character parts.
 
-import subprocess
-import sys
+Parts live in images/home/map/monsters/pk-parts/ (clean chroma-keyed cutouts of
+the boy, the jelly monster, the VS bolt and two full clash/victory scenes).
+Frames are composed at 2x (296x168) with fixed anchors so the loop never wobbles.
+"""
+
 from pathlib import Path
 
 from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DEFAULT = PROJECT_ROOT / "images/home/map/monsters/student-monster-pk-7frames-source.png"
 MONSTER_DIR = PROJECT_ROOT / "images/home/map/monsters"
+PARTS_DIR = MONSTER_DIR / "pk-parts"
 HOME_DIR = PROJECT_ROOT / "images/home"
-CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
 
 FRAME_COUNT = 7
-PK_FRAME_W = 148
-PK_FRAME_H = 84
-PADDING_X = 6
-PADDING_Y = 8
+# 2x assets; the frame-animation component displays them at 148x84 rpx via background-size
+PK_FRAME_W = 296
+PK_FRAME_H = 168
+BASELINE_Y = PK_FRAME_H - 6
 
 FRAME_OUTPUT_NAMES = [
     "student-monster-pk-frame-01.png",
@@ -30,113 +32,101 @@ FRAME_OUTPUT_NAMES = [
 ]
 
 
-def chroma_key(source_path, work_dir):
-    source = Image.open(source_path).convert("RGBA")
-    if source.mode == "RGBA" and source.getchannel("A").getextrema()[0] < 255:
-        return source
-
-    keyed_path = work_dir / f"{source_path.stem}-keyed.png"
-    if CHROMA_KEY_SCRIPT.exists():
-        subprocess.run(
-            [
-                sys.executable,
-                str(CHROMA_KEY_SCRIPT),
-                "--input",
-                str(source_path),
-                "--out",
-                str(keyed_path),
-                "--auto-key",
-                "border",
-                "--soft-matte",
-                "--transparent-threshold",
-                "12",
-                "--opaque-threshold",
-                "220",
-                "--despill",
-                "--force",
-            ],
-            check=True,
-        )
-        return Image.open(keyed_path).convert("RGBA")
-
-    from PIL import ImageChops
-
-    rgb = source.convert("RGB")
-    white = Image.new("RGB", rgb.size, "white")
-    diff = ImageChops.difference(rgb, white).convert("L")
-    mask = diff.point(lambda value: 255 if value > 18 else 0)
-    rgba = rgb.convert("RGBA")
-    rgba.putalpha(mask)
-    return rgba
+def load_part(name):
+    return Image.open(PARTS_DIR / name).convert("RGBA")
 
 
-def content_bbox(image):
-    alpha = image.getchannel("A")
-    visible = alpha.point(lambda value: 255 if value > 16 else 0)
-    return visible.getbbox()
+def scaled(image, height, squash_x=1.0, squash_y=1.0):
+    factor = height / image.height
+    width = max(1, round(image.width * factor * squash_x))
+    new_height = max(1, round(height * squash_y))
+    return image.resize((width, new_height), Image.Resampling.LANCZOS)
 
 
-def split_sheet(source, frame_count):
-    cell_width = source.width // frame_count
+def paste_bottom(canvas, part, anchor_x, anchor="center", baseline=BASELINE_Y, rotate=0.0):
+    """Paste with the bottom edge on the baseline; anchor_x positions left/center/right edge."""
+    if rotate:
+        part = part.rotate(rotate, resample=Image.Resampling.BICUBIC, expand=True)
+    if anchor == "left":
+        x = anchor_x
+    elif anchor == "right":
+        x = anchor_x - part.width
+    else:
+        x = anchor_x - part.width // 2
+    canvas.alpha_composite(part, (max(0, x), max(0, baseline - part.height)))
+
+
+def paste_top(canvas, part, center_x, top_y):
+    canvas.alpha_composite(part, (max(0, center_x - part.width // 2), max(0, top_y)))
+
+
+def new_frame():
+    return Image.new("RGBA", (PK_FRAME_W, PK_FRAME_H), (0, 0, 0, 0))
+
+
+def compose_frames():
+    boy_idle = load_part("boy-idle.png")
+    boy_guard = load_part("boy-guard.png")
+    monster_idle = load_part("monster-idle.png")
+    monster_angry = load_part("monster-angry.png")
+    vs_bolt = load_part("vs-bolt.png")
+    scene_clash = load_part("scene-clash.png")
+    scene_victory = load_part("scene-victory.png")
+
+    boy_h = 150
+    monster_h = 116
+    vs_h = 66
+    boy_x = 14
+    monster_x = PK_FRAME_W - 14
+    vs_x = PK_FRAME_W // 2
+    vs_y = 12
+
     frames = []
-    for index in range(frame_count):
-        cell = source.crop((index * cell_width, 0, (index + 1) * cell_width, source.height))
-        frames.append(cell)
+
+    # 1. face-off
+    frame = new_frame()
+    paste_bottom(frame, scaled(boy_idle, boy_h), boy_x, "left")
+    paste_bottom(frame, scaled(monster_idle, monster_h), monster_x, "right")
+    paste_top(frame, scaled(vs_bolt, vs_h), vs_x, vs_y)
+    frames.append(frame)
+
+    # 2. boy advances, monster leans back, bolt glows
+    frame = new_frame()
+    paste_bottom(frame, scaled(boy_idle, boy_h), boy_x + 16, "left", rotate=-5)
+    paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.05, squash_y=0.93), monster_x, "right")
+    paste_top(frame, scaled(vs_bolt, round(vs_h * 1.18)), vs_x + 4, vs_y - 4)
+    frames.append(frame)
+
+    # 3. clash impact
+    frame = new_frame()
+    paste_bottom(frame, scaled(scene_clash, PK_FRAME_H - 8), vs_x, "center")
+    frames.append(frame)
+
+    # 4. monster dizzy, boy celebrates
+    frame = new_frame()
+    paste_bottom(frame, scaled(scene_victory, PK_FRAME_H - 6), vs_x, "center")
+    frames.append(frame)
+
+    # 5. monster puffs up angrily, boy guards with the book
+    frame = new_frame()
+    paste_bottom(frame, scaled(boy_guard, boy_h), boy_x + 4, "left")
+    paste_bottom(frame, scaled(monster_angry, round(monster_h * 1.32)), monster_x, "right")
+    paste_top(frame, scaled(vs_bolt, vs_h), vs_x - 2, vs_y + 2)
+    frames.append(frame)
+
+    # 6. second clash, slightly bigger
+    frame = new_frame()
+    paste_bottom(frame, scaled(scene_clash, PK_FRAME_H - 2), vs_x + 2, "center")
+    frames.append(frame)
+
+    # 7. back to face-off (tiny bounce) for a seamless loop
+    frame = new_frame()
+    paste_bottom(frame, scaled(boy_idle, boy_h), boy_x, "left")
+    paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.03, squash_y=0.96), monster_x, "right")
+    paste_top(frame, scaled(vs_bolt, vs_h), vs_x, vs_y + 2)
+    frames.append(frame)
+
     return frames
-
-
-def load_individual_frames(frame_paths):
-    if len(frame_paths) != FRAME_COUNT:
-        raise ValueError(f"Expected {FRAME_COUNT} frame images, got {len(frame_paths)}")
-    return [chroma_key(Path(path), MONSTER_DIR / ".pk-build") for path in frame_paths]
-
-
-def reference_stage_box(raw_frames):
-    """Use frame 1 as the fixed crop window for every pose."""
-    ref_box = content_bbox(raw_frames[0])
-    if ref_box is None:
-        raise ValueError("Reference frame has no visible content")
-
-    left, top, right, bottom = ref_box
-    canvas_w, canvas_h = raw_frames[0].size
-    pad_x = 24
-    pad_top = 36
-    pad_bottom = 12
-    return (
-        max(0, left - pad_x),
-        max(0, top - pad_top),
-        min(canvas_w, right + pad_x),
-        min(canvas_h, bottom + pad_bottom),
-    )
-
-
-def normalize_pk_frames(raw_frames, from_sheet=False):
-    """Render every pose into the exact same PK frame slot."""
-    if from_sheet:
-        return [
-            frame.resize((PK_FRAME_W, PK_FRAME_H), Image.Resampling.LANCZOS)
-            for frame in raw_frames
-        ]
-
-    crop_box = reference_stage_box(raw_frames)
-    ref_crop = raw_frames[0].crop(crop_box)
-    inner_w = PK_FRAME_W - PADDING_X * 2
-    inner_h = PK_FRAME_H - PADDING_Y * 2
-    scale = min(inner_w / ref_crop.width, inner_h / ref_crop.height, 1.0)
-    slot_w = max(1, round(ref_crop.width * scale))
-    slot_h = max(1, round(ref_crop.height * scale))
-    slot_x = (PK_FRAME_W - slot_w) // 2
-    slot_y = PK_FRAME_H - PADDING_Y - slot_h
-
-    normalized = []
-    for frame in raw_frames:
-        crop = frame.crop(crop_box)
-        scaled = crop.resize((slot_w, slot_h), Image.Resampling.LANCZOS)
-        out = Image.new("RGBA", (PK_FRAME_W, PK_FRAME_H), (0, 0, 0, 0))
-        out.alpha_composite(scaled, (slot_x, slot_y))
-        normalized.append(out)
-
-    return normalized
 
 
 def build_sprite(frames, output_path):
@@ -148,38 +138,11 @@ def build_sprite(frames, output_path):
 
 
 def main():
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Build normalized 7-frame PK sprite assets.")
-    parser.add_argument("source", nargs="?", default=str(SOURCE_DEFAULT))
-    parser.add_argument(
-        "--frames",
-        nargs="+",
-        help="Build from 7 individual frame images instead of a sprite sheet",
-    )
-    args = parser.parse_args()
-
-    work_dir = MONSTER_DIR / ".pk-build"
-    work_dir.mkdir(parents=True, exist_ok=True)
-
-    from_sheet = not args.frames
-    if args.frames:
-        raw_frames = load_individual_frames(args.frames)
-    else:
-        source_path = Path(args.source)
-        if not source_path.exists():
-            raise FileNotFoundError(f"PK source sheet not found: {source_path}")
-        keyed = chroma_key(source_path, work_dir)
-        keyed.save(work_dir / "student-monster-pk-7frames-keyed.png", optimize=True)
-        raw_frames = split_sheet(keyed, FRAME_COUNT)
-
-    normalized = normalize_pk_frames(raw_frames, from_sheet=from_sheet)
-
-    for output_name, frame in zip(FRAME_OUTPUT_NAMES, normalized):
+    frames = compose_frames()
+    for output_name, frame in zip(FRAME_OUTPUT_NAMES, frames):
         frame.save(MONSTER_DIR / output_name, optimize=True)
-
-    build_sprite(normalized, HOME_DIR / "student-monster-pk-sprite.png")
-    print(f"Built {FRAME_COUNT} PK frames and sprite in {HOME_DIR}")
+    build_sprite(frames, HOME_DIR / "student-monster-pk-sprite.png")
+    print(f"Composed {FRAME_COUNT} PK frames ({PK_FRAME_W}x{PK_FRAME_H}) and sprite in {HOME_DIR}")
 
 
 if __name__ == "__main__":

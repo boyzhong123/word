@@ -140,6 +140,7 @@
   </scroll-view>
 
   <view class="purchase-bar" style="padding-bottom: {{safeAreaBottom}}px;">
-    <view class="purchase-button" bindtap="goVip">立即开通</view>
+    <view wx:if="{{unlocked}}" class="purchase-button purchase-button-owned">已购买</view>
+    <view wx:else class="purchase-button" bindtap="goVip">立即购买</view>
   </view>
 </view>

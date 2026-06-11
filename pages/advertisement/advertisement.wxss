@@ -384,3 +384,13 @@
 .purchase-button:active {
   opacity: 0.88;
 }
+
+.purchase-button-owned {
+  background: #eef0f3;
+  color: #7d8799;
+  box-shadow: none;
+}
+
+.purchase-button-owned:active {
+  opacity: 1;
+}

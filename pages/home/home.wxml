@@ -471,7 +471,7 @@
       <view class="book-picker-header">
         <view class="book-picker-head-copy">
           <view class="book-picker-head-row">
-            <image class="book-picker-head-icon" src="../../images/home/icon-book-picker.svg" mode="aspectFit" />
+            <image class="book-picker-head-icon" src="../../images/home/icon-book-picker-jelly.png" mode="aspectFit" />
             <text class="book-picker-title">选择教材</text>
           </view>
           <text class="book-picker-subtitle">共 {{allBooks.length}} 本，切换后立即生效</text>
@@ -488,7 +488,7 @@
             wx:for="{{allBooks}}"
             wx:key="resBookId"
             data-res-book-id="{{item.resBookId}}"
-            bindtap="selectBook"
+            bindtap="openBookDetail"
           >
             <view class="book-picker-cover-wrap">
               <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" />
@@ -523,6 +523,8 @@
             <view
               wx:else
               class="book-picker-radio {{item.resBookId === book.resBookId ? 'book-picker-radio-checked' : ''}}"
+              data-res-book-id="{{item.resBookId}}"
+              catchtap="selectBook"
             >
               <image
                 wx:if="{{item.resBookId === book.resBookId}}"

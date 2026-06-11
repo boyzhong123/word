@@ -186,7 +186,8 @@ Component({
       wx.switchTab({ url: path })
     },
 
-    // 进入随身听：压栈打开，由 listen 页自己做自下而上入场动画。
+    // 进入随身听：打开本组件内的全屏覆盖层（自下而上滑入）。
+    // 不再 navigateTo 压栈——页面路由的系统转场是横向 push 且无法关闭。
     openListen() {
       const resBookId = player.active
         ? player.resBookId
@@ -196,15 +197,10 @@ Component({
         return
       }
 
-      const pages = getCurrentPages()
-      const top = pages[pages.length - 1]
-      if (top && top.route === 'pages/listen/listen') {
-        return
+      const overlay = this.selectComponent('#listen-player')
+      if (overlay) {
+        overlay.open({ resBookId })
       }
-
-      wx.navigateTo({
-        url: '/pages/listen/listen?resBookId=' + resBookId
-      })
     },
 
     goListen() {

@@ -308,7 +308,13 @@ page {
 
 .day-cell-reward,
 .day-cell-reward.day-cell-today {
-  color: #ffffff;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 88rpx;
+  height: auto;
+  min-height: 72rpx;
+  padding-bottom: 2rpx;
+  color: #7c3aed;
   background: transparent;
   box-shadow: none;
 }
@@ -322,15 +328,21 @@ page {
 }
 
 .day-reward-icon {
-  position: absolute;
-  left: 0;
-  top: -11rpx;
-  width: 72rpx;
-  height: 78rpx;
+  position: relative;
+  flex: none;
+  width: 88rpx;
+  height: 96rpx;
+  margin-top: -18rpx;
 }
 
 .day-number-reward {
-  margin-top: 16rpx;
+  position: relative;
+  z-index: 1;
+  margin-top: 4rpx;
+  color: #7c3aed;
+  font-size: 22rpx;
+  line-height: 26rpx;
+  font-weight: 800;
 }
 
 .rules-dialog-mask,

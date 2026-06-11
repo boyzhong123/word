@@ -18,7 +18,6 @@ const { player, buildTracks } = require('../../utils/player')
 const LISTEN_PAGE_ANIM_MS = 320
 // 与 app.json tabBar.list 保持一致
 const TAB_ROUTES = ['pages/home/home', 'pages/me/me']
-const QUIZ_AUTO_ADVANCE_MS = 900
 const QUIZ_NEXT_COUNTDOWN_S = 3
 
 function postListeningQuizResult(payload) {
@@ -518,43 +517,48 @@ Page({
   },
 
   clearQuizTimers() {
-    if (this.quizFillTimer) {
-      clearTimeout(this.quizFillTimer)
-      this.quizFillTimer = null
+    if (this.quizCountdownTimer) {
+      clearInterval(this.quizCountdownTimer)
+      this.quizCountdownTimer = null
     }
-    if (this.quizReciteTimer) {
-      clearInterval(this.quizReciteTimer)
-      this.quizReciteTimer = null
-    }
+    this.quizCountdownDone = null
     if (this.data.quizNextCountdown) {
       this.setData({ quizNextCountdown: 0 })
     }
   },
 
-  scheduleFillToRecite() {
+  scheduleQuizCountdown(done) {
     this.clearQuizTimers()
-    this.quizFillTimer = setTimeout(() => {
-      this.quizFillTimer = null
-      if (this.data.quizPhase === 'fill' && this.data.quizChecked) {
-        this.startQuizRecite()
-      }
-    }, QUIZ_AUTO_ADVANCE_MS)
-  },
-
-  scheduleReciteToNext() {
-    this.clearQuizTimers()
+    this.quizCountdownDone = done
     this.setData({ quizNextCountdown: QUIZ_NEXT_COUNTDOWN_S })
-    this.quizReciteTimer = setInterval(() => {
+    this.quizCountdownTimer = setInterval(() => {
       const left = this.data.quizNextCountdown - 1
       if (left > 0) {
         this.setData({ quizNextCountdown: left })
         return
       }
+      const onDone = this.quizCountdownDone
       this.clearQuizTimers()
+      if (typeof onDone === 'function') {
+        onDone()
+      }
+    }, 1000)
+  },
+
+  scheduleFillToRecite() {
+    this.scheduleQuizCountdown(() => {
+      if (this.data.quizPhase === 'fill' && this.data.quizChecked) {
+        this.startQuizRecite()
+      }
+    })
+  },
+
+  scheduleReciteToNext() {
+    this.scheduleQuizCountdown(() => {
       if (this.data.quizPhase === 'recite' && this.data.quizReciteScore) {
         this.goToNextQuizQuestion()
       }
-    }, 1000)
+    })
   },
 
   startQuizRecite() {

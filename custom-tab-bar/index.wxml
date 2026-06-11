@@ -49,15 +49,18 @@
 
 <view wx:if="{{!hidden}}" class="bottom-nav" style="padding-bottom: {{safeAreaBottom}}px;">
   <view class="bottom-nav-item {{selected === 0 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
-    <image class="bottom-nav-icon" src="/images/home/nav-study-jelly.png" mode="aspectFit" />
+    <image class="bottom-nav-icon" src="{{selected === 0 ? '/images/home/nav-study-jelly-active.png' : '/images/home/nav-study-jelly.png'}}" mode="aspectFit" />
     <text>学习</text>
   </view>
   <view class="bottom-nav-item" bindtap="goListen">
-    <image class="bottom-nav-icon" src="/images/home/nav-listen-jelly.png" mode="aspectFit" />
+    <image class="bottom-nav-icon" src="{{miniPlaying ? '/images/home/nav-listen-jelly-active.png' : '/images/home/nav-listen-jelly.png'}}" mode="aspectFit" />
     <text>随身听</text>
   </view>
   <view class="bottom-nav-item {{selected === 1 ? 'bottom-nav-active' : ''}}" data-path="/pages/me/me" bindtap="switchTab">
-    <image class="bottom-nav-icon" src="/images/home/nav-me-jelly.png" mode="aspectFit" />
+    <image class="bottom-nav-icon" src="{{selected === 1 ? '/images/home/nav-me-jelly-active.png' : '/images/home/nav-me-jelly.png'}}" mode="aspectFit" />
     <text>我的</text>
   </view>
 </view>
+
+<!-- 随身听全屏播放器：从底部上滑盖住整页（含本底栏），不走页面路由 -->
+<listen-player id="listen-player" />

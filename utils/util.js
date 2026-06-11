@@ -29,10 +29,14 @@ const request = async (method, url, params, callback, reject, needDecode) => {
         clearTimeout(timeout)
         console.log('[request] ' + url, res)
         if (res.statusCode != 200) {
-          wx.showToast({
-            title: "error:" + res.statusCode,
-            icon: 'none',
-          })
+          if (typeof reject === 'function') {
+            reject(res.statusCode, res.data)
+          } else {
+            wx.showToast({
+              title: "error:" + res.statusCode,
+              icon: 'none',
+            })
+          }
           return
         }
         const _res = res.data

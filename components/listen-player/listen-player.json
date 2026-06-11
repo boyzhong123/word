@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "frame-animation": "../frame-animation/frame-animation",
+    "media": "../media/media"
+  }
+}

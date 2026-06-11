@@ -23,6 +23,7 @@ Page({
     proverbCount: 0,
     press: "",
     intro: "",
+    unlocked: false,
     scrollHeight: systemInfo.windowHeight - wx.getStorageSync('navigationBarHeight') - wx.getStorageSync('statusBarHeight'),
     safeAreaBottom,
     actionHeight: 78 + safeAreaBottom
@@ -40,7 +41,8 @@ Page({
       wordCount: options.wordCount || 0,
       proverbCount: options.proverbCount || 0,
       press: options.press || '',
-      intro: options.intro || ''
+      intro: options.intro || '',
+      unlocked: options.unlocked === '1'
     })
   },
   goVip() {
