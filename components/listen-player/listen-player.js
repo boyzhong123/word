@@ -10,8 +10,8 @@ const ANIM_OUT_MS = 300
 
 Component({
   options: {
-    // 让 .follow-media 等选择器能作用到内部 media 组件（跟读面板按钮覆写）
-    styleIsolation: 'shared'
+    // 允许上层通用样式进入，但播放器自身样式不能泄漏到页面/原生组件。
+    styleIsolation: 'apply-shared'
   },
 
   data: {

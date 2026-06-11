@@ -911,7 +911,7 @@ Page({
       return
     }
     this.closing = true
-    this.setData({ pageAnimState: 'listen-page-leaving' })
+    this.setData({ pageAnimState: 'listen-page-leaving', showPlaylist: false })
     const pages = getCurrentPages()
     const below = pages.length > 1 ? pages[pages.length - 2] : null
     if (!below || TAB_ROUTES.indexOf(below.route) >= 0) {

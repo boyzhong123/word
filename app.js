@@ -1,4 +1,12 @@
 const baseUrl = wx.getAccountInfoSync().miniProgram.envVersion === 'release' ? 'https://pb10.91tszx.com' : 'https://pb10.91tszx.com'
+
+function updateNetworkStatus(networkType) {
+  const isConnected = networkType !== 'none'
+  wx.setStorageSync('networkType', networkType)
+  wx.setStorageSync('isConnected', isConnected)
+  return isConnected
+}
+
 App({
   onLaunch() {
     wx.setInnerAudioOption({
@@ -10,14 +18,19 @@ App({
             console.log('静音设置失败')
         }
     })
+    wx.getNetworkType({
+      success: ({ networkType }) => {
+        updateNetworkStatus(networkType)
+      }
+    })
     // 监听网络变化
     wx.onNetworkStatusChange((params) => {
       const {
         isConnected,
         networkType
       } = params
-      wx.setStorageSync('networkType', networkType)
       const prevConnectedStatus = wx.getStorageSync('isConnected')
+      updateNetworkStatus(networkType)
 
       if (!isConnected || networkType === 'none') {
         if (prevConnectedStatus) {

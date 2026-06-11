@@ -16,10 +16,11 @@ GRID_ROWS = 2
 CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
 
 
-def get_content_bbox(image):
+def get_content_bbox(image, alpha_threshold=32):
     if image.mode == "RGBA":
         alpha = image.getchannel("A")
-        return alpha.getbbox()
+        visible = alpha.point(lambda value: 255 if value > alpha_threshold else 0)
+        return visible.getbbox()
 
     white = Image.new("RGB", image.size, "white")
     from PIL import ImageChops
@@ -27,6 +28,35 @@ def get_content_bbox(image):
     difference = ImageChops.difference(image, white).convert("L")
     mask = difference.point(lambda value: 255 if value > 18 else 0)
     return mask.getbbox()
+
+
+def clean_panel_artifacts(image):
+    """Remove leftover panel borders and soft halos from generated frame sheets."""
+    rgba = image.convert("RGBA")
+    pixels = rgba.load()
+    width, height = rgba.size
+    for y in range(height):
+        for x in range(width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha == 0:
+                continue
+
+            minimum = min(red, green, blue)
+            maximum = max(red, green, blue)
+            spread = maximum - minimum
+
+            if minimum > 188 and spread < 36:
+                pixels[x, y] = (0, 0, 0, 0)
+                continue
+
+            if maximum < 72 and alpha < 220:
+                pixels[x, y] = (0, 0, 0, 0)
+                continue
+
+            if alpha < 28:
+                pixels[x, y] = (0, 0, 0, 0)
+
+    return rgba
 
 
 def ensure_transparent_source(source_path, work_dir):
@@ -83,7 +113,8 @@ def build_sprite(source_path, output_path, frame_count=6):
                 )
             )
 
-    boxes = [get_content_bbox(tile) for tile in tiles]
+    cleaned_tiles = [clean_panel_artifacts(tile) for tile in tiles]
+    boxes = [get_content_bbox(tile) for tile in cleaned_tiles]
     if any(box is None for box in boxes):
         raise ValueError("Every source cell must contain a visible frame")
 
@@ -95,7 +126,7 @@ def build_sprite(source_path, output_path, frame_count=6):
     )
 
     sprite = Image.new("RGBA", (FRAME_WIDTH * frame_count, FRAME_HEIGHT), (0, 0, 0, 0))
-    for index, (tile, box) in enumerate(zip(tiles, boxes)):
+    for index, (tile, box) in enumerate(zip(cleaned_tiles, boxes)):
         content = tile.crop(box)
         width = max(1, round(content.width * scale))
         height = max(1, round(content.height * scale))

@@ -24,6 +24,15 @@
   animation: listen-slide-down 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+/* 小程序里 SVG image 在 transform 收起的 fixed 容器中偶发合成层残留。
+   关闭时先隐藏播放器内容，只让背景容器执行下滑，避免图标漏到首页。 */
+.listen-page-leaving .listen-nav,
+.listen-page-leaving .page-dots,
+.listen-page-leaving .stage,
+.listen-page-leaving .controls {
+  visibility: hidden;
+}
+
 @keyframes listen-slide-up {
   from {
     transform: translateY(100%);
@@ -476,15 +485,9 @@
 
 /* ---------------- 期切换面板 ---------------- */
 .sheet-mask {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0);
   z-index: 50;
-  visibility: hidden;
-  transition: background 0.25s;
-}
-.sheet-show {
-  visibility: visible;
   background: rgba(0, 0, 0, 0.4);
 }
 .sheet {
@@ -580,8 +583,8 @@
   z-index: 20;
 }
 .loading-panel {
-  min-width: 216rpx;
-  max-width: 47%;
+  min-width: 280rpx;
+  max-width: 72%;
   padding: 34rpx 38rpx 31rpx;
   box-sizing: border-box;
   display: flex;
@@ -599,23 +602,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 168rpx;
-  height: 168rpx;
+  width: 160rpx;
+  height: 160rpx;
   filter: drop-shadow(0 6rpx 11rpx rgba(17, 19, 24, 0.22));
 }
 .loading-title {
-  margin-top: 36rpx;
+  margin-top: 28rpx;
+  width: 100%;
   color: #1e3a4a;
-  font-size: 32rpx;
-  line-height: 42rpx;
+  font-size: 26rpx;
+  line-height: 36rpx;
   font-weight: 400;
-  letter-spacing: 1rpx;
+  letter-spacing: 0.5rpx;
+  text-align: center;
+  white-space: nowrap;
 }
 .loading-sub {
-  margin-top: 12rpx;
+  margin-top: 8rpx;
+  width: 100%;
   color: rgba(71, 100, 130, 0.62);
-  font-size: 24rpx;
-  line-height: 34rpx;
+  font-size: 20rpx;
+  line-height: 28rpx;
+  text-align: center;
+  white-space: nowrap;
 }
 @keyframes loading-pop {
   from { opacity: 0; transform: translateY(10rpx) scale(0.94); }

@@ -15,6 +15,7 @@ const feedBackPlayer = wx.createInnerAudioContext({
   useWebAudioImplement: false
 })
 const IDLE = 0, AUDIO_PLAYING = 1, RECORDING = 2, REPLAYING = 3, MARKING = 4
+let activeMedia = null
 var windowWidth = wx.getStorageSync('windowWidth')
 Component({
   options: {
@@ -230,73 +231,34 @@ Component({
       if (!wsEngine) {
         return
       }
+      if (this.sdkInitialized) {
+        this.refreshSig()
+        return
+      }
+      this.sdkInitialized = true
       let that = this
       wsEngine.onResult(res => {
-        that.clearMarkWatchdog()
-        let result = res && res.result
-        if (!result || typeof result.overall === 'undefined') {
-          // 结果异常时也要恢复界面，避免一直停留在“评分中...”
-          console.warn('onResult invalid result', JSON.stringify(res))
-          that.setData({ media_state: IDLE })
-          wx.showToast({ title: '评分失败，请重试', icon: 'none' })
-          return
-        }
-        let score = result.overall
-        let good = score >= 55
-        let translateY = windowWidth / 5
-        that.animation.translate(0, -translateY).opacity(1).step()
-        that.setData({
-          media_state: IDLE,
-          score: score,
-          animation: that.animation.export()
-        })
-        feedBackPlayer.src = good ? "/raw/good.aac" : "/raw/wrong.aac"
-        feedBackPlayer.play()
-        setTimeout(() => {
-          that.animation.opacity(0).step()
-          that.animation.translate(0, translateY).step({
-            duration: 0  //回到原位置
-          })
-          that.setData({
-            animation: that.animation.export()
-          })
-        }, 2000)
-        that.triggerEvent('result', {
-          index: that.data._index,
-          score: score,
-          detail: res.result.details,
-          tempFilePath: that.data._temp_file_path
-        })
+        const target = activeMedia || that
+        target.handleEngineResult(res)
       })
       wsEngine.onErrorResult(res => {
-        console.error('[media] wsEngine onErrorResult:', JSON.stringify(res))
-        that.clearMarkWatchdog()
-        wx.showToast({
-          title: res.error + " " + res.errId,
-          icon: 'none',
-          duration: 3000
-        })
-        that.setData({
-          media_state: IDLE
-        })
+        const target = activeMedia || that
+        target.handleEngineErrorResult(res)
       })
-      wx.request({
-        url: 'https://wechat.kamienglish.com/api/Sig/getInfoWord',//驰声签名地址，微信要求必须是https环境的地址
-        success: (res) => {
-          that.data._sig = res.data
-          that.data._sig.userId = "hello"
-        },
-        fail: (res) => {
-          console.log("request sig fail");
-        }
-      })
+      this.refreshSig()
       //监听录音开始事件
       recorderManager.onStart(() => {
+        if (activeMedia !== that) {
+          return
+        }
         that.recorderStart = true
         console.log('recorderManager onStart')
       })
       //监听录音结束事件
       recorderManager.onStop((res) => {
+        if (activeMedia !== that) {
+          return
+        }
         that.recorderStart = false
         console.log('recorderManager onStop')
         if (that.data.media_state == RECORDING) {
@@ -313,6 +275,7 @@ Component({
             fail: (res) => {
               console.log("====== wsEngine stop fail ======")
               console.log(res); //请关注res.errId, res.error
+              that.resetMarkingState('评分失败，请重试')
             },
             complete: () => {
               console.log("====== wsEngine stop complete ======")
@@ -321,13 +284,20 @@ Component({
         }
       })
       recorderManager.onInterruptionBegin((res) => {
-        console.log('onInterruptionBegin', JSON.stringify(res))
+        if (activeMedia === that) {
+          console.log('onInterruptionBegin', JSON.stringify(res))
+        }
       })
       recorderManager.onInterruptionEnd((res) => {
-        console.log('onInterruptionEnd', JSON.stringify(res))
+        if (activeMedia === that) {
+          console.log('onInterruptionEnd', JSON.stringify(res))
+        }
       })
       //监听已录制完指定帧大小的文件事件。如果设置了 frameSize，则会回调此事件。
       recorderManager.onFrameRecorded((res) => {
+        if (activeMedia !== that) {
+          return
+        }
         const { frameBuffer } = res
         if (frameBuffer && that.data.media_state == RECORDING) {
           console.log('frameBuffer.byteLength', frameBuffer.byteLength)
@@ -350,9 +320,66 @@ Component({
       })
       //监听录音错误事件
       recorderManager.onError((res) => {
-         this.cancelRecord()
-         console.log('recorder fail', res)
+        if (activeMedia !== that) {
+          return
+        }
+        console.log('recorder fail', res)
+        that.resetMarkingState('录音失败，请重试')
       })
+    },
+    refreshSig() {
+      wx.request({
+        url: 'https://wechat.kamienglish.com/api/Sig/getInfoWord',//驰声签名地址，微信要求必须是https环境的地址
+        success: (res) => {
+          this.data._sig = res.data
+          this.data._sig.userId = "hello"
+        },
+        fail: (res) => {
+          console.log("request sig fail");
+        }
+      })
+    },
+    handleEngineResult(res) {
+      this.clearMarkWatchdog()
+      let result = res && res.result
+      if (!result || typeof result.overall === 'undefined') {
+        // 结果异常时也要恢复界面，避免一直停留在“评分中...”
+        console.warn('onResult invalid result', JSON.stringify(res))
+        this.resetMarkingState('评分失败，请重试')
+        return
+      }
+      let score = result.overall
+      let good = score >= 55
+      let translateY = windowWidth / 5
+      this.animation.translate(0, -translateY).opacity(1).step()
+      this.setData({
+        media_state: IDLE,
+        score: score,
+        animation: this.animation.export()
+      })
+      activeMedia = null
+      feedBackPlayer.src = good ? "/raw/good.aac" : "/raw/wrong.aac"
+      feedBackPlayer.play()
+      setTimeout(() => {
+        this.animation.opacity(0).step()
+        this.animation.translate(0, translateY).step({
+          duration: 0  //回到原位置
+        })
+        this.setData({
+          animation: this.animation.export()
+        })
+      }, 2000)
+      this.triggerEvent('result', {
+        index: this.data._index,
+        score: score,
+        detail: res.result.details,
+        tempFilePath: this.data._temp_file_path
+      })
+    },
+    handleEngineErrorResult(res) {
+      console.error('[media] wsEngine onErrorResult:', JSON.stringify(res))
+      const message = res && res.error ? res.error + " " + res.errId : '评分失败，请重试'
+      this.resetMarkingState(message)
     },
     audioPlay(src) {
       const ctx = this.data.innerAudioContext
@@ -371,6 +398,7 @@ Component({
         wx.showToast({ title: '语音评测暂不可用', icon: 'none' })
         return
       }
+      activeMedia = this
       wsEngine.reset()
       this.engineStart = true
       wsEngine.start({
@@ -409,11 +437,8 @@ Component({
         },
         fail: (res) => {
           console.error('[media] wsEngine start fail:', JSON.stringify(res))
-          wx.showToast({
-            title: res.error + " " + res.errId,
-            icon: 'none',
-            duration: 3000
-          })
+          const message = res && res.error ? res.error + " " + res.errId : '评分启动失败，请重试'
+          this.resetMarkingState(message)
         },
         complete: () => {
           console.log("===start======complete=============");
@@ -444,6 +469,24 @@ Component({
           wsEngine.reset()
           this.engineStart = false
       }
+      if (activeMedia === this) {
+        activeMedia = null
+      }
+    },
+    resetMarkingState(title) {
+      this.clearMarkWatchdog()
+      if (wsEngine) {
+        wsEngine.reset()
+      }
+      this.engineStart = false
+      this.recorderStart = false
+      if (activeMedia === this) {
+        activeMedia = null
+      }
+      this.setData({ media_state: IDLE })
+      if (title) {
+        wx.showToast({ title, icon: 'none', duration: 3000 })
+      }
     },
     // 评分兜底：极端情况下引擎既不回结果也不回错误时，避免界面一直卡在“评分中...”
     startMarkWatchdog() {
@@ -452,13 +495,9 @@ Component({
         this.markWatchdog = null
         if (this.data.media_state == MARKING) {
           console.warn('mark watchdog fired, force reset to IDLE')
-          if (wsEngine) {
-            wsEngine.reset()
-          }
-          this.setData({ media_state: IDLE })
-          wx.showToast({ title: '评分超时，请重试', icon: 'none' })
+          this.resetMarkingState('评分超时，请重试')
         }
-      }, 65000)
+      }, 15000)
     },
     clearMarkWatchdog() {
       if (this.markWatchdog) {

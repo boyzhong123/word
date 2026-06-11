@@ -65,6 +65,24 @@ def content_bbox(image):
     return visible.getbbox()
 
 
+def lift_defeated_stars(image, lift_px=54, split_ratio=0.42):
+    """Raise the dizzy stars without moving the monster's bottom anchor."""
+    box = content_bbox(image)
+    if box is None:
+        return image
+
+    crop = image.crop(box)
+    width, height = crop.size
+    split_y = max(1, min(int(height * split_ratio), height - 1))
+    top = crop.crop((0, 0, width, split_y))
+    bottom = crop.crop((0, split_y, width, height))
+
+    lifted = Image.new("RGBA", (width, height + lift_px), (0, 0, 0, 0))
+    lifted.alpha_composite(bottom, (0, split_y))
+    lifted.alpha_composite(top, (0, split_y - lift_px))
+    return lifted
+
+
 def fit_frame(image, frame_w, frame_h, padding_x=10, padding_y=12):
     box = content_bbox(image)
     if box is None:
@@ -147,13 +165,22 @@ def main():
     defeated_raw.save(MONSTER_DIR / "jelly-green-monster-defeated.png", optimize=True)
 
     build_single_sprite(locked_raw, MONSTER_DIR / "jelly-locked.png")
-    build_single_sprite(defeated_raw, MONSTER_DIR / "jelly-defeated.png")
+    defeated_lifted = lift_defeated_stars(defeated_raw)
+    defeated_frame = fit_frame(
+        defeated_lifted,
+        MONSTER_FRAME,
+        MONSTER_FRAME,
+        padding_x=10,
+        padding_y=22,
+    )
+    defeated_frame.save(MONSTER_DIR / "jelly-defeated.png", optimize=True)
 
     for mascot_name, raw in (
         ("mascot-sleep", locked_raw),
-        ("mascot-progress", defeated_raw),
+        ("mascot-progress", defeated_lifted),
     ):
-        mascot = fit_frame(raw, MASCOT_FRAME_W, MASCOT_FRAME_H, padding_x=12, padding_y=10)
+        padding_y = 14 if mascot_name == "mascot-progress" else 10
+        mascot = fit_frame(raw, MASCOT_FRAME_W, MASCOT_FRAME_H, padding_x=12, padding_y=padding_y)
         mascot.save(HOME_DIR / f"{mascot_name}.png", optimize=True)
         build_mascot_sprite(HOME_DIR / f"{mascot_name}.png", HOME_DIR / f"{mascot_name}-sprite.png")
 

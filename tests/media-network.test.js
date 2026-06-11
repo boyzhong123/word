@@ -39,3 +39,15 @@ test('media demo audio stops previous playback and emits beforeplay', () => {
   assert.match(mediaScript, /triggerEvent\('beforeplay'\)/)
   assert.match(mediaScript, /ctx\.stop\(\)/)
 })
+
+test('media scoring failures always leave marking state', () => {
+  assert.match(mediaScript, /wsEngine\.stop\(\{[\s\S]*fail:\s*\(res\)\s*=>\s*{[\s\S]*resetMarkingState\(/)
+  assert.match(mediaScript, /onErrorResult\(res\s*=>\s*{[\s\S]*resetMarkingState\(/)
+  assert.match(mediaScript, /recorderManager\.onError\(\(res\)\s*=>\s*{[\s\S]*resetMarkingState\(/)
+})
+
+test('media scoring watchdog recovers quickly when engine gives no result', () => {
+  assert.match(mediaScript, /startMarkWatchdog\(\)\s*{[\s\S]*resetMarkingState\(/)
+  assert.match(mediaScript, /},\s*15000\)/)
+  assert.doesNotMatch(mediaScript, /},\s*65000\)/)
+})

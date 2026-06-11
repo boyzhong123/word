@@ -186,8 +186,8 @@ Component({
       wx.switchTab({ url: path })
     },
 
-    // 进入随身听：打开本组件内的全屏覆盖层（自下而上滑入）。
-    // 不再 navigateTo 压栈——页面路由的系统转场是横向 push 且无法关闭。
+    // 进入随身听：压栈打开真正的随身听页。
+    // tab 页里只保留迷你播放条，避免全屏播放器 DOM 污染首页/我的页。
     openListen() {
       const resBookId = player.active
         ? player.resBookId
@@ -197,10 +197,15 @@ Component({
         return
       }
 
-      const overlay = this.selectComponent('#listen-player')
-      if (overlay) {
-        overlay.open({ resBookId })
+      const pages = getCurrentPages()
+      const top = pages[pages.length - 1]
+      if (top && top.route === 'pages/listen/listen') {
+        return
       }
+
+      wx.navigateTo({
+        url: '/pages/listen/listen?resBookId=' + resBookId
+      })
     },
 
     goListen() {

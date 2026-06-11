@@ -5,14 +5,14 @@
     </view>
   </navigation>
 
-  <scroll-view scroll-y="{{true}}" class="content" enhanced show-scrollbar="{{false}}">
+  <scroll-view scroll-y class="content" style="height: {{scrollHeight}}px;" enhanced show-scrollbar="{{false}}">
     <!-- 教材信息 -->
     <view class="hero">
       <image class="book-cover" src="{{bookCover}}" mode="aspectFill" />
       <view class="book-detail">
         <text class="book-name">{{name}}</text>
         <view class="press-row" wx:if="{{press}}">
-          <image class="press-icon" src="/images/home/icon-book-picker.svg" mode="aspectFit" />
+          <image class="press-icon" src="/images/home/ad/icon-press-jelly.png" mode="aspectFit" />
           <text class="press-name">{{press}}</text>
         </view>
       </view>
@@ -49,22 +49,22 @@
       </view>
       <view class="learning-grid">
         <view class="learning-item">
-          <view class="learning-badge">单词</view>
+          <image class="learning-badge" src="/images/home/ad/icon-word-jelly.png" mode="aspectFit" />
           <text class="learning-title">核心词汇</text>
           <text class="learning-copy">发音·释义·例句</text>
         </view>
         <view class="learning-item">
-          <view class="learning-badge">谚语</view>
+          <image class="learning-badge" src="/images/home/ad/icon-proverb-jelly.png" mode="aspectFit" />
           <text class="learning-title">经典谚语</text>
           <text class="learning-copy">地道表达积累</text>
         </view>
         <view class="learning-item">
-          <view class="learning-badge">朗读</view>
+          <image class="learning-badge" src="/images/home/ad/icon-read-jelly.png" mode="aspectFit" />
           <text class="learning-title">跟读评分</text>
           <text class="learning-copy">智能纠音</text>
         </view>
         <view class="learning-item">
-          <view class="learning-badge">复习</view>
+          <image class="learning-badge" src="/images/home/ad/icon-review-jelly.png" mode="aspectFit" />
           <text class="learning-title">科学复习</text>
           <text class="learning-copy">对抗遗忘</text>
         </view>

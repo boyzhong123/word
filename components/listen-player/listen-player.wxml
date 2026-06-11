@@ -138,8 +138,8 @@
   </view>
   </block>
 
-  <!-- 期切换面板 -->
-  <view class="sheet-mask {{showPlaylist ? 'sheet-show' : ''}}" bindtap="closePlaylist">
+  <!-- 期切换面板：wx:if 卸载 DOM，避免 visibility:hidden 盖不住 scroll-view 子节点 -->
+  <view wx:if="{{showPlaylist}}" class="sheet-mask sheet-show" bindtap="closePlaylist">
     <view class="sheet" catchtap="noop">
       <view class="sheet-head">
         <text class="sheet-title">选择期数</text>
@@ -171,10 +171,10 @@
       <view class="loading-mascot-wrap">
         <frame-animation
           url="../../images/listen/loading-mascot-sprite.png"
-          count="10"
-          width="168"
-          height="168"
-          duration="2.5"
+          count="6"
+          width="160"
+          height="160"
+          duration="5.0"
           state="running"
         />
       </view>

@@ -24,9 +24,32 @@
   line-height: 26rpx;
 }
 
+.bottom-nav-icon-wrap {
+  width: 68rpx;
+  height: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
 .bottom-nav-icon {
   width: 68rpx;
   height: 68rpx;
+}
+
+.bottom-nav-active .bottom-nav-icon-wrap {
+  transform: scale(1.06);
+  filter: drop-shadow(0 4rpx 10rpx rgba(74, 222, 128, 0.45));
+}
+
+.bottom-nav-icon-playing {
+  animation: nav-icon-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes nav-icon-bounce {
+  0%, 100% { transform: scale(1.06); }
+  50% { transform: scale(1.1); }
 }
 
 .bottom-nav-active {

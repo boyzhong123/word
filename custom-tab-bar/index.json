@@ -1,6 +1,3 @@
 {
-  "component": true,
-  "usingComponents": {
-    "listen-player": "/components/listen-player/listen-player"
-  }
+  "component": true
 }
