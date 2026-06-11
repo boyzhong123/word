@@ -16,6 +16,67 @@
   line-height: 60rpx;
 }
 
+.checkin-progress-line {
+  margin-top: 34rpx;
+  color: #62626b;
+  font-size: 28rpx;
+  line-height: 40rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.checkin-success-card {
+  margin: 30rpx 66rpx 0;
+  padding: 24rpx 24rpx 26rpx;
+  display: flex;
+  align-items: center;
+  border-radius: 28rpx;
+  background: #f5f3ff;
+  box-shadow: 0 8rpx 18rpx rgba(124, 99, 255, 0.12);
+}
+
+.checkin-success-card-bright {
+  background: linear-gradient(135deg, #ffffff, #f5f3ff);
+}
+
+.checkin-success-icon {
+  flex: none;
+  width: 78rpx;
+  height: 78rpx;
+}
+
+.checkin-success-copy {
+  flex: 1;
+  min-width: 0;
+  margin-left: 18rpx;
+}
+
+.checkin-success-title {
+  color: #1d1d22;
+  font-size: 30rpx;
+  line-height: 38rpx;
+  font-weight: 800;
+}
+
+.checkin-success-subtitle {
+  margin-top: 6rpx;
+  color: #62626b;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.checkin-calendar-btn {
+  flex: none;
+  margin-left: 16rpx;
+  padding: 13rpx 18rpx;
+  color: #ffffff;
+  background: #111318;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  line-height: 28rpx;
+  font-weight: 700;
+}
+
 .btn {
   background: #111318;
   height: 100rpx;

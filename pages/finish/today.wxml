@@ -4,7 +4,16 @@
   <view class="content">完成今日学习!</view>
   <view class="periodical" style="margin-top: 77rpx;">完成<text style="color:#111318;">第{{unitSort}}期</text>学习</view>
   <view class="periodical" style="padding-top:15rpx; font-weight:normal;">再学{{unitCount - unitSort}}期就完成本书的学习</view>
-  <view class="btn" style="margin-top: 163rpx;" bindtap="continue">继续学习</view>
+  <view class="checkin-progress-line">今日已完成 {{todayDone}}/{{todayGoal}} 关</view>
+  <view class="checkin-success-card {{justCheckedIn ? 'checkin-success-card-bright' : ''}}" wx:if="{{checkinComplete}}">
+    <image class="checkin-success-icon" src="../../images/checkin/charge-jelly.png" mode="aspectFit" />
+    <view class="checkin-success-copy">
+      <view class="checkin-success-title">{{justCheckedIn ? '打卡成功' : '今日已打卡'}}</view>
+      <view class="checkin-success-subtitle">连续30天可领取礼品，去日历看看战绩。</view>
+    </view>
+    <view class="checkin-calendar-btn" bindtap="goCheckinCalendar">查看打卡日历</view>
+  </view>
+  <view class="btn" style="margin-top: {{checkinComplete ? 48 : 96}}rpx;" bindtap="continue">继续学习</view>
   <view class="btn btn-secondary" style="margin-top: 40rpx;" bindtap="finish">完成</view>
 </view>
 <view class="box" wx:elif="{{unitSort == unitCount}}">

@@ -68,6 +68,21 @@
       </view>
     </view>
 
+    <!-- 打卡规则预告 -->
+    <view class="checkin-card">
+      <view class="checkin-card-row">
+        <image class="checkin-card-icon" src="../../images/checkin/bolt-jelly.png" mode="aspectFit" />
+        <view class="checkin-card-copy-wrap">
+          <view class="checkin-card-title">每天完成 <text class="hl">{{groupsPerDay}}</text> 关即打卡</view>
+          <view class="checkin-card-copy">完成今日计划后，系统会自动点亮当天记录。</view>
+        </view>
+      </view>
+      <view class="checkin-reward-pill">
+        <image class="checkin-reward-icon" src="../../images/checkin/gift-jelly.png" mode="aspectFit" />
+        <view class="checkin-reward-copy">连续30天不断电，可领取听说在线 VIP 礼品</view>
+      </view>
+    </view>
+
     <!-- 关卡预览 -->
     <view class="section">
       <view class="section-title">关卡预览</view>

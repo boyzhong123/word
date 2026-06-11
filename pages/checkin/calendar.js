@@ -133,6 +133,9 @@ Page({
     rewardDay: STREAK_REWARD_DAYS,
     giftUnlocked: false,
     showGiftDialog: false,
+    showRulesDialog: false,
+    giftCopied: false,
+    rewardRemainingDays: STREAK_REWARD_DAYS,
     rewardCode: STREAK_REWARD_CODE
   },
 
@@ -187,6 +190,7 @@ Page({
       this.setData({
         continuousDays,
         giftUnlocked: continuousDays >= STREAK_REWARD_DAYS,
+        rewardRemainingDays: this.getRewardRemainingDays(continuousDays),
         rewardCode: pickRewardCode(data),
         avatarUrl: pickAvatarUrl(data),
         avatarSrc: pickAvatarUrl(data) || DEFAULT_AVATAR
@@ -237,15 +241,27 @@ Page({
     }
   },
 
+  getRewardRemainingDays(continuousDays) {
+    return Math.max(STREAK_REWARD_DAYS - (Number(continuousDays) || 0), 0)
+  },
+
+  openRulesDialog() {
+    this.setData({ showRulesDialog: true })
+  },
+
+  closeRulesDialog() {
+    this.setData({ showRulesDialog: false })
+  },
+
   openGiftDialog() {
     if (!this.data.giftUnlocked) {
       wx.showToast({
-        title: '连续打卡' + STREAK_REWARD_DAYS + '天可领取',
+        title: '连续打卡还差' + this.data.rewardRemainingDays + '天可领取',
         icon: 'none'
       })
       return
     }
-    this.setData({ showGiftDialog: true })
+    this.setData({ showGiftDialog: true, giftCopied: false })
   },
 
   closeGiftDialog() {
@@ -257,9 +273,16 @@ Page({
     wx.setClipboardData({
       data: code,
       success: () => {
+        this.setData({ giftCopied: true })
         wx.showToast({
           title: '兑换码已复制',
           icon: 'success'
+        })
+      },
+      fail: () => {
+        wx.showToast({
+          title: '复制失败，请重试',
+          icon: 'none'
         })
       }
     })

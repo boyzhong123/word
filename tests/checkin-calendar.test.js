@@ -40,14 +40,14 @@ test('check-in calendar helper builds a month grid with checked and today states
   ], new Date(2026, 5, 5))
 
   assert.equal(days.length, 35)
-  assert.deepEqual(days.slice(0, 7).map(day => day.day), [31, 1, 2, 3, 4, 5, 6])
-  assert.equal(days[0].inMonth, false)
-  assert.equal(days[1].date, '2026-06-01')
-  assert.equal(days[1].checked, true)
-  assert.equal(days[2].checked, false)
-  assert.equal(days[5].isToday, true)
+  assert.deepEqual(days.slice(0, 7).map(day => day.day), [1, 2, 3, 4, 5, 6, 7])
+  assert.equal(days[0].inMonth, true)
+  assert.equal(days[0].date, '2026-06-01')
+  assert.equal(days[0].checked, true)
+  assert.equal(days[1].checked, false)
+  assert.equal(days[4].isToday, true)
   assert.equal(days.filter(day => day.inMonth).length, 30)
-  assert.deepEqual(days.slice(-5).map(day => day.inMonth), [true, false, false, false, false])
+  assert.deepEqual(days.slice(-5).map(day => day.inMonth), [false, false, false, false, false])
 
   const summary = buildCheckinSummary(days)
   assert.equal(summary.checkedDays, 3)
@@ -98,4 +98,55 @@ test('check-in calendar unlocks gift reward after 30 continuous days', () => {
   assert.match(calendarScript, /STREAK_REWARD_DAYS = 30/)
   assert.match(calendarScript, /giftUnlocked: continuousDays >= STREAK_REWARD_DAYS/)
   assert.match(calendarScript, /setClipboardData/)
+})
+
+test('check-in calendar exposes rule dialog from the help icon', () => {
+  const template = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.wxml'),
+    'utf8'
+  )
+  const style = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.wxss'),
+    'utf8'
+  )
+  const calendarScript = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.js'),
+    'utf8'
+  )
+
+  assert.match(template, /class="help-icon"[^>]*bindtap="openRulesDialog"/)
+  assert.match(template, /wx:if="{{showRulesDialog}}"/)
+  assert.match(template, /完成今日计划关卡/)
+  assert.match(template, /连续30天/)
+  assert.match(template, /bindtap="closeRulesDialog"/)
+  assert.match(calendarScript, /showRulesDialog:\s*false/)
+  assert.match(calendarScript, /openRulesDialog\(\)/)
+  assert.match(calendarScript, /closeRulesDialog\(\)/)
+  assert.match(style, /\.rules-dialog-mask/)
+  assert.match(style, /\.rules-dialog/)
+})
+
+test('check-in calendar gift dialog has locked remaining and copied states', () => {
+  const template = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.wxml'),
+    'utf8'
+  )
+  const style = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.wxss'),
+    'utf8'
+  )
+  const calendarScript = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.js'),
+    'utf8'
+  )
+
+  assert.match(template, /giftCopied \? '已复制' : '复制兑换码'/)
+  assert.match(template, /gift-dialog-copy-done/)
+  assert.match(calendarScript, /giftCopied:\s*false/)
+  assert.match(calendarScript, /rewardRemainingDays:/)
+  assert.match(calendarScript, /getRewardRemainingDays\(continuousDays\)/)
+  assert.match(calendarScript, /连续打卡还差/)
+  assert.match(calendarScript, /this\.setData\(\{\s*showGiftDialog:\s*true,\s*giftCopied:\s*false\s*\}\)/)
+  assert.match(calendarScript, /fail:\s*\(\)\s*=>/)
+  assert.match(style, /\.gift-dialog-copy-done/)
 })
