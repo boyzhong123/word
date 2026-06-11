@@ -49,6 +49,17 @@
   line-height: 48rpx;
 }
 
+.dialog-subtitle {
+  word-break: break-all;
+  text-align: center;
+  margin: 16rpx 32rpx 0;
+  padding: 0 10rpx;
+  font-size: 26rpx;
+  font-family: PingFang SC;
+  color: #9a9a9a;
+  line-height: 40rpx;
+}
+
 .dialog-button-container {
   padding: 46rpx 0 56rpx;
   display: flex;

@@ -372,7 +372,7 @@ Page({
   back() {
     this.setData({
       dialog: {
-        type: 'general', title: '提示', content: '确认退出当前学习？', cancelText: '取消', confirmText: '确认', confirm: function () {
+        type: 'general', title: '提示', content: '确认退出当前学习？', subtitle: '学习贵在坚持，每天进步一点点。', cancelText: '取消', confirmText: '确认', confirm: function () {
           wx.navigateBack()
         }
       }

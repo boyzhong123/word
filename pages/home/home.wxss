@@ -667,6 +667,8 @@ page {
 
 .unit-card-active .unit-top {
   overflow: visible;
+  /* 高于 .task-grid(z-index:4)，避免 PK 角色的脚被任务卡挡住 */
+  z-index: 5;
 }
 
 .unit-copy {
@@ -781,7 +783,7 @@ page {
 .unit-card-monster-fighting {
   top: -20rpx;
   right: -20rpx;
-  z-index: 3;
+  z-index: 5;
   width: 148rpx;
   height: 84rpx;
   transform: scale(1.78);

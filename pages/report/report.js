@@ -125,7 +125,7 @@ function buildReport(sort, total, enSaying, zhSaying) {
     },
     {
       type: 'listening',
-      label: '听力小测',
+      label: '关卡小测',
       icon: taskPalette.listening.icon,
       iconBg: taskPalette.listening.iconBg,
       color: taskPalette.listening.color,

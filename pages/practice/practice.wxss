@@ -240,6 +240,18 @@ page,
   background: #4dd9a0;
 }
 
+.wn-word-status {
+  flex: none;
+  width: 58rpx;
+  height: 36rpx;
+  margin-left: 2rpx;
+  transform: translateY(4rpx);
+}
+
+.wn-word-status-unknown {
+  width: 106rpx;
+}
+
 .wn-jelly-hint {
   flex: none;
   display: flex;

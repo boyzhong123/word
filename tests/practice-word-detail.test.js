@@ -105,6 +105,17 @@ test('detail footer shows 记错了 only after tapping 认识', () => {
   assert.doesNotMatch(practiceTemplate, /wn-foot-mark/)
 })
 
+test('word row shows a persistent status mark after an answer', () => {
+  assert.match(practiceTemplate, /mark-familiar\.png/)
+  assert.match(practiceTemplate, /mark-unknown\.png/)
+  assert.match(practiceTemplate, /item\.revealed && item\.known/)
+  assert.match(practiceTemplate, /item\.revealed && !item\.known/)
+  assert.match(practiceStyle, /\.wn-word-status\s*{/)
+  assert.match(practiceStyle, /\.wn-word-status-unknown\s*{/)
+  assert.ok(fs.existsSync(path.join(projectRoot, 'images/word-new/mark-familiar.png')))
+  assert.ok(fs.existsSync(path.join(projectRoot, 'images/word-new/mark-unknown.png')))
+})
+
 test('detail page renders data-backed sections plus 下一词', () => {
   assert.match(practiceScript, /背诵技巧/)
   assert.doesNotMatch(practiceScript, /真题例句/)
@@ -147,9 +158,9 @@ test('target word in the example sentence is emphasised via a wxs helper', () =>
 })
 
 test('word-new detail styling follows the lavender-blue "认识不" visual language', () => {
-  assert.match(practiceStyle, /#dfd8ee/)
-  assert.match(practiceStyle, /#ddddf7/)
-  assert.match(practiceStyle, /#8bb6fa/)
+  assert.match(practiceStyle, /#e7e1f0/)
+  assert.match(practiceStyle, /#bcd0f8/)
+  assert.match(practiceStyle, /#78acf4/)
   assert.match(practiceStyle, /\.wn-word\s*{[^}]*font-weight:\s*800/s)
   assert.match(practiceStyle, /\.wn-foot-underline-img\s*{/)
   assert.match(practiceStyle, /\.wn-foot-underline-known\s*{[^}]*background:\s*#3f9581/s)

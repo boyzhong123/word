@@ -1,10 +1,6 @@
 {
-  "usingComponents": {
-
-  },
+  "usingComponents": {},
   "disableScroll": true,
-  "navigationStyle": "default",
-  "navigationBarTitleText": "谚语词典",
-  "navigationBarBackgroundColor": "#ffffff",
+  "navigationStyle": "custom",
   "navigationBarTextStyle": "black"
 }

@@ -1,9 +1,11 @@
 <view class="page">
   <navigation class="title-box">
-    <view class="nav-title">谚语词典</view>
+    <view class="ad-nav-title-wrap">
+      <view class="ad-nav-title">{{name || '教材详情'}}</view>
+    </view>
   </navigation>
 
-  <scroll-view scroll-y="{{true}}" class="content" style="height: {{scrollHeight}}px;">
+  <scroll-view scroll-y="{{true}}" class="content" enhanced show-scrollbar="{{false}}">
     <!-- 教材信息 -->
     <view class="hero">
       <image class="book-cover" src="{{bookCover}}" mode="aspectFill" />

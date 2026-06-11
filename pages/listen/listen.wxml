@@ -1,4 +1,4 @@
-<view class="listen-page {{pageAnimState}} {{quizMode ? 'listen-quiz-shell' : ''}}">
+<view class="listen-page {{quizMode ? 'listen-quiz-shell' : pageAnimState}}">
   <!-- 小测：对齐新词学习页自定义导航 -->
   <block wx:if="{{quizMode}}">
     <view class="listen-quiz-nav">
@@ -77,6 +77,10 @@
             </view>
             <view wx:if="{{quizQuestion.translation}}" class="quiz-translation">{{quizQuestion.translation}}</view>
             <view wx:if="{{quizResultText}}" class="quiz-result">{{quizResultText}}</view>
+            <view
+              wx:if="{{quizChecked && quizNextCountdown > 0}}"
+              class="quiz-countdown"
+            >{{quizNextCountdown}} 秒后自动进入背诵</view>
           </block>
 
           <block wx:else>
@@ -88,6 +92,10 @@
               </block>
             </view>
             <view wx:if="{{quizQuestion.translation}}" class="quiz-translation quiz-translation-recite">{{quizQuestion.translation}}</view>
+            <view
+              wx:if="{{quizReciteScore && quizNextCountdown > 0}}"
+              class="quiz-countdown"
+            >{{quizNextCountdown}} 秒后自动进入下一题</view>
           </block>
         </view>
 
@@ -106,11 +114,6 @@
             bindunauthorized="onQuizReciteUnauthorized"
           ></media>
         </view>
-
-        <view
-          wx:if="{{quizNextCountdown > 0}}"
-          class="quiz-next-countdown"
-        >{{quizNextCountdown}} 秒后自动{{quizPhase === 'fill' ? '进入背诵' : '进入下一题'}}</view>
 
         <view wx:if="{{quizPhase === 'fill'}}" class="quiz-options">
           <view
@@ -306,4 +309,6 @@
       <view class="loading-sub">{{quizMode ? '随机生成填空中' : '马上开始播放'}}</view>
     </view>
   </view>
+
+  <dialog dialog="{{dialog}}"></dialog>
 </view>

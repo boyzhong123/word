@@ -90,6 +90,8 @@
                       <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
                       <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
                     </view>
+                    <image wx:if="{{item.revealed && item.known}}" class="wn-word-status" src="../../images/word-new/mark-familiar.png" mode="aspectFit" />
+                    <image wx:elif="{{item.revealed && !item.known}}" class="wn-word-status wn-word-status-unknown" src="../../images/word-new/mark-unknown.png" mode="aspectFit" />
                     <view wx:if="{{item.wordHint && item.revealed}}" class="wn-jelly-hint wn-jelly-hint-{{item.wordHint}} wn-jelly-hint-pop">
                       <image class="wn-jelly-hint-img" src="../../images/word-new/toast-{{item.wordHint}}.png" mode="aspectFit" />
                       <text class="wn-jelly-hint-label">{{item.wordHintLabel}}</text>

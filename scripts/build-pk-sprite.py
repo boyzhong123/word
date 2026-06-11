@@ -66,20 +66,20 @@ def new_frame():
 
 def compose_frames():
     boy_idle = load_part("boy-idle.png")
-    boy_guard = load_part("boy-guard.png")
+    boy_attack = load_part("boy-attack.png")
+    boy_cheer = load_part("boy-cheer.png")
     monster_idle = load_part("monster-idle.png")
     monster_angry = load_part("monster-angry.png")
-    vs_bolt = load_part("vs-bolt.png")
-    scene_clash = load_part("scene-clash.png")
-    scene_victory = load_part("scene-victory.png")
+    monster_dizzy = load_part("monster-dizzy.png")
+    vs_badge = load_part("vs-badge.png")
 
     boy_h = 150
-    monster_h = 116
-    vs_h = 66
-    boy_x = 14
-    monster_x = PK_FRAME_W - 14
+    monster_h = 118
+    vs_h = 88
+    boy_x = 40
+    monster_x = PK_FRAME_W - 40
     vs_x = PK_FRAME_W // 2
-    vs_y = 12
+    vs_y = 8
 
     frames = []
 
@@ -87,43 +87,49 @@ def compose_frames():
     frame = new_frame()
     paste_bottom(frame, scaled(boy_idle, boy_h), boy_x, "left")
     paste_bottom(frame, scaled(monster_idle, monster_h), monster_x, "right")
-    paste_top(frame, scaled(vs_bolt, vs_h), vs_x, vs_y)
+    paste_top(frame, scaled(vs_badge, vs_h), vs_x, vs_y)
     frames.append(frame)
 
-    # 2. boy advances, monster leans back, bolt glows
+    # 2. boy lunges in, monster flinches, badge glows
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_idle, boy_h), boy_x + 16, "left", rotate=-5)
-    paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.05, squash_y=0.93), monster_x, "right")
-    paste_top(frame, scaled(vs_bolt, round(vs_h * 1.18)), vs_x + 4, vs_y - 4)
+    paste_bottom(frame, scaled(boy_attack, boy_h - 10), boy_x + 12, "left")
+    paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.05, squash_y=0.93), monster_x + 4, "right")
+    paste_top(frame, scaled(vs_badge, round(vs_h * 1.12)), vs_x + 6, vs_y - 2)
     frames.append(frame)
 
-    # 3. clash impact
+    # 3. clash: both close in, badge flares
     frame = new_frame()
-    paste_bottom(frame, scaled(scene_clash, PK_FRAME_H - 8), vs_x, "center")
+    paste_bottom(frame, scaled(boy_attack, boy_h - 8), boy_x + 24, "left")
+    paste_bottom(frame, scaled(monster_angry, monster_h + 10), monster_x - 4, "right")
+    paste_top(frame, scaled(vs_badge, round(vs_h * 1.32)), vs_x + 2, vs_y - 6, )
     frames.append(frame)
 
-    # 4. monster dizzy, boy celebrates
+    # 4. boy cheers, monster squashed dizzy
     frame = new_frame()
-    paste_bottom(frame, scaled(scene_victory, PK_FRAME_H - 6), vs_x, "center")
+    paste_bottom(frame, scaled(boy_cheer, boy_h), boy_x + 2, "left")
+    paste_bottom(frame, scaled(monster_dizzy, round(monster_h * 0.82)), monster_x + 2, "right")
+    paste_top(frame, scaled(vs_badge, vs_h - 8), vs_x, vs_y + 8)
     frames.append(frame)
 
-    # 5. monster puffs up angrily, boy guards with the book
+    # 5. monster puffs back up angrily, boy eases off
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_guard, boy_h), boy_x + 4, "left")
-    paste_bottom(frame, scaled(monster_angry, round(monster_h * 1.32)), monster_x, "right")
-    paste_top(frame, scaled(vs_bolt, vs_h), vs_x - 2, vs_y + 2)
+    paste_bottom(frame, scaled(boy_idle, boy_h - 4), boy_x - 4, "left")
+    paste_bottom(frame, scaled(monster_angry, monster_h + 14), monster_x - 8, "right")
+    paste_top(frame, scaled(vs_badge, vs_h), vs_x - 4, vs_y)
     frames.append(frame)
 
-    # 6. second clash, slightly bigger
+    # 6. second clash
     frame = new_frame()
-    paste_bottom(frame, scaled(scene_clash, PK_FRAME_H - 2), vs_x + 2, "center")
+    paste_bottom(frame, scaled(boy_attack, boy_h - 8), boy_x + 20, "left")
+    paste_bottom(frame, scaled(monster_angry, monster_h + 8, squash_x=1.04, squash_y=0.95), monster_x - 2, "right")
+    paste_top(frame, scaled(vs_badge, round(vs_h * 1.26)), vs_x, vs_y - 4)
     frames.append(frame)
 
     # 7. back to face-off (tiny bounce) for a seamless loop
     frame = new_frame()
     paste_bottom(frame, scaled(boy_idle, boy_h), boy_x, "left")
     paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.03, squash_y=0.96), monster_x, "right")
-    paste_top(frame, scaled(vs_bolt, vs_h), vs_x, vs_y + 2)
+    paste_top(frame, scaled(vs_badge, vs_h), vs_x, vs_y + 2)
     frames.append(frame)
 
     return frames

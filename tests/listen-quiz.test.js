@@ -163,6 +163,24 @@ test('home listening task navigates to the listen quiz mode', () => {
   assert.match(homeScript, /mode=quiz/)
 })
 
+test('quiz mode uses standard page navigation instead of bottom sheet animation', () => {
+  assert.match(listenScript, /确认退出当前学习/)
+  assert.match(listenScript, /学习贵在坚持，每天进步一点点/)
+  assert.match(listenScript, /if \(this\.data\.quizMode\)\s*{[\s\S]*?wx\.navigateBack\(\)/)
+  assert.match(listenScript, /if \(this\.data\.quizMode\)\s*{\s*return\s*}/)
+  assert.match(listenTemplate, /quizMode \? 'listen-quiz-shell' : pageAnimState/)
+  assert.match(listenTemplate, /<dialog dialog="{{dialog}}"><\/dialog>/)
+  assert.match(listenStyle, /\.listen-quiz-shell\s*{[^}]*position:\s*relative/s)
+  assert.match(listenStyle, /\.listen-quiz-shell\s*{[^}]*transform:\s*none/s)
+})
+
+test('recite countdown advances without treating a zero score as missing', () => {
+  const scheduleReciteToNext = listenScript.match(/scheduleReciteToNext\(\)\s*{[\s\S]*?^  },/m)
+  assert.ok(scheduleReciteToNext)
+  assert.match(scheduleReciteToNext[0], /goToNextQuizQuestion\(\)/)
+  assert.doesNotMatch(scheduleReciteToNext[0], /quizReciteScore/)
+})
+
 test('listen page renders a home-styled fill-in quiz with top progress and new words', () => {
   assert.match(listenScript, /quizMode/)
   assert.match(listenScript, /buildListeningQuizQuestions/)

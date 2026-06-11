@@ -120,7 +120,7 @@ const FALLBACK_UNITS = [
     tasks: [
       { type: 'word', label: '单词新学', current: 12, total: 12, percent: 100, color: '#111318', icon: '../../images/home/task-word.png' },
       { type: 'recitation', label: '跟读背诵', current: 12, total: 12, percent: 100, color: '#ff8200', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '听力小测', current: 12, total: 12, percent: 100, color: '#111318', icon: '../../images/home/task-listening.png' }
+      { type: 'listening', label: '关卡小测', current: 12, total: 12, percent: 100, color: '#111318', icon: '../../images/home/task-listening.png' }
     ]
   },
   {
@@ -136,7 +136,7 @@ const FALLBACK_UNITS = [
     tasks: [
       { type: 'word', label: '单词新学', current: 50, total: 50, percent: 100, color: '#111318', icon: '../../images/home/task-word.png' },
       { type: 'recitation', label: '跟读背诵', current: 24, total: 50, percent: 48, color: '#ff8200', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '听力小测', current: 0, total: 50, percent: 0, color: '#111318', icon: '../../images/home/task-listening.png' }
+      { type: 'listening', label: '关卡小测', current: 0, total: 50, percent: 0, color: '#111318', icon: '../../images/home/task-listening.png' }
     ]
   },
   {
@@ -152,7 +152,7 @@ const FALLBACK_UNITS = [
     tasks: [
       { type: 'word', label: '单词新学', current: 0, total: 60, percent: 0, color: '#9a9a9a', icon: '../../images/home/task-word.png' },
       { type: 'recitation', label: '跟读背诵', current: 0, total: 60, percent: 0, color: '#9a9a9a', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '听力小测', current: 0, total: 60, percent: 0, color: '#9a9a9a', icon: '../../images/home/task-listening.png' }
+      { type: 'listening', label: '关卡小测', current: 0, total: 60, percent: 0, color: '#9a9a9a', icon: '../../images/home/task-listening.png' }
     ]
   }
 ]

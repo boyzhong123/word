@@ -2,6 +2,7 @@
   <view class='dialog-bg'>
     <view class="dialog-title">{{dialog.title}}</view>
     <view class="dialog-content">{{dialog.content}}</view>
+    <view wx:if="{{dialog.subtitle}}" class="dialog-subtitle">{{dialog.subtitle}}</view>
     <view class="dialog-button-container">
       <view class="dialog-button negetive" bindtap="onCancel">{{dialog.cancelText}}</view>
       <view class="dialog-button positive" bindtap="onConfirm">{{dialog.confirmText}}</view>

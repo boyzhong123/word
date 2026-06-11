@@ -87,7 +87,8 @@ Page({
     quizNextCountdown: 0,
     quizAllDone: false,
     quizRecords: [],
-    quizAudioPlaying: false
+    quizAudioPlaying: false,
+    dialog: { type: '' }
   },
 
   onLoad(options) {
@@ -110,7 +111,8 @@ Page({
     }
 
     if (quizMode) {
-      // 听力小测：独立局部音频，不影响/不复用全局随身听
+      // 关卡小测：独立局部音频，不影响/不复用全局随身听
+      this.setData({ pageAnimState: '' })
       if (player.active) {
         player.pause()
       }
@@ -135,6 +137,9 @@ Page({
 
   onShow() {
     if (this.closing) {
+      return
+    }
+    if (this.data.quizMode) {
       return
     }
     this.setData({ pageAnimState: 'listen-page-preenter' })
@@ -413,8 +418,10 @@ Page({
     if (filled) {
       const correct = this.isQuizCorrect(question)
       this.setQuizViewQuestion(question, true, this.getQuizResultText(correct))
-      this.scheduleFillToRecite()
       this.rememberQuizWordResult(question, correct)
+      wx.nextTick(() => {
+        this.scheduleFillToRecite()
+      })
     } else {
       this.setQuizViewQuestion(question, false, '')
     }
@@ -516,33 +523,45 @@ Page({
     this.playQuizAudio()
   },
 
-  clearQuizTimers() {
+  stopQuizCountdownTimer() {
+    this.quizCountdownSeq = (this.quizCountdownSeq || 0) + 1
     if (this.quizCountdownTimer) {
-      clearInterval(this.quizCountdownTimer)
+      clearTimeout(this.quizCountdownTimer)
       this.quizCountdownTimer = null
     }
     this.quizCountdownDone = null
+  },
+
+  clearQuizTimers() {
+    this.stopQuizCountdownTimer()
     if (this.data.quizNextCountdown) {
       this.setData({ quizNextCountdown: 0 })
     }
   },
 
   scheduleQuizCountdown(done) {
-    this.clearQuizTimers()
+    this.stopQuizCountdownTimer()
     this.quizCountdownDone = done
-    this.setData({ quizNextCountdown: QUIZ_NEXT_COUNTDOWN_S })
-    this.quizCountdownTimer = setInterval(() => {
-      const left = this.data.quizNextCountdown - 1
-      if (left > 0) {
-        this.setData({ quizNextCountdown: left })
+    const token = this.quizCountdownSeq
+    let left = QUIZ_NEXT_COUNTDOWN_S
+
+    const tick = () => {
+      if (token !== this.quizCountdownSeq) {
         return
       }
-      const onDone = this.quizCountdownDone
-      this.clearQuizTimers()
-      if (typeof onDone === 'function') {
-        onDone()
+      this.setData({ quizNextCountdown: left })
+      if (left <= 0) {
+        this.quizCountdownDone = null
+        if (typeof done === 'function') {
+          done()
+        }
+        return
       }
-    }, 1000)
+      left -= 1
+      this.quizCountdownTimer = setTimeout(tick, 1000)
+    }
+
+    tick()
   },
 
   scheduleFillToRecite() {
@@ -555,7 +574,7 @@ Page({
 
   scheduleReciteToNext() {
     this.scheduleQuizCountdown(() => {
-      if (this.data.quizPhase === 'recite' && this.data.quizReciteScore) {
+      if (this.data.quizPhase === 'recite') {
         this.goToNextQuizQuestion()
       }
     })
@@ -605,8 +624,9 @@ Page({
       quizReciteScore: score,
       quizMarking: false,
       quizRecords: records
+    }, () => {
+      this.scheduleReciteToNext()
     })
-    this.scheduleReciteToNext()
   },
 
   onQuizReciteStateChange(e) {
@@ -872,6 +892,24 @@ Page({
     if (this.closing) {
       return
     }
+    if (this.data.quizMode) {
+      const that = this
+      this.setData({
+        dialog: {
+          type: 'general',
+          title: '提示',
+          content: '确认退出当前学习？',
+          subtitle: '学习贵在坚持，每天进步一点点。',
+          cancelText: '取消',
+          confirmText: '确认',
+          confirm: function () {
+            that.closing = true
+            wx.navigateBack()
+          }
+        }
+      })
+      return
+    }
     this.closing = true
     this.setData({ pageAnimState: 'listen-page-leaving' })
     const pages = getCurrentPages()
@@ -884,7 +922,7 @@ Page({
       }, LISTEN_PAGE_ANIM_MS - 40)
       return
     }
-    // 下层是普通页（如小测从练习流程进入）：只能 navigateBack，
+    // 下层是普通页：只能 navigateBack，
     // 提前于退场动画结束触发返回，让系统转场与下滑尾段重叠
     setTimeout(() => {
       wx.navigateBack()
