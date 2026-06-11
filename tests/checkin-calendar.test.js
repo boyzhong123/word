@@ -100,7 +100,7 @@ test('check-in calendar unlocks gift reward after 30 continuous days', () => {
   )
 
   assert.match(calendarScript, /STREAK_REWARD_DAYS = 30/)
-  assert.match(calendarScript, /giftUnlocked: continuousDays >= STREAK_REWARD_DAYS/)
+  assert.match(calendarScript, /giftUnlocked: displayContinuousDays >= STREAK_REWARD_DAYS/)
   assert.match(calendarScript, /setClipboardData/)
 })
 
@@ -146,11 +146,108 @@ test('check-in calendar gift dialog has locked remaining and copied states', () 
 
   assert.match(template, /giftCopied \? '已复制' : '复制兑换码'/)
   assert.match(template, /gift-dialog-copy-done/)
+  assert.match(template, /wx:if="{{giftUnlocked}}"/)
+  assert.match(template, /rewardProgressPercent/)
+  assert.match(template, /还差 {{rewardRemainingDays}} 天/)
   assert.match(calendarScript, /giftCopied:\s*false/)
   assert.match(calendarScript, /rewardRemainingDays:/)
-  assert.match(calendarScript, /getRewardRemainingDays\(continuousDays\)/)
-  assert.match(calendarScript, /连续打卡还差/)
+  assert.match(calendarScript, /getRewardRemainingDays\(displayContinuousDays\)/)
   assert.match(calendarScript, /this\.setData\(\{\s*showGiftDialog:\s*true,\s*giftCopied:\s*false\s*\}\)/)
   assert.match(calendarScript, /fail:\s*\(\)\s*=>/)
   assert.match(style, /\.gift-dialog-copy-done/)
+  assert.match(style, /\.gift-progress-track/)
+  assert.match(style, /\.gift-progress-fill/)
+})
+
+test('check-in calendar shares today and streak posters', () => {
+  const template = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.wxml'),
+    'utf8'
+  )
+  const style = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.wxss'),
+    'utf8'
+  )
+  const calendarScript = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.js'),
+    'utf8'
+  )
+  const {
+    APP_NAME,
+    buildPosterText,
+    formatPosterDate,
+    getDailyQuote,
+    POSTER_WIDTH,
+    POSTER_HEIGHT,
+    getPosterBackgroundSrc
+  } = require('../pages/checkin/share-poster')
+
+  // 入口与浮层结构
+  assert.match(template, /bindtap="openShareDialog"/)
+  assert.match(template, /wx:if="{{showShareDialog}}"/)
+  assert.match(template, /data-mode="today"/)
+  assert.match(template, /data-mode="streak"/)
+  assert.match(template, /bindtap="switchShareMode"/)
+  assert.match(template, /bindchange="onShareThemeSwipe"/)
+  assert.match(template, /class="share-poster-swiper"/)
+  assert.match(style, /\.share-theme-dot/)
+  assert.match(template, /bindtap="saveShareImage"/)
+  assert.match(template, /bindtap="sendShareImage"/)
+  assert.match(template, /id="share-poster" type="2d"/)
+  assert.match(style, /\.share-poster-canvas/)
+  assert.match(style, /\.share-action-save/)
+  assert.match(style, /\.share-action-send/)
+
+  // 导出 / 保存 / 分享走对应的小程序 API
+  assert.match(calendarScript, /wx\.canvasToTempFilePath\(\{\s*canvas/)
+  assert.match(calendarScript, /ensurePhotosAlbumPermission/)
+  assert.match(calendarScript, /wx\.getSetting/)
+  assert.match(calendarScript, /wx\.authorize\(\{\s*scope:\s*'scope\.writePhotosAlbum'/)
+  assert.match(calendarScript, /wx\.openSetting/)
+  assert.match(calendarScript, /wx\.saveImageToPhotosAlbum/)
+  assert.match(calendarScript, /wx\.showShareImageMenu/)
+  assert.match(calendarScript, /SHARE_BADGE_SRC = '\/images\/home\/icon-book-picker-jelly\.png'/)
+
+  // 海报文案：两种模式共用数据列，标题不同
+  assert.equal(APP_NAME, '词句刷刷刷')
+  const today = new Date(2026, 5, 12)
+  assert.equal(formatPosterDate(today), '2026.06.12')
+  const quote = getDailyQuote(today)
+  assert.ok(quote.en && quote.cn)
+  assert.deepEqual(getDailyQuote(today), quote, 'same day keeps the same quote')
+
+  const streak = buildPosterText({ mode: 'streak', continuousDays: 34, totalDays: 43, todayDone: 2, learnedWords: 1413 })
+  assert.match(streak.headline[1], /已连续打卡学习 34 天/)
+  assert.deepEqual(streak.stats.map(item => item.value), [1413, 43, 34])
+  const todayText = buildPosterText({ mode: 'today', continuousDays: 34, totalDays: 43, todayDone: 2, todayWords: 60 })
+  assert.match(todayText.headline[1], /今天学了 60 个单词/)
+  assert.deepEqual(todayText.stats.map(item => item.value), [60, 2, 34])
+
+  assert.equal(POSTER_WIDTH, 600)
+  assert.equal(POSTER_HEIGHT, 960)
+  assert.match(getPosterBackgroundSrc('today', 'monster'), /share-bg-today-monster\.png/)
+  assert.match(getPosterBackgroundSrc('streak', 'pk'), /share-bg-streak-pk\.png/)
+})
+
+test('check-in calendar falls back to demo data when API has no records', () => {
+  const calendarScript = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.js'),
+    'utf8'
+  )
+  const {
+    DEMO_CONTINUOUS_DAYS,
+    buildDemoCheckedDates,
+    formatDate
+  } = require('../pages/checkin/calendar-data')
+
+  assert.match(calendarScript, /buildDemoCheckedDates\(this\.today\)/)
+  assert.match(calendarScript, /continuousDays = DEMO_CONTINUOUS_DAYS/)
+  assert.match(homeScript, /buildDemoCheckinMetrics\(\)/)
+
+  const today = new Date(2026, 5, 12)
+  const dates = buildDemoCheckedDates(today)
+  assert.ok(DEMO_CONTINUOUS_DAYS >= 30, 'demo streak unlocks the gift reward')
+  assert.equal(new Set(dates).size, dates.length, 'demo dates are unique')
+  assert.equal(dates[0], formatDate(today), 'demo streak ends today')
+  assert.ok(dates.length > DEMO_CONTINUOUS_DAYS, 'demo data includes earlier scattered days')
 })

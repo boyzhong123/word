@@ -2,6 +2,7 @@
 const {
   refreshHomePage
 } = require('../../utils/util')
+const { isDevPurchased } = require('../../utils/dev-books')
 
 const systemInfo = wx.getSystemInfoSync()
 const safeArea = wx.getStorageSync('safeArea') || systemInfo.safeArea || {
@@ -19,6 +20,7 @@ const PACKAGES = [
     id: 'full',
     name: '学习卡套餐',
     tag: '推荐',
+    price: 98,
     summary: '词典 + 智能学习卡，听说读写测完整闭环',
     items: [
       '电子词典全部词汇与谚语',
@@ -32,6 +34,7 @@ const PACKAGES = [
     id: 'book',
     name: '词典套餐',
     tag: '',
+    price: 48,
     summary: '仅含词典内容，适合查阅与自主背诵',
     items: [
       '电子词典全部词汇与谚语',
@@ -110,7 +113,7 @@ Page({
     const app = getApp()
     const pendingBook = app.globalData.pendingBookDetail
     const resBookId = decodeQueryValue(options.resBookId)
-    const unlocked = options.unlocked === '1'
+    const unlocked = options.unlocked === '1' || isDevPurchased(resBookId)
     const selectedPackage = decodeQueryValue(options.packageId) || 'full'
 
     this.setData({ selectedPackage: getPackageById(selectedPackage).id })
@@ -159,13 +162,18 @@ Page({
   },
 
   goVip() {
-    const packageId = this.data.selectedPackage || 'full'
+    const currentPackage = getPackageById(this.data.selectedPackage)
     wx.navigateTo({
       url: '../vip/vip?resBookId=' + encodeURIComponent(this.resBookId || '')
         + '&name=' + encodeURIComponent(this.data.name || '')
-        + '&packageId=' + encodeURIComponent(packageId),
+        + '&bookCover=' + encodeURIComponent(this.data.bookCover || '')
+        + '&press=' + encodeURIComponent(this.data.press || '')
+        + '&packageId=' + encodeURIComponent(currentPackage.id)
+        + '&packageName=' + encodeURIComponent(currentPackage.name)
+        + '&price=' + encodeURIComponent(currentPackage.price || 0),
       events: {
         vip: () => {
+          this.setData({ unlocked: true })
           refreshHomePage()
           wx.navigateBack()
         }

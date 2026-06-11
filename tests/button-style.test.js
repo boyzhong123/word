@@ -36,6 +36,6 @@ test('secondary action buttons use translucent white fill and dark text', () => 
   const dialogStyle = read('components/dialog/dialog.wxss')
 
   assert.match(finishStyle, /\.btn-secondary\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.55\)/s)
-  assert.match(reportStyle, /\.action-btn-ghost\s*{[^}]*background:\s*#dbe4f5/s)
+  assert.match(reportStyle, /\.action-btn-ghost\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.55\)/s)
   assert.match(dialogStyle, /\.negetive\s*{[^}]*border:\s*2rpx solid rgba\(17,\s*19,\s*24,\s*0\.2\)/s)
 })

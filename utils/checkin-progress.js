@@ -60,6 +60,7 @@ function getDailyGoal(resBookId) {
 }
 
 module.exports = {
+  LEVEL_SIZE,
   getTodayDone,
   recordLevelDone,
   getDailyGoal,

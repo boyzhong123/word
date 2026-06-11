@@ -27,7 +27,6 @@
     <swiper-item>
       <view class="cover-page">
         <view class="player-card">
-          <view class="pivot-housing"></view>
           <view class="turntable">
             <image class="disc-tray" src="/images/listen/disc-tray.png" />
             <view class="disc-stack {{playing ? 'spinning' : ''}}">
@@ -105,12 +104,16 @@
         <view class="seek-track">
           <view class="seek-fill" style="width: {{progress}}%;"></view>
         </view>
-        <image
-          class="seek-thumb"
-          src="../../images/listen/seek-thumb-mascot.png"
-          mode="aspectFit"
-          style="left: {{progress}}%;"
-        />
+        <view class="seek-thumb" style="left: {{progress}}%;">
+          <frame-animation
+            url="../../images/listen/seek-thumb-mascot-sprite.png"
+            count="4"
+            width="80"
+            height="80"
+            duration="2.4"
+            state="running"
+          />
+        </view>
       </view>
       <view class="speed-badge" bindtap="toggleSpeed">{{speedLabel}}</view>
     </view>

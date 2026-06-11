@@ -51,7 +51,10 @@
       <view class="power-copy">
         {{todayChecked ? '今天的电力已经续上。继续学习，让你的战绩持续常亮。' : '噫，今天的电力还没续上。花3分钟，保持你的战绩常亮。'}}
       </view>
-      <button class="power-button" hover-class="power-button-hover" bindtap="startLearning">开始背单词</button>
+      <view class="power-buttons">
+        <button class="power-button" hover-class="power-button-hover" bindtap="startLearning">开始背单词</button>
+        <button class="power-button power-button-share" hover-class="power-button-hover" bindtap="openShareDialog">分享打卡</button>
+      </view>
     </view>
 
     <view class="calendar-card">
@@ -113,10 +116,73 @@
   <view class="gift-dialog-mask" wx:if="{{showGiftDialog}}" bindtap="closeGiftDialog">
     <view class="gift-dialog" catchtap="">
       <view class="gift-dialog-title">30天连续打卡奖励</view>
-      <view class="gift-dialog-subtitle">5天听说在线 VIP 兑换码</view>
-      <view class="gift-dialog-code">{{rewardCode}}</view>
-      <button class="gift-dialog-copy {{giftCopied ? 'gift-dialog-copy-done' : ''}}" hover-class="power-button-hover" bindtap="copyRewardCode">{{giftCopied ? '已复制' : '复制兑换码'}}</button>
+      <block wx:if="{{giftUnlocked}}">
+        <view class="gift-dialog-subtitle">5天听说在线 VIP 兑换码</view>
+        <view class="gift-dialog-code">{{rewardCode}}</view>
+        <button class="gift-dialog-copy {{giftCopied ? 'gift-dialog-copy-done' : ''}}" hover-class="power-button-hover" bindtap="copyRewardCode">{{giftCopied ? '已复制' : '复制兑换码'}}</button>
+      </block>
+      <block wx:else>
+        <view class="gift-dialog-subtitle">连续不断电满 30 天，可领 5 天听说在线 VIP</view>
+        <view class="gift-progress-track">
+          <view class="gift-progress-fill" style="width: {{rewardProgressPercent}}%;"></view>
+        </view>
+        <view class="gift-progress-copy">已连续 {{displayContinuousDays}} 天，还差 {{rewardRemainingDays}} 天</view>
+        <button class="gift-dialog-copy" hover-class="power-button-hover" bindtap="closeGiftDialog">继续打卡</button>
+      </block>
       <view class="gift-dialog-close" bindtap="closeGiftDialog">关闭</view>
     </view>
   </view>
+
+  <view class="share-dialog-mask" wx:if="{{showShareDialog}}">
+    <view class="share-dialog">
+      <view class="share-close" bindtap="closeShareDialog">
+        <image src="../../images/icon_close_deep.svg" mode="aspectFit" />
+      </view>
+      <view class="share-tabs">
+        <view
+          class="share-tab {{shareMode === 'today' ? 'share-tab-active' : ''}}"
+          data-mode="today"
+          bindtap="switchShareMode"
+        >今日打卡</view>
+        <view
+          class="share-tab {{shareMode === 'streak' ? 'share-tab-active' : ''}}"
+          data-mode="streak"
+          bindtap="switchShareMode"
+        >累计打卡</view>
+      </view>
+      <swiper
+        class="share-poster-swiper"
+        current="{{shareThemeIndex}}"
+        bindchange="onShareThemeSwipe"
+        previous-margin="36rpx"
+        next-margin="36rpx"
+        duration="280"
+      >
+        <swiper-item wx:for="{{shareThemes}}" wx:key="id">
+          <view class="share-poster-frame">
+            <image
+              wx:if="{{sharePosterPaths[item.id]}}"
+              class="share-poster-image"
+              src="{{sharePosterPaths[item.id]}}"
+              mode="widthFix"
+            />
+            <view wx:else class="share-poster-loading">海报生成中…</view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <view class="share-theme-dots">
+        <view
+          wx:for="{{shareThemes}}"
+          wx:key="id"
+          class="share-theme-dot {{shareThemeIndex === index ? 'share-theme-dot-active' : ''}}"
+        />
+      </view>
+      <view class="share-actions">
+        <button class="share-action share-action-save" hover-class="power-button-hover" bindtap="saveShareImage">保存图片</button>
+        <button class="share-action share-action-send" hover-class="power-button-hover" bindtap="sendShareImage">分享到微信</button>
+      </view>
+    </view>
+  </view>
+
+  <canvas id="share-poster" type="2d" class="share-poster-canvas"></canvas>
 </view>

@@ -134,19 +134,6 @@
   box-shadow: 0 18rpx 40rpx rgba(96, 114, 140, 0.16), 0 4rpx 12rpx rgba(96, 114, 140, 0.08);
   overflow: visible;
 }
-/* 唱臂轴座底圆（卡片右上角浅色圆形凸台） */
-.pivot-housing {
-  position: absolute;
-  /* 与唱臂旋钮轴心 (569, 40) 同心 */
-  left: 494rpx;
-  top: -35rpx;
-  width: 150rpx;
-  height: 150rpx;
-  border-radius: 50%;
-  background: radial-gradient(circle at 42% 38%, #fdfdfe 0%, #f4f5f8 58%, #eceef2 100%);
-  box-shadow: 0 4rpx 10rpx rgba(96, 114, 140, 0.08);
-  z-index: 1;
-}
 .turntable {
   position: absolute;
   left: 70rpx;
@@ -420,15 +407,16 @@
 .seek-fill {
   height: 100%;
   border-radius: 12rpx;
-  background: linear-gradient(90deg, #1e353c, #2f4c55);
+  background: linear-gradient(90deg, #1a1a1a, #2d2d2d);
 }
 .seek-thumb {
   position: absolute;
   top: 50%;
   width: 80rpx;
   height: 80rpx;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -100%);
   filter: drop-shadow(0 4rpx 10rpx rgba(30, 53, 60, 0.32));
+  pointer-events: none;
 }
 .speed-badge {
   min-width: 72rpx;

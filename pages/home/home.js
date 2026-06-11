@@ -18,9 +18,10 @@ const {
   buildMapTrail,
   getNextVisibleCount
 } = require('./home-units')
-const { normalizeCheckedDates } = require('../checkin/calendar-data')
+const { normalizeCheckedDates, buildDemoCheckedDates, DEMO_CONTINUOUS_DAYS } = require('../checkin/calendar-data')
 const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
 const { computeScrollTopToCenterTarget } = require('./home-scroll')
+const { withTestBook, isDevTestBook } = require('../../utils/dev-books')
 
 function isTruthyFlag(value) {
   return value === true || value === 1 || value === '1'
@@ -90,6 +91,14 @@ function countCheckinDates(info) {
     }
   }
   return 0
+}
+
+// 演示打卡指标兜底：未登录或接口没有打卡记录时，与打卡日历的演示数据保持一致
+function buildDemoCheckinMetrics() {
+  return {
+    'checkin.continuousDays': DEMO_CONTINUOUS_DAYS,
+    'checkin.totalDays': buildDemoCheckedDates(new Date()).length
+  }
 }
 
 const FALLBACK_BOOK = {
@@ -310,17 +319,19 @@ Page({
   loadHomeData() {
     login().then(result => {
       if (!result || !result.logined) {
-        this.setData({ loading: false })
+        this.setData(Object.assign({ loading: false }, buildDemoCheckinMetrics()))
         return
       }
       getUserInfo().then(userInfo => {
         const info = userInfo || {}
         const continuousDays = positiveNumber(info.continuousDays, info.checkInDays, info.signDays)
-        this.setData({
-          nickName: info.nickName ? info.nickName : '',
-          'checkin.continuousDays': continuousDays,
-          'checkin.totalDays': countCheckinDates(info) || continuousDays
-        })
+        const totalDays = countCheckinDates(info) || continuousDays
+        this.setData(Object.assign(
+          { nickName: info.nickName ? info.nickName : '' },
+          continuousDays || totalDays
+            ? { 'checkin.continuousDays': continuousDays, 'checkin.totalDays': totalDays }
+            : buildDemoCheckinMetrics()
+        ))
       })
       return getUserBooks()
     }).then(books => {
@@ -329,6 +340,7 @@ Page({
         return
       }
 
+      books = withTestBook(books)
       let selectedBook = books.find(item => item.defaultBook) || books[0]
       let otherBook = books.find(item => item.resBookId !== selectedBook.resBookId) || {}
       selectedBook = normalizeBook(selectedBook)
@@ -339,7 +351,7 @@ Page({
       this.loadUnits(selectedBook.resBookId)
     }).catch(error => {
       console.log('[home] load fallback data', error)
-      this.setData({ loading: false })
+      this.setData(Object.assign({ loading: false }, buildDemoCheckinMetrics()))
     })
   },
 
@@ -470,6 +482,14 @@ Page({
     this.setTabBarHidden(false)
 
     if (!resBookId || resBookId === currentBook.resBookId) {
+      return
+    }
+
+    if (isDevTestBook(resBookId)) {
+      wx.showToast({
+        title: '测试词书仅用于演示购买流程',
+        icon: 'none'
+      })
       return
     }
 

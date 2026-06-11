@@ -1,5 +1,6 @@
 {
-  "usingComponents": {
-    "media": "/components/media/media"
-  }
+  "usingComponents": {},
+  "disableScroll": true,
+  "navigationStyle": "custom",
+  "navigationBarTextStyle": "black"
 }

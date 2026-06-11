@@ -8,37 +8,44 @@
   <scroll-view scroll-y class="content" style="height: {{scrollHeight}}px;" enhanced show-scrollbar="{{false}}">
     <!-- 表头：书本信息 -->
     <view class="product-head">
-      <view class="product-summary">
-        <image class="product-cover" src="{{bookCover}}" mode="aspectFill" />
+      <view class="product-hero">
+        <view class="hero-glow hero-glow-a"></view>
+        <view class="hero-glow hero-glow-b"></view>
+        <view class="product-cover-wrap">
+          <image class="product-cover" src="{{bookCover}}" mode="aspectFill" />
+        </view>
         <view class="product-meta">
           <text class="product-name">{{name}}</text>
-          <text wx:if="{{press}}" class="product-press">{{press}}</text>
+          <view wx:if="{{press}}" class="product-press-pill">
+            <view class="press-dot"></view>
+            <text class="product-press">{{press}}</text>
+          </view>
         </view>
       </view>
 
       <view class="product-stats-card">
         <view class="product-stat">
-          <view class="stat-badge">词</view>
           <view class="stat-number-row">
             <text class="stat-value">{{wordCount}}</text>
             <text class="stat-unit">个</text>
           </view>
+          <view class="stat-tick"></view>
           <text class="stat-label">单词</text>
         </view>
         <view class="product-stat">
-          <view class="stat-badge">句</view>
           <view class="stat-number-row">
             <text class="stat-value">{{proverbCount}}</text>
             <text class="stat-unit">条</text>
           </view>
+          <view class="stat-tick"></view>
           <text class="stat-label">句子</text>
         </view>
         <view class="product-stat">
-          <view class="stat-badge">学</view>
           <view class="stat-number-row">
             <text class="stat-value">{{total}}</text>
             <text class="stat-unit">期</text>
           </view>
+          <view class="stat-tick"></view>
           <text class="stat-label">学习单元</text>
         </view>
       </view>
@@ -104,6 +111,10 @@
         >
           <view wx:if="{{item.tag}}" class="sku-badge">{{item.tag}}</view>
           <text class="sku-option-name">{{item.name}}</text>
+          <view class="sku-option-price-row">
+            <text class="sku-option-currency">¥</text>
+            <text class="sku-option-price">{{item.price}}</text>
+          </view>
           <text class="sku-option-desc">{{item.summary}}</text>
         </view>
       </view>
@@ -117,7 +128,7 @@
       </view>
 
       <view class="sku-actions">
-        <view class="sku-confirm" bindtap="confirmPurchase">确认购买</view>
+        <view class="sku-confirm" bindtap="confirmPurchase">¥{{currentPackage.price}} 确认购买</view>
       </view>
     </view>
   </view>

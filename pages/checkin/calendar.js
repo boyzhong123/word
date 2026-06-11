@@ -1,15 +1,47 @@
 const { getUserInfo } = require('../../utils/api')
 const { login } = require('../../utils/login')
 const {
+  DEMO_CONTINUOUS_DAYS,
   buildCalendarDays,
   buildCheckinSummary,
+  buildDemoCheckedDates,
   buildRecentCheckedDates,
   formatDate,
   normalizeCheckedDates
 } = require('./calendar-data')
+const { drawPoster, getDailyQuote, POSTER_THEMES } = require('./share-poster')
+const { LEVEL_SIZE, getTodayDone } = require('../../utils/checkin-progress')
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 const DEFAULT_AVATAR = '../../images/home/mascot-report-jelly.png'
+const SHARE_BADGE_SRC = '/images/home/icon-book-picker-jelly.png'
+const DEFAULT_SHARE_NICKNAME = '爱学习的小词友'
+
+// canvas.createImage 需要绝对路径，页面相对路径转为根路径
+function toCanvasImageSrc(src) {
+  return src ? src.replace(/^\.\.\/\.\.\//, '/') : src
+}
+
+function isPhotosAlbumPermissionError(error) {
+  const message = String((error && error.errMsg) || error || '').toLowerCase()
+  return message.indexOf('auth') >= 0 ||
+    message.indexOf('authorize') >= 0 ||
+    message.indexOf('deny') >= 0 ||
+    message.indexOf('denied') >= 0 ||
+    message.indexOf('permission') >= 0
+}
+
+// 累计掌握词数（与首页 getLearnedWordCount 同口径，书目信息缺失时取演示值）
+function pickLearnedWords(book) {
+  const learningInfo = (book && book.learningInfo) || {}
+  const bookProgress = learningInfo.book || {}
+  const learned = Number(bookProgress.learningWords || bookProgress.wordCount)
+  if (Number.isFinite(learned) && learned > 0) {
+    return learned
+  }
+  const total = Number(book && book.wordCount)
+  return Number.isFinite(total) && total > 0 ? Math.min(1413, total) : 1413
+}
 const STREAK_REWARD_DAYS = 30
 const STREAK_REWARD_CODE = 'TSZXVIP5D'
 
@@ -136,7 +168,23 @@ Page({
     showRulesDialog: false,
     giftCopied: false,
     rewardRemainingDays: STREAK_REWARD_DAYS,
-    rewardCode: STREAK_REWARD_CODE
+    rewardProgressPercent: 0,
+    rewardCode: STREAK_REWARD_CODE,
+    nickName: '',
+    showShareDialog: false,
+    shareMode: 'streak',
+    shareThemeIndex: 0,
+    shareTheme: 'monster',
+    shareThemes: [
+      { id: 'monster', label: '小怪兽' },
+      { id: 'pk', label: 'PK' },
+      { id: 'words', label: '词句刷刷刷' }
+    ],
+    sharePosterPaths: {
+      monster: '',
+      pk: '',
+      words: ''
+    }
   },
 
   onLoad() {
@@ -166,7 +214,13 @@ Page({
     this.setData(Object.assign({
       yearMonth: formatDate(this.viewDate).slice(0, 7).replace('-', '年') + '月',
       calendarDays,
-      displayContinuousDays
+      displayContinuousDays,
+      giftUnlocked: displayContinuousDays >= STREAK_REWARD_DAYS,
+      rewardRemainingDays: this.getRewardRemainingDays(displayContinuousDays),
+      rewardProgressPercent: Math.min(
+        Math.round(displayContinuousDays * 100 / STREAK_REWARD_DAYS),
+        100
+      )
     }, summary))
   },
 
@@ -177,27 +231,33 @@ Page({
       }
       return getUserInfo()
     }).then(data => {
-      if (!data) {
-        return
-      }
+      const info = data || {}
+      let continuousDays = pickNumber(info.continuousDays, info.checkInDays, info.signDays)
+      const apiDates = pickCheckinDates(info)
 
-      const continuousDays = pickNumber(data.continuousDays, data.checkInDays, data.signDays)
-      const apiDates = pickCheckinDates(data)
-      this.checkedDates = apiDates.length
-        ? apiDates
-        : buildRecentCheckedDates(continuousDays, this.today)
+      if (apiDates.length) {
+        this.checkedDates = apiDates
+      } else if (continuousDays > 0) {
+        this.checkedDates = buildRecentCheckedDates(continuousDays, this.today)
+      } else {
+        // 未登录或接口没有打卡记录时，用演示打卡数据兜底
+        this.checkedDates = buildDemoCheckedDates(this.today)
+        continuousDays = DEMO_CONTINUOUS_DAYS
+      }
 
       this.setData({
         continuousDays,
-        giftUnlocked: continuousDays >= STREAK_REWARD_DAYS,
-        rewardRemainingDays: this.getRewardRemainingDays(continuousDays),
-        rewardCode: pickRewardCode(data),
-        avatarUrl: pickAvatarUrl(data),
-        avatarSrc: pickAvatarUrl(data) || DEFAULT_AVATAR
+        rewardCode: pickRewardCode(info),
+        nickName: info.nickName || '',
+        avatarUrl: pickAvatarUrl(info),
+        avatarSrc: pickAvatarUrl(info) || DEFAULT_AVATAR
       })
       this.renderCalendar()
     }).catch(error => {
-      console.log('[checkin-calendar] load fallback', error)
+      console.log('[checkin-calendar] demo fallback', error)
+      this.checkedDates = buildDemoCheckedDates(this.today)
+      this.setData({ continuousDays: DEMO_CONTINUOUS_DAYS })
+      this.renderCalendar()
     })
   },
 
@@ -254,13 +314,6 @@ Page({
   },
 
   openGiftDialog() {
-    if (!this.data.giftUnlocked) {
-      wx.showToast({
-        title: '连续打卡还差' + this.data.rewardRemainingDays + '天可领取',
-        icon: 'none'
-      })
-      return
-    }
     this.setData({ showGiftDialog: true, giftCopied: false })
   },
 
@@ -286,5 +339,239 @@ Page({
         })
       }
     })
+  },
+
+  showPhotosAlbumSettingDialog() {
+    return new Promise(resolve => {
+      wx.showModal({
+        title: '需要相册权限',
+        content: '请在设置中允许保存图片到相册',
+        confirmText: '去设置',
+        success: res => {
+          if (!res.confirm) {
+            resolve(false)
+            return
+          }
+          wx.openSetting({
+            success: setting => {
+              const authSetting = (setting && setting.authSetting) || {}
+              resolve(authSetting['scope.writePhotosAlbum'] === true)
+            },
+            fail: () => resolve(false)
+          })
+        },
+        fail: () => resolve(false)
+      })
+    })
+  },
+
+  ensurePhotosAlbumPermission() {
+    return new Promise(resolve => {
+      wx.getSetting({
+        success: setting => {
+          const authSetting = (setting && setting.authSetting) || {}
+          const status = authSetting['scope.writePhotosAlbum']
+          if (status === true) {
+            resolve(true)
+            return
+          }
+          if (status === false) {
+            this.showPhotosAlbumSettingDialog().then(resolve)
+            return
+          }
+          wx.authorize({
+            scope: 'scope.writePhotosAlbum',
+            success: () => resolve(true),
+            fail: () => this.showPhotosAlbumSettingDialog().then(resolve)
+          })
+        },
+        fail: () => {
+          wx.authorize({
+            scope: 'scope.writePhotosAlbum',
+            success: () => resolve(true),
+            fail: () => this.showPhotosAlbumSettingDialog().then(resolve)
+          })
+        }
+      })
+    })
+  },
+
+  openShareDialog() {
+    this.posterCache = {}
+    this.setData({
+      showShareDialog: true,
+      shareThemeIndex: 0,
+      shareTheme: POSTER_THEMES[0],
+      sharePosterPaths: {
+        monster: '',
+        pk: '',
+        words: ''
+      }
+    })
+    this.sharePosterQueue = Promise.resolve()
+    POSTER_THEMES.forEach(theme => this.enqueueSharePosterRender(theme))
+  },
+
+  closeShareDialog() {
+    this.setData({ showShareDialog: false })
+  },
+
+  switchShareMode(event) {
+    const mode = event.currentTarget.dataset.mode
+    if (!mode || mode === this.data.shareMode) {
+      return
+    }
+    this.setData({
+      shareMode: mode,
+      sharePosterPaths: {
+        monster: '',
+        pk: '',
+        words: ''
+      }
+    })
+    this.sharePosterQueue = Promise.resolve()
+    POSTER_THEMES.forEach(theme => this.enqueueSharePosterRender(theme))
+  },
+
+  onShareThemeSwipe(event) {
+    const index = Number(event.detail.current)
+    const theme = POSTER_THEMES[index]
+    if (!theme || index === this.data.shareThemeIndex) {
+      return
+    }
+    this.setData({
+      shareThemeIndex: index,
+      shareTheme: theme
+    })
+    if (!this.data.sharePosterPaths[theme]) {
+      this.enqueueSharePosterRender(theme)
+    }
+  },
+
+  getShareCanvas() {
+    if (!this.shareCanvasPromise) {
+      this.shareCanvasPromise = new Promise((resolve, reject) => {
+        this.createSelectorQuery()
+          .select('#share-poster')
+          .fields({ node: true })
+          .exec(res => {
+            const canvas = res && res[0] && res[0].node
+            if (canvas) {
+              resolve(canvas)
+            } else {
+              reject(new Error('share poster canvas not found'))
+            }
+          })
+      })
+    }
+    return this.shareCanvasPromise
+  },
+
+  buildPosterOptions() {
+    const systemInfo = wx.getSystemInfoSync()
+    const book = this.book || {}
+    const todayDone = getTodayDone(book.resBookId)
+    return {
+      mode: this.data.shareMode,
+      theme: this.data.shareTheme,
+      date: this.today,
+      quote: getDailyQuote(this.today),
+      nickName: this.data.nickName || DEFAULT_SHARE_NICKNAME,
+      avatarSrc: toCanvasImageSrc(this.data.avatarSrc || DEFAULT_AVATAR),
+      badgeSrc: SHARE_BADGE_SRC,
+      continuousDays: this.data.displayContinuousDays,
+      totalDays: (this.checkedDates || []).length,
+      todayDone,
+      todayWords: todayDone * LEVEL_SIZE,
+      learnedWords: pickLearnedWords(book),
+      dpr: Math.min(Number(systemInfo.pixelRatio) || 2, 3)
+    }
+  },
+
+  enqueueSharePosterRender(theme) {
+    const targetTheme = theme || this.data.shareTheme
+    if (POSTER_THEMES.indexOf(targetTheme) < 0) {
+      return
+    }
+    const mode = this.data.shareMode
+    const cacheKey = mode + ':' + targetTheme
+    const cache = this.posterCache || {}
+    if (cache[cacheKey]) {
+      this.setData({ ['sharePosterPaths.' + targetTheme]: cache[cacheKey] })
+      return
+    }
+
+    this.sharePosterQueue = this.sharePosterQueue || Promise.resolve()
+    this.sharePosterQueue = this.sharePosterQueue.then(() => this.renderSharePoster(targetTheme))
+  },
+
+  renderSharePoster(theme) {
+    const targetTheme = theme || this.data.shareTheme
+    const mode = this.data.shareMode
+    const cacheKey = mode + ':' + targetTheme
+    const cache = this.posterCache || {}
+
+    this.setData({ ['sharePosterPaths.' + targetTheme]: '' })
+    const options = Object.assign({}, this.buildPosterOptions(), { theme: targetTheme })
+    return this.getShareCanvas().then(canvas => {
+      return drawPoster(canvas, options).then(() => canvas)
+    }).then(canvas => new Promise((resolve, reject) => {
+      wx.canvasToTempFilePath({
+        canvas,
+        success: res => resolve(res.tempFilePath),
+        fail: reject
+      })
+    })).then(path => {
+      cache[cacheKey] = path
+      if (this.data.showShareDialog && this.data.shareMode === mode) {
+        this.setData({ ['sharePosterPaths.' + targetTheme]: path })
+      }
+    }).catch(error => {
+      console.log('[checkin-calendar] share poster fallback', error)
+      if (targetTheme === this.data.shareTheme) {
+        wx.showToast({ title: '海报生成失败，请重试', icon: 'none' })
+      }
+    })
+  },
+
+  saveShareImage() {
+    const path = this.data.sharePosterPaths[this.data.shareTheme]
+    if (!path) {
+      return
+    }
+    this.ensurePhotosAlbumPermission().then(allowed => {
+      if (!allowed) {
+        return
+      }
+      wx.saveImageToPhotosAlbum({
+        filePath: path,
+        success: () => {
+          wx.showToast({ title: '已保存到相册', icon: 'success' })
+        },
+        fail: error => {
+          const message = (error && error.errMsg) || ''
+          if (isPhotosAlbumPermissionError(error)) {
+            this.showPhotosAlbumSettingDialog()
+          } else if (message.indexOf('cancel') < 0) {
+            wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+          }
+        }
+      })
+    })
+  },
+
+  sendShareImage() {
+    const path = this.data.sharePosterPaths[this.data.shareTheme]
+    if (!path) {
+      return
+    }
+    if (typeof wx.showShareImageMenu === 'function') {
+      this.ensurePhotosAlbumPermission().then(() => {
+        wx.showShareImageMenu({ path })
+      })
+    } else {
+      // 低版本基础库兜底：预览后长按可转发
+      wx.previewImage({ urls: [path] })
+    }
   }
 })

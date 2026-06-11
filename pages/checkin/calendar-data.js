@@ -100,6 +100,23 @@ function buildCheckinSummary(days) {
   }
 }
 
+const DEMO_CONTINUOUS_DAYS = 34
+const DEMO_EARLIER_GAPS = [2, 3, 5, 8, 9, 12, 16, 17, 21]
+
+// 演示用打卡数据：接口没有返回任何打卡记录时兜底，
+// 生成「连续 34 天 + 更早的零散打卡」，让日历和首页指标有内容可看。
+function buildDemoCheckedDates(today) {
+  const end = today instanceof Date ? today : new Date()
+  const dates = buildRecentCheckedDates(DEMO_CONTINUOUS_DAYS, end)
+
+  DEMO_EARLIER_GAPS.forEach(gap => {
+    const date = new Date(end.getTime() - (DEMO_CONTINUOUS_DAYS - 1 + gap) * DAY_MS)
+    dates.push(formatDate(date))
+  })
+
+  return dates
+}
+
 function buildRecentCheckedDates(count, today) {
   const total = Math.max(0, Math.floor(Number(count) || 0))
   const end = today instanceof Date ? today : new Date()
@@ -114,8 +131,10 @@ function buildRecentCheckedDates(count, today) {
 }
 
 module.exports = {
+  DEMO_CONTINUOUS_DAYS,
   buildCalendarDays,
   buildCheckinSummary,
+  buildDemoCheckedDates,
   buildRecentCheckedDates,
   formatDate,
   normalizeCheckedDates
