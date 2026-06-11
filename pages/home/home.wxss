@@ -778,12 +778,12 @@ page {
 }
 
 .unit-card-monster-fighting {
-  top: -16rpx;
+  top: -20rpx;
   right: -10rpx;
   z-index: 3;
   width: 148rpx;
   height: 84rpx;
-  transform: scale(1.48);
+  transform: scale(1.78);
   transform-origin: top right;
 }
 
@@ -792,10 +792,10 @@ page {
 }
 
 .unit-card-monster-locked {
-  top: 2rpx;
+  top: -14rpx;
   opacity: 0.72;
   filter: grayscale(0.16);
-  transform: scale(0.6);
+  transform: scale(0.8);
 }
 
 .task-grid {

@@ -1,5 +1,7 @@
+/* 小程序页面窗口不透明，做不到透出下层页面；
+   底色伪装成首页背景，入场/退场时露出的区域看起来就是下层页面 */
 page {
-  background: transparent;
+  background: #fffdf8;
 }
 
 .listen-page {
@@ -7,7 +9,7 @@ page {
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
+  background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
   overflow: hidden;
   will-change: transform;
 }
@@ -45,7 +47,7 @@ page {
 }
 
 .listen-quiz-shell {
-  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
+  background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
 }
 
 /* ---------------- 小测导航（对齐新词学习页） ---------------- */
@@ -353,7 +355,9 @@ page {
   color: #434a56;
   font-size: 24rpx;
   line-height: 34rpx;
-  font-weight: 600;
+  font-weight: 400;
+  display: block;
+  text-align: center;
 }
 
 .quiz-result {
@@ -507,6 +511,14 @@ page {
   color: #4e6a70;
   font-size: 26rpx;
   line-height: 40rpx;
+}
+
+.quiz-next-countdown {
+  margin-top: 24rpx;
+  text-align: center;
+  color: #6b7280;
+  font-size: 24rpx;
+  line-height: 34rpx;
 }
 
 .quiz-report-btn {

@@ -129,7 +129,7 @@
           <text>本书学习路径</text>
         </view>
         <view class="study-plan" bindtap="goStudyPlan">
-          <image class="plan-icon" src="../../images/home/icon-study-plan-jelly.png" mode="aspectFit" />
+          <image class="plan-icon" src="../../images/home/icon-study-plan-clipboard-jelly.png" mode="aspectFit" />
           <text>学习计划</text>
         </view>
       </view>

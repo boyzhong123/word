@@ -2,7 +2,7 @@
 @import "./practice.skeleton.wxss";
 page,
 .container {
-  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
+  background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
 }
 
 .title {
@@ -187,7 +187,7 @@ page,
   right: 0;
   bottom: 0;
   z-index: 0;
-  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
+  background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
 }
 
 .practice-swiper,
@@ -224,6 +224,8 @@ page,
   justify-content: center;
   gap: 4rpx;
   flex-shrink: 0;
+  /* 视觉补偿：使圆点与单词小写字母主体的中轴线对齐 */
+  transform: translateY(6rpx);
 }
 
 .wn-dots view {
@@ -870,7 +872,7 @@ page,
   display: flex;
   align-items: flex-start;
   padding: 26rpx 0 20rpx;
-  background: linear-gradient(180deg, rgba(125, 181, 255, 0), #7db5ff 46rpx);
+  background: linear-gradient(180deg, rgba(120, 172, 244, 0), #78acf4 46rpx);
 }
 
 .wn-detail-foot-known {

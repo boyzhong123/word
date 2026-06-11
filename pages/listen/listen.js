@@ -16,7 +16,10 @@ const {
 const { player, buildTracks } = require('../../utils/player')
 
 const LISTEN_PAGE_ANIM_MS = 320
+// 与 app.json tabBar.list 保持一致
+const TAB_ROUTES = ['pages/home/home', 'pages/me/me']
 const QUIZ_AUTO_ADVANCE_MS = 900
+const QUIZ_NEXT_COUNTDOWN_S = 3
 
 function postListeningQuizResult(payload) {
   let report
@@ -82,6 +85,7 @@ Page({
     quizReciteParts: [],
     quizReciteScore: '',
     quizMarking: false,
+    quizNextCountdown: 0,
     quizAllDone: false,
     quizRecords: [],
     quizAudioPlaying: false
@@ -519,8 +523,11 @@ Page({
       this.quizFillTimer = null
     }
     if (this.quizReciteTimer) {
-      clearTimeout(this.quizReciteTimer)
+      clearInterval(this.quizReciteTimer)
       this.quizReciteTimer = null
+    }
+    if (this.data.quizNextCountdown) {
+      this.setData({ quizNextCountdown: 0 })
     }
   },
 
@@ -536,12 +543,18 @@ Page({
 
   scheduleReciteToNext() {
     this.clearQuizTimers()
-    this.quizReciteTimer = setTimeout(() => {
-      this.quizReciteTimer = null
+    this.setData({ quizNextCountdown: QUIZ_NEXT_COUNTDOWN_S })
+    this.quizReciteTimer = setInterval(() => {
+      const left = this.data.quizNextCountdown - 1
+      if (left > 0) {
+        this.setData({ quizNextCountdown: left })
+        return
+      }
+      this.clearQuizTimers()
       if (this.data.quizPhase === 'recite' && this.data.quizReciteScore) {
         this.goToNextQuizQuestion()
       }
-    }, QUIZ_AUTO_ADVANCE_MS)
+    }, 1000)
   },
 
   startQuizRecite() {
@@ -857,13 +870,20 @@ Page({
     }
     this.closing = true
     this.setData({ pageAnimState: 'listen-page-leaving' })
+    const pages = getCurrentPages()
+    const below = pages.length > 1 ? pages[pages.length - 2] : null
+    if (!below || TAB_ROUTES.indexOf(below.route) >= 0) {
+      // 下层是 tab 页：switchTab 没有系统转场动画，
+      // 等下滑动画播完后瞬时切回，不会露出白底页再滑走
+      setTimeout(() => {
+        wx.switchTab({ url: '/' + (below ? below.route : 'pages/home/home') })
+      }, LISTEN_PAGE_ANIM_MS - 40)
+      return
+    }
+    // 下层是普通页（如小测从练习流程进入）：只能 navigateBack，
+    // 提前于退场动画结束触发返回，让系统转场与下滑尾段重叠
     setTimeout(() => {
-      const pages = getCurrentPages()
-      if (pages.length > 1) {
-        wx.navigateBack()
-        return
-      }
-      wx.switchTab({ url: '/pages/home/home' })
-    }, LISTEN_PAGE_ANIM_MS)
+      wx.navigateBack()
+    }, LISTEN_PAGE_ANIM_MS - 80)
   }
 })

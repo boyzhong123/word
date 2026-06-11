@@ -26,18 +26,24 @@ FAB_TODAY_LOCATE_SOURCE = HOME_DIR / "fab-today-locate-jelly-source.png"
 
 ICON_SET_MAPPING = {
     "icon-path-target-jelly.png": 0,
-    "icon-study-plan-jelly.png": 1,
     "icon-checkin-calendar-jelly.png": 1,
     "icon-today-pin-jelly.png": 2,
-    "nav-study-jelly.png": 3,
-    "nav-listen-jelly.png": 4,
-    "nav-me-jelly.png": 5,
 }
 
-# Post-process hooks so icons sharing a sheet column still look distinct.
-ICON_SET_RECOLOR = {
-    "icon-study-plan-jelly.png": "warm_amber",
+# 底部导航图标改用小怪兽三联源图（v3），不再从旧 icon set 提取
+NAV_MONSTER_SET = HOME_DIR / "nav-jelly-monster-icon-set-keyed.png"
+NAV_MONSTER_MAPPING = {
+    "nav-study-jelly.png": 0,
+    "nav-listen-jelly.png": 1,
+    "nav-me-jelly.png": 2,
 }
+NAV_MONSTER_ICON_SIZE = 96
+
+# Post-process hooks so icons sharing a sheet column still look distinct.
+ICON_SET_RECOLOR = {}
+
+# 学习计划 uses a dedicated jelly clipboard icon instead of the calendar.
+STUDY_PLAN_SOURCE = PROJECT_ROOT / "assets" / "icon-study-plan-jelly-source.png"
 
 CHECKIN_SVG_MAPPING = {
     "icon-checkin-streak-jelly.png": "icon-checkin-streak.svg",
@@ -54,23 +60,19 @@ CHECKIN_SOURCE_PATHS = {
 CHECKIN_METRIC_BUILD = {
     "icon-checkin-streak-jelly.png": {
         "profile": "green",
-        "fill": (196, 181, 253, 255),
-        "solidify": True,
     },
     "icon-checkin-total-jelly.png": {
-        "profile": "magenta",
-        "solidify": False,
+        "profile": "blue",
     },
     "icon-checkin-today-jelly.png": {
         "profile": "green",
-        "fill": (255, 154, 60, 255),
-        "solidify": True,
     },
 }
 
+# Avoid --soft-matte on yellow-heavy icons: magenta dominance logic treats high-R yellow as spill.
 CHECKIN_CHROMA_PROFILES = {
-    "green": ["--key-color", "#00ff00", "--tolerance", "28", "--soft-matte", "--despill", "--edge-contract", "1"],
-    "magenta": ["--key-color", "#f000d8", "--tolerance", "35", "--soft-matte", "--despill", "--edge-contract", "1"],
+    "green": ["--key-color", "#00ff00", "--tolerance", "32"],
+    "blue": ["--key-color", "#0000ff", "--tolerance", "32"],
 }
 
 MAP_NODE_STYLES = {
@@ -396,6 +398,35 @@ def build_fab_today_locate(output_path, source_path=FAB_TODAY_LOCATE_SOURCE, siz
     icon.save(output_path, optimize=True)
 
 
+def build_study_plan_icon(output_path):
+    """Build the clipboard-style 学习计划 icon; fall back to a recolored calendar."""
+    if STUDY_PLAN_SOURCE.exists():
+        work_dir = output_path.parent / ".jelly-build"
+        work_dir.mkdir(parents=True, exist_ok=True)
+        keyed_path = work_dir / "icon-study-plan-jelly-keyed.png"
+        if CHROMA_KEY_SCRIPT.exists():
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(CHROMA_KEY_SCRIPT),
+                    "--input",
+                    str(STUDY_PLAN_SOURCE),
+                    "--out",
+                    str(keyed_path),
+                    "--force",
+                ]
+                + CHECKIN_CHROMA_PROFILES["green"],
+                check=True,
+            )
+            source = Image.open(keyed_path).convert("RGBA")
+        else:
+            source = chroma_key(STUDY_PLAN_SOURCE, work_dir)
+    else:
+        source = Image.open(output_path.parent / "icon-checkin-calendar-jelly.png").convert("RGBA")
+        source = shift_green_to_amber(source)
+    fit_icon(source, size=JELLY_ICON_SIZE).save(output_path, optimize=True)
+
+
 def extract_icon_set_icons(icon_set_path):
     clean_columns = {}
     for output_name, column_index in ICON_SET_MAPPING.items():
@@ -409,6 +440,20 @@ def extract_icon_set_icons(icon_set_path):
         if recolor_name:
             icon = ICON_RECOLOR_FUNCS[recolor_name](icon)
         icon.save(HOME_DIR / output_name, optimize=True)
+
+
+def extract_nav_monster_icons():
+    if not NAV_MONSTER_SET.exists():
+        print(f"skip nav icons: {NAV_MONSTER_SET} missing")
+        return
+    source = Image.open(NAV_MONSTER_SET).convert("RGBA")
+    columns = len(NAV_MONSTER_MAPPING)
+    cell_width = source.width // columns
+    for output_name, column_index in NAV_MONSTER_MAPPING.items():
+        cell = source.crop(
+            (column_index * cell_width, 0, (column_index + 1) * cell_width, source.height)
+        )
+        fit_icon(cell, size=NAV_MONSTER_ICON_SIZE).save(HOME_DIR / output_name, optimize=True)
 
 
 def rasterize_svg(svg_path, output_path, size=JELLY_ICON_SIZE):
@@ -456,8 +501,6 @@ def build_checkin_metric_icon(output_name, output_path):
         else:
             source = chroma_key(source_path, work_dir)
 
-        if build_config.get("solidify"):
-            source = solidify_jelly(source, build_config["fill"])
         fit_icon(source, size=JELLY_ICON_SIZE).save(output_path, optimize=True)
         return
 
@@ -557,6 +600,8 @@ def build_stage_stars_from_source():
 def main():
     icon_set = resolve_icon_set()
     extract_icon_set_icons(icon_set)
+    extract_nav_monster_icons()
+    build_study_plan_icon(HOME_DIR / "icon-study-plan-clipboard-jelly.png")
     build_checkin_metric_icons(HOME_DIR)
     build_fab_today_locate(HOME_DIR / "fab-today-locate-jelly.png")
 

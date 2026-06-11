@@ -39,7 +39,7 @@
                     <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
                       <view class="wn-pron-pill">
                         <text class="wn-lang">{{pron.label}}</text>
-                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
+                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio && item.word.activeAccent == pron.key ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
                       </view>
                       <text class="wn-ipa">/{{pron.symbol}}/</text>
                     </view>
@@ -99,7 +99,7 @@
                     <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
                       <view class="wn-pron-pill">
                         <text class="wn-lang">{{pron.label}}</text>
-                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
+                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio && item.word.activeAccent == pron.key ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
                       </view>
                       <text class="wn-ipa">/{{pron.symbol}}/</text>
                     </view>
