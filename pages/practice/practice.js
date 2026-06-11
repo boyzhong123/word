@@ -22,11 +22,22 @@ const DETAIL_TAB_DEFS = [
   { key: 'recite', label: '背诵技巧' }
 ]
 
-function getPracticeProgressPercent(index, total) {
+const WORD_HINT_VISIBLE_MS = 2000
+const WORD_HINT_TOAST_IMAGES = [
+  '/images/word-new/toast-known.png',
+  '/images/word-new/toast-unknown.png',
+  '/images/word-new/toast-mistaken.png'
+]
+
+function getPracticeProgressRatio(index, total) {
   if (!total) {
     return 0
   }
-  return Math.round(((index + 1) / total) * 100)
+  return (index + 1) / total
+}
+
+function getPracticeProgressPercent(index, total) {
+  return Math.round(getPracticeProgressRatio(index, total) * 100)
 }
 
 function normalizeWordPronunciations(word) {
@@ -81,7 +92,6 @@ Page({
     pronunciationTips: PRONUNCIATION_TIPS,
     navTitle: '',
     playingSrc: '',
-    wordToast: { visible: false, title: '', image: '' },
     marking: false,
     scrollHeight: wx.getStorageSync('safeArea').height - wx.getStorageSync('navigationBarHeight'),
     safeAreaBottom: wx.getStorageSync('windowHeight') - wx.getStorageSync('safeArea').bottom,
@@ -94,8 +104,6 @@ Page({
       'anchor-tone': { text: '句末需要升调 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-tone' }
     },
     current: 0,
-    practiceProgressPercent: 0,
-    practiceProgressWidth: '0%',
     wordTotal: 0,
     contents: [],
     needVip: 0,
@@ -111,6 +119,9 @@ Page({
       taskType,
       isWordNewMode: taskType === 'word'
     })
+    if (taskType === 'word') {
+      this.preloadWordHintImages()
+    }
 
     if (options && options.id) {
       this.wordId = options.id
@@ -120,9 +131,7 @@ Page({
         this.resBookName = data.book.name
         let dialogObject = this.getDialogObject(data.needVip)
         const contents = [data]
-        this.applyPracticeProgress(contents, 0)
         const wordTotal = 1
-        const progress = this.buildPracticeProgress(0, wordTotal)
         this.setData({
           loading: false,
           from: 'search',
@@ -130,8 +139,6 @@ Page({
           wordTotal: wordTotal,
           dialog: dialogObject,
           contents: contents,
-          practiceProgressPercent: progress.percent,
-          practiceProgressWidth: progress.width,
           navTitle: this.data.isWordNewMode ? this.buildNavTitle(data, 0, wordTotal) : ''
         })
         this.last = 0
@@ -164,9 +171,7 @@ Page({
   fetchReviewData() {
     const data = buildMockReviewResource(this.reviewUnitIds)
     data.forEach(item => this.initResult(item))
-    this.applyPracticeProgress(data, 0)
     const wordTotal = data.length
-    const progress = this.buildPracticeProgress(0, wordTotal)
     this.setData({
       loading: false,
       current: 0,
@@ -174,8 +179,6 @@ Page({
       wordTotal: wordTotal,
       dialog: this.getDialogObject(false),
       contents: data,
-      practiceProgressPercent: progress.percent,
-      practiceProgressWidth: progress.width,
       navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, wordTotal) : ''
     })
     this.last = 0
@@ -195,9 +198,7 @@ Page({
           })
           vip = !data.some(item => item.needVip)
       }
-      this.applyPracticeProgress(data, 0)
       const wordTotal = data.length
-      const progress = this.buildPracticeProgress(0, wordTotal)
       this.setData({
         loading: false,
         current: 0,
@@ -205,8 +206,6 @@ Page({
         wordTotal: wordTotal,
         dialog: this.getDialogObject(!vip),
         contents: data,
-        practiceProgressPercent: progress.percent,
-        practiceProgressWidth: progress.width,
         navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, wordTotal) : ''
       })
       this.last = 0
@@ -244,6 +243,8 @@ Page({
     item.mistaken = false
     item.known = false
     item.readCount = 0
+    item.wordHint = null
+    item.wordHintLabel = ''
     this.unitSort = item.unit.sort
     if (item.word) {
       item.word.page = (item.word.pages || []).join('-')
@@ -287,6 +288,7 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide() {
+      this.clearWordHintTimers()
       this.stopAudio()
       this.stopWordNewAudio()
   },
@@ -295,9 +297,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload() {
-      if (this._wordToastTimer) {
-        clearTimeout(this._wordToastTimer)
-      }
+      this.clearWordHintTimers()
       if (this.data.innerAudioContext) {
         this.data.innerAudioContext.offEnded()
         this.data.innerAudioContext.offError()
@@ -503,12 +503,8 @@ Page({
   },
   swiperChanged(e) {
     this.hideTip()
-    const current = e.detail.current
-    const progress = this.buildPracticeProgress(current)
     this.setData({
-      current,
-      practiceProgressPercent: progress.percent,
-      practiceProgressWidth: progress.width
+      current: e.detail.current
     })
   },
   touchMove(e) {
@@ -567,11 +563,8 @@ Page({
       return
     }
     this.hideTip()
-    const progress = this.buildPracticeProgress(next)
     this.setData({
-      current: next,
-      practiceProgressPercent: progress.percent,
-      practiceProgressWidth: progress.width
+      current: next
     })
     this.last = next
     this.dx = 0
@@ -595,30 +588,6 @@ Page({
   },
   getPracticeWordTotal() {
     return Number(this.data.wordTotal) || this.data.contents.length || 0
-  },
-  buildPracticeProgress(index, total) {
-    const wordTotal = total || this.getPracticeWordTotal()
-    const percent = getPracticeProgressPercent(index, wordTotal)
-    return {
-      percent: percent,
-      width: percent + '%'
-    }
-  },
-  updatePracticeProgress(index) {
-    const progress = this.buildPracticeProgress(index)
-    this.setData({
-      practiceProgressPercent: progress.percent,
-      practiceProgressWidth: progress.width
-    })
-  },
-  applyPracticeProgress(contents, current) {
-    const wordTotal = contents.length
-    contents.forEach(function (item, index) {
-      item.progressPercent = getPracticeProgressPercent(index, wordTotal)
-    })
-    if (contents[current]) {
-      contents[current].progressPercent = getPracticeProgressPercent(current, wordTotal)
-    }
   },
   getActiveAccentAudio(index) {
     const item = this.data.contents[index]
@@ -734,35 +703,45 @@ Page({
     }
     this.playExampleAudio(index)
   },
-  showWordDecisionToast(type) {
-    const toastMap = {
-      known: {
-        title: '继续保持',
-        image: '../../images/word-new/toast-known.png'
-      },
-      unknown: {
-        title: '一起巩固',
-        image: '../../images/word-new/toast-unknown.png'
-      },
-      mistaken: {
-        title: '已改为不认识',
-        image: '../../images/word-new/toast-mistaken.png'
-      }
-    }
-    const toast = toastMap[type] || toastMap.unknown
-    if (this._wordToastTimer) {
-      clearTimeout(this._wordToastTimer)
-    }
-    this.setData({
-      wordToast: {
-        visible: true,
-        title: toast.title,
-        image: toast.image
-      }
+  preloadWordHintImages() {
+    WORD_HINT_TOAST_IMAGES.forEach((src) => {
+      wx.getImageInfo({ src })
     })
-    this._wordToastTimer = setTimeout(() => {
-      this.setData({ 'wordToast.visible': false })
-    }, 1600)
+  },
+  clearWordHintTimers() {
+    if (this._wordHintHideTimer) {
+      clearTimeout(this._wordHintHideTimer)
+      this._wordHintHideTimer = null
+    }
+    this._wordHintDone = null
+  },
+  hideWordHint(index, onDone) {
+    this.setData({
+      ['contents[' + index + '].wordHint']: null,
+      ['contents[' + index + '].wordHintLabel']: ''
+    })
+    if (onDone) {
+      onDone()
+    }
+  },
+  showWordHint(index, type, onDone) {
+    const hintMap = {
+      known: '继续保持',
+      unknown: '一起巩固',
+      mistaken: '记错了'
+    }
+    this.clearWordHintTimers()
+    this._wordHintDone = onDone || null
+    this.setData({
+      ['contents[' + index + '].wordHint']: type,
+      ['contents[' + index + '].wordHintLabel']: hintMap[type] || hintMap.unknown
+    })
+    this._wordHintHideTimer = setTimeout(() => {
+      const done = this._wordHintDone
+      this._wordHintHideTimer = null
+      this._wordHintDone = null
+      this.hideWordHint(index, done)
+    }, WORD_HINT_VISIBLE_MS)
   },
   revealWord(index, known) {
     this.setData({
@@ -773,13 +752,11 @@ Page({
   },
   answerKnow() {
     const index = this.data.current
-    this.showWordDecisionToast('known')
-    this.revealWord(index, true)
+    this.showWordHint(index, 'known', () => this.revealWord(index, true))
   },
   answerUnknown() {
     const index = this.data.current
-    this.showWordDecisionToast('unknown')
-    this.revealWord(index, false)
+    this.showWordHint(index, 'unknown', () => this.revealWord(index, false))
   },
   markWordMistaken() {
     const index = this.data.current
@@ -787,7 +764,7 @@ Page({
       ['contents[' + index + '].known']: false,
       ['contents[' + index + '].mistaken']: true
     })
-    this.showWordDecisionToast('mistaken')
+    this.showWordHint(index, 'mistaken')
   },
   switchDetailTab(e) {
     const index = this.data.current
@@ -800,16 +777,13 @@ Page({
     })
   },
   goNextWord() {
+    this.clearWordHintTimers()
     if (this.data.current < this.data.contents.length - 1) {
       const next = this.data.current + 1
       const nextItem = this.data.contents[next]
-      const progress = this.buildPracticeProgress(next)
       this.setData({
         current: next,
-        navTitle: this.buildNavTitle(nextItem, next, this.getPracticeWordTotal()),
-        practiceProgressPercent: progress.percent,
-        practiceProgressWidth: progress.width,
-        ['contents[' + next + '].progressPercent']: progress.percent
+        navTitle: this.buildNavTitle(nextItem, next, this.getPracticeWordTotal())
       })
       if (this.data.isWordNewMode) {
         wx.nextTick(() => this.startWordReading(next))

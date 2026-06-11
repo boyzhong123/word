@@ -46,7 +46,21 @@ test('follow-read panel uses full-bleed white mask without action labels', () =>
   assert.match(listenTemplate, /follow-card/)
   assert.match(listenStyle, /\.follow-card\s*{/)
   assert.match(listenStyle, /justify-content:\s*center/)
-  assert.match(listenStyle, /margin:\s*24rpx -56rpx 0/)
+  assert.match(listenStyle, /margin:\s*24rpx 0 0/)
+  assert.match(listenStyle, /\.follow-card\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.34\)/s)
+})
+
+test('follow-read page shares the lavender-blue reference background', () => {
+  assert.match(listenStyle, /\.listen-page\s*{[^}]*background:\s*linear-gradient\(180deg,\s*#dfd8ee 0%,\s*#ddd9f1 22%,\s*#ddddf7 38%,\s*#bdd0fb 56%,\s*#a5c5fe 76%,\s*#8bb6fa 100%\)/s)
+})
+
+test('listen page slides up from bottom when opened from tab bar', () => {
+  assert.match(listenStyle, /page\s*{[^}]*background:\s*transparent/)
+  assert.match(listenStyle, /\.listen-page-preenter\s*{[^}]*transform:\s*translateY\(100%\)/)
+  assert.match(listenStyle, /listen-slide-up/)
+  assert.match(listenScript, /pageAnimState:\s*'listen-page-preenter'/)
+  assert.match(listenScript, /pageAnimState:\s*'listen-page-enter'/)
+  assert.match(listenScript, /onShow\(\)\s*{/)
 })
 
 test('expanded lyric uses the same font size and blue highlight', () => {

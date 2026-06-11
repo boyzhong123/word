@@ -22,27 +22,27 @@
       <view class="section-title">每天练习几组</view>
 
       <view class="daily-display">
-        <view class="stepper {{groupsPerDay <= minGroups ? 'stepper-off' : ''}}" data-dir="-1" bindtap="onStep">−</view>
+        <view class="stepper {{groupsPerDay <= minGroups ? 'stepper-off' : ''}}"
+          hover-class="{{groupsPerDay <= minGroups ? '' : 'stepper-hover'}}" hover-stay-time="80"
+          aria-role="button" aria-label="减少每天组数" aria-disabled="{{groupsPerDay <= minGroups}}"
+          data-dir="-1" bindtap="onStep">−</view>
         <view class="daily-num">
           <text class="num">{{groupsPerDay}}</text>
           <text class="unit">组/天</text>
         </view>
-        <view class="stepper {{groupsPerDay >= maxGroups ? 'stepper-off' : ''}}" data-dir="1" bindtap="onStep">+</view>
+        <view class="stepper {{groupsPerDay >= maxGroups ? 'stepper-off' : ''}}"
+          hover-class="{{groupsPerDay >= maxGroups ? '' : 'stepper-hover'}}" hover-stay-time="80"
+          aria-role="button" aria-label="增加每天组数" aria-disabled="{{groupsPerDay >= maxGroups}}"
+          data-dir="1" bindtap="onStep">+</view>
       </view>
 
-      <view class="daily-hint">每组 {{levelSize}} 词，约 <text class="hl">{{dailyWords}}</text> 词/天</view>
-
-      <slider class="daily-slider" min="{{minGroups}}" max="{{maxGroups}}" step="1"
-        value="{{groupsPerDay}}" block-size="22" activeColor="#111318" backgroundColor="#eeeeee"
-        bindchanging="onSlide" bindchange="onSlide" />
-      <view class="slider-scale">
-        <text>{{minGroups}}组</text>
-        <text>{{maxGroups}}组</text>
-      </view>
+      <view class="daily-hint">每组 {{levelSize}} 词，约 <text class="hl">{{dailyWords}}</text> 词/天（可选 {{minGroups}} - {{maxGroups}} 组）</view>
 
       <view class="presets">
         <view wx:for="{{presets}}" wx:key="label"
           class="preset {{item.value === groupsPerDay ? 'preset-active' : ''}}"
+          hover-class="preset-hover" hover-stay-time="80"
+          aria-role="button" aria-label="{{item.label}}，每天{{item.value}}组"
           data-value="{{item.value}}" bindtap="onPreset">
           <view class="preset-label">{{item.label}}</view>
           <view class="preset-value">{{item.value}}组</view>
@@ -104,6 +104,10 @@
 
   <!-- 底部保存 -->
   <view class="footer" style="padding-bottom: {{safeAreaBottom}}px;">
-    <view class="save-btn" bindtap="savePlan">保存学习计划</view>
+    <view class="save-btn {{saving ? 'save-btn-disabled' : ''}}"
+      hover-class="{{saving ? '' : 'save-btn-hover'}}" hover-stay-time="80"
+      aria-role="button" aria-disabled="{{saving}}" bindtap="savePlan">
+      {{saving ? '保存中…' : '保存学习计划'}}
+    </view>
   </view>
 </view>

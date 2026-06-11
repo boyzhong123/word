@@ -11,10 +11,10 @@
   height: 0;
   color: transparent;
 }
-/* 导航返回/关闭图标：统一尺寸；返回为左箭头，关闭为下箭头，见 icon_back_deep.svg / icon_close_deep.svg */
+/* 导航返回/关闭图标：统一 32 方框内等比缩放，避免 heightFix + max-width 把下箭头拉扁 */
 .nav-action-icon {
+  width: 32rpx;
   height: 32rpx;
-  max-width: 20rpx;
 }
 
 .nav-title {

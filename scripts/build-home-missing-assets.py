@@ -34,20 +34,43 @@ ICON_SET_MAPPING = {
     "nav-me-jelly.png": 5,
 }
 
+# Post-process hooks so icons sharing a sheet column still look distinct.
+ICON_SET_RECOLOR = {
+    "icon-study-plan-jelly.png": "warm_amber",
+}
+
 CHECKIN_SVG_MAPPING = {
     "icon-checkin-streak-jelly.png": "icon-checkin-streak.svg",
     "icon-checkin-total-jelly.png": "icon-checkin-total.svg",
     "icon-checkin-today-jelly.png": "icon-checkin-today.svg",
 }
 
-CHECKIN_KEYED_SOURCES = {
-    "icon-checkin-streak-jelly.png": PROJECT_ROOT / "tmp/home-icons/icon-checkin-streak-jelly.png-keyed.png",
-    "icon-checkin-total-jelly.png": PROJECT_ROOT / "tmp/home-icons/icon-checkin-total-jelly.png-keyed.png",
-    "icon-checkin-today-jelly.png": PROJECT_ROOT / "tmp/home-icons/icon-checkin-today-jelly.png-keyed.png",
+CHECKIN_SOURCE_PATHS = {
+    "icon-checkin-streak-jelly.png": HOME_DIR / "icon-checkin-streak-jelly-source.png",
+    "icon-checkin-total-jelly.png": HOME_DIR / "icon-checkin-total-jelly-source.png",
+    "icon-checkin-today-jelly.png": HOME_DIR / "icon-checkin-today-jelly-source.png",
 }
 
-CHECKIN_SOURCE_PATHS = {
-    "icon-checkin-today-jelly.png": HOME_DIR / "icon-checkin-today-jelly-source.png",
+CHECKIN_METRIC_BUILD = {
+    "icon-checkin-streak-jelly.png": {
+        "profile": "green",
+        "fill": (196, 181, 253, 255),
+        "solidify": True,
+    },
+    "icon-checkin-total-jelly.png": {
+        "profile": "magenta",
+        "solidify": False,
+    },
+    "icon-checkin-today-jelly.png": {
+        "profile": "green",
+        "fill": (255, 154, 60, 255),
+        "solidify": True,
+    },
+}
+
+CHECKIN_CHROMA_PROFILES = {
+    "green": ["--key-color", "#00ff00", "--tolerance", "28", "--soft-matte", "--despill", "--edge-contract", "1"],
+    "magenta": ["--key-color", "#f000d8", "--tolerance", "35", "--soft-matte", "--despill", "--edge-contract", "1"],
 }
 
 MAP_NODE_STYLES = {
@@ -126,6 +149,55 @@ def content_bbox(image):
     alpha = image.getchannel("A")
     visible = alpha.point(lambda value: 255 if value > 16 else 0)
     return visible.getbbox()
+
+
+def solidify_jelly(image, fill_color, dilate_radius=11):
+    """Fill hollow jelly icons so keyed edges stay opaque."""
+    rgba = image.convert("RGBA")
+    alpha = rgba.getchannel("A")
+    mask = alpha.point(lambda value: 255 if value > 18 else 0)
+    for _ in range(max(1, dilate_radius // 2)):
+        mask = mask.filter(ImageFilter.MaxFilter(3))
+
+    fill = Image.new("RGBA", rgba.size, fill_color)
+    solid = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
+    solid.paste(fill, mask=mask)
+    solid.alpha_composite(rgba)
+
+    boosted_alpha = solid.getchannel("A").point(
+        lambda value: 255 if value > 48 else max(value, 0)
+    )
+    solid.putalpha(boosted_alpha)
+    return solid
+
+
+def shift_green_to_amber(image):
+    """Recolor the mint-green jelly body to warm amber and the orange check to green."""
+    import colorsys
+
+    rgba = image.convert("RGBA")
+    pixels = rgba.load()
+    for y in range(rgba.height):
+        for x in range(rgba.width):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                continue
+            h, l, s = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
+            hue_deg = h * 360
+            if 70 <= hue_deg <= 190 and s > 0.08:
+                new_h = (42 + (hue_deg - 70) * 0.05) / 360
+                nr, ng, nb = colorsys.hls_to_rgb(new_h, l, min(1.0, s * 1.5))
+            elif 10 <= hue_deg < 60 and s > 0.4:
+                nr, ng, nb = colorsys.hls_to_rgb(140 / 360, l, s)
+            else:
+                continue
+            pixels[x, y] = (round(nr * 255), round(ng * 255), round(nb * 255), a)
+    return rgba
+
+
+ICON_RECOLOR_FUNCS = {
+    "warm_amber": shift_green_to_amber,
+}
 
 
 def fit_icon(image, size=JELLY_ICON_SIZE, padding=6):
@@ -325,14 +397,18 @@ def build_fab_today_locate(output_path, source_path=FAB_TODAY_LOCATE_SOURCE, siz
 
 
 def extract_icon_set_icons(icon_set_path):
-    seen_columns = {}
+    clean_columns = {}
     for output_name, column_index in ICON_SET_MAPPING.items():
-        if column_index in seen_columns:
-            source_icon = HOME_DIR / seen_columns[column_index]
-            Image.open(source_icon).save(HOME_DIR / output_name, optimize=True)
-            continue
-        extract_jelly_icon(icon_set_path, column_index, HOME_DIR / output_name)
-        seen_columns[column_index] = output_name
+        if column_index not in clean_columns:
+            output_path = HOME_DIR / output_name
+            extract_jelly_icon(icon_set_path, column_index, output_path)
+            clean_columns[column_index] = Image.open(output_path).convert("RGBA")
+
+        icon = clean_columns[column_index].copy()
+        recolor_name = ICON_SET_RECOLOR.get(output_name)
+        if recolor_name:
+            icon = ICON_RECOLOR_FUNCS[recolor_name](icon)
+        icon.save(HOME_DIR / output_name, optimize=True)
 
 
 def rasterize_svg(svg_path, output_path, size=JELLY_ICON_SIZE):
@@ -354,55 +430,47 @@ def rasterize_svg(svg_path, output_path, size=JELLY_ICON_SIZE):
     thumb.unlink(missing_ok=True)
 
 
-def build_checkin_today_icon(output_path):
-    source_path = CHECKIN_SOURCE_PATHS["icon-checkin-today-jelly.png"]
-    keyed_path = CHECKIN_KEYED_SOURCES["icon-checkin-today-jelly.png"]
-    if not source_path.exists():
-        if keyed_path.exists():
+def build_checkin_metric_icon(output_name, output_path):
+    source_path = CHECKIN_SOURCE_PATHS.get(output_name)
+    if source_path and source_path.exists():
+        build_config = CHECKIN_METRIC_BUILD.get(output_name, {})
+        work_dir = output_path.parent / ".jelly-build"
+        work_dir.mkdir(parents=True, exist_ok=True)
+        keyed_path = work_dir / f"{source_path.stem}-keyed.png"
+        profile = build_config.get("profile", "green")
+        if CHROMA_KEY_SCRIPT.exists():
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(CHROMA_KEY_SCRIPT),
+                    "--input",
+                    str(source_path),
+                    "--out",
+                    str(keyed_path),
+                    "--force",
+                ]
+                + CHECKIN_CHROMA_PROFILES.get(profile, CHECKIN_CHROMA_PROFILES["green"]),
+                check=True,
+            )
             source = Image.open(keyed_path).convert("RGBA")
-            fit_icon(source, size=JELLY_ICON_SIZE).save(output_path, optimize=True)
-            return
-        rasterize_svg(HOME_DIR / CHECKIN_SVG_MAPPING["icon-checkin-today-jelly.png"], output_path)
+        else:
+            source = chroma_key(source_path, work_dir)
+
+        if build_config.get("solidify"):
+            source = solidify_jelly(source, build_config["fill"])
+        fit_icon(source, size=JELLY_ICON_SIZE).save(output_path, optimize=True)
         return
 
-    keyed_path.parent.mkdir(parents=True, exist_ok=True)
-    if CHROMA_KEY_SCRIPT.exists():
-        subprocess.run(
-            [
-                sys.executable,
-                str(CHROMA_KEY_SCRIPT),
-                "--input",
-                str(source_path),
-                "--out",
-                str(keyed_path),
-                "--key-color",
-                "#f008f0",
-                "--tolerance",
-                "35",
-                "--force",
-            ],
-            check=True,
-        )
-        source = Image.open(keyed_path).convert("RGBA")
-    else:
-        source = chroma_key(source_path, keyed_path.parent)
-
-    fit_icon(source, size=JELLY_ICON_SIZE).save(output_path, optimize=True)
+    svg_name = CHECKIN_SVG_MAPPING.get(output_name)
+    if svg_name:
+        rasterize_svg(HOME_DIR / svg_name, output_path)
 
 
 def build_checkin_metric_icons(output_dir):
-    """Prefer keyed ImageGen sources; fall back to SVG rasterization."""
+    """Prefer ImageGen jelly sources; fall back to SVG rasterization."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    for output_name, svg_name in CHECKIN_SVG_MAPPING.items():
-        if output_name == "icon-checkin-today-jelly.png":
-            build_checkin_today_icon(output_dir / output_name)
-            continue
-        keyed_source = CHECKIN_KEYED_SOURCES.get(output_name)
-        if keyed_source and keyed_source.exists():
-            source = Image.open(keyed_source).convert("RGBA")
-            fit_icon(source, size=JELLY_ICON_SIZE).save(output_dir / output_name, optimize=True)
-            continue
-        rasterize_svg(output_dir / svg_name, output_dir / output_name)
+    for output_name in CHECKIN_SVG_MAPPING:
+        build_checkin_metric_icon(output_name, output_dir / output_name)
 
 
 def build_mascot_sprite(source_path, output_path, frame_count=4):

@@ -235,6 +235,5 @@
 .mini-btn-icon {
   width: 72rpx;
   height: 72rpx;
-  filter: drop-shadow(0 4rpx 10rpx rgba(21, 56, 120, 0.22));
 }
 

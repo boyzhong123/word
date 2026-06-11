@@ -115,7 +115,7 @@
             </view>
             <view class="word-meaning">{{word.meaning}}</view>
           </view>
-          <view class="word-status status-ok">✓</view>
+          <image class="word-status status-ok" src="../../images/home/icon-word-mastered.svg" mode="aspectFit" />
         </view>
       </view>
     </view>

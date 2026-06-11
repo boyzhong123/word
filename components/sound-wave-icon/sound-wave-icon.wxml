@@ -1,0 +1,4 @@
+<view
+  class="sound-wave-icon sound-wave-icon-{{tone}} {{playing ? 'sound-wave-icon-playing' : ''}}"
+  style="width:{{frameWidth}}rpx;height:{{frameHeight}}rpx;"
+></view>

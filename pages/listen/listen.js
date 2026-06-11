@@ -15,7 +15,7 @@ const {
 // 通常听力播放走全局单例（跨页持续 + 迷你播放器）；buildTracks 复用单例里的实现
 const { player, buildTracks } = require('../../utils/player')
 
-const LISTEN_PAGE_ANIM_MS = 300
+const LISTEN_PAGE_ANIM_MS = 320
 const QUIZ_AUTO_ADVANCE_MS = 900
 
 function postListeningQuizResult(payload) {
@@ -89,6 +89,8 @@ Page({
 
   onLoad(options) {
     options = options || {}
+    this.closing = false
+    this.setData({ pageAnimState: 'listen-page-preenter' })
     const book = (getApp().globalData && getApp().globalData.book) || {}
     this.resBookId = options.resBookId || book.resBookId || ''
     this.targetUnitId = options.unitId || ''
@@ -126,8 +128,20 @@ Page({
 
   onReady() {
     this.measureSeekBar()
+  },
+
+  onShow() {
+    if (this.closing) {
+      return
+    }
+    this.setData({ pageAnimState: 'listen-page-preenter' })
     wx.nextTick(() => {
-      this.setData({ pageAnimState: 'listen-page-enter' })
+      setTimeout(() => {
+        if (this.closing) {
+          return
+        }
+        this.setData({ pageAnimState: 'listen-page-enter' })
+      }, 20)
     })
   },
 

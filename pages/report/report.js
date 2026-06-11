@@ -98,32 +98,37 @@ function buildReport(sort, total, enSaying, zhSaying) {
   const minutes = clamp(Math.round(safeTotal * 0.7), 4, 30)
   const stageStars = starsForAccuracy(accuracy)
 
-  // 三个环节得分：围绕总正确率做稳定微调。
+  // 三个环节得分：复用首页 task 配色与 active 图标。
+  const taskPalette = {
+    word: { icon: '../../images/home/task-word-active.svg', iconBg: '#dcfce7', color: '#16a34a' },
+    recitation: { icon: '../../images/home/task-recitation-active.svg', iconBg: '#ffedd5', color: '#f97316' },
+    listening: { icon: '../../images/home/task-listening-active.svg', iconBg: '#ededf0', color: '#111318' }
+  }
   const taskStats = [
     {
       type: 'word',
       label: '单词新学',
-      icon: '../../images/home/task-word.png',
-      iconBg: '#dcfce7',
-      color: '#16a34a',
+      icon: taskPalette.word.icon,
+      iconBg: taskPalette.word.iconBg,
+      color: taskPalette.word.color,
       score: clamp(accuracy + 3, 60, 100),
       caption: masteredCount + '/' + safeTotal + ' 词掌握'
     },
     {
       type: 'recitation',
       label: '跟读背诵',
-      icon: '../../images/home/task-recitation.png',
-      iconBg: '#ffedd5',
-      color: '#f97316',
+      icon: taskPalette.recitation.icon,
+      iconBg: taskPalette.recitation.iconBg,
+      color: taskPalette.recitation.color,
       score: clamp(accuracy - 4 + (sort % 3), 60, 99),
       caption: '发音流利度'
     },
     {
       type: 'listening',
       label: '听力小测',
-      icon: '../../images/home/task-listening.png',
-      iconBg: '#ededf0',
-      color: '#111318',
+      icon: taskPalette.listening.icon,
+      iconBg: taskPalette.listening.iconBg,
+      color: taskPalette.listening.color,
       score: clamp(accuracy + 1 - (sort % 2), 60, 100),
       caption: '听音辨义'
     }

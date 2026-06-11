@@ -57,6 +57,7 @@ function buildPresets(maxGroups) {
 Page({
   data: {
     safeAreaBottom: 0,
+    saving: false,
 
     book: { name: '', bookCover: '', wordCount: 0, resBookId: '' },
     levelSize: LEVEL_SIZE,
@@ -106,7 +107,8 @@ Page({
   },
 
   getSafeAreaBottom() {
-    const info = wx.getSystemInfoSync()
+    // wx.getWindowInfo 是新版 API，旧基础库回退到 getSystemInfoSync
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()
     if (!info.safeArea) {
       return 0
     }
@@ -120,19 +122,18 @@ Page({
   setGroups(value) {
     const next = clamp(toPositiveInt(value, this.data.groupsPerDay), this.data.minGroups, this.data.maxGroups)
     if (next === this.data.groupsPerDay) {
-      return
+      return false
     }
     this.setData({ groupsPerDay: next })
     this.refreshPlan(next)
+    return true
   },
 
   onStep(event) {
     const dir = Number(event.currentTarget.dataset.dir)
-    this.setGroups(this.data.groupsPerDay + dir)
-  },
-
-  onSlide(event) {
-    this.setGroups(event.detail.value)
+    if (this.setGroups(this.data.groupsPerDay + dir) && wx.vibrateShort) {
+      wx.vibrateShort({ type: 'light' })
+    }
   },
 
   onPreset(event) {
@@ -140,6 +141,11 @@ Page({
   },
 
   savePlan() {
+    if (this.data.saving) {
+      return
+    }
+    this.setData({ saving: true })
+
     const { book, groupsPerDay, dailyWords, totalLevels } = this.data
     wx.setStorageSync('studyPlan_' + (book.resBookId || 'default'), {
       groupsPerDay,

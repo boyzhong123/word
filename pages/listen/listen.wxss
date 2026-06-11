@@ -1,9 +1,13 @@
+page {
+  background: transparent;
+}
+
 .listen-page {
   position: fixed;
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #eaf4ff 0%, #eef6ff 32%, #dcecff 52%, #b8d8fb 74%, #86b9ee 100%);
+  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
   overflow: hidden;
   will-change: transform;
 }
@@ -41,7 +45,7 @@
 }
 
 .listen-quiz-shell {
-  background: linear-gradient(180deg, #ece6f0 0%, #e0e1f5 26%, #bad2f8 52%, #85bbf8 76%, #5fa9f7 100%);
+  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
 }
 
 /* ---------------- 小测导航（对齐新词学习页） ---------------- */
@@ -443,8 +447,8 @@
 }
 
 .quiz-hint-icon {
-  width: 58rpx;
-  height: 58rpx;
+  width: 66rpx;
+  height: 66rpx;
   display: block;
 }
 
@@ -641,13 +645,14 @@
    停放时向盘外抬起，播放时落到盘内 */
 .tonearm {
   position: absolute;
-  left: 396rpx;
-  top: -73rpx;
+  left: 402rpx;
+  top: -71rpx;
   width: 216rpx;
   height: 565rpx;
   z-index: 5;
   pointer-events: none;
-  transform-origin: 80% 20%;
+  /* 旋钮圆心实测在素材 (77.49%, 19.74%) 处，即 (569, 40)，与轴座底圆同心 */
+  transform-origin: 167.4rpx 111.5rpx;
   transform: rotate(-14deg);
   transition: transform 0.9s cubic-bezier(0.34, 0.1, 0.27, 1);
 }

@@ -2,12 +2,13 @@
 <view
   wx:if="{{!hidden && miniActive}}"
   class="mini-player {{miniPlaying ? 'mini-player-playing' : ''}}"
-  style="bottom: calc(87rpx + {{safeAreaBottom}}px);"
+  style="bottom: calc(87rpx + {{safeAreaBottom}}px); --mini-shadow: {{miniShadow}};"
   bindtap="openListen"
 >
   <view class="mini-bg" aria-hidden="true">
     <image class="mini-bg-img" src="{{miniCover}}" mode="aspectFill" />
     <view wx:if="{{miniBg}}" class="mini-bg-color" style="background: {{miniBg}};"></view>
+    <view class="mini-bg-glow"></view>
     <view class="mini-bg-shade"></view>
   </view>
   <view class="mini-progress-track">

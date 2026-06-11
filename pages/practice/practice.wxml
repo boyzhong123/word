@@ -1,4 +1,5 @@
 <import src="../../template/templates.wxml"></import>
+<wxs src="../practice-progress.wxs" module="practiceProgress"></wxs>
 <view class="container" wx:if="{{!loading}}">
   <view class="{{isWordNewMode ? 'wn-bg' : 'practice-bg'}}"></view>
   <view class="practice-nav">
@@ -7,13 +8,10 @@
         <view class="nav-title">{{navTitle}}</view>
       </view>
     </navigation>
-    <view class="practice-top-progress">
-      <view class="practice-top-progress-fill" style="width: {{practiceProgressWidth}};"></view>
-    </view>
-  </view>
-  <view wx:if="{{wordToast.visible}}" class="wn-toast">
-    <image class="wn-toast-image" src="{{wordToast.image}}" mode="aspectFit" />
-    <text class="wn-toast-title">{{wordToast.title}}</text>
+    <view
+      class="practice-top-progress"
+      style="{{practiceProgress.getTrackStyle(current, wordTotal)}}"
+    ></view>
   </view>
   <block wx:if="{{isWordNewMode}}">
     <wxs src="/pages/paint.wxs" module="paintHandler"></wxs>
@@ -32,12 +30,16 @@
                       <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
                       <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
                     </view>
+                    <view wx:if="{{item.wordHint && !item.revealed}}" class="wn-jelly-hint wn-jelly-hint-{{item.wordHint}} wn-jelly-hint-pop">
+                      <image class="wn-jelly-hint-img" src="../../images/word-new/toast-{{item.wordHint}}.png" mode="aspectFit" />
+                      <text class="wn-jelly-hint-label">{{item.wordHintLabel}}</text>
+                    </view>
                   </view>
                   <view class="wn-ipa-row">
                     <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
                       <view class="wn-pron-pill">
                         <text class="wn-lang">{{pron.label}}</text>
-                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small.png" mode="aspectFit" />
+                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
                       </view>
                       <text class="wn-ipa">/{{pron.symbol}}/</text>
                     </view>
@@ -47,11 +49,15 @@
                     <view class="wn-bar wn-bar-2"></view>
                   </view>
                   <view class="wn-card wn-example" wx:if="{{item.proverb && item.proverb.length}}">
-                    <view class="wn-ex-en {{item.hinted ? 'wn-ex-en-with-speaker' : ''}}">
-                      <image wx:if="{{item.hinted}}" class="wn-ex-spk" src="../../images/audio_small.png" mode="aspectFit" catchtap="showHint" />
-                      <text class="wn-ex-text"><text wx:for="{{paintHandler.markWord(item.proverb[0].label ? item.proverb[0].label : item.proverb[0].content, item.word.content, item.word.exchange)}}" wx:for-item="seg" wx:for-index="sIndex" wx:key="sIndex" class="{{seg.bold ? 'wn-ex-bold' : ''}}">{{seg.value}}</text></text>
+                    <view class="wn-ex-block">
+                      <view class="wn-ex-en {{item.hinted ? 'wn-ex-en-with-speaker' : ''}}">
+                        <view wx:if="{{item.hinted}}" class="wn-ex-spk" catchtap="showHint">
+                          <image class="wn-ex-spk-img {{playingSrc && playingSrc == item.proverb[0].audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small_hint.png" mode="aspectFit" />
+                        </view>
+                        <text class="wn-ex-text"><text wx:for="{{paintHandler.markWord(item.proverb[0].label ? item.proverb[0].label : item.proverb[0].content, item.word.content, item.word.exchange)}}" wx:for-item="seg" wx:for-index="sIndex" wx:key="sIndex" class="{{seg.bold ? 'wn-ex-bold' : ''}}">{{seg.value}}</text></text>
+                      </view>
+                      <view wx:if="{{item.hinted}}" class="wn-ex-cn">{{item.proverb[0].translation}}</view>
                     </view>
-                    <view wx:if="{{item.hinted}}" class="wn-ex-cn wn-ex-cn-with-speaker">{{item.proverb[0].translation}}</view>
                   </view>
                   <view class="wn-hint" catchtap="showHint">
                     <view class="wn-hint-btn">
@@ -84,12 +90,16 @@
                       <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
                       <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
                     </view>
+                    <view wx:if="{{item.wordHint && item.revealed}}" class="wn-jelly-hint wn-jelly-hint-{{item.wordHint}} wn-jelly-hint-pop">
+                      <image class="wn-jelly-hint-img" src="../../images/word-new/toast-{{item.wordHint}}.png" mode="aspectFit" />
+                      <text class="wn-jelly-hint-label">{{item.wordHintLabel}}</text>
+                    </view>
                   </view>
                   <view class="wn-ipa-row">
                     <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
                       <view class="wn-pron-pill">
                         <text class="wn-lang">{{pron.label}}</text>
-                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small.png" mode="aspectFit" />
+                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
                       </view>
                       <text class="wn-ipa">/{{pron.symbol}}/</text>
                     </view>
@@ -109,11 +119,15 @@
                 </view>
 
                 <view class="wn-card wn-example wn-detail-example" wx:if="{{item.proverb && item.proverb.length}}">
-                  <view class="wn-ex-en wn-ex-en-with-speaker">
-                    <image class="wn-ex-spk {{playingSrc && playingSrc == item.proverb[0].audio ? 'wn-ex-spk-playing' : ''}}" src="../../images/audio_small.png" mode="aspectFit" catchtap="playWordAudio" data-src="{{item.proverb[0].audio}}" />
-                    <text class="wn-ex-text"><text wx:for="{{paintHandler.markWord(item.proverb[0].label ? item.proverb[0].label : item.proverb[0].content, item.word.content, item.word.exchange)}}" wx:for-item="seg" wx:for-index="sIndex" wx:key="sIndex" class="{{seg.bold ? 'wn-ex-bold' : ''}}">{{seg.value}}</text></text>
+                  <view class="wn-ex-block">
+                    <view class="wn-ex-en wn-ex-en-with-speaker">
+                      <view class="wn-ex-spk" catchtap="playWordAudio" data-src="{{item.proverb[0].audio}}">
+                        <image class="wn-ex-spk-img {{playingSrc && playingSrc == item.proverb[0].audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small_hint.png" mode="aspectFit" />
+                      </view>
+                      <text class="wn-ex-text"><text wx:for="{{paintHandler.markWord(item.proverb[0].label ? item.proverb[0].label : item.proverb[0].content, item.word.content, item.word.exchange)}}" wx:for-item="seg" wx:for-index="sIndex" wx:key="sIndex" class="{{seg.bold ? 'wn-ex-bold' : ''}}">{{seg.value}}</text></text>
+                    </view>
+                    <view class="wn-ex-cn">{{item.proverb[0].translation}}</view>
                   </view>
-                  <view class="wn-ex-cn wn-ex-cn-with-speaker">{{item.proverb[0].translation}}</view>
                 </view>
 
                 <view class="wn-card wn-info-panel" wx:if="{{item.word.detailNavItems && item.word.detailNavItems.length}}">

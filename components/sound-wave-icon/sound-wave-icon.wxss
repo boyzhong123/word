@@ -1,0 +1,33 @@
+.sound-wave-icon {
+  flex: none;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-position: 100% center;
+  background-size: 300% 100%;
+}
+
+.sound-wave-icon-dark {
+  background-image: url("../../images/word-new/sound-wave-dark-sprite.png");
+}
+
+.sound-wave-icon-light {
+  background-image: url("../../images/word-new/sound-wave-light-sprite.png");
+}
+
+.sound-wave-icon-example {
+  background-image: url("../../images/word-new/sound-wave-light-lg-sprite.png");
+}
+
+.sound-wave-icon-playing {
+  animation: sound-wave-play 0.72s steps(3) infinite;
+}
+
+@keyframes sound-wave-play {
+  from {
+    background-position: 0% center;
+  }
+
+  to {
+    background-position: 100% center;
+  }
+}

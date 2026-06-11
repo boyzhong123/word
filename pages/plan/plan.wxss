@@ -121,8 +121,13 @@ page {
   font-size: 46rpx;
   font-weight: 600;
   color: #111318;
-  background: #e8f1fe;
+  background: #eef0f3;
   border-radius: 50%;
+}
+
+.stepper-hover {
+  background: #d6e6fc;
+  transform: scale(0.94);
 }
 
 .stepper-off {
@@ -160,18 +165,6 @@ page {
   font-weight: 600;
 }
 
-.daily-slider {
-  margin: 28rpx 8rpx 0;
-}
-
-.slider-scale {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 8rpx;
-  font-size: 20rpx;
-  color: #aaaaaa;
-}
-
 /* 预设 */
 .presets {
   margin-top: 26rpx;
@@ -181,11 +174,16 @@ page {
 
 .preset {
   flex: 1;
-  padding: 14rpx 0;
+  padding: 18rpx 0;
   text-align: center;
   background: #fafafa;
   border: 1rpx solid #eeeeee;
   border-radius: 18rpx;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.preset-hover {
+  background: #eef1f5;
 }
 
 .preset-active {
@@ -398,4 +396,14 @@ page {
   background: #111318;
   border-radius: 999rpx;
   box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.18);
+}
+
+.save-btn-hover {
+  opacity: 0.85;
+  transform: scale(0.99);
+}
+
+.save-btn-disabled {
+  opacity: 0.55;
+  box-shadow: none;
 }

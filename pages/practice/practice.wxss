@@ -1,5 +1,10 @@
 @import '/template/template.wxss';
 @import "./practice.skeleton.wxss";
+page,
+.container {
+  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
+}
+
 .title {
   text-align: center;
   font-size: 28rpx;
@@ -169,16 +174,7 @@
   z-index: 2;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.36);
-}
-
-.practice-top-progress-fill {
-  display: block;
-  width: 0;
-  max-width: 100%;
-  height: 100%;
-  border-radius: 0 8rpx 8rpx 0;
-  background: #111318;
-  transition: width 0.25s ease;
+  transition: background 0.25s ease;
 }
 
 /* ===================== 单词新学：认识不 + 详情页 ===================== */
@@ -191,7 +187,7 @@
   right: 0;
   bottom: 0;
   z-index: 0;
-  background: linear-gradient(180deg, #ece6f0 0%, #e0e1f5 26%, #bad2f8 52%, #85bbf8 76%, #5fa9f7 100%);
+  background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
 }
 
 .practice-swiper,
@@ -207,56 +203,18 @@
   background: transparent;
 }
 
-.wn-toast {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  z-index: 200;
-  transform: translate(-50%, -50%);
-  box-sizing: border-box;
-  min-width: 220rpx;
-  max-width: 480rpx;
-  min-height: 72rpx;
-  padding: 10rpx 24rpx 10rpx 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-  pointer-events: none;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1rpx solid rgba(255, 255, 255, 0.78);
-  border-radius: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(70, 96, 146, 0.12);
-  backdrop-filter: blur(14rpx);
-}
-
-.wn-toast-image {
-  flex: none;
-  width: 46rpx;
-  height: 46rpx;
-  border-radius: 14rpx;
-}
-
-.wn-toast-title {
-  font-size: 26rpx;
-  line-height: 1.25;
-  font-weight: 600;
-  color: #24312d;
-  white-space: nowrap;
-}
-
 /* 顶部单词 + 音标 */
 .wn-head {
   display: flex;
   align-items: center;
-  gap: 14rpx;
+  gap: 12rpx;
 }
 
 .wn-word {
-  font-size: 72rpx;
+  font-size: 70rpx;
   line-height: 1;
   font-weight: 800;
-  color: #1a2421;
+  color: #111318;
   letter-spacing: 0.5rpx;
 }
 
@@ -280,97 +238,188 @@
   background: #4dd9a0;
 }
 
+.wn-jelly-hint {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+  margin-left: 4rpx;
+  transform-origin: left center;
+}
+
+.wn-jelly-hint-img {
+  width: 64rpx;
+  height: 64rpx;
+  display: block;
+  flex: none;
+}
+
+.wn-jelly-hint-label {
+  font-size: 22rpx;
+  line-height: 1.2;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.wn-jelly-hint-known .wn-jelly-hint-label {
+  color: rgba(42, 138, 104, 0.88);
+}
+
+.wn-jelly-hint-unknown .wn-jelly-hint-label {
+  color: rgba(74, 110, 168, 0.88);
+}
+
+.wn-jelly-hint-mistaken .wn-jelly-hint-label {
+  color: rgba(200, 90, 52, 0.88);
+}
+
+.wn-jelly-hint-pop {
+  animation: wn-jelly-hint-life 2s cubic-bezier(0.22, 1.18, 0.36, 1) forwards;
+}
+
+@keyframes wn-jelly-hint-life {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) translateX(-16rpx);
+  }
+  24% {
+    opacity: 1;
+    transform: scale(1.1) translateX(4rpx);
+  }
+  34% {
+    transform: scale(0.96) translateX(-2rpx);
+  }
+  42% {
+    transform: scale(1.03) translateX(1rpx);
+  }
+  48% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+  82% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92) translateX(0);
+  }
+}
+
 .wn-ipa-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 18rpx;
-  margin-top: 32rpx;
+  gap: 16rpx;
+  margin-top: 30rpx;
 }
 
 .wn-pron {
   display: flex;
   align-items: center;
-  gap: 14rpx;
-  opacity: 0.48;
+  gap: 12rpx;
 }
 
-.wn-pron-active {
-  opacity: 1;
-}
-
-/* 截图样式：白色小药丸只包“英 + 喇叭”，音标在药丸外 */
+/* 英/美音：药丸只包“英/美 + 喇叭”，音标在药丸外 */
 .wn-pron-pill {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8rpx;
-  padding: 8rpx 18rpx;
-  background: rgba(255, 255, 255, 0.85);
+  height: 54rpx;
+  min-width: 88rpx;
+  padding: 0 16rpx;
+  box-sizing: border-box;
   border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 2rpx 8rpx rgba(120, 140, 180, 0.05);
+}
+
+.wn-pron-active .wn-pron-pill {
+  background: #4b4c5a;
+  box-shadow: none;
 }
 
 .wn-lang {
-  font-size: 26rpx;
+  font-size: 25rpx;
   font-weight: 600;
-  color: #545b62;
+  color: rgba(49, 56, 68, 0.62);
+}
+
+.wn-pron-active .wn-lang {
+  color: #f7f8fa;
 }
 
 .wn-spk {
-  width: 34rpx;
-  height: 34rpx;
-  padding: 4rpx;
-  filter: brightness(0) opacity(0.58);
+  flex: none;
+  width: 28rpx;
+  height: 22rpx;
+  display: block;
+  opacity: 0.82;
 }
 
-.wn-spk-playing,
-.wn-ex-spk-playing {
-  animation: wn-spk-pulse 0.7s ease-in-out infinite;
+.wn-pron-active .wn-spk {
+  opacity: 0.96;
+}
+
+.wn-spk-playing {
+  animation: wn-spk-pulse 0.58s ease-in-out infinite;
 }
 
 @keyframes wn-spk-pulse {
   0%,
   100% {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0.58;
+    transform: scale(0.92);
   }
+
   50% {
-    opacity: 0.5;
-    transform: scale(0.82);
+    opacity: 1;
+    transform: scale(1.08);
   }
 }
 
 .wn-ipa {
   font-size: 32rpx;
-  font-weight: 500;
-  color: #5b6470;
+  font-weight: 400;
+  color: rgba(46, 52, 62, 0.44);
+}
+
+.wn-pron-active .wn-ipa {
+  color: rgba(46, 52, 62, 0.62);
 }
 
 /* 释义被遮挡的占位条 */
 .wn-bars {
-  margin-top: 36rpx;
+  margin-top: 32rpx;
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 18rpx;
 }
 
 .wn-bar {
-  height: 48rpx;
+  height: 46rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.34);
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.2), 0 8rpx 24rpx rgba(185, 196, 238, 0.08);
+  backdrop-filter: blur(18rpx);
 }
 
 .wn-bar-1 {
-  width: 44%;
+  width: 42%;
 }
 
 .wn-bar-2 {
-  width: 35%;
+  width: 34%;
 }
 
 /* 通用卡片（淡蓝白底） */
 .wn-card {
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.52);
+  border: 1rpx solid rgba(255, 255, 255, 0.4);
   border-radius: 40rpx;
   box-shadow: 0 10rpx 32rpx rgba(100, 140, 220, 0.1);
 }
@@ -378,15 +427,23 @@
 /* 例句卡片 */
 .wn-example {
   position: relative;
-  margin-top: 56rpx;
+  margin-top: 64rpx;
   padding: 44rpx 40rpx;
-  min-height: 300rpx;
+  min-height: 292rpx;
+  text-align: left;
+}
+
+.wn-ex-block {
+  width: 100%;
+  text-align: left;
 }
 
 .wn-ex-en {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  width: 100%;
+  text-align: left;
 }
 
 .wn-ex-en-with-speaker {
@@ -395,45 +452,51 @@
 
 .wn-ex-spk {
   flex: none;
-  width: 34rpx;
-  height: 34rpx;
-  margin-top: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42rpx;
+  height: 36rpx;
+  margin-top: 6rpx;
   margin-right: 12rpx;
-  opacity: 1;
-  filter: brightness(0.62) saturate(1.12);
+}
+
+.wn-ex-spk-img {
+  width: 38rpx;
+  height: 29rpx;
+  display: block;
+  opacity: 0.78;
 }
 
 .wn-ex-text {
   flex: 1;
+  min-width: 0;
   text-align: left;
-  font-size: 36rpx;
+  font-size: 34rpx;
   line-height: 1.55;
   font-weight: 400;
-  color: #353e4a;
+  color: #151923;
 }
 
 .wn-ex-bold {
-  font-weight: 900;
-  color: #141b24;
+  font-weight: 800;
+  color: #111318;
 }
 
 .wn-ex-cn {
   margin-top: 14rpx;
+  padding-left: 54rpx;
   font-size: 32rpx;
   line-height: 1.5;
   text-align: left;
   color: #46505c;
 }
 
-.wn-ex-cn-with-speaker {
-  margin-left: 46rpx;
-}
-
 /* 提示一下 */
 .wn-hint {
   margin-top: auto;
   padding-top: 60rpx;
-  padding-bottom: 150rpx;
+  padding-bottom: 126rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -451,8 +514,8 @@
 }
 
 .wn-hint-icon {
-  width: 58rpx;
-  height: 58rpx;
+  width: 66rpx;
+  height: 66rpx;
   display: block;
 }
 
@@ -475,13 +538,14 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 30rpx 50rpx 0;
+  padding: 42rpx 54rpx 0;
   overflow: hidden;
 }
 
 .wn-quiz-foot {
   flex: none;
   display: flex;
+  padding-top: 10rpx;
 }
 
 .wn-foot-col {
@@ -494,7 +558,7 @@
 
 .wn-foot-text {
   font-size: 36rpx;
-  font-weight: 600;
+  font-weight: 400;
   color: #1f2730;
 }
 
@@ -517,11 +581,11 @@
 .word-new-scroll {
   height: 100%;
   box-sizing: border-box;
-  padding: 30rpx 50rpx 0;
+  padding: 42rpx 54rpx 0;
 }
 
 .wn-detail-head {
-  padding-top: 14rpx;
+  padding-top: 0;
 }
 
 /* 释义 */
@@ -823,7 +887,7 @@
 
 .wn-next {
   font-size: 32rpx;
-  font-weight: 700;
+  font-weight: 400;
   color: #111318;
 }
 

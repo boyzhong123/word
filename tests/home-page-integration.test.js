@@ -139,9 +139,9 @@ test('today locate scroll centers the target card in the scroll viewport', () =>
 })
 
 test('unit cards keep their height but balance the inner whitespace', () => {
-  assert.match(homeStyle, /\.unit-card\s*{[^}]*height:\s*232rpx/s)
+  assert.match(homeStyle, /\.unit-card\s*{[^}]*height:\s*244rpx/s)
   assert.match(homeStyle, /\.unit-card\s*{[^}]*padding:\s*20rpx 19rpx;/s)
-  assert.match(homeStyle, /\.unit-top\s*{[^}]*height:\s*92rpx/s)
+  assert.match(homeStyle, /\.unit-top\s*{[^}]*height:\s*104rpx/s)
   assert.match(homeStyle, /\.task-card\s*{[^}]*height:\s*100rpx/s)
 })
 

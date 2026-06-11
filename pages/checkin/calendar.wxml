@@ -4,7 +4,7 @@
     style="height: {{navBarHeightPx}}px; padding-top: {{statusBarHeight}}px;"
   >
     <view class="nav-btn" bindtap="back">
-      <image class="nav-action-icon" src="../../images/icon_back_deep.svg" mode="heightFix" />
+      <image class="nav-action-icon" src="../../images/icon_back_deep.svg" mode="aspectFit" />
     </view>
     <view class="nav-actions" style="right: {{navActionsRight}}px;">
       <image class="help-icon" src="../../images/checkin/help-jelly.png" mode="aspectFit" bindtap="openRulesDialog" />

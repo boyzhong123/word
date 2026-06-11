@@ -291,8 +291,8 @@ page {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 8rpx;
+  justify-content: center;
+  gap: 4rpx;
   border-radius: 14rpx;
   overflow: hidden;
 }
@@ -334,10 +334,11 @@ page {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   gap: 2rpx;
   overflow: hidden;
+  text-align: center;
 }
 
 .metric-streak {
@@ -388,6 +389,7 @@ page {
   line-height: 28rpx;
   font-weight: 700;
   white-space: nowrap;
+  text-align: center;
 }
 
 .metric-number text {
@@ -404,6 +406,7 @@ page {
   line-height: 18rpx;
   color: #6b7280;
   white-space: nowrap;
+  text-align: center;
 }
 
 .learning-section {
@@ -535,7 +538,7 @@ page {
 }
 
 .unit-card {
-  height: 232rpx;
+  height: 244rpx;
   margin-top: 12rpx;
   padding: 20rpx 19rpx;
   box-sizing: border-box;
@@ -656,7 +659,7 @@ page {
 .unit-top {
   position: relative;
   z-index: 2;
-  height: 92rpx;
+  height: 104rpx;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -765,22 +768,22 @@ page {
 .unit-card-monster {
   position: absolute;
   z-index: 1;
-  top: -30rpx;
-  right: 6rpx;
+  top: -24rpx;
+  right: -6rpx;
   width: 166rpx;
   height: 166rpx;
-  transform: scale(0.82);
+  transform: scale(0.84);
   transform-origin: top right;
   pointer-events: none;
 }
 
 .unit-card-monster-fighting {
-  top: -24rpx;
-  right: 2rpx;
+  top: -16rpx;
+  right: -10rpx;
   z-index: 3;
   width: 148rpx;
   height: 84rpx;
-  transform: scale(1.45);
+  transform: scale(1.48);
   transform-origin: top right;
 }
 

@@ -18,16 +18,22 @@ test('report page keeps the mint hero card with mascot, stars, and metrics', () 
   assert.match(reportTemplate, /已掌握的词/)
 })
 
-test('report page uses the jelly report pill icon and task png icons', () => {
+test('report page uses the jelly report pill icon and home active task svg icons', () => {
   assert.match(reportTemplate, /icon-report-pill\.png/)
-  assert.match(reportScript, /task-word\.png/)
-  assert.match(reportScript, /task-recitation\.png/)
-  assert.match(reportScript, /task-listening\.png/)
+  assert.match(reportScript, /task-word-active\.svg/)
+  assert.match(reportScript, /task-recitation-active\.svg/)
+  assert.match(reportScript, /task-listening-active\.svg/)
 })
 
-test('report page bottom actions use the green primary and outlined ghost styles', () => {
+test('report page bottom actions use black primary and light secondary pill styles', () => {
   assert.match(reportTemplate, /再练错词/)
   assert.match(reportTemplate, /返回学习/)
-  assert.match(reportStyle, /\.action-btn-primary\s*{[^}]*background:\s*#22c55e/s)
-  assert.match(reportStyle, /\.action-btn-ghost\s*{[^}]*border:\s*2rpx solid #22c55e/s)
+  assert.match(reportStyle, /\.action-btn-primary\s*{[^}]*background:\s*#111318/s)
+  assert.match(reportStyle, /\.action-btn\s*{[^}]*border-radius:\s*999rpx/s)
+})
+
+test('report page mastered words use svg check badge instead of text tick', () => {
+  assert.match(reportTemplate, /icon-word-mastered\.svg/)
+  assert.doesNotMatch(reportTemplate, /status-ok">✓<\/view>/)
+  assert.doesNotMatch(reportStyle, /\.status-ok::after/)
 })

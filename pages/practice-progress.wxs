@@ -1,0 +1,22 @@
+function toNumber(value) {
+  return +value || 0
+}
+
+function getPercent(current, total) {
+  total = toNumber(total)
+  current = toNumber(current)
+  if (total <= 0) {
+    return 0
+  }
+  return Math.round((current + 1) / total * 100)
+}
+
+function getTrackStyle(current, total) {
+  var percent = getPercent(current, total)
+  return 'background:linear-gradient(to right, #111318 ' + percent + '%, rgba(255,255,255,0.36) ' + percent + '%);'
+}
+
+module.exports = {
+  getPercent: getPercent,
+  getTrackStyle: getTrackStyle
+}
