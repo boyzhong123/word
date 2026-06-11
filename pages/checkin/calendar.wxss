@@ -23,10 +23,12 @@ page {
 }
 
 .nav-btn {
-  margin-left: 35rpx;
+  margin-left: 8rpx;
   margin-bottom: 10rpx;
-  width: 56rpx;
-  height: 70rpx;
+  min-width: 64rpx;
+  height: 64rpx;
+  padding: 0 8rpx;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;

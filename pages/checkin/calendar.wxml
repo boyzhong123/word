@@ -7,7 +7,7 @@
       <image class="nav-action-icon" src="../../images/icon_back_deep.svg" mode="heightFix" />
     </view>
     <view class="nav-actions" style="right: {{navActionsRight}}px;">
-      <image class="help-icon" src="../../images/checkin/help.svg" mode="aspectFit" bindtap="openRulesDialog" />
+      <image class="help-icon" src="../../images/checkin/help-jelly.png" mode="aspectFit" bindtap="openRulesDialog" />
       <image
         class="gift-icon {{giftUnlocked ? 'gift-icon-active' : 'gift-icon-locked'}}"
         src="../../images/checkin/gift-jelly.png"
