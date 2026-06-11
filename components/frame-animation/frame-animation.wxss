@@ -1,28 +1,4 @@
 .frame {
   display: inline-block;
-  width: var(--width);
-  height: var(--height);
-  background-position: 0 0;
-  background-repeat: no-repeat;
-  background-size: calc(var(--width) * var(--count)) var(--height);
-  animation-play-state: var(--state);
-}
-
-@keyframes frames {
-  from {
-    background-position-x: 0;
-  }
-
-  to {
-    background-position-x: calc(var(--width) * var(--count) * -1);
-  }
-}
-
-.running {
-  animation: frames calc(var(--duration) * 1s) steps(var(--count)) var(--playNumber) infinite;
-}
-
-.paused {
-  animation: none;
-  background-position: 0 0;
+  pointer-events: none;
 }

@@ -30,7 +30,7 @@
 }
 
 .bottom-nav-active {
-  color: #2f80ed;
+  color: #111318;
 }
 
 /* ----------------------------- 迷你播放器 ----------------------------- */
@@ -261,12 +261,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
 }
 
 .mini-close:active {
-  background: rgba(255, 255, 255, 0.32);
+  opacity: 0.6;
 }
 
 .mini-close-icon {

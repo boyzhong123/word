@@ -8,46 +8,34 @@ page {
   position: relative;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: #fffdf8;
   font-family: PingFang SC, PingFangSC-Regular, sans-serif;
 }
 
-/* 导航 */
-.nav {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: content-box;
-}
-
-.nav-btn {
+.plan-nav-title-wrap {
   position: absolute;
-  left: 18rpx;
-  bottom: 0;
+  left: 0;
+  right: 0;
   top: 0;
-  width: 64rpx;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
-.nav-icon {
-  height: 32rpx;
-}
-
-.nav-title {
+.plan-nav-title {
   font-size: 32rpx;
   font-weight: 700;
+  color: #101010;
 }
 
 /* 滚动区 */
 .plan-scroll {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex: 1;
+  min-height: 0;
   padding: 0 29rpx;
   box-sizing: border-box;
 }
@@ -91,14 +79,14 @@ page {
 }
 
 .book-total .hl {
-  color: #2f80ed;
+  color: #111318;
   font-weight: 700;
 }
 
 .book-tip {
   margin-top: 12rpx;
   font-size: 21rpx;
-  color: #2f80ed;
+  color: #111318;
 }
 
 /* 通用区块 */
@@ -132,7 +120,7 @@ page {
   justify-content: center;
   font-size: 46rpx;
   font-weight: 600;
-  color: #2f80ed;
+  color: #111318;
   background: #e8f1fe;
   border-radius: 50%;
 }
@@ -168,7 +156,7 @@ page {
 }
 
 .daily-hint .hl {
-  color: #2f80ed;
+  color: #111318;
   font-weight: 600;
 }
 
@@ -201,8 +189,8 @@ page {
 }
 
 .preset-active {
-  background: linear-gradient(180deg, #e8f1fe, #d4e6fd);
-  border-color: #5aa7ff;
+  background: linear-gradient(180deg, #f2f3f5, #e6e8ec);
+  border-color: #111318;
 }
 
 .preset-label {
@@ -212,7 +200,7 @@ page {
 }
 
 .preset-active .preset-label {
-  color: #2f80ed;
+  color: #111318;
 }
 
 .preset-value {
@@ -222,7 +210,7 @@ page {
 }
 
 .preset-active .preset-value {
-  color: #5a8fd8;
+  color: #111318;
 }
 
 /* 结果卡片 */
@@ -231,10 +219,10 @@ page {
   padding: 30rpx 0;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #ffffff, #eef5ff);
-  border: 1rpx solid #d4e6fd;
+  background: linear-gradient(135deg, #ffffff, #f4f5f7);
+  border: 1rpx solid #e2e4e8;
   border-radius: 27rpx;
-  box-shadow: 0 8rpx 18rpx rgba(47, 128, 237, 0.08);
+  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.06);
 }
 
 .result-item {
@@ -246,7 +234,7 @@ page {
   font-size: 50rpx;
   line-height: 56rpx;
   font-weight: 800;
-  color: #2f80ed;
+  color: #111318;
 }
 
 .result-label {
@@ -283,7 +271,7 @@ page {
   font-size: 25rpx;
   font-weight: 600;
   color: #ffffff;
-  background: linear-gradient(180deg, #5aa7ff, #2f80ed);
+  background: #111318;
   border-radius: 50%;
 }
 
@@ -308,7 +296,7 @@ page {
   flex: none;
   font-size: 23rpx;
   font-weight: 500;
-  color: #2f80ed;
+  color: #111318;
 }
 
 .level-more {
@@ -324,10 +312,7 @@ page {
 
 /* 底部保存 */
 .footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex-shrink: 0;
   padding: 16rpx 29rpx 16rpx;
   background: rgba(255, 253, 248, 0.96);
   box-shadow: 0 -6rpx 16rpx rgba(115, 91, 45, 0.06);
@@ -341,7 +326,7 @@ page {
   font-size: 30rpx;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(180deg, #5aa7ff, #2f80ed);
-  border-radius: 46rpx;
-  box-shadow: 0 8rpx 16rpx rgba(47, 128, 237, 0.28);
+  background: #111318;
+  border-radius: 999rpx;
+  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.18);
 }

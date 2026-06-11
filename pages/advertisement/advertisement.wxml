@@ -4,3 +4,142 @@
   </navigation>
 
   <scroll-view scroll-y="{{true}}" class="content" style="height: {{scrollHeight}}px;">
+    <!-- 教材信息 -->
+    <view class="hero">
+      <image class="book-cover" src="{{bookCover}}" mode="aspectFill" />
+      <view class="book-detail">
+        <text class="book-name">{{name}}</text>
+        <view class="press-row" wx:if="{{press}}">
+          <image class="press-icon" src="/images/home/icon-book-picker.svg" mode="aspectFit" />
+          <text class="press-name">{{press}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 数据统计 -->
+    <view class="stats">
+      <view class="stat">
+        <text class="stat-number">{{wordCount}}</text>
+        <text class="stat-unit">个</text>
+        <text class="stat-label">单词</text>
+      </view>
+      <view class="stat">
+        <text class="stat-number">{{proverbCount}}</text>
+        <text class="stat-unit">条</text>
+        <text class="stat-label">谚语</text>
+      </view>
+      <view class="stat">
+        <text class="stat-number">{{total}}</text>
+        <text class="stat-unit">期</text>
+        <text class="stat-label">学习单元</text>
+      </view>
+    </view>
+
+    <!-- 简介 -->
+    <view class="intro-card" wx:if="{{intro}}">{{intro}}</view>
+
+    <!-- 你将学到 -->
+    <view class="section">
+      <view class="section-title">
+        <view class="title-mark"></view>
+        <text>你将学到</text>
+        <view class="title-line"></view>
+      </view>
+      <view class="learning-grid">
+        <view class="learning-item">
+          <view class="learning-badge">单词</view>
+          <text class="learning-title">核心词汇</text>
+          <text class="learning-copy">发音·释义·例句</text>
+        </view>
+        <view class="learning-item">
+          <view class="learning-badge">谚语</view>
+          <text class="learning-title">经典谚语</text>
+          <text class="learning-copy">地道表达积累</text>
+        </view>
+        <view class="learning-item">
+          <view class="learning-badge">朗读</view>
+          <text class="learning-title">跟读评分</text>
+          <text class="learning-copy">智能纠音</text>
+        </view>
+        <view class="learning-item">
+          <view class="learning-badge">复习</view>
+          <text class="learning-title">科学复习</text>
+          <text class="learning-copy">对抗遗忘</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 功能特色 -->
+    <view class="section">
+      <view class="section-title">
+        <view class="title-mark"></view>
+        <text>功能特色</text>
+        <view class="title-line"></view>
+      </view>
+      <view class="feature-list">
+        <view class="feature-item">
+          <view class="feature-number">1</view>
+          <view class="feature-content">
+            <text class="feature-title">智能记忆曲线</text>
+            <text class="feature-copy">按遗忘规律安排每日复习，记得更牢。</text>
+          </view>
+        </view>
+        <view class="feature-item">
+          <view class="feature-number">2</view>
+          <view class="feature-content">
+            <text class="feature-title">朗读评分</text>
+            <text class="feature-copy">逐词打分，发音问题即时反馈。</text>
+          </view>
+        </view>
+        <view class="feature-item">
+          <view class="feature-number">3</view>
+          <view class="feature-content">
+            <text class="feature-title">打卡激励</text>
+            <text class="feature-copy">连续打卡养成习惯，进度看得见。</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 学习流程 -->
+    <view class="section">
+      <view class="section-title">
+        <view class="title-mark"></view>
+        <text>学习流程</text>
+        <view class="title-line"></view>
+      </view>
+      <view class="steps">
+        <view class="step">
+          <view class="step-number">1</view>
+          <text class="step-title">学新词</text>
+          <text class="step-copy">音形义</text>
+        </view>
+        <view class="step-arrow">›</view>
+        <view class="step">
+          <view class="step-number">2</view>
+          <text class="step-title">跟读</text>
+          <text class="step-copy">练发音</text>
+        </view>
+        <view class="step-arrow">›</view>
+        <view class="step">
+          <view class="step-number">3</view>
+          <text class="step-title">测验</text>
+          <text class="step-copy">查掌握</text>
+        </view>
+        <view class="step-arrow">›</view>
+        <view class="step">
+          <view class="step-number">4</view>
+          <text class="step-title">复习</text>
+          <text class="step-copy">巩固</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部安全占位，避免被固定购买栏遮挡 -->
+    <view style="height: {{actionHeight}}px;"></view>
+  </scroll-view>
+
+  <view class="purchase-bar" style="padding-bottom: {{safeAreaBottom}}px;">
+    <view class="purchase-button" bindtap="goVip">立即开通</view>
+  </view>
+</view>

@@ -83,8 +83,5 @@ module.exports = {
       res[i] = { value: (i > 0 ? ' ' : '') + cleanTok, bold: bold }
     })
     return res
-  },
-  getNodes: function (text, detail, word) {
-    var array = []
-    var beginindex = 0
-    if (detail) {
+  }
+}

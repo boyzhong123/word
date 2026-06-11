@@ -33,7 +33,7 @@
     <view class="mini-btn" catchtap="toggleMiniPlay">
       <image
         class="mini-btn-icon"
-        src="{{miniPlaying ? '/images/listen/pause-white.svg' : '/images/listen/play-white.svg'}}"
+        src="{{miniPlaying ? '/images/listen/pause-dark.svg' : '/images/listen/play-dark.svg'}}"
         mode="aspectFit"
       />
     </view>

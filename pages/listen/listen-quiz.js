@@ -1,4 +1,6 @@
 const WORD_PATTERN = /[A-Za-z]+(?:['’-][A-Za-z]+)?/g
+const MARKER_PATTERN = /\((?:s:1,t:1,g:1|s:1,t:1|g:1,s:1|s:1|t:1|g:1)\)|(?:s:1,t:1,g:1|s:1,t:1|g:1,s:1|s:1|t:1|g:1)/g
+const ENGLISH_PATTERN = /[A-Za-z]/
 
 const STOP_WORDS = {
   a: true,
@@ -43,6 +45,35 @@ function normalizeWord(word) {
     .replace(/s$/, '')
 }
 
+function stripSentenceMarkers(sentence) {
+  return String(sentence || '')
+    .replace(MARKER_PATTERN, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function hasEnglishText(sentence) {
+  return ENGLISH_PATTERN.test(sentence)
+}
+
+function resolveProverbSentence(proverb) {
+  if (!proverb) {
+    return ''
+  }
+
+  const label = stripSentenceMarkers(proverb.label || '')
+  const content = stripSentenceMarkers(proverb.content || '')
+
+  if (hasEnglishText(label)) {
+    return label
+  }
+  if (hasEnglishText(content)) {
+    return content
+  }
+
+  return label || content
+}
+
 function buildLearningWords(source) {
   const seen = {}
   const words = []
@@ -85,16 +116,13 @@ function getWordMatches(sentence) {
   return matches
 }
 
-function chooseGapMatches(matches, learningWordKeys) {
-  const candidates = matches.filter(match => (
+function getCandidateMatches(sentence, learningWordKeys) {
+  return getWordMatches(sentence).filter(match => (
     match.key &&
     match.text.length > 2 &&
     !STOP_WORDS[match.key] &&
     !learningWordKeys[match.key]
   ))
-  const limit = Math.min(4, candidates.length)
-
-  return candidates.slice(Math.max(candidates.length - limit, 0))
 }
 
 function buildParts(sentence, gapMatches) {
@@ -127,45 +155,102 @@ function buildParts(sentence, gapMatches) {
   return parts
 }
 
-function buildQuestion(sentence, proverb, learningWordKeys) {
-  const matches = getWordMatches(sentence)
-  const gaps = chooseGapMatches(matches, learningWordKeys)
+function normalizeUnitResource(data) {
+  if (Array.isArray(data)) {
+    return data
+  }
+  if (!data || typeof data !== 'object') {
+    return []
+  }
+  if (Array.isArray(data.list)) {
+    return data.list
+  }
+  if (Array.isArray(data.items)) {
+    return data.items
+  }
+  if (Array.isArray(data.words)) {
+    return data.words
+  }
+  return []
+}
 
-  if (!gaps.length) {
+function buildItemLearningWordKeys(item) {
+  const keys = {}
+  const word = item && item.word
+  const content = word && word.content ? String(word.content).trim() : ''
+  const key = normalizeWord(content)
+
+  if (key) {
+    keys[key] = true
+  }
+
+  const exchange = word && word.exchange ? String(word.exchange).trim() : ''
+  const exchangeKey = normalizeWord(exchange)
+  if (exchangeKey) {
+    keys[exchangeKey] = true
+  }
+
+  return keys
+}
+
+function getItemProverbs(item) {
+  if (!item) {
+    return []
+  }
+  if (Array.isArray(item.proverb) && item.proverb.length) {
+    return item.proverb
+  }
+
+  const word = item.word
+  const sentence = word && (word.sentence || word.example || '')
+  const normalized = sentence ? String(sentence).trim() : ''
+  if (!normalized) {
+    return []
+  }
+
+  return [{
+    content: normalized,
+    label: normalized,
+    translation: (word && (word.sentenceCn || word.sentenceTranslation)) || '',
+    audio: (word && (word.sentenceAudio || word.audio)) || ''
+  }]
+}
+
+function buildSourceQuestion(sentence, proverb, item, learningWordKeys) {
+  const matches = getCandidateMatches(sentence, learningWordKeys)
+
+  if (!matches.length) {
     return null
   }
+
+  const word = item && item.word
 
   return {
     sentence,
     translation: proverb.translation || '',
-    audio: proverb.audio || '',
-    parts: buildParts(sentence, gaps),
-    gaps: gaps.map((match, gapIndex) => ({
+    audio: proverb.audio || (word && (word.sentenceAudio || word.audio)) || '',
+    word: word && word.content ? String(word.content).trim() : '',
+    wordId: word && (word.wordId || word.id || word.sort || ''),
+    unitId: item && item.unit && item.unit.unitId ? String(item.unit.unitId) : '',
+    matches,
+    gaps: matches.map((match, gapIndex) => ({
       gapIndex,
       answer: match.text
-    })),
-    options: gaps.map(match => ({
-      text: match.text,
-      used: false
     }))
   }
 }
 
 function buildListeningQuizQuestions(source) {
-  const list = Array.isArray(source) ? source : []
-  const learningWordKeys = {}
-
-  buildLearningWords(list).forEach(word => {
-    learningWordKeys[normalizeWord(word.content)] = true
-  })
+  const list = normalizeUnitResource(source)
 
   return list.reduce((questions, item) => {
-    const proverbs = item && Array.isArray(item.proverb) ? item.proverb : []
+    const learningWordKeys = buildItemLearningWordKeys(item)
 
-    proverbs.forEach(proverb => {
-      const sentence = proverb && (proverb.content || proverb.label)
-      const normalized = sentence ? String(sentence).trim() : ''
-      const question = normalized ? buildQuestion(normalized, proverb, learningWordKeys) : null
+    getItemProverbs(item).forEach(proverb => {
+      const normalized = resolveProverbSentence(proverb)
+      const question = normalized
+        ? buildSourceQuestion(normalized, proverb, item, learningWordKeys)
+        : null
 
       if (question) {
         questions.push(question)
@@ -176,7 +261,82 @@ function buildListeningQuizQuestions(source) {
   }, [])
 }
 
+function instantiateQuizQuestion(source, random = Math.random) {
+  const matches = source && Array.isArray(source.matches) ? source.matches.slice() : []
+  if (!matches.length) {
+    return null
+  }
+
+  const limit = Math.min(4, matches.length)
+  const scored = matches.map(match => ({ match, score: random() }))
+  scored.sort((a, b) => a.score - b.score)
+  const gapMatches = scored
+    .slice(-limit)
+    .map(item => item.match)
+    .sort((a, b) => a.start - b.start)
+
+  return {
+    sentence: source.sentence,
+    translation: source.translation,
+    audio: source.audio,
+    word: source.word,
+    wordId: source.wordId,
+    unitId: source.unitId,
+    parts: buildParts(source.sentence, gapMatches),
+    gaps: gapMatches.map((match, gapIndex) => ({
+      gapIndex,
+      answer: match.text
+    })),
+    options: gapMatches.map(match => ({
+      text: match.text,
+      used: false
+    }))
+  }
+}
+
+function buildReciteParts(sentence) {
+  const matches = getWordMatches(sentence)
+  const parts = []
+  let cursor = 0
+
+  matches.forEach(match => {
+    if (match.start > cursor) {
+      parts.push({
+        type: 'text',
+        text: sentence.slice(cursor, match.start)
+      })
+    }
+
+    if (match.key && match.text.length > 2 && !STOP_WORDS[match.key]) {
+      parts.push({
+        type: 'blank',
+        width: match.text.length
+      })
+    } else {
+      parts.push({
+        type: 'text',
+        text: match.text
+      })
+    }
+
+    cursor = match.end
+  })
+
+  if (cursor < sentence.length) {
+    parts.push({
+      type: 'text',
+      text: sentence.slice(cursor)
+    })
+  }
+
+  return parts
+}
+
 module.exports = {
   buildLearningWords,
-  buildListeningQuizQuestions
+  normalizeUnitResource,
+  resolveProverbSentence,
+  buildListeningQuizQuestions,
+  instantiateQuizQuestion,
+  buildReciteParts
 }

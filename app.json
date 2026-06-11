@@ -39,7 +39,6 @@
     "weui": true
   },
   "usingComponents": {
-    "media": "/components/media/media",
     "frame-animation": "/components/frame-animation/frame-animation",
     "dialog": "/components/dialog/dialog",
     "navigation": "/components/navigation/navigation"

@@ -2,7 +2,7 @@
 <view class='container' style="background-color: white;" wx:if="{{unitSort < unitCount}}">
   <image style="width: 100%;" src="https://17ks.chivoxapp.com/proverbs/finish_today_study_bg.png" mode="widthFix" />
   <view class="content">完成今日学习!</view>
-  <view class="periodical" style="margin-top: 77rpx;">完成<text style="color:#2f80ed;">第{{unitSort}}期</text>学习</view>
+  <view class="periodical" style="margin-top: 77rpx;">完成<text style="color:#111318;">第{{unitSort}}期</text>学习</view>
   <view class="periodical" style="padding-top:15rpx; font-weight:normal;">再学{{unitCount - unitSort}}期就完成本书的学习</view>
   <view class="btn" style="margin-top: 163rpx;" bindtap="continue">继续学习</view>
   <view class="btn btn-secondary" style="margin-top: 40rpx;" bindtap="finish">完成</view>
@@ -12,7 +12,7 @@
   <image class="pic" src="https://17ks.chivoxapp.com/proverbs/finish_allbook.png" mode="widthFix" />
   <view class="info">
     <text style="font-size: 30rpx;color: #17324f;">恭喜你完成</text>
-    <text style="font-size: 30rpx;color: #2f80ed;">《{{bookname}}》</text>
+    <text style="font-size: 30rpx;color: #111318;">《{{bookname}}》</text>
     <view></view>
     <view class="column">
       <text class="num">{{wordnum}}</text>

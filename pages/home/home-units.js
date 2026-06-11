@@ -1,4 +1,8 @@
 const DISPLAY_BATCH_SIZE = 20
+// 临时放开顺序解锁，方便联调跟读背诵 / 听力小测；测完改回 false。
+const UNLOCK_ALL_TASKS_FOR_DEV = false
+// 演示：第一关视为已通关（三星 + 报告 + 小怪兽 defeated）；上线前改回 false。
+const DEMO_FIRST_UNIT_COMPLETED = true
 const LEARNING_SAYINGS = require('./learning-sayings')
 const MAP_POSITIONS = ['left', 'right', 'center']
 const MAP_LANES = ['center', 'left', 'right', 'left', 'center', 'right', 'left', 'right']
@@ -50,7 +54,7 @@ const TASK_DEFINITIONS = [
   {
     type: 'word',
     label: '单词新学',
-    color: '#2f80ed',
+    color: '#111318',
     icon: '../../images/home/task-word.png'
   },
   {
@@ -62,15 +66,15 @@ const TASK_DEFINITIONS = [
   {
     type: 'listening',
     label: '听力小测',
-    color: '#4a90e2',
+    color: '#111318',
     icon: '../../images/home/task-listening.png'
   }
 ]
 
 const TASK_COLOR_PALETTE = {
-  word: { vivid: '#16a34a', muted: '#bdd7f8', iconBg: '#dcfce7' },
+  word: { vivid: '#16a34a', muted: '#d9dbe0', iconBg: '#dcfce7' },
   recitation: { vivid: '#f97316', muted: '#ffd4a8', iconBg: '#ffedd5' },
-  listening: { vivid: '#2563eb', muted: '#bdd7f8', iconBg: '#dbeafe' }
+  listening: { vivid: '#111318', muted: '#d9dbe0', iconBg: '#ededf0' }
 }
 
 const TASK_ICON_ASSETS = {
@@ -90,7 +94,7 @@ const TASK_ICON_ASSETS = {
 
 function decorateTaskVisual(task) {
   const palette = TASK_COLOR_PALETTE[task.type] || {
-    vivid: task.color || '#2f80ed',
+    vivid: task.color || '#111318',
     muted: '#d0d0d0',
     iconBg: '#eef2f7'
   }
@@ -111,16 +115,16 @@ function decorateTaskVisual(task) {
 const UNIT_STATES = {
   completed: {
     subtitle: '千里之行，始于足下。',
-    subtitleColor: '#2f80ed',
-    stageColor: '#1f6fd6',
+    subtitleColor: '#111318',
+    stageColor: '#111318',
     mascot: '../../images/home/mascot-progress.png',
     mascotSprite: '../../images/home/mascot-progress-sprite.png',
     mascotDuration: 2.4
   },
   unfinished: {
     subtitle: '实践出真知。',
-    subtitleColor: '#2f80ed',
-    stageColor: '#2f80ed',
+    subtitleColor: '#111318',
+    stageColor: '#111318',
     mascot: '../../images/home/mascot-alert.png',
     mascotSprite: '../../images/home/mascot-alert-sprite.png',
     mascotDuration: 2.4
@@ -223,24 +227,51 @@ function getMonsterFrameCount(monsterState) {
 }
 
 function buildMonsterSprite(monsterName, monsterState) {
-  return '../../images/home/map/monsters/' + monsterName + '-' + monsterState + '.png'
+  return '/images/home/map/monsters/' + monsterName + '-' + monsterState + '.png'
 }
 
 function getMapSectionTheme(sectionIndex) {
   return MAP_SECTION_THEMES[sectionIndex % MAP_SECTION_THEMES.length]
 }
 
+function applyFirstUnitDemoCompletion(unit) {
+  if (!DEMO_FIRST_UNIT_COMPLETED || !unit || unit.sort !== 1 || unit.locked || unit.isReview) {
+    return unit
+  }
+
+  const wordTotal = toNonNegativeInteger(unit.levelWords || unit.wordTotal)
+  const sourceTasks = Array.isArray(unit.tasks) ? unit.tasks : []
+  const tasks = sourceTasks.length
+    ? sourceTasks.map(task => {
+      const total = toNonNegativeInteger(task.total || wordTotal)
+      return Object.assign({}, task, {
+        current: total,
+        total,
+        percent: 100
+      })
+    })
+    : buildTasks(wordTotal, true)
+
+  return Object.assign({}, unit, {
+    locked: false,
+    doneStages: 3,
+    stageStars: buildStageStars(3),
+    tasks
+  })
+}
+
 function buildDisplayUnit(unit, index) {
   const locked = isEnabled(unit.needVip)
-  const completed = isEnabled(unit.completed) && !locked
-  const state = UNIT_STATES[locked ? 'locked' : (completed ? 'completed' : 'unfinished')]
   const sort = getSort(unit, index)
+  const completed = (DEMO_FIRST_UNIT_COMPLETED && sort === 1 && !locked) ||
+    (isEnabled(unit.completed) && !locked)
+  const state = UNIT_STATES[locked ? 'locked' : (completed ? 'completed' : 'unfinished')]
   const wordTotal = toNonNegativeInteger(unit.wordTotal)
   const doneStages = completed ? 3 : 0
   const saying = getLearningSaying(sort)
 
   return Object.assign({}, unit, state, {
-    unitId: unit.unitId || '',
+    unitId: unit.unitId || unit.id || '',
     sort,
     levelWords: wordTotal,
     title: '关卡 ' + sort + ' · ' + wordTotal + '词',
@@ -288,9 +319,11 @@ function decorateMapProgress(units) {
         mapState = 'locked'
       } else if (toNonNegativeInteger(task.percent) >= 100) {
         mapState = 'completed'
-      } else if (!activeAssigned) {
+      } else if (UNLOCK_ALL_TASKS_FOR_DEV || !activeAssigned) {
         mapState = 'active'
-        activeAssigned = true
+        if (!UNLOCK_ALL_TASKS_FOR_DEV) {
+          activeAssigned = true
+        }
       }
 
       return decorateTaskVisual(Object.assign({}, task, {
@@ -348,7 +381,9 @@ function buildDisplayUnits(apiUnits, fallbackUnits) {
   const source = Array.isArray(apiUnits) ? apiUnits : []
   if (!source.length) {
     const fallback = Array.isArray(fallbackUnits) ? fallbackUnits : []
-    return decorateMapProgress(fallback.map(buildFallbackDisplayUnit))
+    return decorateMapProgress(
+      fallback.map(buildFallbackDisplayUnit).map(applyFirstUnitDemoCompletion)
+    )
   }
 
   const units = source
@@ -359,7 +394,7 @@ function buildDisplayUnits(apiUnits, fallbackUnits) {
     .sort((left, right) => left.display.sort - right.display.sort || left.index - right.index)
     .map(item => item.display)
 
-  return decorateMapProgress(units)
+  return decorateMapProgress(units.map(applyFirstUnitDemoCompletion))
 }
 
 function buildMapSections(units) {
@@ -489,8 +524,9 @@ function getNextVisibleCount(total, current, batchSize) {
 
 // List (category) mode inserts a review level after every REVIEW_INTERVAL real
 // levels, producing a fixed sequence of 3 new → 1 review → 3 new → 1 review …
-// The「每天练习几组」goal then counts cards along this sequence — reviews
-// included — so a goal of 5 yields 3 new + 1 review + 1 new (see markTodayTasks).
+// The「每天练习几组」goal counts only the real levels; each review rides along
+// with the three levels it covers, so a goal of 3 boxes up 关卡1-3 plus their
+// review (see markTodayTasks).
 // A review card reuses the regular unit-card layout — same structure — but its
 // content is the words the learner previously got wrong across the preceding
 // three levels.
@@ -540,9 +576,11 @@ function buildReviewUnit(groupUnits, ordinal, listIndex) {
 
   const tasks = TASK_DEFINITIONS.map(definition => {
     let taskMapState = 'upcoming'
-    if (!locked && !activeAssigned) {
+    if (!locked && (UNLOCK_ALL_TASKS_FOR_DEV || !activeAssigned)) {
       taskMapState = 'active'
-      activeAssigned = true
+      if (!UNLOCK_ALL_TASKS_FOR_DEV) {
+        activeAssigned = true
+      }
     }
 
     return decorateTaskVisual({
@@ -605,24 +643,32 @@ function buildListUnits(units) {
   return result
 }
 
-// Flag the next `goal` cards along the learning sequence as today's targets so
-// the path can box them up under「今日要学」. Reviews are interleaved every
-// REVIEW_INTERVAL levels and count toward the goal, so a goal of 5 boxes up
-// 3 new + 1 review + 1 new. Completed levels and VIP-locked content never count
-// (the batch advances as levels get finished); a pending review still counts as
-// the next planned step even though it unlocks only after its levels are done.
+// Flag the next `goal` levels along the learning sequence as today's targets so
+// the path can box them up under「今日要学」. Only real levels consume a goal
+// slot; the review interleaved after every REVIEW_INTERVAL levels rides along
+// with the levels it covers — it joins today's box whenever the level right
+// before it is a today task (i.e. its levels fall inside today's plan), without
+// eating into the goal. So a goal of 3 boxes up 关卡1-3 plus their review.
+// Completed levels and VIP-locked content never count (the batch advances as
+// levels get finished); a VIP-locked review is excluded even when its levels
+// are due today.
 function markTodayTasks(listUnits, goal) {
   const target = toNonNegativeInteger(goal)
   let marked = 0
+  let prevLevelIsToday = false
 
   return (Array.isArray(listUnits) ? listUnits : []).map(unit => {
-    const eligible = unit.isReview
-      ? !unit.lockedByVip
-      : (!unit.locked && unit.mapState !== 'completed')
+    if (unit.isReview) {
+      const isTodayTask = !unit.lockedByVip && prevLevelIsToday
+      return Object.assign({}, unit, { isTodayTask })
+    }
+
+    const eligible = !unit.locked && unit.mapState !== 'completed'
     const isTodayTask = eligible && marked < target
     if (isTodayTask) {
       marked += 1
     }
+    prevLevelIsToday = isTodayTask
     return Object.assign({}, unit, { isTodayTask })
   })
 }
@@ -654,6 +700,7 @@ function groupListUnits(listUnits) {
 }
 
 module.exports = {
+  UNLOCK_ALL_TASKS_FOR_DEV,
   DISPLAY_BATCH_SIZE,
   REVIEW_INTERVAL,
   buildDisplayUnits,

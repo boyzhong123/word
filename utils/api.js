@@ -165,6 +165,18 @@ function getOrder(orderProductId) {
     })
   }
 
+function reportListeningQuizResult(payload) {
+  return new Promise(resolve => {
+    util.request('POST', '/mini-app/listening-quiz-result', {
+      data: payload
+    }, () => {
+      resolve(true)
+    }, () => {
+      resolve(false)
+    })
+  })
+}
+
 module.exports = {
   saveUserInfo,
   getUserInfo,
@@ -178,7 +190,7 @@ module.exports = {
   getUnitWords,
   getUnitResource,
   deleteRecord,
-deleteRecord,
   getBookProucts,
-  getOrder
+  getOrder,
+  reportListeningQuizResult
 }

@@ -1,10 +1,18 @@
 // components/meida/media.js
 const aiengine = require('../../lib/ChivoxAiEngine.js')
-/******创建基础引擎******/
-const wsEngine = aiengine.createWsEngine({})
+
+function createWsEngineSafe() {
+  if (typeof aiengine.createWsEngine !== 'function') {
+    console.warn('[media] ChivoxAiEngine.createWsEngine is unavailable')
+    return null
+  }
+  return aiengine.createWsEngine({})
+}
+
+const wsEngine = createWsEngineSafe()
 const recorderManager = wx.getRecorderManager()
 const feedBackPlayer = wx.createInnerAudioContext({
-  useWebAudioImplement: true
+  useWebAudioImplement: false
 })
 const IDLE = 0, AUDIO_PLAYING = 1, RECORDING = 2, REPLAYING = 3, MARKING = 4
 var windowWidth = wx.getStorageSync('windowWidth')
@@ -83,7 +91,7 @@ Component({
         duration: 200
       })
       this.data.innerAudioContext = wx.createInnerAudioContext({
-        useWebAudioImplement: true
+        useWebAudioImplement: false
       })
       this.initSDK()
     },
@@ -127,6 +135,7 @@ Component({
     playAudio() {
       if (!this.stopAudio(AUDIO_PLAYING)) {
         if (this.data._audio) {
+          this.triggerEvent('beforeplay')
           this.setData({
             media_state: AUDIO_PLAYING
           })
@@ -135,6 +144,7 @@ Component({
         } else {
           wx.showToast({
             title: '找不到标准音',
+            icon: 'none'
           })
         }
       }
@@ -217,6 +227,9 @@ Component({
         })
     },
     initSDK() {
+      if (!wsEngine) {
+        return
+      }
       let that = this
       wsEngine.onResult(res => {
         that.clearMarkWatchdog()
@@ -341,13 +354,22 @@ Component({
       })
     },
     audioPlay(src) {
-      this.data.innerAudioContext.src = src
-      this.data.innerAudioContext.play()
+      const ctx = this.data.innerAudioContext
+      if (!ctx || !src) {
+        return
+      }
+      ctx.stop()
+      ctx.src = src
+      ctx.play()
     },
     /**
   * 开始录音
   */
     doRecord() {
+      if (!wsEngine) {
+        wx.showToast({ title: '语音评测暂不可用', icon: 'none' })
+        return
+      }
       wsEngine.reset()
       this.engineStart = true
       wsEngine.start({
@@ -416,7 +438,7 @@ Component({
         })
         this.stopRecord()
       }
-      if (this.engineStart) {
+      if (this.engineStart && wsEngine) {
           wsEngine.reset()
           this.engineStart = false
       }
@@ -428,7 +450,9 @@ Component({
         this.markWatchdog = null
         if (this.data.media_state == MARKING) {
           console.warn('mark watchdog fired, force reset to IDLE')
-          wsEngine.reset()
+          if (wsEngine) {
+            wsEngine.reset()
+          }
           this.setData({ media_state: IDLE })
           wx.showToast({ title: '评分超时，请重试', icon: 'none' })
         }
@@ -452,15 +476,21 @@ Component({
       }
     },
     startAni() {
-      this.selectComponent('.frames').setData({
-        state: 'running'
-      })
+      const frames = this.selectComponent('.frames')
+      if (frames) {
+        frames.setData({
+          state: 'running'
+        })
+      }
     },
     stopAni() {
       if (this.data.media_state == AUDIO_PLAYING) {
-        this.selectComponent('.frames').setData({
-          state: 'paused'
-        })
+        const frames = this.selectComponent('.frames')
+        if (frames) {
+          frames.setData({
+            state: 'paused'
+          })
+        }
       }
     },
     replay() {

@@ -103,7 +103,7 @@ function buildReport(sort, total, enSaying, zhSaying) {
     {
       type: 'word',
       label: '单词新学',
-      icon: '../../images/home/task-word-active.svg',
+      icon: '../../images/home/task-word.png',
       iconBg: '#dcfce7',
       color: '#16a34a',
       score: clamp(accuracy + 3, 60, 100),
@@ -112,7 +112,7 @@ function buildReport(sort, total, enSaying, zhSaying) {
     {
       type: 'recitation',
       label: '跟读背诵',
-      icon: '../../images/home/task-recitation-active.svg',
+      icon: '../../images/home/task-recitation.png',
       iconBg: '#ffedd5',
       color: '#f97316',
       score: clamp(accuracy - 4 + (sort % 3), 60, 99),
@@ -121,9 +121,9 @@ function buildReport(sort, total, enSaying, zhSaying) {
     {
       type: 'listening',
       label: '听力小测',
-      icon: '../../images/home/task-listening-active.svg',
-      iconBg: '#dbeafe',
-      color: '#2563eb',
+      icon: '../../images/home/task-listening.png',
+      iconBg: '#ededf0',
+      color: '#111318',
       score: clamp(accuracy + 1 - (sort % 2), 60, 100),
       caption: '听音辨义'
     }
@@ -159,20 +159,16 @@ function buildReport(sort, total, enSaying, zhSaying) {
 
 Page({
   data: {
-    safeAreaTop: 0,
     report: null
   },
 
   onLoad(options) {
-    const systemInfo = wx.getSystemInfoSync()
-    const safeArea = systemInfo.safeArea || {}
     const sort = toPositiveInt(options.sort, 1)
     const total = toPositiveInt(options.words, 12)
     const enSaying = options.en ? decodeURIComponent(options.en) : ''
     const zhSaying = options.zh ? decodeURIComponent(options.zh) : ''
 
     this.setData({
-      safeAreaTop: safeArea.top || systemInfo.statusBarHeight || 0,
       report: buildReport(sort, total, enSaying, zhSaying)
     })
   },

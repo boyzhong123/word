@@ -15,11 +15,61 @@ const PRONUNCIATION_TIPS = [
   '最后发 /l/ 音，舌尖抵住上齿龈，气流从舌头两侧流出'
 ]
 
-const WORD_DETAIL_TABS = [
-  { key: 'example', label: '例句' },
-  { key: 'phrase', label: '短语' },
-  { key: 'forms', label: '变形' }
+const DETAIL_TAB_DEFS = [
+  { key: 'synonyms', label: '近义词' },
+  { key: 'mnemonic', label: '联想记忆' },
+  { key: 'root', label: '词根' },
+  { key: 'recite', label: '背诵技巧' }
 ]
+
+function getPracticeProgressPercent(index, total) {
+  if (!total) {
+    return 0
+  }
+  return Math.round(((index + 1) / total) * 100)
+}
+
+function normalizeWordPronunciations(word) {
+  const ukSymbol = word.ukSymbol || word.enSymbol || word.britishSymbol || word.symbolUk || word.symbol
+  const usSymbol = word.usSymbol || word.americanSymbol || word.symbolUs || word.symbol
+  const ukAudio = word.ukAudio || word.enAudio || word.britishAudio || word.audioUk || word.audio
+  const usAudio = word.usAudio || word.americanAudio || word.audioUs || word.audio
+
+  word.pronunciations = [
+    { key: 'uk', label: '英', symbol: ukSymbol || '', audio: ukAudio || '' },
+    { key: 'us', label: '美', symbol: usSymbol || '', audio: usAudio || '' }
+  ]
+  word.activeAccent = word.activeAccent || 'uk'
+}
+
+function normalizeWordDetail(word) {
+  word.synonyms = word.synonyms || word.nearSynonyms || word.similarWords || null
+  word.mnemonic = word.mnemonic || word.associationMemory || ''
+  word.rootDetail = word.rootDetail || word.etymology || word.root || ''
+  word.recitationTips = word.recitationTips || word.pronunciationTips || PRONUNCIATION_TIPS.slice()
+
+  if (!word.synonyms || !word.synonyms.length) {
+    word.synonyms = [{
+      pos: word.attribute || '',
+      en: word.content || '',
+      cn: word.translation || ''
+    }]
+  }
+  if (!word.mnemonic) {
+    word.mnemonic = '可从词形、发音或例句场景联想记忆「' + (word.content || '') + '」。'
+  }
+  if (!word.rootDetail) {
+    word.rootDetail = '暂无词根解析，可先通过例句理解用法。'
+  }
+  if (!word.recitationTips || !word.recitationTips.length) {
+    word.recitationTips = PRONUNCIATION_TIPS.slice()
+  }
+
+  word.detailNavItems = DETAIL_TAB_DEFS.map(function (tab) {
+    return { key: tab.key, label: tab.label }
+  })
+  word.activeDetailTab = word.activeDetailTab || word.detailNavItems[0].key
+}
 
 Page({
   data: {
@@ -29,8 +79,9 @@ Page({
     isWordNewMode: false,
     review: false,
     pronunciationTips: PRONUNCIATION_TIPS,
-    wordDetailTabs: WORD_DETAIL_TABS,
-    wordDetailTab: 'example',
+    navTitle: '',
+    playingSrc: '',
+    wordToast: { visible: false, title: '', image: '' },
     marking: false,
     scrollHeight: wx.getStorageSync('safeArea').height - wx.getStorageSync('navigationBarHeight'),
     safeAreaBottom: wx.getStorageSync('windowHeight') - wx.getStorageSync('safeArea').bottom,
@@ -65,15 +116,24 @@ Page({
         this.resBookId = data.book.resBookId
         this.resBookName = data.book.name
         let dialogObject = this.getDialogObject(data.needVip)
+        const contents = [data]
+        if (this.data.isWordNewMode) {
+          this.applyWordNewPresentation(contents, 0)
+        }
         this.setData({
           loading: false,
           from: 'search',
           needVip: data.needVip,
           wordTotal: data.unit.wordTotal,
           dialog: dialogObject,
-          ['contents[' + 0 + ']']: data
+          contents: contents,
+          navTitle: this.data.isWordNewMode ? this.buildNavTitle(data, 0, 1) : ''
         })
-        this.showPageTip()
+        if (this.data.isWordNewMode) {
+          wx.nextTick(() => this.startWordReading(0))
+        } else {
+          this.showPageTip()
+        }
       })
     } else {
       this.resBookId = options.resBookId
@@ -97,15 +157,23 @@ Page({
   fetchReviewData() {
     const data = buildMockReviewResource(this.reviewUnitIds)
     data.forEach(item => this.initResult(item))
+    if (this.data.isWordNewMode) {
+      this.applyWordNewPresentation(data, 0)
+    }
     this.setData({
       loading: false,
       current: 0,
       needVip: 0,
       wordTotal: data.length,
       dialog: this.getDialogObject(false),
-      contents: data
+      contents: data,
+      navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, data.length) : ''
     })
-    this.showPageTip()
+    if (this.data.isWordNewMode) {
+      wx.nextTick(() => this.startWordReading(0))
+    } else {
+      this.showPageTip()
+    }
   },
   fetchUnitData(unitId) {
     getUnitResource(unitId).then(data => {
@@ -116,15 +184,23 @@ Page({
           })
           vip = !data.some(item => item.needVip)
       }
+      if (this.data.isWordNewMode) {
+        this.applyWordNewPresentation(data, 0)
+      }
       this.setData({
         loading: false,
         current: 0,
         needVip: vip ? 0 : 1,
         wordTotal: data.length,
         dialog: this.getDialogObject(!vip),
-        contents: data
+        contents: data,
+        navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, data.length) : ''
       })
-      this.showPageTip()
+      if (this.data.isWordNewMode) {
+        wx.nextTick(() => this.startWordReading(0))
+      } else {
+        this.showPageTip()
+      }
     })
   },
   getDialogObject(needVip) {
@@ -148,10 +224,17 @@ Page({
   },
   initResult(item) {
     item.selectedIndex = 0
+    item.revealed = false
+    item.hinted = false
+    item.mistaken = false
+    item.known = false
+    item.readCount = 0
     this.unitSort = item.unit.sort
     if (item.word) {
-      item.word.page = item.word.pages.join('-')
+      item.word.page = (item.word.pages || []).join('-')
       item.word.result = {}
+      normalizeWordPronunciations(item.word)
+      normalizeWordDetail(item.word)
     }
     if (Array.isArray(item.proverb)) {
       item.proverb.forEach(function (item) {
@@ -190,17 +273,22 @@ Page({
    */
   onHide() {
       this.stopAudio()
+      this.stopWordNewAudio()
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload() {
+      if (this._wordToastTimer) {
+        clearTimeout(this._wordToastTimer)
+      }
       if (this.data.innerAudioContext) {
         this.data.innerAudioContext.offEnded()
         this.data.innerAudioContext.offError()
         this.data.innerAudioContext.destroy()
       }
+      this.stopWordNewAudio(true)
   },
   /**
    * 用户点击右上角分享
@@ -425,11 +513,209 @@ Page({
       })
     }
   },
+  buildNavTitle(item, index, total) {
+    const sort = (item && item.unit && item.unit.sort) || this.unitSort || (index + 1)
+    return '第' + sort + '期 ' + (index + 1) + '/' + total
+  },
+  applyWordNewPresentation(contents, current) {
+    contents.forEach(function (item, index) {
+      item.progressPercent = getPracticeProgressPercent(index, contents.length)
+    })
+    if (contents[current]) {
+      contents[current].progressPercent = getPracticeProgressPercent(current, contents.length)
+    }
+  },
+  getActiveAccentAudio(index) {
+    const item = this.data.contents[index]
+    if (!item || !item.word || !item.word.pronunciations) {
+      return ''
+    }
+    const accent = item.word.pronunciations.find(function (pron) {
+      return pron.key === item.word.activeAccent
+    }) || item.word.pronunciations[0]
+    return accent ? accent.audio : ''
+  },
+  getExampleAudio(index) {
+    const item = this.data.contents[index]
+    if (!item || !item.proverb || !item.proverb.length) {
+      return ''
+    }
+    return item.proverb[0].audio || ''
+  },
+  stopWordNewAudio(destroy) {
+    if (!this.wordNewAudio) {
+      return
+    }
+    this.wordNewAudio.stop()
+    if (destroy) {
+      this.wordNewAudio.destroy()
+      this.wordNewAudio = null
+    }
+    this.setData({ playingSrc: '' })
+  },
+  playWordNewAudio(src, onEnded) {
+    if (!src) {
+      if (onEnded) {
+        onEnded()
+      }
+      return
+    }
+    if (!this.wordNewAudio) {
+      this.wordNewAudio = wx.createInnerAudioContext({
+        useWebAudioImplement: false
+      })
+      this.wordNewAudio.onEnded(() => {
+        const callback = this._wordNewAudioEndCb
+        this._wordNewAudioEndCb = null
+        this.setData({ playingSrc: '' })
+        if (callback) {
+          callback()
+        }
+      })
+      this.wordNewAudio.onError(() => {
+        this._wordNewAudioEndCb = null
+        this.setData({ playingSrc: '' })
+      })
+    }
+    this._wordNewAudioEndCb = onEnded || null
+    this.wordNewAudio.stop()
+    this.setData({ playingSrc: src })
+    this.wordNewAudio.src = src
+    this.wordNewAudio.play()
+  },
+  // 三个点分别对应：问答页读词、详情页读词、详情页读例句
+  setWordReadCount(index, count) {
+    const item = this.data.contents[index]
+    if (!item || item.readCount >= count) {
+      return
+    }
+    this.setData({
+      ['contents[' + index + '].readCount']: count
+    })
+  },
+  startWordReading(index) {
+    const item = this.data.contents[index]
+    if (!item || item.readCount >= 1) {
+      return
+    }
+    this.setData({
+      ['contents[' + index + '].readCount']: 1
+    })
+    this.playWordNewAudio(this.getActiveAccentAudio(index))
+  },
+  playDetailIntro(index) {
+    this.setWordReadCount(index, 2)
+    this.playWordNewAudio(this.getActiveAccentAudio(index), () => {
+      const exampleAudio = this.getExampleAudio(index)
+      if (exampleAudio) {
+        this.setWordReadCount(index, 3)
+        this.playWordNewAudio(exampleAudio)
+      }
+    })
+  },
+  playExampleAudio(index) {
+    this.playWordNewAudio(this.getExampleAudio(index))
+  },
+  playWordAudio(e) {
+    this.playWordNewAudio(e.currentTarget.dataset.src)
+  },
+  switchWordAccent(e) {
+    const index = this.data.current
+    const key = e.currentTarget.dataset.key
+    const src = e.currentTarget.dataset.src
+    this.setData({
+      ['contents[' + index + '].word.activeAccent']: key
+    })
+    if (src) {
+      this.playWordNewAudio(src)
+    }
+  },
+  showHint() {
+    const index = this.data.current
+    if (!this.data.contents[index].hinted) {
+      this.setData({
+        ['contents[' + index + '].hinted']: true
+      })
+    }
+    this.playExampleAudio(index)
+  },
+  showWordDecisionToast(type) {
+    const toastMap = {
+      known: {
+        title: '继续保持',
+        image: '../../images/word-new/toast-known.png'
+      },
+      unknown: {
+        title: '一起巩固',
+        image: '../../images/word-new/toast-unknown.png'
+      },
+      mistaken: {
+        title: '已改为不认识',
+        image: '../../images/word-new/toast-mistaken.png'
+      }
+    }
+    const toast = toastMap[type] || toastMap.unknown
+    if (this._wordToastTimer) {
+      clearTimeout(this._wordToastTimer)
+    }
+    this.setData({
+      wordToast: {
+        visible: true,
+        title: toast.title,
+        image: toast.image
+      }
+    })
+    this._wordToastTimer = setTimeout(() => {
+      this.setData({ 'wordToast.visible': false })
+    }, 1600)
+  },
+  revealWord(index, known) {
+    this.setData({
+      ['contents[' + index + '].revealed']: true,
+      ['contents[' + index + '].known']: known
+    })
+    this.playDetailIntro(index)
+  },
+  answerKnow() {
+    const index = this.data.current
+    this.showWordDecisionToast('known')
+    this.revealWord(index, true)
+  },
+  answerUnknown() {
+    const index = this.data.current
+    this.showWordDecisionToast('unknown')
+    this.revealWord(index, false)
+  },
+  markWordMistaken() {
+    const index = this.data.current
+    this.setData({
+      ['contents[' + index + '].known']: false,
+      ['contents[' + index + '].mistaken']: true
+    })
+    this.showWordDecisionToast('mistaken')
+  },
+  switchDetailTab(e) {
+    const index = this.data.current
+    const key = e.currentTarget.dataset.key
+    if (!key) {
+      return
+    }
+    this.setData({
+      ['contents[' + index + '].word.activeDetailTab']: key
+    })
+  },
   goNextWord() {
     if (this.data.current < this.data.contents.length - 1) {
+      const next = this.data.current + 1
+      const nextItem = this.data.contents[next]
       this.setData({
-        current: this.data.current + 1
+        current: next,
+        navTitle: this.buildNavTitle(nextItem, next, this.data.contents.length),
+        ['contents[' + next + '].progressPercent']: getPracticeProgressPercent(next, this.data.contents.length)
       })
+      if (this.data.isWordNewMode) {
+        wx.nextTick(() => this.startWordReading(next))
+      }
       return
     }
 
@@ -443,14 +729,6 @@ Page({
             this.studyNew = true
           }
         }
-      })
-    }
-  },
-  switchWordDetailTab(e) {
-    const tab = e.currentTarget.dataset.tab
-    if (tab && tab !== this.data.wordDetailTab) {
-      this.setData({
-        wordDetailTab: tab
       })
     }
   },

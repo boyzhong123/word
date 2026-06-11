@@ -13,8 +13,8 @@
 }
 /* 导航返回/关闭图标：统一尺寸；返回为左箭头，关闭为下箭头，见 icon_back_deep.svg / icon_close_deep.svg */
 .nav-action-icon {
-  height: 48rpx;
-  width: 48rpx;
+  height: 32rpx;
+  max-width: 20rpx;
 }
 
 .nav-title {
@@ -30,4 +30,33 @@
 
 .stress {
   font-weight: bold;
+}
+
+/* 全局按钮：主按钮黑底白字，次按钮半透明白底黑字 */
+.app-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family: PingFang SC, PingFangSC-Regular, sans-serif;
+  font-weight: 700;
+  border-radius: 999rpx;
+}
+
+.app-btn-primary {
+  color: #ffffff;
+  background: #111318;
+  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.18);
+}
+
+.app-btn-secondary {
+  color: #111318;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: none;
+}
+
+.app-btn-primary:active,
+.app-btn-secondary:active {
+  opacity: 0.88;
 }

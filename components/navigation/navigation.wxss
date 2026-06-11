@@ -16,13 +16,19 @@
 .navigation-buttons {
   display: flex;
   align-items: center;
-  margin-left: 15rpx;
+  justify-content: center;
+  margin-left: 8rpx;
+  min-width: 64rpx;
+  padding: 0 8rpx;
+  box-sizing: border-box;
 }
-.nav-img {
+
+.nav-action-icon {
   height: 32rpx;
-  max-width: 20rpx;
-  padding: 15rpx;
+  width: 32rpx;
 }
-.nav-img-home {
+
+.nav-home-icon {
+  height: 32rpx;
   max-width: 36rpx;
 }

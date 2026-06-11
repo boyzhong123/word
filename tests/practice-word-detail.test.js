@@ -87,8 +87,8 @@ test('detail footer shows 记错了 only after tapping 认识', () => {
   assert.match(practiceScript, /\.mistaken'\]:\s*true/)
   assert.doesNotMatch(practiceTemplate, /wn-correction-tip/)
   assert.doesNotMatch(practiceStyle, /\.wn-correction-tip\s*{/)
-  assert.match(practiceTemplate, /wn-button-known\.png/)
-  assert.match(practiceTemplate, /wn-button-wrong\.png/)
+  assert.match(practiceTemplate, /wn-foot-underline-known/)
+  assert.match(practiceTemplate, /wn-foot-underline-wrong/)
   assert.doesNotMatch(practiceTemplate, /wn-foot-mark/)
 })
 
@@ -132,8 +132,8 @@ test('target word in the example sentence is emphasised via a wxs helper', () =>
 test('word-new detail styling follows the lavender-blue "认识不" visual language', () => {
   assert.match(practiceStyle, /\.wn-bg\s*{[^}]*linear-gradient/s)
   assert.match(practiceStyle, /\.wn-word\s*{[^}]*font-weight:\s*800/s)
-  assert.match(practiceStyle, /#e7e1f3/)
-  assert.match(practiceStyle, /#84b6ee/)
+  assert.match(practiceStyle, /#ece6f0/)
+  assert.match(practiceStyle, /#5fa9f7/)
   assert.match(practiceStyle, /\.wn-foot-underline-img\s*{/)
   assert.match(practiceStyle, /\.wn-foot-underline-known\s*{[^}]*background:\s*#3f9581/s)
   assert.match(practiceStyle, /\.wn-foot-underline-wrong\s*{[^}]*background:\s*#fb5632/s)
@@ -151,11 +151,12 @@ test('word-new pronunciation row exposes British and American accents', () => {
 
 test('hint bulb uses the word-new image asset instead of css drawing', () => {
   assert.match(practiceTemplate, /word-new\/hint-bulb\.png/)
-  assert.match(practiceStyle, /\.wn-bulb-icon\s*{[^}]*width:\s*130rpx/s)
+  assert.match(practiceStyle, /\.wn-hint-btn\s*{[^}]*width:\s*108rpx/s)
+  assert.match(practiceStyle, /\.wn-hint-icon\s*{[^}]*width:\s*58rpx/s)
   assert.match(practiceStyle, /\.wn-hint\s*{[^}]*padding-bottom:\s*150rpx/s)
-  assert.match(practiceStyle, /\.wn-hint-label\s*{[^}]*margin-top:\s*12rpx/s)
+  assert.match(practiceStyle, /\.wn-hint-label\s*{[^}]*margin-top:\s*32rpx/s)
   assert.match(practiceStyle, /\.wn-hint-label\s*{[^}]*font-size:\s*26rpx/s)
-  assert.match(practiceStyle, /\.wn-hint-label\s*{[^}]*rgba\(71,\s*84,\s*99,\s*0\.58\)/s)
+  assert.match(practiceStyle, /\.wn-hint-label\s*{[^}]*#3a505f/s)
   assert.doesNotMatch(practiceTemplate, /wn-bulb-head/)
   assert.doesNotMatch(practiceTemplate, /wn-bulb-stem/)
 })

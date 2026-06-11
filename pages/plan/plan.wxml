@@ -1,14 +1,11 @@
 <view class="plan-page">
-  <!-- 自定义导航 -->
-  <view class="nav" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
-    <view class="nav-btn" style="top: {{statusBarHeight}}px;" bindtap="back">
-      <image class="nav-icon" src="../../images/icon_back.png" mode="heightFix" />
+  <navigation background="#fffdf8">
+    <view class="plan-nav-title-wrap">
+      <view class="plan-nav-title">学习计划</view>
     </view>
-    <view class="nav-title">学习计划</view>
-  </view>
+  </navigation>
 
-  <scroll-view class="plan-scroll" scroll-y enhanced show-scrollbar="{{false}}"
-    style="top: {{statusBarHeight + navBarHeight}}px;">
+  <scroll-view class="plan-scroll" scroll-y enhanced show-scrollbar="{{false}}">
 
     <!-- 教材概览 -->
     <view class="book-card">
@@ -36,7 +33,7 @@
       <view class="daily-hint">每组 {{levelSize}} 词，约 <text class="hl">{{dailyWords}}</text> 词/天</view>
 
       <slider class="daily-slider" min="{{minGroups}}" max="{{maxGroups}}" step="1"
-        value="{{groupsPerDay}}" block-size="22" activeColor="#2f80ed" backgroundColor="#eeeeee"
+        value="{{groupsPerDay}}" block-size="22" activeColor="#111318" backgroundColor="#eeeeee"
         bindchanging="onSlide" bindchange="onSlide" />
       <view class="slider-scale">
         <text>{{minGroups}}组</text>

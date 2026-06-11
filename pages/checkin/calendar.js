@@ -9,6 +9,7 @@ const {
 } = require('./calendar-data')
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
+const DEFAULT_AVATAR = '../../images/home/mascot-report-jelly.png'
 
 function getSafeArea() {
   const systemInfo = wx.getSystemInfoSync()
@@ -87,7 +88,7 @@ Page({
     todayChecked: false,
     bookName: '',
     avatarUrl: '',
-    avatarSrc: '../../images/home/mascot-progress.png',
+    avatarSrc: DEFAULT_AVATAR,
     rewardDay: 10
   },
 
@@ -142,7 +143,7 @@ Page({
       this.setData({
         continuousDays,
         avatarUrl: pickAvatarUrl(data),
-        avatarSrc: pickAvatarUrl(data) || '../../images/home/mascot-progress.png'
+        avatarSrc: pickAvatarUrl(data) || DEFAULT_AVATAR
       })
       this.renderCalendar()
     }).catch(error => {

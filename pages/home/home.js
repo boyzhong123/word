@@ -10,6 +10,7 @@ const {
   canUseUserProfile
 } = require('../../utils/util')
 const {
+  UNLOCK_ALL_TASKS_FOR_DEV,
   buildDisplayUnits,
   buildListUnits,
   markTodayTasks,
@@ -19,6 +20,46 @@ const {
 } = require('./home-units')
 const { normalizeCheckedDates } = require('../checkin/calendar-data')
 const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
+const { computeScrollTopToCenterTarget } = require('./home-scroll')
+
+function isTruthyFlag(value) {
+  return value === true || value === 1 || value === '1'
+}
+
+function isBookLocked(book) {
+  if (!book) {
+    return false
+  }
+  if (book.unlocked !== undefined && book.unlocked !== null && book.unlocked !== '') {
+    return !isTruthyFlag(book.unlocked)
+  }
+  return isTruthyFlag(book.needVip)
+}
+
+function enrichPickerBooks(books) {
+  if (!Array.isArray(books)) {
+    return []
+  }
+  return books.map(book => Object.assign({}, book, {
+    locked: isBookLocked(book)
+  }))
+}
+
+function hasTodayTaskGroup(listGroups) {
+  return (Array.isArray(listGroups) ? listGroups : []).some(group => group.today)
+}
+
+function resolveUnitId(unit) {
+  if (!unit) {
+    return ''
+  }
+  return unit.unitId || unit.id || ''
+}
+
+function getTaskByType(unit, taskType) {
+  const tasks = Array.isArray(unit && unit.tasks) ? unit.tasks : []
+  return tasks.find(task => task.type === taskType) || null
+}
 
 function positiveNumber() {
   for (let i = 0; i < arguments.length; i++) {
@@ -67,35 +108,35 @@ const FALLBACK_BOOK = {
 
 const FALLBACK_UNITS = [
   {
-    levelWords: 120,
+    levelWords: 12,
     subtitle: '千里之行，始于足下。',
-    subtitleColor: '#2f80ed',
-    stageColor: '#1f6fd6',
-    doneStages: 2,
+    subtitleColor: '#111318',
+    stageColor: '#111318',
+    doneStages: 3,
     mascot: '../../images/home/mascot-progress.png',
     mascotSprite: '../../images/home/mascot-progress-sprite.png',
     mascotDuration: 2.4,
     locked: false,
     tasks: [
-      { type: 'word', label: '单词新学', current: 40, total: 40, percent: 100, color: '#2f80ed', icon: '../../images/home/task-word.png' },
-      { type: 'recitation', label: '跟读背诵', current: 24, total: 50, percent: 48, color: '#ff8200', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '听力小测', current: 28, total: 40, percent: 70, color: '#4a90e2', icon: '../../images/home/task-listening.png' }
+      { type: 'word', label: '单词新学', current: 12, total: 12, percent: 100, color: '#111318', icon: '../../images/home/task-word.png' },
+      { type: 'recitation', label: '跟读背诵', current: 12, total: 12, percent: 100, color: '#ff8200', icon: '../../images/home/task-recitation.png' },
+      { type: 'listening', label: '听力小测', current: 12, total: 12, percent: 100, color: '#111318', icon: '../../images/home/task-listening.png' }
     ]
   },
   {
     levelWords: 150,
     subtitle: '实践出真知。',
-    subtitleColor: '#2f80ed',
-    stageColor: '#2f80ed',
+    subtitleColor: '#111318',
+    stageColor: '#111318',
     doneStages: 1,
     mascot: '../../images/home/mascot-alert.png',
     mascotSprite: '../../images/home/mascot-alert-sprite.png',
     mascotDuration: 2.4,
     locked: false,
     tasks: [
-      { type: 'word', label: '单词新学', current: 50, total: 50, percent: 100, color: '#2f80ed', icon: '../../images/home/task-word.png' },
+      { type: 'word', label: '单词新学', current: 50, total: 50, percent: 100, color: '#111318', icon: '../../images/home/task-word.png' },
       { type: 'recitation', label: '跟读背诵', current: 24, total: 50, percent: 48, color: '#ff8200', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '听力小测', current: 0, total: 50, percent: 0, color: '#4a90e2', icon: '../../images/home/task-listening.png' }
+      { type: 'listening', label: '听力小测', current: 0, total: 50, percent: 0, color: '#111318', icon: '../../images/home/task-listening.png' }
     ]
   },
   {
@@ -128,9 +169,13 @@ function getSafeAreaBottom() {
   return Math.max(systemInfo.windowHeight - systemInfo.safeArea.bottom, 0)
 }
 
+const BOOK_CARD_HEIGHT = 275
+const HERO_TITLE_BLOCK_HEIGHT = 101
+
 function getHeroLayout() {
   const systemInfo = wx.getSystemInfoSync()
   const windowWidth = Number(systemInfo.windowWidth) || 375
+  const windowHeight = Number(systemInfo.windowHeight) || 667
   const statusBarHeight = Number(systemInfo.statusBarHeight) || 20
   let menuBottom = statusBarHeight + 40
 
@@ -139,13 +184,16 @@ function getHeroLayout() {
     menuBottom = Number(menuButton.bottom) || menuBottom
   }
 
-  const heroContentTop = Math.ceil((menuBottom + 12) * 750 / windowWidth)
-  const bookCardTop = Math.max(heroContentTop + 174, 350)
+  const safeAreaBottom = getSafeAreaBottom()
+  const heroContentTop = Math.ceil((menuBottom + 8) * 750 / windowWidth)
+  const bookCardTop = heroContentTop + HERO_TITLE_BLOCK_HEIGHT + 40
 
   return {
     heroContentTop,
     bookCardTop,
-    heroSectionHeight: bookCardTop + 290
+    heroSectionHeight: bookCardTop + BOOK_CARD_HEIGHT,
+    scrollViewHeight: windowHeight,
+    scrollSpacerRpx: Math.ceil(120 + safeAreaBottom * 750 / windowWidth)
   }
 }
 
@@ -193,6 +241,10 @@ Page({
     listGroups: groupListUnits(FALLBACK_LIST_UNITS),
     mapTrail: buildMapTrail(buildDisplayUnits([], FALLBACK_UNITS)),
     safeAreaBottom: getSafeAreaBottom(),
+    bookPickerVisible: false,
+    allBooks: [],
+    hasTodayTasks: hasTodayTaskGroup(FALLBACK_LIST_UNITS),
+    showTodayLocateFab: false,
     ...getHeroLayout()
   },
 
@@ -206,7 +258,10 @@ Page({
 
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 0 })
+      this.getTabBar().setData({
+        selected: 0,
+        hidden: !!this.data.bookPickerVisible
+      })
     }
     if (this.refresh) {
       this.refresh = false
@@ -222,12 +277,15 @@ Page({
     const resBookId = (this.data.book && this.data.book.resBookId) || ''
     const todayGoal = getDailyGoal(resBookId)
     const listUnits = markTodayTasks(this.data.listUnits, todayGoal)
+    const listGroups = groupListUnits(listUnits)
     this.setData({
       'checkin.todayDone': getTodayDone(resBookId),
       'checkin.todayGoal': todayGoal,
       listUnits,
-      listGroups: groupListUnits(listUnits)
+      listGroups,
+      hasTodayTasks: hasTodayTaskGroup(listGroups)
     })
+    this.updateTodayLocateFab()
   },
 
   // 构建带「今日」标记的列表关卡：每日目标前 N 个未完成关卡打上标记
@@ -262,6 +320,7 @@ Page({
       let otherBook = books.find(item => item.resBookId !== selectedBook.resBookId) || {}
       selectedBook = normalizeBook(selectedBook)
 
+      this.setData({ allBooks: enrichPickerBooks(books) })
       this.updateBook(selectedBook, otherBook)
       getApp().globalData.book = selectedBook
       this.loadUnits(selectedBook.resBookId)
@@ -296,13 +355,16 @@ Page({
     this.visibleUnitCount = visibleCount
     const visibleUnits = allUnits.slice(0, visibleCount)
     const listUnits = this.markedListUnits(visibleUnits)
+    const listGroups = groupListUnits(listUnits)
     this.setData({
       units: visibleUnits,
       listUnits,
-      listGroups: groupListUnits(listUnits),
+      listGroups,
+      hasTodayTasks: hasTodayTaskGroup(listGroups),
       mapTrail: buildMapTrail(visibleUnits),
       selectedMapUnitIndex: -1
     })
+    this.updateTodayLocateFab()
   },
 
   loadMoreUnits() {
@@ -315,12 +377,15 @@ Page({
     this.visibleUnitCount = nextVisibleCount
     const visibleUnits = allUnits.slice(0, nextVisibleCount)
     const listUnits = this.markedListUnits(visibleUnits)
+    const listGroups = groupListUnits(listUnits)
     this.setData({
       units: visibleUnits,
       listUnits,
-      listGroups: groupListUnits(listUnits),
+      listGroups,
+      hasTodayTasks: hasTodayTaskGroup(listGroups),
       mapTrail: buildMapTrail(visibleUnits)
     })
+    this.updateTodayLocateFab()
   },
 
   loadUnits(resBookId) {
@@ -334,22 +399,66 @@ Page({
     })
   },
 
+  setTabBarHidden(hidden) {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ hidden })
+    }
+    if (hidden) {
+      wx.hideTabBar({ animation: false })
+    } else {
+      wx.showTabBar({ animation: false })
+    }
+  },
+
   switchBook() {
-    const otherBook = this.data.otherBook
-    if (!otherBook || !otherBook.resBookId) {
+    const allBooks = this.data.allBooks
+    if (!Array.isArray(allBooks) || allBooks.length < 2) {
       this.showPending()
       return
     }
+    this.setData({ bookPickerVisible: true })
+    this.setTabBarHidden(true)
+  },
 
-    toggleBook(otherBook.resBookId).then(() => {
-      const currentBook = this.data.book
-      const selectedBook = normalizeBook(otherBook)
-      this.updateBook(selectedBook, currentBook)
+  closeBookPicker() {
+    this.setData({ bookPickerVisible: false })
+    this.setTabBarHidden(false)
+  },
+
+  selectBook(event) {
+    const resBookId = event.currentTarget.dataset.resBookId
+    const currentBook = this.data.book
+    const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
+
+    if (!target) {
+      return
+    }
+
+    if (target.locked) {
+      this.setData({ bookPickerVisible: false })
+      this.setTabBarHidden(false)
+      this.goBuyBook(target)
+      return
+    }
+
+    this.setData({ bookPickerVisible: false })
+    this.setTabBarHidden(false)
+
+    if (!resBookId || resBookId === currentBook.resBookId) {
+      return
+    }
+
+    toggleBook(resBookId).then(() => {
+      const otherBook = (this.data.allBooks || []).find(item => item.resBookId !== resBookId) || {}
+      const selectedBook = normalizeBook(target)
+      this.updateBook(selectedBook, otherBook)
       this.resetVisibleUnits()
       getApp().globalData.book = selectedBook
       this.loadUnits(selectedBook.resBookId)
     })
   },
+
+  noop() {},
 
   getUserProfile() {
     if (!this.data.canUseUserProfile || typeof wx.getUserProfile !== 'function') {
@@ -440,6 +549,24 @@ Page({
 
     if (taskType !== 'word' && taskType !== 'recitation' && taskType !== 'listening') {
       this.showPending()
+      return
+    }
+
+    const task = getTaskByType(unit, taskType)
+    if (task && task.mapState === 'locked') {
+      this.showLocked()
+      return
+    }
+    if (
+      !UNLOCK_ALL_TASKS_FOR_DEV &&
+      task &&
+      task.mapState !== 'active' &&
+      task.mapState !== 'completed'
+    ) {
+      wx.showToast({
+        title: '请先完成上一项任务',
+        icon: 'none'
+      })
       return
     }
 
@@ -563,7 +690,8 @@ Page({
 
   navigateToListeningUnit(unit) {
     const book = this.data.book
-    if (!unit || !unit.unitId || !book.resBookId) {
+    const unitId = resolveUnitId(unit)
+    if (!unitId || !book.resBookId) {
       this.showPending()
       return
     }
@@ -575,14 +703,15 @@ Page({
 
     wx.navigateTo({
       url: '/pages/listen/listen?resBookId=' + book.resBookId +
-        '&unitId=' + unit.unitId +
+        '&unitId=' + unitId +
         '&mode=quiz'
     })
   },
 
   navigateToPracticeUnit(unit, taskType) {
     const book = this.data.book
-    if (!unit || !unit.unitId || !book.resBookId) {
+    const unitId = resolveUnitId(unit)
+    if (!unitId || !book.resBookId) {
       this.showPending()
       return
     }
@@ -594,7 +723,7 @@ Page({
 
     wx.navigateTo({
       url: '../practice/practice?resBookId=' + book.resBookId +
-        '&unitId=' + unit.unitId +
+        '&unitId=' + unitId +
         '&name=' + encodeURIComponent(book.name) +
         '&taskType=' + (taskType || 'recitation')
     })
@@ -609,6 +738,118 @@ Page({
   goCheckinCalendar() {
     wx.navigateTo({
       url: '/pages/checkin/calendar'
+    })
+  },
+
+  goUnitReport(event) {
+    const unitIndex = Number(event.currentTarget.dataset.unitIndex)
+    const units = Array.isArray(this.data.listUnits) ? this.data.listUnits : []
+    const unit = units[unitIndex]
+    if (!unit || unit.doneStages < 3) {
+      return
+    }
+
+    const query = [
+      'sort=' + (unit.sort || 1),
+      'words=' + (unit.levelWords || unit.wordTotal || 12),
+      'en=' + encodeURIComponent(unit.subtitleEnglish || ''),
+      'zh=' + encodeURIComponent(unit.subtitleChinese || '')
+    ].join('&')
+
+    wx.navigateTo({
+      url: '/pages/report/report?' + query
+    })
+  },
+
+  onHomeScroll() {
+    this.updateTodayLocateFab()
+  },
+
+  updateTodayLocateFab() {
+    if (
+      this.data.loading ||
+      this.data.levelViewMode !== 'category' ||
+      !this.data.hasTodayTasks
+    ) {
+      if (this.data.showTodayLocateFab) {
+        this.setData({ showTodayLocateFab: false })
+      }
+      return
+    }
+
+    const query = wx.createSelectorQuery()
+    query.select('#today-group').boundingClientRect()
+    query.select('.home-scroll').boundingClientRect()
+    query.exec(results => {
+      const todayRect = results && results[0]
+      const scrollRect = results && results[1]
+      if (!todayRect || !scrollRect) {
+        return
+      }
+
+      const showTodayLocateFab = todayRect.bottom < scrollRect.top + 16
+      if (showTodayLocateFab !== this.data.showTodayLocateFab) {
+        this.setData({ showTodayLocateFab })
+      }
+    })
+  },
+
+  scrollToTodayTasks() {
+    if (!this.data.hasTodayTasks) {
+      return
+    }
+
+    const query = wx.createSelectorQuery()
+    query.select('.home-scroll').scrollOffset()
+    query.select('#today-scroll-target').boundingClientRect()
+    query.select('#today-group').boundingClientRect()
+    query.select('.home-scroll').boundingClientRect()
+    query.select('.home-scroll').node()
+    query.exec(results => {
+      const scrollOffset = results && results[0]
+      const activeRect = results && results[1]
+      const groupRect = results && results[2]
+      const scrollRect = results && results[3]
+      const scrollNode = results && results[4] && results[4].node
+      const targetRect = activeRect && activeRect.height ? activeRect : groupRect
+
+      const targetTop = computeScrollTopToCenterTarget(
+        scrollOffset && scrollOffset.scrollTop,
+        targetRect,
+        scrollRect
+      )
+      if (targetTop === null || !scrollNode) {
+        return
+      }
+
+      scrollNode.scrollTo({
+        top: targetTop,
+        animated: true
+      })
+
+      if (this.data.showTodayLocateFab) {
+        this.setData({ showTodayLocateFab: false })
+      }
+    })
+  },
+
+  goBuyBook(book) {
+    const learningUnits = book.learningInfo && book.learningInfo.book
+      ? book.learningInfo.book.learningUnits
+      : 0
+    const query = [
+      'resBookId=' + encodeURIComponent(book.resBookId || ''),
+      'name=' + encodeURIComponent(book.name || ''),
+      'bookCover=' + encodeURIComponent(book.bookCover || ''),
+      'total=' + encodeURIComponent(book.total || learningUnits || 0),
+      'wordCount=' + encodeURIComponent(book.wordCount || 0),
+      'proverbCount=' + encodeURIComponent(book.proverbCount || 0),
+      'press=' + encodeURIComponent(book.press || ''),
+      'intro=' + encodeURIComponent(book.intro || '')
+    ].join('&')
+
+    wx.navigateTo({
+      url: '../advertisement/advertisement?' + query
     })
   },
 

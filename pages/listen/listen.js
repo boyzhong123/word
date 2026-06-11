@@ -1,13 +1,13 @@
 const {
   getUnits,
-  getUnitResource,
-  reportListeningQuizResult
+  getUnitResource
 } = require('../../utils/api')
 const { login } = require('../../utils/login')
 const {
   buildListeningQuizQuestions,
   buildReciteParts,
-  instantiateQuizQuestion
+  instantiateQuizQuestion,
+  normalizeUnitResource
 } = require('./listen-quiz')
 const {
   buildMockReviewResource
@@ -17,6 +17,19 @@ const { player, buildTracks } = require('../../utils/player')
 
 const LISTEN_PAGE_ANIM_MS = 300
 const QUIZ_AUTO_ADVANCE_MS = 900
+
+function postListeningQuizResult(payload) {
+  let report
+  try {
+    report = require('../../utils/api').reportListeningQuizResult
+  } catch (err) {
+    return
+  }
+  if (typeof report !== 'function') {
+    return
+  }
+  report(payload).catch(() => {})
+}
 
 Page({
   data: {
@@ -242,9 +255,11 @@ Page({
     }
     this.setData({ loading: true })
     getUnitResource(unit.unitId).then(list => {
-      const source = Array.isArray(list) ? list : []
+      const source = normalizeUnitResource(list)
       const tracks = buildTracks(source)
       const unitName = (source[0] && source[0].unit && source[0].unit.unitName) || unit.unitName || ('第' + (unit.sort || index + 1) + '期')
+
+      const quizQuestions = buildListeningQuizQuestions(source)
 
       this.setData({
         loading: false,
@@ -255,7 +270,7 @@ Page({
         progress: 0,
         currentTime: '00:00',
         showPlaylist: false,
-        quizQuestions: buildListeningQuizQuestions(source),
+        quizQuestions,
         quizIndex: 0,
         quizAnsweredCount: 0,
         quizProgressPercent: 0,
@@ -269,11 +284,10 @@ Page({
         quizAllDone: false,
         quizRecords: []
       })
-      if (!tracks.length) {
-        wx.showToast({ title: '本期暂无音频', icon: 'none' })
-        return
-      }
       this.showQuizQuestion(0, true)
+      if (!quizQuestions.length && !tracks.length) {
+        wx.showToast({ title: '本期暂无可测试例句', icon: 'none' })
+      }
     })
   },
 
@@ -293,6 +307,14 @@ Page({
     }
 
     const question = instantiateQuizQuestion(sourceQuestion)
+    if (!question) {
+      this.setData({
+        quizQuestion: null,
+        quizProgressPercent: 100
+      })
+      return
+    }
+
     this.quizRuntimeQuestion = question
     this.quizAnswers = question.gaps.map(() => '')
     this.quizOptionUsed = question.options.map(() => false)
@@ -373,9 +395,9 @@ Page({
     const filled = this.quizAnswers.every(Boolean)
     if (filled) {
       const correct = this.isQuizCorrect(question)
-      this.rememberQuizWordResult(question, correct)
       this.setQuizViewQuestion(question, true, this.getQuizResultText(correct))
       this.scheduleFillToRecite()
+      this.rememberQuizWordResult(question, correct)
     } else {
       this.setQuizViewQuestion(question, false, '')
     }
@@ -444,11 +466,7 @@ Page({
       this.rememberWrongQuizWord(payload)
     }
 
-    reportListeningQuizResult(payload).then(ok => {
-      if (!ok) {
-        console.log('[listen] quiz result kept locally', payload)
-      }
-    })
+    postListeningQuizResult(payload)
   },
 
   rememberWrongQuizWord(payload) {
@@ -466,7 +484,7 @@ Page({
   },
 
   playQuizAudio() {
-    const question = this.data.quizQuestions[this.data.quizIndex]
+    const question = this.quizRuntimeQuestion || this.data.quizQuestion
     if (!question || !question.audio || !this.quizAudio) {
       return
     }
@@ -517,7 +535,26 @@ Page({
       return
     }
 
-    this.setData({ quizPhase: 'recite', quizReciteScore: '' })
+    if (this.quizAudio) {
+      this.quizAudio.stop()
+    }
+
+    this.setData({
+      quizPhase: 'recite',
+      quizReciteScore: '',
+      playing: false,
+      quizAudioPlaying: false
+    })
+  },
+
+  onQuizMediaBeforePlay() {
+    if (this.quizAudio) {
+      this.quizAudio.stop()
+    }
+    if (player.active && player.playing) {
+      player.pause()
+    }
+    this.setData({ playing: false, quizAudioPlaying: false })
   },
 
   onQuizReciteResult(e) {

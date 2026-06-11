@@ -7,17 +7,10 @@
   <view class="menu-arrow">›</view>
 </template>
 
-<template name="messageInner">
-  <view class="message-dot message-dot-{{id}}"></view>
-  <view class="message-copy">
-    <view class="message-label">{{label}}</view>
-    <view class="message-desc">{{desc}}</view>
-  </view>
-</template>
-
 <view class="me-page">
   <scroll-view class="me-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="profile-header" style="padding-top: {{safeAreaTop}}px;">
+      <image class="profile-header-bg" src="../../images/home/me-profile-header-monster-v2.png" mode="aspectFill" />
       <view class="profile-main">
         <view class="avatar-wrap" bindtap="handleLogin">
           <image wx:if="{{userInfo.avatarUrl}}" class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
@@ -50,23 +43,20 @@
     <view class="message-section">
       <view class="section-title">消息与关注</view>
       <view class="message-card">
-        <view class="message-head">
-          <view class="message-head-copy">
-            <view class="message-title">开启学习提醒</view>
-            <view class="message-sub">订阅复习提醒；符合微信展示场景时，引导关注公众号领取资料。</view>
+        <view class="message-row" bindtap="requestSubscribe">
+          <view class="message-row-icon message-row-icon-remind"></view>
+          <view class="message-row-copy">
+            <view class="message-row-title">开启学习提醒</view>
+            <view class="message-row-desc">复习、错题和练习结果通知</view>
           </view>
-          <view class="message-action" bindtap="requestSubscribe">去开启</view>
+          <view class="message-row-action">去开启</view>
         </view>
-        <view class="message-grid">
-          <view class="message-item" wx:for="{{messageItems}}" wx:key="id">
-            <template is="messageInner" data="{{...item}}" />
-          </view>
-        </view>
-        <view class="official-guide">
-          <view class="official-logo">号</view>
-          <view class="official-copy">
-            <view class="official-title">关注公众号，领取学习资料</view>
-            <view class="official-desc">可展示官方关注组件时显示组件，否则显示引导说明。</view>
+        <view class="message-divider"></view>
+        <view class="message-row message-row-official">
+          <view class="message-row-icon message-row-icon-official">号</view>
+          <view class="message-row-copy">
+            <view class="message-row-title">关注公众号，领取学习资料</view>
+            <view class="message-row-desc">资料领取与学习内容更新</view>
           </view>
         </view>
         <view class="official-account-wrap">

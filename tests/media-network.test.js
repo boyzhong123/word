@@ -32,3 +32,9 @@ test('practice media action buttons use the black recitation palette', () => {
   assert.match(mediaStyle, /\.good\s*{[^}]*background-color:\s*#111318/s)
   assert.doesNotMatch(mediaStyle, /\.good\s*{[^}]*background-color:\s*#2f80ed/s)
 })
+
+test('media demo audio stops previous playback and emits beforeplay', () => {
+  assert.match(mediaScript, /useWebAudioImplement:\s*false/)
+  assert.match(mediaScript, /triggerEvent\('beforeplay'\)/)
+  assert.match(mediaScript, /ctx\.stop\(\)/)
+})

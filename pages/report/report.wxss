@@ -1,6 +1,6 @@
 /* pages/report/report.wxss
    复用首页「今日要学」薄荷绿胶冻视觉：渐变 #e9fff3→#f3fff9→#fff，描边 #aee9c2，
-   绿 #0f9b4e/#22c55e，橙 #ff7a1a，蓝 #2f80ed，墨 #1a2430，灰 #8a94a6。 */
+   绿 #0f9b4e/#22c55e，橙 #ff7a1a，黑 #111318，墨 #1a2430，灰 #8a94a6。 */
 page {
   height: 100%;
   background: #f4f7fb;
@@ -11,37 +11,25 @@ page {
   position: relative;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(180deg, #e9fff3 0%, #f3fff9 14%, #f4f7fb 34%, #f4f7fb 100%);
   font-family: PingFang SC, PingFangSC-Regular, sans-serif;
 }
 
-/* ===== 顶部导航 ===== */
-.nav {
-  position: relative;
-  z-index: 10;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-btn {
+.report-nav-title-wrap {
   position: absolute;
-  left: 24rpx;
-  bottom: 14rpx;
-  width: 60rpx;
-  height: 60rpx;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
-.nav-action-icon {
-  height: 40rpx;
-  width: 40rpx;
-}
-
-.nav-title {
+.report-nav-title {
   font-size: 32rpx;
   font-weight: 700;
   color: #1a2430;
@@ -49,7 +37,8 @@ page {
 
 /* ===== 滚动区 ===== */
 .report-scroll {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   box-sizing: border-box;
   padding: 4rpx 24rpx 0;
 }
@@ -81,15 +70,12 @@ page {
 .hero-body {
   position: relative;
   margin-top: 16rpx;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  min-height: 168rpx;
+  padding-right: 196rpx;
 }
 
 .hero-copy {
-  flex: 1;
   min-width: 0;
-  padding-right: 12rpx;
 }
 
 .hero-title-row {
@@ -124,7 +110,7 @@ page {
   display: block;
   font-size: 24rpx;
   line-height: 34rpx;
-  color: #2f80ed;
+  color: #111318;
 }
 
 .hero-saying-zh {
@@ -136,10 +122,12 @@ page {
 }
 
 .hero-mascot {
-  flex: none;
-  width: 132rpx;
-  height: 132rpx;
-  margin-top: -10rpx;
+  position: absolute;
+  top: -18rpx;
+  right: -8rpx;
+  width: 212rpx;
+  height: 125rpx;
+  pointer-events: none;
 }
 
 /* ===== 四个关键指标 ===== */
@@ -204,7 +192,7 @@ page {
 }
 
 .metric-time .metric-number {
-  color: #2f80ed;
+  color: #111318;
 }
 
 /* ===== 区块通用 ===== */
@@ -448,14 +436,15 @@ page {
 }
 
 .action-btn-primary {
-  color: #fff;
-  background: #111318;
-  box-shadow: 0 8rpx 16rpx rgba(17, 19, 28, 0.18);
+  color: #ffffff;
+  background: #1a1a1a;
+  box-shadow: 0 8rpx 18rpx rgba(26, 26, 26, 0.18);
 }
 
 .action-btn-ghost {
-  color: #111318;
-  background: rgba(17, 19, 28, 0.06);
+  color: #1f2d3d;
+  background: #cdddfb;
+  box-shadow: none;
 }
 
 .action-btn:active {

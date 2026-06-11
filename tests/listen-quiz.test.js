@@ -71,6 +71,78 @@ test('listening quiz instantiates random front-end blanks for the same sentence'
   )
 })
 
+test('listening quiz prefers English proverb.label over Chinese proverb.content', () => {
+  const questions = buildListeningQuizQuestions([
+    {
+      word: { content: 'apple' },
+      proverb: [{
+        content: '桌子上有一个苹果。',
+        label: 'There is an apple on the table.',
+        translation: '桌子上有一个苹果。',
+        audio: 'https://example.test/apple.mp3'
+      }]
+    }
+  ])
+
+  assert.equal(questions.length, 1)
+  assert.equal(questions[0].sentence, 'There is an apple on the table.')
+  assert.equal(questions[0].audio, 'https://example.test/apple.mp3')
+})
+
+test('listening quiz falls back to word audio when proverb audio is missing', () => {
+  const questions = buildListeningQuizQuestions([
+    {
+      word: {
+        content: 'apple',
+        sentenceAudio: 'https://example.test/word-sentence.mp3'
+      },
+      proverb: [{
+        content: 'There is an apple on the table.',
+        label: 'There is an apple on the table.',
+        translation: '桌子上有一个苹果。'
+      }]
+    }
+  ])
+
+  assert.equal(questions.length, 1)
+  assert.equal(questions[0].audio, 'https://example.test/word-sentence.mp3')
+})
+
+test('listening quiz strips pronunciation markers from proverb.label', () => {
+  const questions = buildListeningQuizQuestions([
+    {
+      word: { content: 'apple' },
+      proverb: [{
+        content: '桌子上有一个苹果。',
+        label: '(s:1)There (g:1)is an apple on the table.',
+        translation: '桌子上有一个苹果。'
+      }]
+    }
+  ])
+
+  assert.equal(questions.length, 1)
+  assert.equal(questions[0].sentence, 'There is an apple on the table.')
+})
+
+test('listening quiz only blanks non-target words from the same unit sentence', () => {
+  const questions = buildListeningQuizQuestions([
+    {
+      word: { content: 'apple' },
+      proverb: [{ content: 'The apple is on the table.', translation: '苹果在桌子上。' }]
+    },
+    {
+      word: { content: 'table' },
+      proverb: [{ content: 'The apple is on the table.', translation: '苹果在桌子上。' }]
+    }
+  ])
+
+  assert.equal(questions.length, 2)
+  assert.equal(questions[0].word, 'apple')
+  assert.equal(questions[1].word, 'table')
+  assert.ok(questions[0].matches.some(match => match.text === 'table'))
+  assert.ok(questions[1].matches.some(match => match.text === 'apple'))
+})
+
 test('listening quiz exposes newly learned words from the same unit resource', () => {
   const words = buildLearningWords([
     { word: { content: 'study', translation: '学习', attribute: 'n.', symbol: 'studi' } },
@@ -99,13 +171,14 @@ test('listen page renders a home-styled fill-in quiz with top progress and new w
   assert.match(listenScript, /quizProgressPercent/)
   assert.match(listenScript, /instantiateQuizQuestion/)
   assert.match(listenScript, /rememberQuizWordResult/)
-  assert.match(listenScript, /reportListeningQuizResult/)
+  assert.match(listenScript, /postListeningQuizResult/)
+  assert.match(listenScript, /setQuizViewQuestion\(question, true[\s\S]*rememberQuizWordResult/)
+  assert.match(listenTemplate, /word-new\/hint-bulb\.png/)
   assert.match(listenTemplate, /wx:if="{{!loading && quizMode}}"/)
-  assert.match(listenTemplate, /正在准备听力小测/)
+  assert.match(listenTemplate, /正在准备关卡小测/)
   assert.match(listenTemplate, /随机生成填空中/)
-  assert.match(listenTemplate, /listen-top-progress/)
-  assert.match(listenTemplate, /quizMode \? quizProgressPercent : progress/)
-  assert.match(listenTemplate, /class="quiz-new-words"/)
+  assert.match(listenTemplate, /listen-quiz-top-progress/)
+  assert.match(listenTemplate, /quizProgressPercent/)
   assert.match(listenTemplate, /bindtap="onQuizOptionTap"/)
   assert.match(listenTemplate, /bindtap="onQuizBlankTap"/)
   assert.match(listenTemplate, /listen-quiz-shell/)
@@ -113,7 +186,11 @@ test('listen page renders a home-styled fill-in quiz with top progress and new w
   assert.match(listenStyle, /\.listen-quiz-shell\s*{[^}]*background:\s*linear-gradient\(180deg,\s*#e7e1f3/s)
   assert.match(listenStyle, /\.quiz-page\s*{[^}]*background:\s*linear-gradient\(180deg,\s*#e7e1f3/s)
   assert.match(listenStyle, /\.quiz-card\s*{[^}]*border-radius:\s*29rpx/s)
-  assert.match(listenStyle, /\.listen-quiz-shell \.listen-top-progress-fill\s*{[^}]*background:\s*#111318/s)
+  assert.match(listenStyle, /\.listen-quiz-top-progress-fill\s*{[^}]*background:\s*#111318/s)
   assert.match(listenStyle, /\.quiz-option\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.42\)/s)
-  assert.match(listenStyle, /\.loading-panel\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.34\)/s)
+  assert.match(listenTemplate, /bindbeforeplay="onQuizMediaBeforePlay"/)
+  assert.match(listenStyle, /\.quiz-recite-panel\.listen-full-bleed\s*{[^}]*margin-left:\s*-29rpx/s)
+  assert.match(listenStyle, /\.quiz-recite-media \.recording\s*{[^}]*left:\s*-48rpx/s)
+  assert.match(listenStyle, /\.quiz-recite-media \.recording-wave\s*{[^}]*min-width:\s*0/s)
+  assert.match(listenStyle, /\.loading-panel\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.62\)/s)
 })

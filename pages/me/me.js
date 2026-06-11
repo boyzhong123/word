@@ -37,19 +37,38 @@ Page({
     safeAreaBottom: 0,
     logined: false,
     userInfo: {},
-    isVip: false,
     stats: {
       checkInDays: 0,
       learnedWords: 0,
       studyMinutes: 0
     },
     menus: [
-      { id: 'book', icon: '📚', bg: '#e9f9ee', label: '我的教材', action: 'book' },
-      { id: 'vip', icon: '👑', bg: '#fff3da', label: '会员中心', action: 'vip' },
-      { id: 'remind', icon: '⏰', bg: '#e8f1ff', label: '学习提醒', action: 'remind' },
-      { id: 'feedback', icon: '✏️', bg: '#f1ecff', label: '意见反馈', action: 'feedback' },
-      { id: 'about', icon: 'ℹ️', bg: '#eef0f3', label: '关于我们', action: 'about' },
-      { id: 'contact', icon: '🎧', bg: '#e9f9ee', label: '联系客服', openType: 'contact' }
+      {
+        id: 'book',
+        label: '我的教材',
+        desc: '查看当前学习内容',
+        action: 'book'
+      },
+      {
+        id: 'notify',
+        label: '消息授权状态',
+        desc: '管理订阅消息、公众号提醒状态',
+        action: 'notify'
+      },
+      {
+        id: 'contact',
+        label: '联系客服',
+        desc: '遇到问题时找我们',
+        openType: 'contact'
+      }
+    ],
+    settings: [
+      {
+        id: 'privacy',
+        label: '隐私与协议',
+        desc: '账号安全和数据说明',
+        action: 'privacy'
+      }
     ]
   },
 
@@ -91,10 +110,7 @@ Page({
         avatarUrl: data.avatarUrl || data.avatar || data.headImg || '',
         nickName: data.nickName || data.nickname || data.name || ''
       }
-      this.setData({
-        userInfo,
-        isVip: !!(data.isVip || data.vip || data.vipForever)
-      })
+      this.setData({ userInfo })
     }).catch(() => {})
   },
 
@@ -127,8 +143,34 @@ Page({
     })
   },
 
-  goVip() {
-    wx.navigateTo({ url: '../vip/vip' })
+  requestSubscribe() {
+    const app = getApp()
+    const tmplIds = (app.globalData && app.globalData.subscribeTmplIds) || []
+    if (!tmplIds.length) {
+      wx.showToast({
+        title: '暂无可订阅的消息模板',
+        icon: 'none'
+      })
+      return
+    }
+    wx.requestSubscribeMessage({
+      tmplIds,
+      complete: (res) => {
+        const accepted = tmplIds.some(id => res[id] === 'accept')
+        wx.showToast({
+          title: accepted ? '已开启提醒' : '未开启提醒',
+          icon: accepted ? 'success' : 'none'
+        })
+      }
+    })
+  },
+
+  onOfficialAccountLoad() {
+    console.log('[me] official account component loaded')
+  },
+
+  onOfficialAccountError(event) {
+    console.log('[me] official account component error', event.detail)
   },
 
   handleMenuTap(event) {
@@ -136,15 +178,17 @@ Page({
     if (!action) {
       return
     }
-    if (action === 'vip') {
-      this.goVip()
-      return
-    }
     if (action === 'book') {
       this.navToStudy()
       return
     }
-    this.showPending()
+    if (action === 'notify') {
+      this.requestSubscribe()
+      return
+    }
+    if (action === 'privacy') {
+      this.showPending()
+    }
   },
 
   onContact() {

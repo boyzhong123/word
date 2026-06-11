@@ -1,17 +1,16 @@
 <!--pages/report/report.wxml-->
 <view class="report-page">
-  <view class="nav" style="padding-top: {{safeAreaTop}}px;">
-    <view class="nav-btn" bindtap="back">
-      <image class="nav-action-icon" src="../../images/icon_back_deep.svg" mode="heightFix" />
+  <navigation background="transparent">
+    <view class="report-nav-title-wrap">
+      <view class="report-nav-title">学习报告</view>
     </view>
-    <view class="nav-title">学习报告</view>
-  </view>
+  </navigation>
 
   <scroll-view class="report-scroll" scroll-y enhanced show-scrollbar="{{false}}" wx:if="{{report}}">
     <!-- 顶部薄荷绿大框：关卡标题 + 谚语 + 星级 + 胶冻吉祥物 -->
     <view class="hero">
       <view class="hero-head">
-        <image class="hero-flag" src="../../images/home/icon-report-jelly.png" mode="aspectFit" />
+        <image class="hero-flag" src="../../images/home/icon-report-pill.png" mode="aspectFit" />
         <text>本关学习报告</text>
       </view>
 
@@ -35,7 +34,7 @@
             <text wx:if="{{report.zhSaying}}" class="hero-saying-zh">{{report.zhSaying}}</text>
           </view>
         </view>
-        <image class="hero-mascot" src="../../images/home/mascot-progress.png" mode="aspectFit" />
+        <image class="hero-mascot" src="../../images/home/mascot-report-jelly.png" mode="aspectFit" />
       </view>
 
       <!-- 四个关键指标 -->

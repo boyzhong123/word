@@ -102,6 +102,7 @@
             score="{{quizReciteScore}}"
             bindresult="onQuizReciteResult"
             bindmediaStateChange="onQuizReciteStateChange"
+            bindbeforeplay="onQuizMediaBeforePlay"
             bindunauthorized="onQuizReciteUnauthorized"
           ></media>
           <text wx:if="{{quizMarking}}" class="quiz-recite-status">录音中，点击波纹结束</text>
@@ -125,7 +126,9 @@
         </view>
 
         <view class="quiz-audio-hint" bindtap="replayQuizAudio">
-          <image class="quiz-hint-bulb {{quizAudioPlaying ? 'quiz-hint-bulb-playing' : ''}}" src="../../images/word-new/hint-bulb.svg" mode="aspectFit" />
+          <view class="quiz-hint-btn {{quizAudioPlaying ? 'quiz-hint-btn-playing' : ''}}">
+            <image class="quiz-hint-icon" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+          </view>
           <text class="quiz-hint-label">提示一下</text>
         </view>
       </block>
@@ -144,21 +147,19 @@
     <swiper-item>
       <view class="cover-page">
         <view class="player-card">
+          <view class="pivot-housing"></view>
           <view class="turntable">
-            <view class="disc-well">
-              <view class="disc-stack {{playing ? 'spinning' : ''}}">
-                <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" />
-                <image class="disc-texture" src="/images/listen/disc-texture-overlay.png" mode="aspectFill" />
-                <view class="disc-label-ring"></view>
-                <view class="disc-sheen"></view>
-              </view>
+            <image class="disc-tray" src="/images/listen/disc-tray.png" />
+            <view class="disc-stack {{playing ? 'spinning' : ''}}">
+              <image class="disc-texture" src="/images/listen/disc-texture-overlay.png" />
+              <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" />
+              <view class="disc-sheen"></view>
             </view>
+            <view class="disc-spindle"></view>
           </view>
-          <image
-            class="tonearm-overlay"
-            src="{{playing ? '/images/listen/tonearm-overlay-playing.png' : '/images/listen/tonearm-overlay-parked.png'}}"
-            mode="aspectFill"
-          />
+          <view class="tonearm {{playing ? 'tonearm-on-disc' : ''}}">
+            <image class="tonearm-img" src="/images/listen/tonearm-arm.png" />
+          </view>
         </view>
         <view class="cover-hint">向左滑动可查看课文</view>
       </view>

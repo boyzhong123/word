@@ -1,7 +1,7 @@
 <view class="calendar-page">
   <view class="nav" style="padding-top: {{safeAreaTop}}px;">
     <view class="nav-btn" bindtap="back">
-      <image class="nav-icon" src="../../images/icon_back.png" mode="heightFix" />
+      <image class="nav-action-icon" src="../../images/icon_back_deep.svg" mode="heightFix" />
     </view>
     <view class="nav-actions">
       <image class="help-icon" src="../../images/checkin/help.svg" mode="aspectFit" />
@@ -37,7 +37,7 @@
 
     <view class="power-card">
       <view class="power-copy">
-        {{todayChecked ? '今天的电力已经续上。继续学习，让你的战绩持续常亮。' : '嗨，今天的电力还没续上。花3分钟，保持你的战绩常亮。'}}
+        {{todayChecked ? '今天的电力已经续上。继续学习，让你的战绩持续常亮。' : '噫，今天的电力还没续上。花3分钟，保持你的战绩常亮。'}}
       </view>
       <button class="power-button" hover-class="power-button-hover" bindtap="startLearning">开始背单词</button>
     </view>

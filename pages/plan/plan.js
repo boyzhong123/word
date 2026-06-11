@@ -56,8 +56,6 @@ function buildPresets(maxGroups) {
 
 Page({
   data: {
-    statusBarHeight: wx.getStorageSync('statusBarHeight') || 20,
-    navBarHeight: wx.getStorageSync('navigationBarHeight') || 44,
     safeAreaBottom: 0,
 
     book: { name: '', bookCover: '', wordCount: 0, resBookId: '' },
@@ -167,11 +165,4 @@ Page({
     }, 600)
   },
 
-  back() {
-    if (getCurrentPages().length > 1) {
-      wx.navigateBack()
-    } else {
-      wx.switchTab({ url: '/pages/home/home' })
-    }
-  }
 })

@@ -35,8 +35,10 @@
                   </view>
                   <view class="wn-ipa-row">
                     <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
-                      <text class="wn-lang">{{pron.label}}</text>
-                      <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small.png" mode="aspectFit" />
+                      <view class="wn-pron-pill">
+                        <text class="wn-lang">{{pron.label}}</text>
+                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small.png" mode="aspectFit" />
+                      </view>
                       <text class="wn-ipa">/{{pron.symbol}}/</text>
                     </view>
                   </view>
@@ -52,7 +54,9 @@
                     <view wx:if="{{item.hinted}}" class="wn-ex-cn wn-ex-cn-with-speaker">{{item.proverb[0].translation}}</view>
                   </view>
                   <view class="wn-hint" catchtap="showHint">
-                    <image class="wn-bulb-icon" src="../../images/word-new/hint-bulb.svg" mode="aspectFit" />
+                    <view class="wn-hint-btn">
+                      <image class="wn-hint-icon" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+                    </view>
                     <text class="wn-hint-label">提示一下</text>
                   </view>
                 </view>
@@ -83,8 +87,10 @@
                   </view>
                   <view class="wn-ipa-row">
                     <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
-                      <text class="wn-lang">{{pron.label}}</text>
-                      <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small.png" mode="aspectFit" />
+                      <view class="wn-pron-pill">
+                        <text class="wn-lang">{{pron.label}}</text>
+                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small.png" mode="aspectFit" />
+                      </view>
                       <text class="wn-ipa">/{{pron.symbol}}/</text>
                     </view>
                   </view>

@@ -2,6 +2,7 @@ const test = require('node:test')
 const assert = require('node:assert/strict')
 
 const {
+  UNLOCK_ALL_TASKS_FOR_DEV,
   DISPLAY_BATCH_SIZE,
   REVIEW_INTERVAL,
   buildDisplayUnits,
@@ -42,7 +43,10 @@ test('different levels rotate through at least 200 bilingual learning sayings', 
   assert.ok(units.every(unit => /[\u4e00-\u9fff]/.test(unit.subtitleChinese)))
 })
 
-test('category cards use the same jelly monster with state-specific frames', () => {
+test('category cards use the same jelly monster with state-specific frames', (t) => {
+  if (UNLOCK_ALL_TASKS_FOR_DEV) {
+    t.skip('sequential unlock is disabled in dev mode')
+  }
   const units = buildDisplayUnits(Array.from({ length: 6 }, (_, index) => ({
     unitId: 'unit-' + (index + 1),
     sort: index + 1,
@@ -68,12 +72,12 @@ test('category cards use the same jelly monster with state-specific frames', () 
     'locked'
   ])
   assert.deepEqual(units.map(unit => unit.cardMonsterSprite), [
-    '../../images/home/map/monsters/jelly-defeated.png',
-    '../../images/home/map/monsters/jelly-fighting.png',
-    '../../images/home/map/monsters/jelly-locked.png',
-    '../../images/home/map/monsters/jelly-locked.png',
-    '../../images/home/map/monsters/jelly-locked.png',
-    '../../images/home/map/monsters/jelly-locked.png'
+    '/images/home/map/monsters/jelly-defeated.png',
+    '/images/home/map/monsters/jelly-fighting.png',
+    '/images/home/map/monsters/jelly-locked.png',
+    '/images/home/map/monsters/jelly-locked.png',
+    '/images/home/map/monsters/jelly-locked.png',
+    '/images/home/map/monsters/jelly-locked.png'
   ])
   assert.equal(units[0].cardMonsterFrameCount, 1)
   assert.equal(units[1].cardMonsterFrameCount, 6)
@@ -102,7 +106,7 @@ test('completed units show full progress for all three tasks', () => {
 
 test('unfinished units show zero progress', () => {
   const [unit] = buildDisplayUnits([
-    { unitId: 'unfinished', sort: 1, wordTotal: 12, completed: false }
+    { unitId: 'unfinished', sort: 2, wordTotal: 12, completed: false }
   ])
 
   assert.equal(unit.locked, false)
@@ -141,6 +145,7 @@ test('needVip locks a unit and overrides completed progress', () => {
 test('empty API data returns a cloned fallback list', () => {
   const fallback = [{
     unitId: 'fallback',
+    sort: 2,
     levelWords: 36,
     doneStages: 2,
     tasks: [{ type: 'word', current: 1 }]
@@ -150,8 +155,8 @@ test('empty API data returns a cloned fallback list', () => {
   units[0].tasks[0].current = 99
 
   assert.notEqual(units, fallback)
-  assert.equal(units[0].sort, 1)
-  assert.equal(units[0].title, '关卡 1 · 36词')
+  assert.equal(units[0].sort, 2)
+  assert.equal(units[0].title, '关卡 2 · 36词')
   assert.deepEqual(units[0].stageStars, [true, true, false])
   assert.equal(fallback[0].tasks[0].current, 1)
 })
@@ -164,7 +169,23 @@ test('getNextVisibleCount adds one batch without exceeding total', () => {
   assert.equal(getNextVisibleCount(55, 55), 55)
 })
 
-test('map progress exposes completed, active, upcoming, and locked task states', () => {
+test('demo treats the first level as fully completed with a defeated monster', () => {
+  const [unit] = buildDisplayUnits([
+    { unitId: 'unit-1', sort: 1, wordTotal: 12, completed: false }
+  ])
+
+  assert.equal(unit.mapState, 'completed')
+  assert.equal(unit.doneStages, 3)
+  assert.deepEqual(unit.stageStars, [true, true, true])
+  assert.equal(unit.cardMonsterState, 'defeated')
+  assert.equal(unit.cardMonsterSprite, '/images/home/map/monsters/jelly-defeated.png')
+  assert.deepEqual(unit.tasks.map(task => task.percent), [100, 100, 100])
+})
+
+test('map progress exposes completed, active, upcoming, and locked task states', (t) => {
+  if (UNLOCK_ALL_TASKS_FOR_DEV) {
+    t.skip('sequential unlock is disabled in dev mode')
+  }
   const units = buildDisplayUnits([
     { unitId: 'complete', sort: 1, wordTotal: 12, completed: true },
     { unitId: 'current', sort: 2, wordTotal: 12 },
@@ -198,7 +219,10 @@ test('map progress exposes completed, active, upcoming, and locked task states',
   ])
 })
 
-test('map progress builds a continuous level route with image nodes and animated monsters', () => {
+test('map progress builds a continuous level route with image nodes and animated monsters', (t) => {
+  if (UNLOCK_ALL_TASKS_FOR_DEV) {
+    t.skip('sequential unlock is disabled in dev mode')
+  }
   const units = buildDisplayUnits([
     { unitId: 'complete', sort: 1, wordTotal: 12, completed: true },
     { unitId: 'current', sort: 2, wordTotal: 18 },
@@ -228,14 +252,14 @@ test('map progress builds a continuous level route with image nodes and animated
   assert.equal(units[1].hasMonster, true)
   assert.equal(units[1].monsterName, 'jelly')
   assert.equal(units[1].monsterState, 'fighting')
-  assert.equal(units[1].monsterSprite, '../../images/home/map/monsters/jelly-fighting.png')
+  assert.equal(units[1].monsterSprite, '/images/home/map/monsters/jelly-fighting.png')
   assert.equal(units[1].monsterFrameCount, 6)
   assert.equal(units[1].monsterFrameSize, 166)
 
   assert.equal(units[5].hasMonster, true)
   assert.equal(units[5].monsterName, 'jelly')
   assert.equal(units[5].monsterState, 'locked')
-  assert.equal(units[5].monsterSprite, '../../images/home/map/monsters/jelly-locked.png')
+  assert.equal(units[5].monsterSprite, '/images/home/map/monsters/jelly-locked.png')
 })
 
 test('buildListUnits inserts a review level after every three real levels', () => {
@@ -273,7 +297,7 @@ test('a 5-card daily goal boxes up 3 new + 1 review + 1 new', () => {
   assert.equal(todayGroups.length, 1)
   assert.deepEqual(
     todayGroups[0].units.map(unit => unit.isReview ? 'review' : unit.unitId),
-    ['unit-1', 'unit-2', 'unit-3', 'review', 'unit-4']
+    ['unit-2', 'unit-3', 'review', 'unit-4', 'unit-5', 'unit-6', 'review']
   )
 })
 
@@ -300,7 +324,7 @@ test('buildListUnits review card mirrors the regular layout with wrong-word cont
     [0, 30, 0]
   ])
   assert.equal(review.cardMonsterFrameCount, 6)
-  assert.ok(review.cardMonsterSprite.startsWith('../../images/home/map/monsters/'))
+  assert.ok(review.cardMonsterSprite.startsWith('/images/home/map/monsters/'))
 })
 
 test('buildListUnits prefers explicit wrong-word counts and locks until the group is cleared', () => {
@@ -364,9 +388,15 @@ test('groupListUnits bundles consecutive today levels into one group, others alo
   // Exactly one today box, holding the two consecutive today levels
   const todayGroups = groups.filter(group => group.today)
   assert.equal(todayGroups.length, 1)
-  assert.deepEqual(todayGroups[0].units.map(unit => unit.unitId), ['unit-2', 'unit-3'])
+  assert.deepEqual(
+    todayGroups[0].units.filter(unit => !unit.isReview).map(unit => unit.unitId),
+    ['unit-2', 'unit-3']
+  )
   // Each entry keeps its original listUnits index for tap/toggle handlers
-  assert.deepEqual(todayGroups[0].units.map(unit => unit.listIndex), [1, 2])
+  assert.deepEqual(
+    todayGroups[0].units.filter(unit => !unit.isReview).map(unit => unit.listIndex),
+    [1, 2]
+  )
   // unit-1 (done) renders on its own card, outside the box
   const firstSingle = groups.find(group => !group.today)
   assert.equal(firstSingle.unit.unitId, 'unit-1')

@@ -41,7 +41,7 @@
 }
 
 .listen-quiz-shell {
-  background: linear-gradient(180deg, #e7e1f3 0%, #d8e3f9 32%, #abcaf2 66%, #84b6ee 100%);
+  background: linear-gradient(180deg, #ece6f0 0%, #e0e1f5 26%, #bad2f8 52%, #85bbf8 76%, #5fa9f7 100%);
 }
 
 /* ---------------- 小测导航（对齐新词学习页） ---------------- */
@@ -308,12 +308,28 @@
   border-top: 1rpx solid rgba(100, 116, 150, 0.12);
 }
 
+.quiz-recite-panel.listen-full-bleed {
+  margin-left: -29rpx;
+  margin-right: -29rpx;
+}
+
 .quiz-recite-media {
   display: block;
   width: 100%;
   box-sizing: border-box;
   padding: 12rpx 48rpx 8rpx !important;
   min-height: 168rpx;
+}
+
+/* 录音波纹撑满卡片宽度，按钮态仍保留左右内边距 */
+.quiz-recite-media .recording {
+  left: -48rpx;
+  right: -48rpx;
+}
+
+.quiz-recite-media .recording-wave {
+  width: 100% !important;
+  min-width: 0 !important;
 }
 
 .quiz-recite-recording {
@@ -414,13 +430,24 @@
   align-items: center;
 }
 
-.quiz-hint-bulb {
-  width: 130rpx;
-  height: 130rpx;
+.quiz-hint-btn {
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 4rpx 16rpx rgba(120, 160, 210, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-hint-icon {
+  width: 58rpx;
+  height: 58rpx;
   display: block;
 }
 
-.quiz-hint-bulb-playing {
+.quiz-hint-btn-playing {
   animation: quiz-hint-pulse 0.7s ease-in-out infinite;
 }
 
@@ -438,10 +465,11 @@
 }
 
 .quiz-hint-label {
-  margin-top: 4rpx;
+  margin-top: 32rpx;
   font-size: 26rpx;
   font-weight: 400;
-  color: rgba(71, 84, 99, 0.58);
+  letter-spacing: 0;
+  color: #3a505f;
 }
 
 .quiz-done-panel {
@@ -506,73 +534,89 @@
   align-items: center;
   justify-content: center;
 }
-/* QQ 音乐风格白色圆角卡片 */
+/* QQ 音乐风格白色圆角卡片（CSS 卡片 + 按素材内容实际边界定位） */
 .player-card {
   position: relative;
   width: 620rpx;
   height: 620rpx;
-  border-radius: 56rpx;
   background: #ffffff;
-  box-shadow:
-    0 36rpx 96rpx rgba(0, 0, 0, 0.13),
-    0 14rpx 36rpx rgba(0, 0, 0, 0.08),
-    0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 56rpx;
+  box-shadow: 0 18rpx 40rpx rgba(96, 114, 140, 0.16), 0 4rpx 12rpx rgba(96, 114, 140, 0.08);
   overflow: visible;
 }
-.turntable {
-  position: relative;
-  width: 520rpx;
-  height: 520rpx;
-}
-/* 碟片凹槽（内凹景深） */
-.disc-well {
-  position: relative;
-  width: 520rpx;
-  height: 520rpx;
+/* 唱臂轴座底圆（卡片右上角浅色圆形凸台） */
+.pivot-housing {
+  position: absolute;
+  /* 与唱臂旋钮轴心 (569, 40) 同心 */
+  left: 494rpx;
+  top: -35rpx;
+  width: 150rpx;
+  height: 150rpx;
   border-radius: 50%;
-  box-shadow:
-    inset 0 8rpx 24rpx rgba(0, 0, 0, 0.07),
-    inset 0 2rpx 6rpx rgba(0, 0, 0, 0.04);
+  background: radial-gradient(circle at 42% 38%, #fdfdfe 0%, #f4f5f8 58%, #eceef2 100%);
+  box-shadow: 0 4rpx 10rpx rgba(96, 114, 140, 0.08);
+  z-index: 1;
+}
+.turntable {
+  position: absolute;
+  left: 70rpx;
+  top: 70rpx;
+  width: 480rpx;
+  height: 480rpx;
+  z-index: 2;
+}
+/* 托盘 PNG 内容圆约占画布 55.8%，放大居中后内容圆 ≈ 500rpx */
+.disc-tray {
+  position: absolute;
+  left: -208rpx;
+  top: -208rpx;
+  width: 896rpx;
+  height: 896rpx;
+  pointer-events: none;
 }
 .disc-stack {
-  position: relative;
-  width: 520rpx;
-  height: 520rpx;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 480rpx;
+  height: 480rpx;
   border-radius: 50%;
   overflow: hidden;
 }
-.cover-disc {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-}
+/* 白胶碟纹理：内容圆约占画布 61%，放大后铺满 480rpx 碟面 */
 .disc-texture {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  left: -153rpx;
+  top: -153rpx;
+  width: 787rpx;
+  height: 787rpx;
   pointer-events: none;
-  z-index: 2;
 }
-.disc-label-ring {
+/* 封面只占碟心（约 55%），外圈露出白胶碟；
+   显式定位代替百分比 translate（小程序里父级旋转动画下百分比变换易偏移） */
+.cover-disc {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50%;
-  height: 50%;
-  transform: translate(-50%, -50%);
+  left: 108rpx;
+  top: 108rpx;
+  width: 264rpx;
+  height: 264rpx;
   border-radius: 50%;
-  pointer-events: none;
-  z-index: 3;
-  box-shadow:
-    inset 0 0 0 2rpx rgba(255, 255, 255, 0.55),
-    0 0 0 1rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0 0 3rpx rgba(150, 170, 195, 0.4);
+}
+/* 转轴小圆点：固定在碟面正中，不随碟旋转 */
+.disc-spindle {
+  position: absolute;
+  left: 233rpx;
+  top: 233rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #f4f5f7;
+  box-shadow: inset 0 1rpx 2rpx rgba(0, 0, 0, 0.18), 0 1rpx 1rpx rgba(255, 255, 255, 0.8);
+  z-index: 4;
 }
 .spinning {
+  transform-origin: 240rpx 240rpx;
   animation: spin 16s linear infinite;
 }
 @keyframes spin {
@@ -592,27 +636,27 @@
     linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, 0.1) 100%);
   mix-blend-mode: soft-light;
 }
-/* 唱臂：枢轴锚定在白色卡片右上角，磁头落在碟面纹路上 */
-.tonearm-pivot {
+/* 唱臂：紧裁素材（轴心在 80%/20% 旋钮中心），容器绕轴旋转；
+   停放时向盘外抬起，播放时落到盘内 */
+.tonearm {
   position: absolute;
-  top: -140rpx;
-  right: -40rpx;
-  width: 400rpx;
+  left: 396rpx;
+  top: -73rpx;
+  width: 216rpx;
+  height: 565rpx;
   z-index: 5;
   pointer-events: none;
-  transform-origin: 85.1% 16.8%;
-  /* 停止时唱臂停在碟面外缘（抬起待命） */
-  transform: rotate(-70deg);
-  transition: transform 0.72s cubic-bezier(0.45, 0.05, 0.25, 1);
-  filter: drop-shadow(0 4rpx 10rpx rgba(0, 0, 0, 0.1));
+  transform-origin: 80% 20%;
+  transform: rotate(-14deg);
+  transition: transform 0.9s cubic-bezier(0.34, 0.1, 0.27, 1);
 }
-/* 播放时唱臂顺时针落下，磁头压在碟面纹路上 */
-.tonearm-pivot.tonearm-on {
-  transform: rotate(19deg);
+.tonearm.tonearm-on-disc {
+  transform: rotate(4deg);
 }
 .tonearm-img {
   display: block;
   width: 100%;
+  height: 100%;
 }
 .cover-hint {
   margin-top: 70rpx;
@@ -660,11 +704,11 @@
 /* 当前播放 / 展开条目高亮 */
 .lyric-active .lyric-en,
 .lyric-expanded .lyric-en {
-  color: #2f80ed;
+  color: #111318;
 }
 .lyric-active .lyric-cn,
 .lyric-expanded .lyric-cn {
-  color: #1f6fd6;
+  color: #111318;
 }
 
 /* ---------------- 跟读测评：展开面板（全屏白色遮罩，黑色图标居中） ---------------- */
@@ -904,7 +948,7 @@
   border-top: 1rpx solid #f0f1f3;
 }
 .sheet-item-active {
-  background: rgba(47, 128, 237, 0.06);
+  background: rgba(17, 19, 24, 0.04);
 }
 .sheet-item-main {
   display: flex;
@@ -915,7 +959,7 @@
   color: #2b2f36;
 }
 .sheet-item-active .sheet-item-name {
-  color: #2f80ed;
+  color: #111318;
   font-weight: 700;
 }
 .sheet-item-sub {
@@ -932,7 +976,7 @@
 }
 .sheet-playing {
   font-size: 24rpx;
-  color: #2f80ed;
+  color: #111318;
 }
 .sheet-close {
   text-align: center;
@@ -975,7 +1019,7 @@
   justify-content: center;
   width: 168rpx;
   height: 168rpx;
-  filter: drop-shadow(0 6rpx 11rpx rgba(47, 128, 237, 0.22));
+  filter: drop-shadow(0 6rpx 11rpx rgba(17, 19, 24, 0.22));
 }
 .loading-title {
   margin-top: 36rpx;

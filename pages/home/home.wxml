@@ -12,7 +12,7 @@
     bindscrolltolower="loadMoreUnits"
   >
     <view class="hero-section" style="height: {{heroSectionHeight}}rpx;">
-      <image class="hero-image" src="../../images/home/hero-campus-jelly-v4.png" mode="aspectFill" />
+      <image class="hero-image" src="../../images/home/hero-campus-jelly-v5.png" mode="widthFix" />
 
       <view class="hero-copy" style="top: {{heroContentTop}}rpx;">
         <view class="hero-title">
@@ -181,6 +181,15 @@
                       mode="aspectFit"
                     />
                   </view>
+                  <view
+                    wx:if="{{unit.doneStages >= 3 && !unit.isReview}}"
+                    class="unit-report-pill"
+                    data-unit-index="{{unit.listIndex}}"
+                    catchtap="goUnitReport"
+                  >
+                    <image class="unit-report-icon" src="../../images/home/icon-report-pill.png" mode="aspectFit" />
+                    <text>报告</text>
+                  </view>
                 </view>
                 <view class="unit-subtitle-row">
                   <view class="unit-subtitle" style="color: {{unit.subtitleColor}};">
@@ -198,11 +207,11 @@
               <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
                 <frame-animation
                   wx:if="{{unit.cardMonsterState === 'fighting'}}"
-                  url="../../images/home/student-monster-pk-sprite.png"
-                  count="6"
+                  url="/images/home/student-monster-pk-sprite.png"
+                  count="7"
                   width="148"
                   height="84"
-                  duration="1.1"
+                  duration="1.75"
                   state="running"
                 />
                 <frame-animation
@@ -282,6 +291,15 @@
                     mode="aspectFit"
                   />
                 </view>
+                <view
+                  wx:if="{{unit.doneStages >= 3 && !unit.isReview}}"
+                  class="unit-report-pill"
+                  data-unit-index="{{unit.listIndex}}"
+                  catchtap="goUnitReport"
+                >
+                  <image class="unit-report-icon" src="../../images/home/icon-report-pill.png" mode="aspectFit" />
+                  <text>报告</text>
+                </view>
               </view>
               <view class="unit-subtitle-row">
                 <view class="unit-subtitle" style="color: {{unit.subtitleColor}};">
@@ -299,11 +317,11 @@
             <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
               <frame-animation
                 wx:if="{{unit.cardMonsterState === 'fighting'}}"
-                url="../../images/home/student-monster-pk-sprite.png"
-                count="6"
+                url="/images/home/student-monster-pk-sprite.png"
+                count="7"
                 width="148"
                 height="84"
-                duration="1.1"
+                duration="1.75"
                 state="running"
               />
               <frame-animation
@@ -442,7 +460,7 @@
     class="today-locate-fab"
     bindtap="scrollToTodayTasks"
   >
-    <image class="today-locate-fab-image" src="../../images/home/fab-today-locate-jelly.png" mode="aspectFit" />
+    <image class="today-locate-fab-image" src="/images/home/fab-today-locate-jelly.png" mode="aspectFit" />
   </view>
 
   <!-- 切换教材弹窗：点击「切换教材」后弹出，选择某本教材才真正切换 -->

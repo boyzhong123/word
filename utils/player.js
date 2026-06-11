@@ -330,6 +330,16 @@ const player = {
     this.emit()
   },
 
+  // 关闭随身听：停止播放并下线（迷你播放条随 active=false 消失）
+  stop() {
+    if (this.audio) {
+      this.audio.stop()
+    }
+    this.playing = false
+    this.active = false
+    this.emit()
+  },
+
   prev() {
     if (!this.tracks.length) {
       return
@@ -370,6 +380,16 @@ const player = {
     }
     this.current = index
     this.loadCurrent(true)
+  },
+
+  // 聚焦到某一条：同步进度条与示范音源到该条，但不自动播放
+  // （点击课文展开测评时用：先暂停随身听，由 media 组件播标准音）
+  focusTrack(index) {
+    if (index < 0 || index >= this.tracks.length) {
+      return
+    }
+    this.current = index
+    this.loadCurrent(false)
   },
 
   // 切换到某一期

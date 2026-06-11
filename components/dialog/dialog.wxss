@@ -62,18 +62,23 @@
   width: 184rpx;
   font-size: 28rpx;
   font-family: PingFang SC;
-  border-radius: 60rpx;
-  color: white;
+  font-weight: 700;
+  border-radius: 999rpx;
   text-align: center;
   padding: 21rpx 0;
 }
 
 .negetive {
-  background: #B8B8B8;
+  color: #111318;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: none;
 }
 
 .positive {
-  background: #1a1a1a;
+  color: #ffffff;
+  background: #111318;
+  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.18);
 }
 
 .title-row {
@@ -155,13 +160,13 @@
   margin: 60rpx 36rpx 48rpx;
   background: #111318;
   height: 100rpx;
-  border-radius: 50rpx;
-  color: white;
+  border-radius: 999rpx;
+  color: #ffffff;
   font-size: 36rpx;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 100rpx;
   text-align: center;
-  box-shadow: 0 8rpx 16rpx rgba(17, 19, 28, 0.18);
+  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.18);
 }
 
 .slide-bottom {
