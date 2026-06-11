@@ -10,6 +10,8 @@ const {
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 const DEFAULT_AVATAR = '../../images/home/mascot-report-jelly.png'
+const STREAK_REWARD_DAYS = 30
+const STREAK_REWARD_CODE = 'TSZXVIP5D'
 
 function getSafeArea() {
   const systemInfo = wx.getSystemInfoSync()
@@ -19,6 +21,37 @@ function getSafeArea() {
     safeAreaBottom: safeArea.bottom
       ? Math.max(systemInfo.windowHeight - safeArea.bottom, 0)
       : 0
+  }
+}
+
+function getNavLayout() {
+  const systemInfo = wx.getSystemInfoSync()
+  const statusBarHeight = Number(systemInfo.statusBarHeight) || 0
+  const windowWidth = Number(systemInfo.windowWidth) || 375
+  const storedNavHeight = Number(wx.getStorageSync('navigationBarHeight'))
+  let navigationBarHeight = storedNavHeight > 0
+    ? storedNavHeight
+    : (systemInfo.platform === 'android' ? 48 : 40)
+
+  let navActionsRight = 24
+  if (typeof wx.getMenuButtonBoundingClientRect === 'function') {
+    const menuButton = wx.getMenuButtonBoundingClientRect() || {}
+    const menuLeft = Number(menuButton.left)
+    if (menuLeft > 0) {
+      navActionsRight = Math.max(Math.ceil(windowWidth - menuLeft + 12), 24)
+    }
+    const menuTop = Number(menuButton.top)
+    const menuHeight = Number(menuButton.height)
+    if (menuTop > 0 && menuHeight > 0) {
+      navigationBarHeight = Math.max(navigationBarHeight, (menuTop - statusBarHeight) * 2 + menuHeight)
+    }
+  }
+
+  return {
+    statusBarHeight,
+    navigationBarHeight,
+    navBarHeightPx: statusBarHeight + navigationBarHeight,
+    navActionsRight
   }
 }
 
@@ -54,6 +87,10 @@ function pickAvatarUrl(data) {
   return data.avatarUrl || data.avatar || data.headImg || data.headImage || ''
 }
 
+function pickRewardCode(data) {
+  return data.streakRewardCode || data.vipRedeemCode || data.rewardCode || STREAK_REWARD_CODE
+}
+
 function pickPracticeUnitId(book) {
   const learningInfo = (book && book.learningInfo) || {}
   const candidates = [
@@ -77,6 +114,10 @@ Page({
   data: {
     safeAreaTop: 0,
     safeAreaBottom: 0,
+    statusBarHeight: 0,
+    navigationBarHeight: 0,
+    navBarHeightPx: 0,
+    navActionsRight: 24,
     weekdays: WEEKDAYS,
     yearMonth: '',
     calendarDays: [],
@@ -89,7 +130,10 @@ Page({
     bookName: '',
     avatarUrl: '',
     avatarSrc: DEFAULT_AVATAR,
-    rewardDay: 10
+    rewardDay: STREAK_REWARD_DAYS,
+    giftUnlocked: false,
+    showGiftDialog: false,
+    rewardCode: STREAK_REWARD_CODE
   },
 
   onLoad() {
@@ -100,7 +144,7 @@ Page({
     const book = (app.globalData && app.globalData.book) || {}
     this.book = book
 
-    this.setData(Object.assign(getSafeArea(), {
+    this.setData(Object.assign(getSafeArea(), getNavLayout(), {
       bookName: book.name || '当前教材'
     }))
     this.renderCalendar()
@@ -142,6 +186,8 @@ Page({
 
       this.setData({
         continuousDays,
+        giftUnlocked: continuousDays >= STREAK_REWARD_DAYS,
+        rewardCode: pickRewardCode(data),
         avatarUrl: pickAvatarUrl(data),
         avatarSrc: pickAvatarUrl(data) || DEFAULT_AVATAR
       })
@@ -189,5 +235,33 @@ Page({
     } else {
       wx.switchTab({ url: '/pages/home/home' })
     }
+  },
+
+  openGiftDialog() {
+    if (!this.data.giftUnlocked) {
+      wx.showToast({
+        title: '连续打卡' + STREAK_REWARD_DAYS + '天可领取',
+        icon: 'none'
+      })
+      return
+    }
+    this.setData({ showGiftDialog: true })
+  },
+
+  closeGiftDialog() {
+    this.setData({ showGiftDialog: false })
+  },
+
+  copyRewardCode() {
+    const code = this.data.rewardCode || STREAK_REWARD_CODE
+    wx.setClipboardData({
+      data: code,
+      success: () => {
+        wx.showToast({
+          title: '兑换码已复制',
+          icon: 'success'
+        })
+      }
+    })
   }
 })

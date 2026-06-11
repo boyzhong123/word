@@ -484,13 +484,11 @@ Component({
       }
     },
     stopAni() {
-      if (this.data.media_state == AUDIO_PLAYING) {
-        const frames = this.selectComponent('.frames')
-        if (frames) {
-          frames.setData({
-            state: 'paused'
-          })
-        }
+      const frames = this.selectComponent('.frames')
+      if (frames) {
+        frames.setData({
+          state: 'paused'
+        })
       }
     },
     replay() {

@@ -94,6 +94,9 @@ Page({
       'anchor-tone': { text: '句末需要升调 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-tone' }
     },
     current: 0,
+    practiceProgressPercent: 0,
+    practiceProgressWidth: '0%',
+    wordTotal: 0,
     contents: [],
     needVip: 0,
     innerAudioContext: null,
@@ -117,18 +120,22 @@ Page({
         this.resBookName = data.book.name
         let dialogObject = this.getDialogObject(data.needVip)
         const contents = [data]
-        if (this.data.isWordNewMode) {
-          this.applyWordNewPresentation(contents, 0)
-        }
+        this.applyPracticeProgress(contents, 0)
+        const wordTotal = 1
+        const progress = this.buildPracticeProgress(0, wordTotal)
         this.setData({
           loading: false,
           from: 'search',
           needVip: data.needVip,
-          wordTotal: data.unit.wordTotal,
+          wordTotal: wordTotal,
           dialog: dialogObject,
           contents: contents,
-          navTitle: this.data.isWordNewMode ? this.buildNavTitle(data, 0, 1) : ''
+          practiceProgressPercent: progress.percent,
+          practiceProgressWidth: progress.width,
+          navTitle: this.data.isWordNewMode ? this.buildNavTitle(data, 0, wordTotal) : ''
         })
+        this.last = 0
+        this.dx = 0
         if (this.data.isWordNewMode) {
           wx.nextTick(() => this.startWordReading(0))
         } else {
@@ -157,18 +164,22 @@ Page({
   fetchReviewData() {
     const data = buildMockReviewResource(this.reviewUnitIds)
     data.forEach(item => this.initResult(item))
-    if (this.data.isWordNewMode) {
-      this.applyWordNewPresentation(data, 0)
-    }
+    this.applyPracticeProgress(data, 0)
+    const wordTotal = data.length
+    const progress = this.buildPracticeProgress(0, wordTotal)
     this.setData({
       loading: false,
       current: 0,
       needVip: 0,
-      wordTotal: data.length,
+      wordTotal: wordTotal,
       dialog: this.getDialogObject(false),
       contents: data,
-      navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, data.length) : ''
+      practiceProgressPercent: progress.percent,
+      practiceProgressWidth: progress.width,
+      navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, wordTotal) : ''
     })
+    this.last = 0
+    this.dx = 0
     if (this.data.isWordNewMode) {
       wx.nextTick(() => this.startWordReading(0))
     } else {
@@ -184,18 +195,22 @@ Page({
           })
           vip = !data.some(item => item.needVip)
       }
-      if (this.data.isWordNewMode) {
-        this.applyWordNewPresentation(data, 0)
-      }
+      this.applyPracticeProgress(data, 0)
+      const wordTotal = data.length
+      const progress = this.buildPracticeProgress(0, wordTotal)
       this.setData({
         loading: false,
         current: 0,
         needVip: vip ? 0 : 1,
-        wordTotal: data.length,
+        wordTotal: wordTotal,
         dialog: this.getDialogObject(!vip),
         contents: data,
-        navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, data.length) : ''
+        practiceProgressPercent: progress.percent,
+        practiceProgressWidth: progress.width,
+        navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, wordTotal) : ''
       })
+      this.last = 0
+      this.dx = 0
       if (this.data.isWordNewMode) {
         wx.nextTick(() => this.startWordReading(0))
       } else {
@@ -488,8 +503,12 @@ Page({
   },
   swiperChanged(e) {
     this.hideTip()
+    const current = e.detail.current
+    const progress = this.buildPracticeProgress(current)
     this.setData({
-      current: e.detail.current
+      current,
+      practiceProgressPercent: progress.percent,
+      practiceProgressWidth: progress.width
     })
   },
   touchMove(e) {
@@ -501,28 +520,104 @@ Page({
   },
   touchEnd(e) {
     if (!this.wordId && this.last == this.data.contents.length - 1 && this.dx > 20) {
-      wx.navigateTo({
-        url: '../finish/today?unitId=' + this.unitId + "&unitSort=" + this.unitSort,
-        events: {
-          'continue': p => {
-            this.resBookId = p.resBookId
-            this.unitId = p.unitId
-            this.studyNew = true
-          }
-        }
-      })
+      this.goFinishPage()
     }
   },
-  buildNavTitle(item, index, total) {
-    const sort = (item && item.unit && item.unit.sort) || this.unitSort || (index + 1)
-    return '第' + sort + '期 ' + (index + 1) + '/' + total
+  onRecitationTouchStart(e) {
+    const touch = e.touches && e.touches[0]
+    if (!touch) {
+      return
+    }
+    this._recitationTouchStartX = touch.pageX
+    this._recitationTouchStartY = touch.pageY
   },
-  applyWordNewPresentation(contents, current) {
+  onRecitationTouchEnd(e) {
+    if (this.data.needVip || this.data.marking) {
+      return
+    }
+    const touch = e.changedTouches && e.changedTouches[0]
+    if (!touch || this._recitationTouchStartX == null) {
+      return
+    }
+    const dx = touch.pageX - this._recitationTouchStartX
+    const dy = touch.pageY - this._recitationTouchStartY
+    this._recitationTouchStartX = null
+    this._recitationTouchStartY = null
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) {
+      return
+    }
+    const current = this.data.current
+    const total = this.data.contents.length
+    if (dx < 0) {
+      if (current < total - 1) {
+        this.changeRecitationIndex(current + 1)
+      }
+      return
+    }
+    if (!this.wordId && current === total - 1) {
+      this.goFinishPage()
+      return
+    }
+    if (current > 0) {
+      this.changeRecitationIndex(current - 1)
+    }
+  },
+  changeRecitationIndex(next) {
+    if (next < 0 || next >= this.data.contents.length || next === this.data.current) {
+      return
+    }
+    this.hideTip()
+    const progress = this.buildPracticeProgress(next)
+    this.setData({
+      current: next,
+      practiceProgressPercent: progress.percent,
+      practiceProgressWidth: progress.width
+    })
+    this.last = next
+    this.dx = 0
+  },
+  goFinishPage() {
+    wx.navigateTo({
+      url: '../finish/today?unitId=' + this.unitId + "&unitSort=" + this.unitSort,
+      events: {
+        'continue': p => {
+          this.resBookId = p.resBookId
+          this.unitId = p.unitId
+          this.studyNew = true
+        }
+      }
+    })
+  },
+  buildNavTitle(item, index, total) {
+    const wordTotal = total || this.data.wordTotal || this.data.contents.length || 0
+    const sort = (item && item.unit && item.unit.sort) || this.unitSort || (index + 1)
+    return '第' + sort + '期 ' + (index + 1) + '/' + wordTotal
+  },
+  getPracticeWordTotal() {
+    return Number(this.data.wordTotal) || this.data.contents.length || 0
+  },
+  buildPracticeProgress(index, total) {
+    const wordTotal = total || this.getPracticeWordTotal()
+    const percent = getPracticeProgressPercent(index, wordTotal)
+    return {
+      percent: percent,
+      width: percent + '%'
+    }
+  },
+  updatePracticeProgress(index) {
+    const progress = this.buildPracticeProgress(index)
+    this.setData({
+      practiceProgressPercent: progress.percent,
+      practiceProgressWidth: progress.width
+    })
+  },
+  applyPracticeProgress(contents, current) {
+    const wordTotal = contents.length
     contents.forEach(function (item, index) {
-      item.progressPercent = getPracticeProgressPercent(index, contents.length)
+      item.progressPercent = getPracticeProgressPercent(index, wordTotal)
     })
     if (contents[current]) {
-      contents[current].progressPercent = getPracticeProgressPercent(current, contents.length)
+      contents[current].progressPercent = getPracticeProgressPercent(current, wordTotal)
     }
   },
   getActiveAccentAudio(index) {
@@ -708,10 +803,13 @@ Page({
     if (this.data.current < this.data.contents.length - 1) {
       const next = this.data.current + 1
       const nextItem = this.data.contents[next]
+      const progress = this.buildPracticeProgress(next)
       this.setData({
         current: next,
-        navTitle: this.buildNavTitle(nextItem, next, this.data.contents.length),
-        ['contents[' + next + '].progressPercent']: getPracticeProgressPercent(next, this.data.contents.length)
+        navTitle: this.buildNavTitle(nextItem, next, this.getPracticeWordTotal()),
+        practiceProgressPercent: progress.percent,
+        practiceProgressWidth: progress.width,
+        ['contents[' + next + '].progressPercent']: progress.percent
       })
       if (this.data.isWordNewMode) {
         wx.nextTick(() => this.startWordReading(next))

@@ -63,15 +63,15 @@ page {
 
 .hero-flag {
   flex: none;
-  width: 32rpx;
-  height: 32rpx;
+  width: 38rpx;
+  height: 38rpx;
 }
 
 .hero-body {
   position: relative;
   margin-top: 16rpx;
   min-height: 168rpx;
-  padding-right: 196rpx;
+  padding-right: 224rpx;
 }
 
 .hero-copy {
@@ -123,10 +123,10 @@ page {
 
 .hero-mascot {
   position: absolute;
-  top: -18rpx;
-  right: -8rpx;
-  width: 212rpx;
-  height: 125rpx;
+  top: -22rpx;
+  right: -10rpx;
+  width: 248rpx;
+  height: 146rpx;
   pointer-events: none;
 }
 
@@ -242,33 +242,39 @@ page {
   background: #fdeceb;
 }
 
-/* ===== 三个环节得分 ===== */
+/* ===== 三个环节得分（与首页 task-card 布局一致） ===== */
 .task-grid {
+  height: 100rpx;
   display: flex;
   gap: 16rpx;
 }
 
 .task-card {
+  position: relative;
   flex: 1;
   min-width: 0;
-  padding: 18rpx 16rpx 16rpx;
+  height: 100rpx;
+  padding: 15rpx 13rpx 13rpx 18rpx;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1rpx solid rgba(235, 237, 240, 0.9);
-  border-radius: 22rpx;
-  box-shadow: 0 6rpx 14rpx rgba(115, 91, 45, 0.04);
+  display: flex;
+  align-items: flex-start;
+  color: #687078;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(237, 239, 242, 0.86);
+  border-radius: 20rpx;
 }
 
-.task-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.task-card-completed {
+  color: #858b91;
+  background: rgba(251, 252, 253, 0.68);
+  border-color: rgba(235, 237, 240, 0.72);
 }
 
 .task-icon-wrap {
   flex: none;
-  width: 48rpx;
-  height: 48rpx;
+  width: 50rpx;
+  height: 50rpx;
+  margin: 0 12rpx 0 2rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,46 +282,45 @@ page {
 }
 
 .task-icon {
-  width: 36rpx;
-  height: 36rpx;
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
 }
 
-.task-score {
-  font-size: 34rpx;
-  line-height: 36rpx;
-  font-weight: 800;
-}
-
-.task-score text {
-  margin-left: 1rpx;
-  font-size: 18rpx;
-  font-weight: 600;
+.task-copy {
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .task-name {
-  margin-top: 14rpx;
-  font-size: 24rpx;
-  font-weight: 700;
-  color: #3a4452;
+  font-size: 18rpx;
+  line-height: 25rpx;
 }
 
-.task-caption {
-  margin-top: 3rpx;
-  font-size: 19rpx;
-  color: #9aa3b0;
+.task-count {
+  margin-top: 1rpx;
+  font-size: 21rpx;
+  line-height: 27rpx;
 }
 
 .task-track {
-  height: 8rpx;
-  margin-top: 12rpx;
+  position: absolute;
+  left: 18rpx;
+  right: 18rpx;
+  bottom: 10rpx;
+  height: 7rpx;
   overflow: hidden;
-  background: #eef0f3;
+  background: #eeeeee;
   border-radius: 6rpx;
 }
 
 .task-fill {
   height: 100%;
   border-radius: 6rpx;
+}
+
+.task-card-completed .task-fill {
+  opacity: 0.38;
 }
 
 /* ===== 词表 ===== */

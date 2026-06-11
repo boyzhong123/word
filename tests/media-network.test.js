@@ -26,6 +26,7 @@ test('recording checks current network instead of only cached state', () => {
 
 test('practice media action buttons use the black recitation palette', () => {
   assert.match(mediaTemplate, /class="frames media-action-icon"/)
+  assert.match(mediaTemplate, /state="paused"/)
   assert.match(mediaTemplate, /class="record media-action-icon"/)
   assert.match(mediaTemplate, /class="bad media-action-icon"/)
   assert.match(mediaStyle, /\.media-action-icon\s*{[^}]*filter:\s*grayscale\(1\) brightness\(0\)/s)

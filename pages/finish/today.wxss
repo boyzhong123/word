@@ -4,7 +4,7 @@
   font-size: 80rpx;
   font-family: OPPOSans;
   font-weight: bold;
-  color: #2f80ed;
+  color: #111318;
 }
 
 .periodical {
@@ -76,7 +76,7 @@
 
 .num {
   font-size: 60rpx;
-  color: #2f80ed;
+  color: #111318;
 }
 
 .num2 {

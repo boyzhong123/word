@@ -8,7 +8,7 @@
       </view>
     </navigation>
     <view class="practice-top-progress">
-      <view class="practice-top-progress-fill" style="width: {{contents[current].progressPercent}}%;"></view>
+      <view class="practice-top-progress-fill" style="width: {{practiceProgressWidth}};"></view>
     </view>
   </view>
   <view wx:if="{{wordToast.visible}}" class="wn-toast">
@@ -168,16 +168,16 @@
 
   <block wx:else>
   <template is="tip" data="{{...axis['anchor-page']}}"></template>
-  <swiper indicator-dots="{{false}}" autoplay="{{false}}" circular="{{false}}" vertical="{{false}}" style="height: {{scrollHeight}}px;width: 100%;" bindchange="swiperChanged" bindtransition="touchMove" bindtouchend="touchEnd" bindanimationfinish="animationfinish" capture-catch:tap="{{marking ? 'disable': ''}}">
+  <swiper class="practice-swiper" current="{{current}}" indicator-dots="{{false}}" autoplay="{{false}}" circular="{{false}}" vertical="{{false}}" style="height: {{scrollHeight}}px;width: 100%;" bindchange="swiperChanged" bindtransition="touchMove" bindtouchend="touchEnd" bindanimationfinish="animationfinish" capture-catch:tap="{{marking ? 'disable': ''}}">
     <block wx:for="{{contents}}" wx:key="item">
       <swiper-item skip-hidden-item-layout="true" catch:touchmove="{{needVip == 1 ? 'disable':''}}">
-        <view wx:if="{{current == index}}" style="height: 100%;">
+        <view wx:if="{{current == index}}" style="height: 100%;" bindtouchstart="onRecitationTouchStart" bindtouchend="onRecitationTouchEnd">
           <view class="top-container">
             <image class="anchor-page" src="../../images/icon_tip.png" style="width: 26rpx;height: 26rpx;margin-left: 18rpx;vertical-align: middle;padding: 10rpx;" bindtap="showTipPopup" />
             <text style="color: #4e6a70;font-size: 24rpx;">{{item.word.page ? 'P' + item.word.page : ''}}</text>
             <image wx:if="{{from != 'search'}}" src="../../images/icon_route_deep.svg" class="route-icon" mode="aspectFit" bindtap="goRoute" />
           </view>
-          <scroll-view scroll-y class="scroll-container" scroll-into-view="v{{item.selectedIndex}}" scroll-with-animation="true" bindscroll="onScroll" capture-catch:tap="{{needVip == 1 ? 'showVip':''}}">
+          <scroll-view scroll-y class="scroll-container" scroll-into-view="v{{item.selectedIndex}}" scroll-with-animation="true" bindscroll="onScroll" bindtouchstart="onRecitationTouchStart" bindtouchend="onRecitationTouchEnd" capture-catch:tap="{{needVip == 1 ? 'showVip':''}}">
             <view class="word-container" bindtap="onItemClick" id="v0" data-index="0">
               <wxs src='/pages/paint.wxs' module="paintHandler"></wxs>
               <text style="margin-top: 84rpx;color: {{paintHandler.paintColor(item.word.result)}};font-size: 54rpx;font-weight: bold;line-height: 60rpx;">{{item.word.content}}</text>

@@ -115,7 +115,8 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #e7e1f3 0%, #d8e3f9 32%, #abcaf2 66%, #84b6ee 100%);
+  /* 背景由 .listen-quiz-shell 整屏渐变提供，这里透明避免断层 */
+  background: transparent;
 }
 
 .quiz-step-row {

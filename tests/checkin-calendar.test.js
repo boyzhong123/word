@@ -75,8 +75,27 @@ test('check-in calendar page renders summary, weekday headers, and day cells', (
   assert.match(template, /wx:for="{{calendarDays}}"/)
   assert.match(template, /class="day-cell/)
   assert.match(template, /day-cell-reward/)
+  assert.match(template, /gift-jelly\.png/)
+  assert.match(template, /charge-jelly\.png/)
+  assert.match(template, /bolt-jelly\.png/)
+  assert.match(template, /gift-day-jelly\.png/)
+  assert.match(template, /bindtap="openGiftDialog"/)
+  assert.match(template, /bindtap="copyRewardCode"/)
+  assert.match(template, /navActionsRight/)
   assert.match(style, /\.power-card/)
   assert.match(style, /\.calendar-card/)
   assert.match(style, /\.day-cell-checked\s*{/)
   assert.match(style, /\.day-cell-today\s*{/)
+  assert.match(style, /\.gift-dialog/)
+})
+
+test('check-in calendar unlocks gift reward after 30 continuous days', () => {
+  const calendarScript = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.js'),
+    'utf8'
+  )
+
+  assert.match(calendarScript, /STREAK_REWARD_DAYS = 30/)
+  assert.match(calendarScript, /giftUnlocked: continuousDays >= STREAK_REWARD_DAYS/)
+  assert.match(calendarScript, /setClipboardData/)
 })

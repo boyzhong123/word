@@ -114,7 +114,7 @@ test('home page exposes a floating button to jump back to today tasks', () => {
   assert.match(homeScript, /computeScrollTopToCenterTarget/)
   assert.match(homeScript, /scrollNode\.scrollTo/)
   assert.match(homeStyle, /\.today-locate-fab\s*{/)
-  assert.match(homeStyle, /\.today-locate-fab-image\s*{[^}]*width:\s*176rpx/s)
+  assert.match(homeStyle, /\.today-locate-fab-image\s*{[^}]*width:\s*106rpx/s)
   assert.doesNotMatch(homeTemplate, /scroll-into-view="{{scrollIntoId}}"/)
 
   const fabPath = path.join(projectRoot, 'images/home/fab-today-locate-jelly.png')
@@ -263,6 +263,9 @@ test('frame animation advances sprite frames with js timing for mini program pla
   assert.match(frameAnimationScript, /background-position:/)
   assert.match(frameAnimationScript, /setInterval\(/)
   assert.match(frameAnimationScript, /this\.properties\.url/)
+  assert.match(frameAnimationScript, /value:\s*'paused'/)
+  assert.match(frameAnimationScript, /syncAnimationState\(state\)/)
+  assert.match(frameAnimationScript, /observers:\s*{\s*state\(state\)/)
 })
 
 test('home page blocks recitation navigation for locked units', () => {

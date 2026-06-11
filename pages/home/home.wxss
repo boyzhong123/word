@@ -512,8 +512,8 @@ page {
   right: 24rpx;
   bottom: calc(120rpx + env(safe-area-inset-bottom));
   z-index: 90;
-  width: 176rpx;
-  height: 176rpx;
+  width: 106rpx;
+  height: 106rpx;
   background: transparent;
   transition: transform 0.15s ease, opacity 0.15s ease, bottom 0.2s ease;
 }
@@ -525,8 +525,8 @@ page {
 
 .today-locate-fab-image {
   display: block;
-  width: 176rpx;
-  height: 176rpx;
+  width: 106rpx;
+  height: 106rpx;
 }
 
 .today-locate-fab:active {
@@ -739,9 +739,9 @@ page {
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 4rpx;
-  height: 34rpx;
-  padding: 0 14rpx 0 10rpx;
+  gap: 5rpx;
+  height: 36rpx;
+  padding: 0 14rpx 0 9rpx;
   box-sizing: border-box;
   color: #a15b00;
   font-size: 21rpx;
@@ -758,18 +758,18 @@ page {
 
 .unit-report-icon {
   flex: none;
-  width: 24rpx;
-  height: 24rpx;
+  width: 28rpx;
+  height: 28rpx;
 }
 
 .unit-card-monster {
   position: absolute;
   z-index: 1;
-  top: -28rpx;
-  right: 8rpx;
+  top: -30rpx;
+  right: 6rpx;
   width: 166rpx;
   height: 166rpx;
-  transform: scale(0.74);
+  transform: scale(0.82);
   transform-origin: top right;
   pointer-events: none;
 }
@@ -792,7 +792,7 @@ page {
   top: 2rpx;
   opacity: 0.72;
   filter: grayscale(0.16);
-  transform: scale(0.54);
+  transform: scale(0.6);
 }
 
 .task-grid {

@@ -65,15 +65,14 @@
         <text class="section-title-sub">{{report.encourage}}</text>
       </view>
       <view class="task-grid">
-        <view class="task-card" wx:for="{{report.taskStats}}" wx:for-item="task" wx:key="type">
-          <view class="task-top">
-            <view class="task-icon-wrap" style="background: {{task.iconBg}};">
-              <image class="task-icon" src="{{task.icon}}" mode="aspectFit" />
-            </view>
-            <view class="task-score" style="color: {{task.color}};">{{task.score}}<text>分</text></view>
+        <view class="task-card task-card-completed" wx:for="{{report.taskStats}}" wx:for-item="task" wx:key="type">
+          <view class="task-icon-wrap" style="background: {{task.iconBg}};">
+            <image class="task-icon" src="{{task.icon}}" mode="aspectFit" />
           </view>
-          <view class="task-name">{{task.label}}</view>
-          <view class="task-caption">{{task.caption}}</view>
+          <view class="task-copy">
+            <view class="task-name">{{task.label}}</view>
+            <view class="task-count" style="color: {{task.color}};">{{task.score}}分</view>
+          </view>
           <view class="task-track">
             <view class="task-fill" style="width: {{task.score}}%; background: {{task.color}};"></view>
           </view>

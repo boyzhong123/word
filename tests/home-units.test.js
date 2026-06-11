@@ -92,7 +92,7 @@ test('completed units show full progress for all three tasks', () => {
 
   assert.equal(unit.locked, false)
   assert.equal(unit.doneStages, 3)
-  assert.equal(unit.stageColor, '#1f6fd6')
+  assert.equal(unit.stageColor, '#111318')
   assert.equal(unit.mascot, '../../images/home/mascot-progress.png')
   assert.equal(unit.mascotSprite, '../../images/home/mascot-progress-sprite.png')
   assert.equal(unit.mascotDuration, 2.4)
@@ -111,7 +111,7 @@ test('unfinished units show zero progress', () => {
 
   assert.equal(unit.locked, false)
   assert.equal(unit.doneStages, 0)
-  assert.equal(unit.stageColor, '#2f80ed')
+  assert.equal(unit.stageColor, '#111318')
   assert.equal(unit.mascot, '../../images/home/mascot-alert.png')
   assert.equal(unit.mascotSprite, '../../images/home/mascot-alert-sprite.png')
   assert.equal(unit.mascotDuration, 2.4)

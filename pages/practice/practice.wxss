@@ -172,6 +172,9 @@
 }
 
 .practice-top-progress-fill {
+  display: block;
+  width: 0;
+  max-width: 100%;
   height: 100%;
   border-radius: 0 8rpx 8rpx 0;
   background: #111318;
@@ -191,6 +194,7 @@
   background: linear-gradient(180deg, #ece6f0 0%, #e0e1f5 26%, #bad2f8 52%, #85bbf8 76%, #5fa9f7 100%);
 }
 
+.practice-swiper,
 .word-new-swiper {
   position: relative;
   z-index: 1;

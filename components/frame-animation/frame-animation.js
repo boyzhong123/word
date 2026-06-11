@@ -23,7 +23,7 @@ Component({
     },
     state: {
       type: String,
-      value: 'running'
+      value: 'paused'
     }
   },
 
@@ -31,13 +31,18 @@ Component({
     frameStyle: ''
   },
 
+  observers: {
+    state(state) {
+      this.syncAnimationState(state)
+    }
+  },
+
   lifetimes: {
     attached() {
       this._frameIndex = 0
       this._loopsDone = 0
       this.applyFrame(0)
-      this.startAnimation()
-      this.scheduleEndEvent()
+      this.syncAnimationState(this.properties.state)
     },
 
     detached() {
@@ -71,6 +76,17 @@ Component({
       this.setData({
         frameStyle: this.buildFrameStyle(frameIndex)
       })
+    },
+
+    syncAnimationState(state) {
+      if (state === 'running') {
+        this.restartAnimation()
+        return
+      }
+      this.stopAnimation()
+      this._frameIndex = 0
+      this._loopsDone = 0
+      this.applyFrame(0)
     },
 
     stopAnimation() {
