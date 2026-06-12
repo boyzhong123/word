@@ -346,17 +346,27 @@ page {
 }
 
 .day-cell-today {
-  color: #60636a;
+  color: #5d46d8;
 }
 
 .day-cell-today::before {
-  background: #ffffff;
-  border: 3rpx solid rgba(139, 108, 255, 0.66);
-  box-shadow: 0 8rpx 16rpx rgba(139, 108, 255, 0.12), inset 0 0 0 6rpx #f2efff;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f4ff 100%);
+  border: 3rpx solid rgba(139, 108, 255, 0.72);
+  box-shadow: 0 8rpx 16rpx rgba(139, 108, 255, 0.16), inset 0 0 0 6rpx #f0ebff;
 }
 
 .day-cell-checked.day-cell-today {
   color: #ffffff;
+}
+
+.day-cell-today .day-number {
+  color: #5d46d8;
+  font-weight: 900;
+}
+
+.day-number-today {
+  color: #5d46d8;
+  font-weight: 900;
 }
 
 .day-cell-reward,
@@ -380,6 +390,20 @@ page {
   background: linear-gradient(145deg, #a98aff 0%, #7b5cf4 56%, #ffc94a 100%);
   border-color: rgba(255, 218, 106, 0.92);
   box-shadow: 0 10rpx 20rpx rgba(124, 92, 244, 0.26), inset 0 3rpx 0 rgba(255, 255, 255, 0.3);
+}
+
+.day-cell-reward-unlocked::before,
+.day-cell-reward-unlocked.day-cell-today::before {
+  background: linear-gradient(180deg, #fff0a8 0%, #ffc94a 100%);
+  border-color: rgba(255, 183, 30, 0.94);
+  box-shadow: 0 10rpx 20rpx rgba(255, 176, 32, 0.24), inset 0 3rpx 0 rgba(255, 255, 255, 0.72);
+}
+
+.day-cell-reward-locked::before,
+.day-cell-reward-locked.day-cell-today::before {
+  background: linear-gradient(180deg, #fffdf4 0%, #fff2c6 100%);
+  border-color: rgba(255, 197, 61, 0.72);
+  box-shadow: 0 8rpx 16rpx rgba(255, 176, 32, 0.12), inset 0 3rpx 0 rgba(255, 255, 255, 0.88);
 }
 
 .day-cell-reward::after {
@@ -414,6 +438,17 @@ page {
   box-shadow: 0 5rpx 10rpx rgba(255, 176, 32, 0.22);
 }
 
+.day-cell-reward-unlocked .day-reward-badge {
+  color: #ffffff;
+  background: #7b5cf4;
+  box-shadow: 0 5rpx 12rpx rgba(123, 92, 244, 0.24);
+}
+
+.day-cell-reward-locked .day-reward-badge {
+  color: #7a3c00;
+  background: #ffe08a;
+}
+
 .day-reward-icon {
   position: absolute;
   z-index: 2;
@@ -422,6 +457,10 @@ page {
   top: 12rpx;
   width: 50rpx;
   height: 52rpx;
+}
+
+.day-cell-reward-locked .day-reward-icon {
+  opacity: 0.78;
 }
 
 .rules-dialog-mask,
@@ -603,24 +642,6 @@ page {
   align-items: center;
 }
 
-.share-close {
-  position: absolute;
-  top: -88rpx;
-  right: 0;
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.share-close image {
-  width: 28rpx;
-  height: 28rpx;
-}
-
 .share-tabs {
   display: flex;
   gap: 8rpx;
@@ -640,14 +661,36 @@ page {
 }
 
 .share-tab-active {
-  background: #111318;
+  background: linear-gradient(145deg, #9d7cff 0%, #7b5cf4 72%, #6844e8 100%);
   color: #ffffff;
   font-weight: 700;
+  box-shadow: 0 6rpx 14rpx rgba(124, 92, 244, 0.4);
 }
 
+/* 关闭按钮：弹层最下方居中的描边圆 */
+.share-close {
+  margin-top: 40rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(255, 255, 255, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-close image {
+  width: 30rpx;
+  height: 30rpx;
+}
+
+/* previous/next-margin 各 48rpx 露出邻图边缘，
+   item(648rpx) 比海报(600rpx) 宽 48rpx，海报居中后图与图之间留出 48rpx 缝隙 */
+/* 海报展示宽 560rpx（5:8 → 高 896rpx）；previous/next-margin 各 56rpx 露出邻图，
+   item(616rpx) 比海报宽 56rpx，居中后图与图之间留出 56rpx 缝隙 */
 .share-poster-swiper {
-  width: 672rpx;
-  height: 960rpx;
+  width: 728rpx;
+  height: 896rpx;
   margin-bottom: 16rpx;
 }
 
@@ -672,8 +715,9 @@ page {
 }
 
 .share-poster-frame {
-  width: 600rpx;
-  height: 960rpx;
+  width: 560rpx;
+  height: 896rpx;
+  margin: 0 auto;
   border-radius: 24rpx;
   overflow: hidden;
   background: #1e1b4b;
@@ -684,7 +728,7 @@ page {
 }
 
 .share-poster-image {
-  width: 600rpx;
+  width: 560rpx;
   display: block;
 }
 

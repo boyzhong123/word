@@ -52,24 +52,26 @@ page {
   width: 100%;
 }
 
-/* 表头书本信息 */
+/* 表头书本信息：品牌横幅 + 悬浮信息卡 */
 .product-head {
-  margin: 20rpx 29rpx 0;
-  border-radius: 29rpx;
-  background: #ffffff;
-  border: 1rpx solid rgba(17, 19, 24, 0.14);
-  box-shadow: 0 10rpx 24rpx rgba(169, 118, 14, 0.08);
+  position: relative;
+}
+
+.head-banner {
+  position: relative;
+  height: 210rpx;
+  background: linear-gradient(160deg, #ffe3b0 0%, #fff1d6 46%, #fffaf0 100%);
   overflow: hidden;
 }
 
-.product-hero {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 30rpx;
-  padding: 34rpx 30rpx 30rpx;
-  background: linear-gradient(165deg, #fff3dd 0%, #fffaf0 52%, #ffffff 100%);
-  overflow: hidden;
+.head-banner::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60rpx;
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0) 0%, rgba(255, 253, 248, 0.65) 100%);
+  content: "";
 }
 
 .hero-glow {
@@ -81,49 +83,69 @@ page {
 .hero-glow-a {
   top: -110rpx;
   right: -70rpx;
-  width: 280rpx;
-  height: 280rpx;
-  background: radial-gradient(circle, rgba(255, 161, 28, 0.16) 0%, rgba(255, 161, 28, 0) 70%);
+  width: 320rpx;
+  height: 320rpx;
+  background: radial-gradient(circle, rgba(255, 161, 28, 0.28) 0%, rgba(255, 161, 28, 0) 70%);
 }
 
 .hero-glow-b {
-  bottom: -130rpx;
-  left: 110rpx;
-  width: 320rpx;
-  height: 320rpx;
-  background: radial-gradient(circle, rgba(23, 64, 111, 0.07) 0%, rgba(23, 64, 111, 0) 70%);
+  bottom: -150rpx;
+  left: 90rpx;
+  width: 360rpx;
+  height: 360rpx;
+  background: radial-gradient(circle, rgba(23, 64, 111, 0.1) 0%, rgba(23, 64, 111, 0) 70%);
+}
+
+.head-card {
+  position: relative;
+  margin: -120rpx 29rpx 0;
+  border-radius: 29rpx;
+  background: #ffffff;
+  border: 1rpx solid rgba(17, 19, 24, 0.12);
+  box-shadow: 0 14rpx 34rpx rgba(169, 118, 14, 0.12);
+}
+
+.head-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 28rpx;
+  padding: 0 30rpx;
 }
 
 .product-cover-wrap {
   position: relative;
   flex: none;
+  margin-top: -66rpx;
   padding: 8rpx;
   border-radius: 16rpx;
   background: #ffffff;
   box-shadow:
-    0 18rpx 32rpx rgba(169, 118, 14, 0.2),
+    0 20rpx 36rpx rgba(169, 118, 14, 0.22),
     0 4rpx 10rpx rgba(17, 19, 24, 0.08);
 }
 
 .product-cover {
   display: block;
-  width: 158rpx;
-  height: 224rpx;
+  width: 168rpx;
+  height: 238rpx;
   border-radius: 10rpx;
 }
 
 .product-meta {
-  position: relative;
   flex: 1;
   min-width: 0;
+  padding-top: 26rpx;
 }
 
 .product-name {
-  display: block;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   color: #17406f;
   font-size: 36rpx;
   font-weight: 700;
-  line-height: 52rpx;
+  line-height: 50rpx;
   letter-spacing: -0.5rpx;
 }
 
@@ -131,22 +153,26 @@ page {
   display: inline-flex;
   align-items: center;
   gap: 10rpx;
-  margin-top: 20rpx;
-  padding: 8rpx 20rpx;
+  margin-top: 18rpx;
+  padding: 8rpx 18rpx 8rpx 12rpx;
   border-radius: 999rpx;
   background: rgba(255, 130, 0, 0.1);
   border: 1rpx solid rgba(255, 130, 0, 0.22);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-.press-dot {
+.press-icon {
   flex: none;
-  width: 10rpx;
-  height: 10rpx;
-  border-radius: 50%;
-  background: #ff8200;
+  width: 32rpx;
+  height: 32rpx;
 }
 
 .product-press {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: #b06200;
   font-size: 22rpx;
   font-weight: 500;
@@ -156,8 +182,8 @@ page {
 .product-stats-card {
   display: flex;
   align-items: stretch;
-  padding: 26rpx 8rpx 24rpx;
-  background: #ffffff;
+  margin-top: 24rpx;
+  padding: 26rpx 8rpx 26rpx;
   border-top: 1rpx solid rgba(17, 19, 24, 0.07);
 }
 
@@ -168,18 +194,24 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rpx;
+  gap: 6rpx;
   padding: 0 6rpx;
 }
 
 .product-stat + .product-stat::before {
   position: absolute;
-  top: 10rpx;
-  bottom: 10rpx;
+  top: 14rpx;
+  bottom: 14rpx;
   left: 0;
   width: 1rpx;
   background: rgba(17, 19, 24, 0.08);
   content: "";
+}
+
+.stat-icon {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 4rpx;
 }
 
 .stat-number-row {
@@ -192,9 +224,9 @@ page {
 
 .stat-value {
   color: #17406f;
-  font-size: 40rpx;
+  font-size: 38rpx;
   font-weight: 700;
-  line-height: 48rpx;
+  line-height: 46rpx;
   letter-spacing: -0.5rpx;
   font-variant-numeric: tabular-nums;
 }
@@ -205,14 +237,6 @@ page {
   font-size: 20rpx;
   font-weight: 500;
   line-height: 30rpx;
-}
-
-.stat-tick {
-  width: 28rpx;
-  height: 6rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(90deg, #ffa11c 0%, #ff8200 100%);
-  opacity: 0.85;
 }
 
 .stat-label {
@@ -313,10 +337,56 @@ page {
   flex: none;
   z-index: 10;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
   padding: 18rpx 29rpx;
   border-top: 1rpx solid rgba(17, 19, 24, 0.12);
   background: rgba(255, 253, 248, 0.98);
   box-shadow: 0 -10rpx 30rpx rgba(17, 19, 24, 0.06);
+}
+
+.purchase-price {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.purchase-price-row {
+  display: flex;
+  align-items: baseline;
+}
+
+.purchase-currency {
+  color: #ff8200;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 34rpx;
+}
+
+.purchase-amount {
+  margin-left: 2rpx;
+  color: #ff8200;
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 52rpx;
+  font-variant-numeric: tabular-nums;
+}
+
+.purchase-from {
+  margin-left: 6rpx;
+  color: #b06200;
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 30rpx;
+}
+
+.purchase-price-note {
+  margin-top: 2rpx;
+  color: #9aa3b2;
+  font-size: 20rpx;
+  line-height: 28rpx;
 }
 
 .purchase-button {
@@ -331,11 +401,14 @@ page {
   box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.18);
 }
 
-.purchase-button-full {
-  width: 100%;
+.purchase-button-buy {
+  flex: 1;
+  background: linear-gradient(180deg, #ffa11c 0%, #ff8200 100%);
+  box-shadow: 0 8rpx 18rpx rgba(255, 130, 0, 0.24);
 }
 
 .purchase-button-owned {
+  flex: 1;
   background: rgba(34, 197, 94, 0.12);
   color: #1f9445;
   box-shadow: none;

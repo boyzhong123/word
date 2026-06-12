@@ -4,7 +4,8 @@
 const POSTER_WIDTH = 600
 const POSTER_HEIGHT = 960
 const APP_NAME = '词句刷刷刷'
-const POSTER_THEMES = ['monster', 'pk', 'words']
+const POSTER_THEMES = ['monster', 'pk', 'words', 'monsterLight', 'pkLight', 'wordsLight']
+const LIGHT_POSTER_THEMES = ['monsterLight', 'pkLight', 'wordsLight']
 // 占位小程序码（scripts 外手动生成）：上线前替换为 getwxacodeunlimit 生成的官方小程序码
 const POSTER_QR_SRC = '/images/checkin/share-qrcode.png'
 
@@ -12,12 +13,18 @@ const POSTER_BACKGROUNDS = {
   today: {
     monster: '/images/checkin/share-bg-today-monster.png',
     pk: '/images/checkin/share-bg-today-pk.png',
-    words: '/images/checkin/share-bg-today-words.png'
+    words: '/images/checkin/share-bg-today-words.png',
+    monsterLight: '/images/checkin/share-bg-today-monster-light.png',
+    pkLight: '/images/checkin/share-bg-today-pk-light.png',
+    wordsLight: '/images/checkin/share-bg-today-words-light.png'
   },
   streak: {
     monster: '/images/checkin/share-bg-streak-monster.png',
     pk: '/images/checkin/share-bg-streak-pk.png',
-    words: '/images/checkin/share-bg-streak-words.png'
+    words: '/images/checkin/share-bg-streak-words.png',
+    monsterLight: '/images/checkin/share-bg-streak-monster-light.png',
+    pkLight: '/images/checkin/share-bg-streak-pk-light.png',
+    wordsLight: '/images/checkin/share-bg-streak-words-light.png'
   }
 }
 
@@ -130,6 +137,10 @@ function loadCanvasImage(canvas, src) {
 
 function normalizePosterTheme(theme) {
   return POSTER_THEMES.indexOf(theme) >= 0 ? theme : POSTER_THEMES[0]
+}
+
+function isLightPosterTheme(theme) {
+  return LIGHT_POSTER_THEMES.indexOf(normalizePosterTheme(theme)) >= 0
 }
 
 function getPosterBackgroundSrc(mode, theme) {
@@ -271,18 +282,24 @@ function wrapText(ctx, text, maxWidth) {
 }
 
 function drawHeader(ctx, options, logoImage) {
+  const light = isLightPosterTheme(options.theme)
   ctx.save()
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
-  // 背景主题图偏亮，文字统一加投影保证可读
-  ctx.shadowColor = 'rgba(10, 8, 32, 0.55)'
-  ctx.shadowBlur = 10
-  ctx.shadowOffsetY = 2
+  if (light) {
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.65)'
+    ctx.shadowBlur = 6
+    ctx.shadowOffsetY = 1
+  } else {
+    ctx.shadowColor = 'rgba(10, 8, 32, 0.55)'
+    ctx.shadowBlur = 10
+    ctx.shadowOffsetY = 2
+  }
 
   if (logoImage) {
     ctx.drawImage(logoImage, 48, 42, 52, 52)
   }
-  ctx.fillStyle = '#ffffff'
+  ctx.fillStyle = light ? '#1f2733' : '#ffffff'
   ctx.font = 'bold 30px sans-serif'
   ctx.fillText(APP_NAME, logoImage ? 114 : 48, 80)
 
@@ -290,7 +307,7 @@ function drawHeader(ctx, options, logoImage) {
   ctx.fillText(formatPosterDate(options.date), 48, 164)
 
   ctx.font = 'bold 27px sans-serif'
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.96)'
+  ctx.fillStyle = light ? 'rgba(31, 39, 51, 0.92)' : 'rgba(255, 255, 255, 0.96)'
   let quoteY = 216
   wrapText(ctx, options.quote.en, 504).forEach(line => {
     ctx.fillText(line, 48, quoteY)
@@ -298,12 +315,24 @@ function drawHeader(ctx, options, logoImage) {
   })
 
   ctx.font = '22px sans-serif'
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.82)'
+  ctx.fillStyle = light ? 'rgba(31, 39, 51, 0.72)' : 'rgba(255, 255, 255, 0.82)'
   ctx.fillText(options.quote.cn, 48, quoteY + 2)
   ctx.restore()
 }
 
-function drawPanel(ctx) {
+function drawPanel(ctx, theme) {
+  const light = isLightPosterTheme(theme)
+  if (light) {
+    const panel = ctx.createLinearGradient(0, 560, 0, 700)
+    panel.addColorStop(0, 'rgba(255, 255, 255, 0)')
+    panel.addColorStop(1, 'rgba(255, 255, 255, 0.82)')
+    ctx.fillStyle = panel
+    ctx.fillRect(0, 560, POSTER_WIDTH, 140)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.82)'
+    ctx.fillRect(0, 700, POSTER_WIDTH, POSTER_HEIGHT - 700)
+    return
+  }
+
   const panel = ctx.createLinearGradient(0, 560, 0, 700)
   panel.addColorStop(0, 'rgba(13, 11, 32, 0)')
   panel.addColorStop(1, 'rgba(13, 11, 32, 0.88)')
@@ -314,63 +343,79 @@ function drawPanel(ctx) {
 }
 
 function drawIdentity(ctx, options, avatarImage) {
+  const light = isLightPosterTheme(options.theme)
   // 头像（圆形裁剪），加载失败时画占位圆
   ctx.save()
   ctx.beginPath()
-  ctx.arc(82, 668, 34, 0, Math.PI * 2)
+  ctx.arc(80, 632, 32, 0, Math.PI * 2)
   ctx.closePath()
   if (avatarImage) {
     ctx.clip()
-    ctx.drawImage(avatarImage, 48, 634, 68, 68)
+    ctx.drawImage(avatarImage, 48, 600, 64, 64)
   } else {
     ctx.fillStyle = '#8b6cff'
     ctx.fill()
   }
   ctx.restore()
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)'
+  ctx.strokeStyle = light ? 'rgba(31, 39, 51, 0.18)' : 'rgba(255, 255, 255, 0.85)'
   ctx.lineWidth = 3
   ctx.beginPath()
-  ctx.arc(82, 668, 34, 0, Math.PI * 2)
+  ctx.arc(80, 632, 32, 0, Math.PI * 2)
   ctx.stroke()
 
-  ctx.fillStyle = '#ffffff'
+  ctx.fillStyle = light ? '#1f2733' : '#ffffff'
   ctx.textAlign = 'left'
-  ctx.font = 'bold 28px sans-serif'
-  ctx.fillText(options.nickName, 136, 678)
+  ctx.font = 'bold 26px sans-serif'
+  ctx.fillText(options.nickName, 128, 642)
 
   const text = buildPosterText(options)
-  ctx.font = 'bold 40px sans-serif'
-  ctx.fillText(text.headline[0], 48, 764)
-  ctx.fillText(text.headline[1], 48, 820)
+  ctx.font = 'bold 34px sans-serif'
+  ctx.fillText(text.headline[0], 48, 710)
+  ctx.fillText(text.headline[1], 48, 760)
 }
 
 function drawStats(ctx, options) {
+  const light = isLightPosterTheme(options.theme)
   const text = buildPosterText(options)
-  // 右侧让位给小程序码，三列整体左移
-  const columns = [96, 238, 380]
+  // 右侧让位给小程序码，三列整体左移收窄
+  const columns = [100, 230, 360]
 
   ctx.textAlign = 'center'
   text.stats.forEach((stat, index) => {
-    ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 47px sans-serif'
-    ctx.fillText(String(stat.value), columns[index], 890)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.72)'
-    ctx.font = '20px sans-serif'
-    ctx.fillText(stat.label, columns[index], 926)
+    ctx.fillStyle = light ? '#1f2733' : '#ffffff'
+    ctx.font = 'bold 40px sans-serif'
+    ctx.fillText(String(stat.value), columns[index], 856)
+    ctx.fillStyle = light ? 'rgba(31, 39, 51, 0.62)' : 'rgba(255, 255, 255, 0.68)'
+    ctx.font = '19px sans-serif'
+    ctx.fillText(stat.label, columns[index], 890)
   })
 }
 
-function drawQrBlock(ctx, qrImage) {
-  roundRectPath(ctx, 452, 806, 116, 116, 20)
+// 小程序码（圆形）：白色圆底 + 圆形裁剪的码图，与官方小程序码样式一致
+function drawQrBlock(ctx, qrImage, theme) {
+  const light = isLightPosterTheme(theme)
+  const centerX = 500
+  const centerY = 848
+  const chipRadius = 58
+
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, chipRadius, 0, Math.PI * 2)
   ctx.fillStyle = '#ffffff'
   ctx.fill()
+
   if (qrImage) {
-    ctx.drawImage(qrImage, 460, 814, 100, 100)
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, chipRadius - 6, 0, Math.PI * 2)
+    ctx.clip()
+    ctx.drawImage(qrImage, centerX - chipRadius + 6, centerY - chipRadius + 6, (chipRadius - 6) * 2, (chipRadius - 6) * 2)
+    ctx.restore()
   }
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.78)'
+
+  ctx.fillStyle = light ? 'rgba(31, 39, 51, 0.62)' : 'rgba(255, 255, 255, 0.7)'
   ctx.textAlign = 'center'
-  ctx.font = '17px sans-serif'
-  ctx.fillText('长按识别小程序', 510, 948)
+  ctx.font = '15px sans-serif'
+  ctx.fillText('长按识别小程序', centerX, 932)
 }
 
 // 绘制完整海报，resolve 时画布已就绪可导出
@@ -393,10 +438,10 @@ function drawPoster(canvas, options) {
   ]).then(images => {
     drawBackgroundImage(ctx, images[0])
     drawHeader(ctx, options, images[2])
-    drawPanel(ctx)
+    drawPanel(ctx, theme)
     drawIdentity(ctx, options, images[1])
     drawStats(ctx, options)
-    drawQrBlock(ctx, images[3])
+    drawQrBlock(ctx, images[3], theme)
   })
 }
 
@@ -405,11 +450,13 @@ module.exports = {
   POSTER_WIDTH,
   POSTER_HEIGHT,
   POSTER_THEMES,
+  LIGHT_POSTER_THEMES,
   POSTER_BACKGROUNDS,
   buildPosterText,
   drawPoster,
   formatPosterDate,
   getDailyQuote,
   getPosterBackgroundSrc,
+  isLightPosterTheme,
   normalizePosterTheme
 }

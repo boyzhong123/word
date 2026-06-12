@@ -74,16 +74,18 @@
       </view>
       <view class="day-grid">
         <view
-          class="day-cell {{item.inMonth ? '' : 'day-cell-empty'}} {{item.inMonth && !item.checked && !item.isToday && item.day !== rewardDay ? 'day-cell-unchecked' : ''}} {{item.checked ? 'day-cell-checked' : ''}} {{item.isToday ? 'day-cell-today' : ''}} {{item.inMonth && item.day === rewardDay ? 'day-cell-reward' : ''}}"
+          class="day-cell {{item.inMonth ? '' : 'day-cell-empty'}} {{item.inMonth && !item.checked && !item.isToday && item.day !== rewardDay ? 'day-cell-unchecked' : ''}} {{item.checked ? 'day-cell-checked' : ''}} {{item.isToday ? 'day-cell-today' : ''}} {{item.inMonth && item.day === rewardDay ? 'day-cell-reward' : ''}} {{item.inMonth && item.day === rewardDay && giftUnlocked ? 'day-cell-reward-unlocked' : ''}} {{item.inMonth && item.day === rewardDay && !giftUnlocked ? 'day-cell-reward-locked' : ''}}"
+          bindtap="openCalendarDay"
+          data-is-reward="{{item.inMonth && item.day === rewardDay}}"
           wx:for="{{calendarDays}}"
           wx:key="date"
         >
           <block wx:if="{{item.inMonth}}">
             <block wx:if="{{item.day === rewardDay}}">
-              <view class="day-reward-badge">30天</view>
+              <view class="day-reward-badge">{{giftUnlocked ? '已领' : '30天'}}</view>
               <image class="day-reward-icon" src="../../images/checkin/gift-day-jelly.png" mode="aspectFit" />
             </block>
-            <view wx:else class="day-number">{{item.day}}</view>
+            <view wx:else class="day-number {{item.isToday ? 'day-number-today' : ''}}">{{item.day}}</view>
           </block>
         </view>
       </view>
@@ -135,9 +137,6 @@
 
   <view class="share-dialog-mask" wx:if="{{showShareDialog}}">
     <view class="share-dialog">
-      <view class="share-close" bindtap="closeShareDialog">
-        <image src="../../images/icon_close_deep.svg" mode="aspectFit" />
-      </view>
       <view class="share-tabs">
         <view
           class="share-tab {{shareMode === 'today' ? 'share-tab-active' : ''}}"
@@ -154,8 +153,8 @@
         class="share-poster-swiper"
         current="{{shareThemeIndex}}"
         bindchange="onShareThemeSwipe"
-        previous-margin="36rpx"
-        next-margin="36rpx"
+        previous-margin="56rpx"
+        next-margin="56rpx"
         duration="280"
       >
         <swiper-item wx:for="{{shareThemes}}" wx:key="id">
@@ -180,6 +179,9 @@
       <view class="share-actions">
         <button class="share-action share-action-save" hover-class="power-button-hover" bindtap="saveShareImage">保存图片</button>
         <button class="share-action share-action-send" hover-class="power-button-hover" bindtap="sendShareImage">分享到微信</button>
+      </view>
+      <view class="share-close" bindtap="closeShareDialog">
+        <image src="../../images/icon_close_white.svg" mode="aspectFit" />
       </view>
     </view>
   </view>

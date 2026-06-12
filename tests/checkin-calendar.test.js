@@ -74,9 +74,14 @@ test('check-in calendar page renders summary, weekday headers, and day cells', (
   assert.match(template, /wx:for="{{weekdays}}"/)
   assert.match(template, /wx:for="{{calendarDays}}"/)
   assert.match(template, /class="day-cell/)
+  assert.match(template, /day-number-today/)
   assert.match(template, /day-cell-unchecked/)
   assert.match(template, /day-reward-badge/)
   assert.match(template, /day-cell-reward/)
+  assert.match(template, /day-cell-reward-unlocked/)
+  assert.match(template, /day-cell-reward-locked/)
+  assert.match(template, /bindtap="openCalendarDay"/)
+  assert.match(template, /data-is-reward/)
   assert.match(template, /gift-jelly\.png/)
   assert.match(template, /charge-jelly\.png/)
   assert.match(template, /bolt-jelly\.png/)
@@ -93,7 +98,11 @@ test('check-in calendar page renders summary, weekday headers, and day cells', (
   assert.match(style, /\.day-cell-checked\s*{/)
   assert.match(style, /\.day-cell-unchecked\s*{/)
   assert.match(style, /\.day-cell-today\s*{/)
+  assert.match(style, /\.day-number-today\s*{/)
+  assert.match(style, /\.day-cell-today \.day-number\s*{/)
   assert.match(style, /\.day-reward-badge\s*{/)
+  assert.match(style, /\.day-cell-reward-unlocked/)
+  assert.match(style, /\.day-cell-reward-locked/)
   assert.match(style, /\.gift-dialog/)
 })
 
@@ -161,6 +170,22 @@ test('check-in calendar gift dialog has locked remaining and copied states', () 
   assert.match(style, /\.gift-dialog-copy-done/)
   assert.match(style, /\.gift-progress-track/)
   assert.match(style, /\.gift-progress-fill/)
+})
+
+test('check-in calendar reward day opens the same gift dialog from the whole day cell', () => {
+  const template = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.wxml'),
+    'utf8'
+  )
+  const calendarScript = fs.readFileSync(
+    path.join(projectRoot, 'pages/checkin/calendar.js'),
+    'utf8'
+  )
+
+  assert.match(template, /bindtap="openCalendarDay"/)
+  assert.match(template, /data-is-reward="{{item\.inMonth && item\.day === rewardDay}}"/)
+  assert.match(calendarScript, /openCalendarDay\(event\)/)
+  assert.match(calendarScript, /openGiftDialog\(\)/)
 })
 
 test('check-in calendar shares today and streak posters', () => {

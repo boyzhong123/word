@@ -6,47 +6,52 @@
   </navigation>
 
   <scroll-view scroll-y class="content" style="height: {{scrollHeight}}px;" enhanced show-scrollbar="{{false}}">
-    <!-- 表头：书本信息 -->
+    <!-- 表头：书本信息（动态填充） -->
     <view class="product-head">
-      <view class="product-hero">
+      <view class="head-banner">
         <view class="hero-glow hero-glow-a"></view>
         <view class="hero-glow hero-glow-b"></view>
-        <view class="product-cover-wrap">
-          <image class="product-cover" src="{{bookCover}}" mode="aspectFill" />
-        </view>
-        <view class="product-meta">
-          <text class="product-name">{{name}}</text>
-          <view wx:if="{{press}}" class="product-press-pill">
-            <view class="press-dot"></view>
-            <text class="product-press">{{press}}</text>
-          </view>
-        </view>
       </view>
 
-      <view class="product-stats-card">
-        <view class="product-stat">
-          <view class="stat-number-row">
-            <text class="stat-value">{{wordCount}}</text>
-            <text class="stat-unit">个</text>
+      <view class="head-card">
+        <view class="head-main">
+          <view class="product-cover-wrap">
+            <image class="product-cover" src="{{bookCover}}" mode="aspectFill" />
           </view>
-          <view class="stat-tick"></view>
-          <text class="stat-label">单词</text>
+          <view class="product-meta">
+            <text class="product-name">{{name}}</text>
+            <view wx:if="{{press}}" class="product-press-pill">
+              <image class="press-icon" src="/images/home/ad/icon-press-jelly.png" mode="aspectFit" />
+              <text class="product-press">{{press}}</text>
+            </view>
+          </view>
         </view>
-        <view class="product-stat">
-          <view class="stat-number-row">
-            <text class="stat-value">{{proverbCount}}</text>
-            <text class="stat-unit">条</text>
+
+        <view class="product-stats-card">
+          <view class="product-stat">
+            <image class="stat-icon" src="/images/home/ad/icon-word-jelly.png" mode="aspectFit" />
+            <view class="stat-number-row">
+              <text class="stat-value">{{wordCountText}}</text>
+              <text class="stat-unit">个</text>
+            </view>
+            <text class="stat-label">收录单词</text>
           </view>
-          <view class="stat-tick"></view>
-          <text class="stat-label">句子</text>
-        </view>
-        <view class="product-stat">
-          <view class="stat-number-row">
-            <text class="stat-value">{{total}}</text>
-            <text class="stat-unit">期</text>
+          <view class="product-stat">
+            <image class="stat-icon" src="/images/home/ad/icon-proverb-jelly.png" mode="aspectFit" />
+            <view class="stat-number-row">
+              <text class="stat-value">{{proverbCountText}}</text>
+              <text class="stat-unit">条</text>
+            </view>
+            <text class="stat-label">实用句子</text>
           </view>
-          <view class="stat-tick"></view>
-          <text class="stat-label">学习单元</text>
+          <view class="product-stat">
+            <image class="stat-icon" src="/images/home/ad/icon-review-jelly.png" mode="aspectFit" />
+            <view class="stat-number-row">
+              <text class="stat-value">{{totalText}}</text>
+              <text class="stat-unit">期</text>
+            </view>
+            <text class="stat-label">学习单元</text>
+          </view>
         </view>
       </view>
     </view>
@@ -83,7 +88,17 @@
 
   <view class="purchase-bar" style="padding-bottom: {{safeAreaBottom}}px;">
     <view wx:if="{{unlocked}}" class="purchase-button purchase-button-owned">已购买</view>
-    <view wx:else class="purchase-button purchase-button-full" bindtap="openSkuSheet">立即购买</view>
+    <block wx:else>
+      <view class="purchase-price">
+        <view class="purchase-price-row">
+          <text class="purchase-currency">¥</text>
+          <text class="purchase-amount">{{minPrice}}</text>
+          <text class="purchase-from">起</text>
+        </view>
+        <text class="purchase-price-note">{{packages.length}} 种套餐可选</text>
+      </view>
+      <view class="purchase-button purchase-button-buy" bindtap="openSkuSheet">立即购买</view>
+    </block>
   </view>
 
   <!-- SKU 选择弹层：点击购买后出现 -->

@@ -49,6 +49,12 @@ const DETAIL_BANNERS = [
   { src: '/images/home/ad/detail-page.png', caption: '' }
 ]
 
+const MIN_PRICE = PACKAGES.reduce((min, item) => Math.min(min, item.price), Infinity)
+
+function formatCount(value) {
+  return String(Number(value) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
 function decodeQueryValue(value) {
   if (value == null || value === '') {
     return ''
@@ -78,6 +84,9 @@ function applyBookDetail(page, book, unlocked) {
     total: Number(book.total || learningUnits || 0),
     wordCount: Number(book.wordCount || 0),
     proverbCount: Number(book.proverbCount || 0),
+    totalText: formatCount(book.total || learningUnits),
+    wordCountText: formatCount(book.wordCount),
+    proverbCountText: formatCount(book.proverbCount),
     press: book.press || '',
     intro: book.intro || '',
     unlocked: !!unlocked,
@@ -95,6 +104,10 @@ Page({
     total: 0,
     wordCount: 0,
     proverbCount: 0,
+    totalText: '0',
+    wordCountText: '0',
+    proverbCountText: '0',
+    minPrice: MIN_PRICE,
     press: '',
     intro: '',
     unlocked: false,

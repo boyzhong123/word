@@ -20,6 +20,12 @@ SOURCE_FILES = {
     "share-bg-streak-monster.png": "share-bg-streak-monster-source.png",
     "share-bg-streak-pk.png": "share-bg-streak-pk-source.png",
     "share-bg-streak-words.png": "share-bg-streak-words-source.png",
+    "share-bg-today-monster-light.png": "share-bg-today-monster-light-source.png",
+    "share-bg-today-pk-light.png": "share-bg-today-pk-light-source.png",
+    "share-bg-today-words-light.png": "share-bg-today-words-light-source.png",
+    "share-bg-streak-monster-light.png": "share-bg-streak-monster-light-source.png",
+    "share-bg-streak-pk-light.png": "share-bg-streak-pk-light-source.png",
+    "share-bg-streak-words-light.png": "share-bg-streak-words-light-source.png",
 }
 
 

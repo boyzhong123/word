@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教材商品详情页 · 新版设计示意</title>
+<style>
+  :root{
+    --cream:#fffdf8; --navy:#17406f; --orange:#ff8200; --orange-l:#ffa11c;
+    --ink:#111318; --gray:#7a8798; --gray-l:#9aa3b2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#e7ebf2;color:#1f2733;padding:30px 18px 60px}
+  h1.page-title{text-align:center;font-size:20px;font-weight:700;margin-bottom:6px}
+  p.page-sub{text-align:center;color:#8a94a6;font-size:13px;margin-bottom:26px}
+  .stage{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;align-items:flex-start}
+  .col{width:375px}
+  .caption{text-align:center;font-size:13px;color:#5a6678;margin-top:14px;font-weight:600}
+  .caption small{display:block;font-weight:400;color:#8a94a6;margin-top:4px;font-size:11.5px;line-height:1.6}
+
+  .phone{border-radius:24px;overflow:hidden;background:var(--cream);box-shadow:0 16px 50px rgba(31,39,51,.18);position:relative}
+
+  /* 导航 */
+  .nav{height:54px;display:flex;align-items:center;justify-content:center;background:var(--cream);border-bottom:0.5px solid rgba(17,19,24,.12);position:relative}
+  .nav .back{position:absolute;left:14px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(17,19,24,.16);display:grid;place-items:center;font-size:14px;color:#0f3559}
+  .nav .t{color:#0f3559;font-size:16px;font-weight:700;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ===== 表头：品牌横幅 + 悬浮信息卡 ===== */
+  .head-banner{position:relative;height:105px;background:linear-gradient(160deg,#ffe3b0 0%,#fff1d6 46%,#fffaf0 100%);overflow:hidden}
+  .head-banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(180deg,rgba(255,253,248,0),rgba(255,253,248,.65))}
+  .glow{position:absolute;border-radius:50%;pointer-events:none}
+  .glow-a{top:-55px;right:-35px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,161,28,.28),rgba(255,161,28,0) 70%)}
+  .glow-b{bottom:-75px;left:45px;width:180px;height:180px;background:radial-gradient(circle,rgba(23,64,111,.1),rgba(23,64,111,0) 70%)}
+
+  .head-card{position:relative;margin:-60px 14.5px 0;border-radius:14.5px;background:#fff;border:0.5px solid rgba(17,19,24,.12);box-shadow:0 7px 17px rgba(169,118,14,.12)}
+  .head-main{display:flex;align-items:flex-start;gap:14px;padding:0 15px}
+  .cover-wrap{flex:none;margin-top:-33px;padding:4px;border-radius:8px;background:#fff;box-shadow:0 10px 18px rgba(169,118,14,.22),0 2px 5px rgba(17,19,24,.08)}
+  .cover{display:block;width:84px;height:119px;border-radius:5px;object-fit:cover}
+  .meta{flex:1;min-width:0;padding-top:13px}
+  .book-name{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;color:var(--navy);font-size:18px;font-weight:700;line-height:25px;letter-spacing:-0.25px}
+  .press-pill{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:4px 9px 4px 6px;border-radius:999px;background:rgba(255,130,0,.1);border:0.5px solid rgba(255,130,0,.22);max-width:100%}
+  .press-pill img{flex:none;width:16px;height:16px;object-fit:contain}
+  .press-pill span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#b06200;font-size:11px;font-weight:500;line-height:16px}
+
+  .stats{display:flex;margin-top:12px;padding:13px 4px;border-top:0.5px solid rgba(17,19,24,.07)}
+  .stat{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 3px}
+  .stat + .stat::before{content:"";position:absolute;top:7px;bottom:7px;left:0;width:0.5px;background:rgba(17,19,24,.08)}
+  .stat img{width:30px;height:30px;margin-bottom:2px;object-fit:contain}
+  .num-row{display:flex;align-items:baseline;justify-content:center}
+  .num{color:var(--navy);font-size:19px;font-weight:700;line-height:23px;letter-spacing:-0.25px;font-variant-numeric:tabular-nums}
+  .unit{margin-left:2px;color:var(--gray-l);font-size:10px;font-weight:500}
+  .stat-label{color:var(--gray);font-size:11px;line-height:15px}
+
+  /* 商品详情 tab + 长图占位 */
+  .detail-tab{margin-top:10px;padding:12px 14.5px 0;background:rgba(255,255,255,.985);border-bottom:0.5px solid rgba(17,19,24,.1)}
+  .detail-tab b{display:inline-block;padding-bottom:9px;border-bottom:2px solid var(--orange);color:var(--navy);font-size:14px;font-weight:700}
+  .detail-img{height:170px;background:linear-gradient(180deg,#fff7e8,#fffdf8);display:grid;place-items:center;color:#c2a87c;font-size:12px}
+
+  /* 底部购买栏 */
+  .buy-bar{display:flex;align-items:center;gap:12px;padding:9px 14.5px 13px;border-top:0.5px solid rgba(17,19,24,.12);background:rgba(255,253,248,.98);box-shadow:0 -5px 15px rgba(17,19,24,.06)}
+  .price{flex:none;display:flex;flex-direction:column}
+  .price-row{display:flex;align-items:baseline}
+  .price-row .cur{color:var(--orange);font-size:13px;font-weight:700}
+  .price-row .amt{margin-left:1px;color:var(--orange);font-size:22px;font-weight:700;line-height:26px}
+  .price-row .from{margin-left:3px;color:#b06200;font-size:11px;font-weight:500}
+  .price-note{margin-top:1px;color:var(--gray-l);font-size:10px}
+  .buy-btn{flex:1;height:44px;border-radius:999px;background:linear-gradient(180deg,var(--orange-l),var(--orange));color:#fff;font-size:16px;font-weight:700;line-height:44px;text-align:center;box-shadow:0 4px 9px rgba(255,130,0,.24)}
+
+  /* ===== SKU 弹层 ===== */
+  .mask{position:absolute;inset:0;background:rgba(16,24,40,.52);display:flex;align-items:flex-end}
+  .sheet{width:100%;border-radius:18px 18px 0 0;background:linear-gradient(180deg,#fffdf8,#fff 18%);box-shadow:0 -8px 24px rgba(23,64,111,.14);padding-bottom:12px}
+  .handle{width:36px;height:4px;margin:8px auto 0;border-radius:999px;background:rgba(23,64,111,.12)}
+  .sku-book{display:flex;gap:11px;padding:12px 16px 10px;border-bottom:0.5px solid rgba(17,19,24,.1)}
+  .sku-cover{width:48px;height:64px;border-radius:6px;object-fit:cover;box-shadow:0 4px 9px rgba(169,118,14,.16)}
+  .sku-book b{display:block;color:var(--navy);font-size:14px;line-height:20px}
+  .sku-book .s1{display:block;margin-top:5px;color:var(--gray);font-size:11px}
+  .sku-book .s2{display:block;margin-top:4px;color:var(--gray-l);font-size:10px}
+  .sku-title{padding:12px 16px 8px;color:var(--navy);font-size:14px;font-weight:700}
+  .sku-options{display:flex;gap:9px;padding:0 16px}
+  .opt{position:relative;flex:1;padding:11px 9px;border-radius:10px;border:1px solid rgba(17,19,24,.14);background:#fff}
+  .opt.active{border-color:#22c55e;background:linear-gradient(155deg,#dcffec,#fff 46%,#e8f4ff);box-shadow:0 5px 14px rgba(34,197,94,.14)}
+  .opt .badge{position:absolute;top:-1px;right:7px;padding:2px 6px;border-radius:0 0 5px 5px;background:linear-gradient(180deg,var(--orange-l),var(--orange));color:#fff;font-size:9px;font-weight:700}
+  .opt b{display:block;color:var(--navy);font-size:13px}
+  .opt .p{display:flex;align-items:baseline;margin-top:5px;color:var(--orange);font-weight:700}
+  .opt .p i{font-style:normal;font-size:11px}
+  .opt .p em{font-style:normal;font-size:20px;margin-left:1px}
+  .opt .d{display:block;margin-top:4px;color:var(--gray);font-size:10px;line-height:15px}
+  .includes{margin:12px 16px 0;padding:10px 11px;border-radius:10px;background:rgba(255,253,248,.9);border:0.5px solid rgba(17,19,24,.1)}
+  .includes b{display:block;margin-bottom:7px;color:var(--navy);font-size:12px}
+  .includes .it{display:flex;gap:5px;margin-top:5px;font-size:11px;color:#59677d;line-height:16px}
+  .includes .it i{font-style:normal;color:#22c55e;font-weight:700}
+  .sku-confirm{margin:12px 16px 2px;height:44px;border-radius:999px;background:linear-gradient(180deg,var(--orange-l),var(--orange));color:#fff;font-size:16px;font-weight:700;line-height:44px;text-align:center;box-shadow:0 4px 9px rgba(255,130,0,.24)}
+</style>
+</head>
+<body>
+<h1 class="page-title">教材商品详情页 · 新版设计示意</h1>
+<p class="page-sub">表头动态填充（封面 / 书名 / 出版社 / 单词·句子·单元数），下方商品详情长图与 SKU 弹层统一复用</p>
+
+<div class="stage">
+  <!-- ① 详情页 -->
+  <div class="col">
+    <div class="phone">
+      <div class="nav"><div class="back">‹</div><div class="t">新概念英语·青少版 1A</div></div>
+
+      <div class="head-banner">
+        <div class="glow glow-a"></div><div class="glow glow-b"></div>
+      </div>
+
+      <div class="head-card">
+        <div class="head-main">
+          <div class="cover-wrap"><img class="cover" src="../images/home/book-cover.png" alt=""></div>
+          <div class="meta">
+            <div class="book-name">新概念英语·青少版 1A 同步词句学习卡</div>
+            <div class="press-pill"><img src="../images/home/ad/icon-press-jelly.png" alt=""><span>外语教学与研究出版社</span></div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><img src="../images/home/ad/icon-word-jelly.png" alt=""><div class="num-row"><span class="num">6,392</span><span class="unit">个</span></div><span class="stat-label">收录单词</span></div>
+          <div class="stat"><img src="../images/home/ad/icon-proverb-jelly.png" alt=""><div class="num-row"><span class="num">1,413</span><span class="unit">条</span></div><span class="stat-label">实用句子</span></div>
+          <div class="stat"><img src="../images/home/ad/icon-review-jelly.png" alt=""><div class="num-row"><span class="num">120</span><span class="unit">期</span></div><span class="stat-label">学习单元</span></div>
+        </div>
+      </div>
+
+      <div class="detail-tab"><b>商品详情</b></div>
+      <div class="detail-img">（统一的商品详情长图 detail-page.png）</div>
+
+      <div class="buy-bar">
+        <div class="price">
+          <div class="price-row"><span class="cur">¥</span><span class="amt">48</span><span class="from">起</span></div>
+          <span class="price-note">2 种套餐可选</span>
+        </div>
+        <div class="buy-btn">立即购买</div>
+      </div>
+    </div>
+    <div class="caption">① 详情页（新表头）<small>横幅渐变 + 悬浮信息卡，封面上浮压住横幅；三项数据配 Jelly 图标；底栏带最低价锚点</small></div>
+  </div>
+
+  <!-- ② SKU 弹层 -->
+  <div class="col">
+    <div class="phone" style="height:660px">
+      <div class="nav"><div class="back">‹</div><div class="t">新概念英语·青少版 1A</div></div>
+      <div class="mask">
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sku-book">
+            <img class="sku-cover" src="../images/home/book-cover.png" alt="">
+            <div><b>新概念英语·青少版 1A 同步词句学习卡</b><span class="s1">6392 词 · 1413 条句子 · 120 期单元</span><span class="s2">外语教学与研究出版社</span></div>
+          </div>
+          <div class="sku-title">选择套餐</div>
+          <div class="sku-options">
+            <div class="opt active"><span class="badge">推荐</span><b>学习卡套餐</b><div class="p"><i>¥</i><em>98</em></div><span class="d">词典 + 智能学习卡，听说读写测完整闭环</span></div>
+            <div class="opt"><b>词典套餐</b><div class="p"><i>¥</i><em>48</em></div><span class="d">仅含词典内容，适合查阅与自主背诵</span></div>
+          </div>
+          <div class="includes">
+            <b>套餐包含</b>
+            <div class="it"><i>✓</i>电子词典全部词汇与谚语</div>
+            <div class="it"><i>✓</i>智能学习卡：单词新学 / 跟读 / 测验</div>
+            <div class="it"><i>✓</i>记忆曲线安排科学复习</div>
+            <div class="it"><i>✓</i>朗读评分与即时纠音反馈</div>
+            <div class="it"><i>✓</i>打卡激励与学习进度追踪</div>
+          </div>
+          <div class="sku-confirm">¥98 确认购买</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">② SKU 弹层（保持现有结构）<small>点击「立即购买」上滑出现；不同教材封面/数据动态注入，套餐统一</small></div>
+  </div>
+</div>
+</body>
+</html>

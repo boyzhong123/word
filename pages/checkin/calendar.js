@@ -178,12 +178,18 @@ Page({
     shareThemes: [
       { id: 'monster', label: '小怪兽' },
       { id: 'pk', label: 'PK' },
-      { id: 'words', label: '词句刷刷刷' }
+      { id: 'words', label: '词句刷刷刷' },
+      { id: 'monsterLight', label: '小怪兽·浅色' },
+      { id: 'pkLight', label: 'PK·浅色' },
+      { id: 'wordsLight', label: '词句·浅色' }
     ],
     sharePosterPaths: {
       monster: '',
       pk: '',
-      words: ''
+      words: '',
+      monsterLight: '',
+      pkLight: '',
+      wordsLight: ''
     }
   },
 
@@ -313,6 +319,13 @@ Page({
     this.setData({ showRulesDialog: false })
   },
 
+  openCalendarDay(event) {
+    const dataset = (event && event.currentTarget && event.currentTarget.dataset) || {}
+    if (dataset.isReward === true || dataset.isReward === 'true') {
+      this.openGiftDialog()
+    }
+  },
+
   openGiftDialog() {
     this.setData({ showGiftDialog: true, giftCopied: false })
   },
@@ -405,7 +418,10 @@ Page({
       sharePosterPaths: {
         monster: '',
         pk: '',
-        words: ''
+        words: '',
+        monsterLight: '',
+        pkLight: '',
+        wordsLight: ''
       }
     })
     this.sharePosterQueue = Promise.resolve()
@@ -426,7 +442,10 @@ Page({
       sharePosterPaths: {
         monster: '',
         pk: '',
-        words: ''
+        words: '',
+        monsterLight: '',
+        pkLight: '',
+        wordsLight: ''
       }
     })
     this.sharePosterQueue = Promise.resolve()
