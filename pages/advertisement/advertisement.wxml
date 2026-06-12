@@ -9,8 +9,8 @@
     <!-- 表头：书本信息（动态填充） -->
     <view class="product-head">
       <view class="head-banner">
-        <view class="hero-glow hero-glow-a"></view>
-        <view class="hero-glow hero-glow-b"></view>
+        <image class="head-banner-art" src="/images/home/ad/detail-hero.png" mode="aspectFill" />
+        <view class="head-banner-wash"></view>
       </view>
 
       <view class="head-card">
@@ -19,38 +19,64 @@
             <image class="product-cover" src="{{bookCover}}" mode="aspectFill" />
           </view>
           <view class="product-meta">
+            <text class="product-kicker">教材同步学习包</text>
             <text class="product-name">{{name}}</text>
-            <view wx:if="{{press}}" class="product-press-pill">
-              <image class="press-icon" src="/images/home/ad/icon-press-jelly.png" mode="aspectFit" />
-              <text class="product-press">{{press}}</text>
+            <view class="product-tags">
+              <view wx:if="{{press}}" class="product-press-pill">
+                <image class="press-icon" src="/images/home/ad/icon-press-jelly.png" mode="aspectFit" />
+                <text class="product-press">{{press}}</text>
+              </view>
+              <view wx:for="{{gradeTags}}" wx:key="*this" class="product-grade-pill">
+                <text>{{item}}</text>
+              </view>
             </view>
+            <text class="product-summary">{{bookSummary}}</text>
           </view>
         </view>
 
         <view class="product-stats-card">
-          <view class="product-stat">
-            <image class="stat-icon" src="/images/home/ad/icon-word-jelly.png" mode="aspectFit" />
+          <view class="product-stat" wx:for="{{contentStats}}" wx:key="label">
+            <image class="stat-icon" src="{{item.icon}}" mode="aspectFit" />
             <view class="stat-number-row">
-              <text class="stat-value">{{wordCountText}}</text>
-              <text class="stat-unit">个</text>
+              <text class="stat-value">{{item.value}}</text>
+              <text class="stat-unit">{{item.unit}}</text>
             </view>
-            <text class="stat-label">收录单词</text>
+            <text class="stat-label">{{item.label}}</text>
           </view>
-          <view class="product-stat">
-            <image class="stat-icon" src="/images/home/ad/icon-proverb-jelly.png" mode="aspectFit" />
-            <view class="stat-number-row">
-              <text class="stat-value">{{proverbCountText}}</text>
-              <text class="stat-unit">条</text>
-            </view>
-            <text class="stat-label">实用句子</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="template-panel learning-panel">
+      <view class="section-head">
+        <text class="section-title">学习内容</text>
+        <text class="section-subtitle">跟随教材单元组织</text>
+      </view>
+      <view class="feature-grid">
+        <view class="feature-card" wx:for="{{featureCards}}" wx:key="title">
+          <image class="feature-icon" src="{{item.icon}}" mode="aspectFit" />
+          <view class="feature-copy">
+            <text class="feature-title">{{item.title}}</text>
+            <text class="feature-desc">{{item.desc}}</text>
           </view>
-          <view class="product-stat">
-            <image class="stat-icon" src="/images/home/ad/icon-review-jelly.png" mode="aspectFit" />
-            <view class="stat-number-row">
-              <text class="stat-value">{{totalText}}</text>
-              <text class="stat-unit">期</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="template-panel method-panel">
+      <image class="method-visual" src="/images/home/ad/detail-method.png" mode="aspectFill" />
+      <view class="method-copy">
+        <view class="section-head section-head-tight">
+          <text class="section-title">学习路径</text>
+          <text class="section-subtitle">新学、跟读、复习连在一起</text>
+        </view>
+        <view class="method-list">
+          <view class="method-step" wx:for="{{methodSteps}}" wx:key="title">
+            <view class="method-index">{{index + 1}}</view>
+            <view class="method-text">
+              <text class="method-title">{{item.title}}</text>
+              <text class="method-desc">{{item.desc}}</text>
             </view>
-            <text class="stat-label">学习单元</text>
           </view>
         </view>
       </view>

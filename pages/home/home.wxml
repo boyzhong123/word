@@ -471,7 +471,6 @@
       <view class="book-picker-header">
         <view class="book-picker-head-copy">
           <view class="book-picker-head-row">
-            <image class="book-picker-head-icon" src="../../images/home/icon-book-picker-jelly.png" mode="aspectFit" />
             <text class="book-picker-title">选择教材</text>
           </view>
           <text class="book-picker-subtitle">共 {{allBooks.length}} 本，切换后立即生效</text>

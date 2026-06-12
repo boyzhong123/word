@@ -122,11 +122,12 @@ page,
   margin: 17rpx 30rpx 0 0;
 }
 
-.recitation-footer {
+.recitation-countdown {
   padding: 20rpx 0 40rpx;
   text-align: center;
-  color: #15171c;
+  color: #434a56;
   font-size: 24rpx;
+  line-height: 34rpx;
   background: transparent;
 }
 

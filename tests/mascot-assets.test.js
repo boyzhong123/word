@@ -52,6 +52,28 @@ for (const spriteName of spriteNames) {
   })
 }
 
+test('seek-thumb-mascot-sprite.png contains three 320 by 213 progress thumb frames', () => {
+  const spritePath = path.join(projectRoot, 'images/listen/seek-thumb-mascot-sprite.png')
+  assert.equal(fs.existsSync(spritePath), true, 'seek-thumb mascot sprite should exist')
+  assert.deepEqual(readPngSize(spritePath), {
+    width: 960,
+    height: 213
+  })
+  assert.equal(fs.readFileSync(spritePath)[25], 6, 'seek-thumb mascot sprite should use RGBA color type')
+})
+
+for (const frameIndex of [1, 2, 3]) {
+  test('seek-thumb-mascot-' + frameIndex + '.png is a 320 by 213 transparent loop frame', () => {
+    const framePath = path.join(projectRoot, 'images/listen', 'seek-thumb-mascot-' + frameIndex + '.png')
+    assert.equal(fs.existsSync(framePath), true, 'seek-thumb mascot frame should exist')
+    assert.deepEqual(readPngSize(framePath), {
+      width: 320,
+      height: 213
+    })
+    assert.equal(fs.readFileSync(framePath)[25], 6, 'seek-thumb mascot frame should use RGBA color type')
+  })
+}
+
 for (const stageStarName of stageStarNames) {
   test(stageStarName + ' is a transparent PNG icon', () => {
     const starPath = path.join(projectRoot, 'images/home', stageStarName)

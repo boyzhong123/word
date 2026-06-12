@@ -15,10 +15,10 @@ CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove
 
 SOURCE_FILES = {
     "icon-press-jelly.png": ("ad-icon-press-jelly-source.png", 64, 8),
-    "icon-word-jelly.png": ("ad-icon-word-jelly-source.png", 96, 10),
-    "icon-proverb-jelly.png": ("ad-icon-proverb-jelly-source.png", 96, 10),
+    "icon-word-jelly.png": ("ad-icon-word-flat-source.png", 96, 10),
+    "icon-proverb-jelly.png": ("ad-icon-proverb-flat-source.png", 96, 10),
+    "icon-review-jelly.png": ("ad-icon-review-flat-source.png", 96, 10),
     "icon-read-jelly.png": ("ad-icon-read-jelly-source.png", 96, 10),
-    "icon-review-jelly.png": ("ad-icon-review-jelly-source.png", 96, 10),
     "package-full-jelly.png": ("ad-package-full-jelly-source.png", 120, 10),
     "package-book-jelly.png": ("ad-package-book-jelly-source.png", 120, 10),
     "strategy-jelly.png": ("ad-strategy-jelly-source.png", 640, 24, 320),
@@ -87,10 +87,28 @@ def fit_asset(image, width, height, padding):
 
 
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--only",
+        nargs="+",
+        metavar="OUTPUT",
+        help="build only these output filenames (e.g. icon-word-jelly.png)",
+    )
+    args = parser.parse_args()
+
     WORK_DIR.mkdir(parents=True, exist_ok=True)
     AD_DIR.mkdir(parents=True, exist_ok=True)
 
-    for output_name, spec in SOURCE_FILES.items():
+    targets = SOURCE_FILES
+    if args.only:
+        missing = [name for name in args.only if name not in SOURCE_FILES]
+        if missing:
+            raise SystemExit(f"unknown outputs: {', '.join(missing)}")
+        targets = {name: SOURCE_FILES[name] for name in args.only}
+
+    for output_name, spec in targets.items():
         source_name = spec[0]
         if len(spec) == 4:
             width, height, padding = spec[1], spec[2], spec[3]

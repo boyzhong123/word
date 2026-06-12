@@ -1252,12 +1252,6 @@ page {
   gap: 12rpx;
 }
 
-.book-picker-head-icon {
-  flex: none;
-  width: 44rpx;
-  height: 44rpx;
-}
-
 .book-picker-title {
   font-size: 34rpx;
   line-height: 48rpx;
@@ -1269,7 +1263,6 @@ page {
 .book-picker-subtitle {
   display: block;
   margin-top: 6rpx;
-  padding-left: 56rpx;
   font-size: 22rpx;
   line-height: 32rpx;
   color: #7a8798;

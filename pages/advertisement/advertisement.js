@@ -50,9 +50,51 @@ const DETAIL_BANNERS = [
 ]
 
 const MIN_PRICE = PACKAGES.reduce((min, item) => Math.min(min, item.price), Infinity)
+const DEFAULT_BOOK_COVER = '/images/home/book-cover.png'
+const DEFAULT_GRADE_TAGS = ['初中']
+const FEATURE_CARDS = [
+  {
+    icon: '/images/home/ad/icon-word-jelly.png',
+    title: '词汇同步',
+    desc: '围绕教材词表拆分学习任务'
+  },
+  {
+    icon: '/images/home/ad/icon-proverb-jelly.png',
+    title: '句子积累',
+    desc: '把短句、谚语和表达放进同一套练习'
+  },
+  {
+    icon: '/images/home/ad/icon-read-jelly.png',
+    title: '跟读测评',
+    desc: '读音反馈帮助孩子及时修正'
+  },
+  {
+    icon: '/images/home/ad/icon-review-jelly.png',
+    title: '复习追踪',
+    desc: '按进度安排复习和报告'
+  }
+]
+const METHOD_STEPS = [
+  { title: '先学词', desc: '按单元推进词义、发音和例句' },
+  { title: '再练句', desc: '用短句和谚语串起真实表达' },
+  { title: '持续复习', desc: '把错题、跟读和小测合并回顾' }
+]
 
 function formatCount(value) {
   return String(Number(value) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+function splitTags(value) {
+  if (Array.isArray(value)) {
+    return value.map(item => String(item || '').trim()).filter(Boolean)
+  }
+  if (value == null || value === '') {
+    return []
+  }
+  return String(value)
+    .split(/[、,，/|;\s]+/)
+    .map(item => item.trim())
+    .filter(Boolean)
 }
 
 function decodeQueryValue(value) {
@@ -76,18 +118,53 @@ function applyBookDetail(page, book, unlocked) {
     : 0
   const selectedPackage = page.data.selectedPackage || 'full'
   const currentPackage = getPackageById(selectedPackage)
+  const total = Number(book.total || learningUnits || 0)
+  const wordCount = Number(book.wordCount || 0)
+  const proverbCount = Number(book.proverbCount || 0)
+  const totalText = formatCount(total)
+  const wordCountText = formatCount(wordCount)
+  const proverbCountText = formatCount(proverbCount)
+  const gradeTags = splitTags(
+    book.grades || book.grade || book.gradeTags || book.applyGrades || book.applicableGrades
+  )
+  const displayGradeTags = gradeTags.length ? gradeTags : DEFAULT_GRADE_TAGS
+  const contentStats = [
+    {
+      icon: '/images/home/ad/icon-word-jelly.png',
+      value: wordCountText,
+      unit: '个',
+      label: '收录单词'
+    },
+    {
+      icon: '/images/home/ad/icon-proverb-jelly.png',
+      value: proverbCountText,
+      unit: '条',
+      label: '实用句子'
+    },
+    {
+      icon: '/images/home/ad/icon-review-jelly.png',
+      value: totalText,
+      unit: '期',
+      label: '学习单元'
+    }
+  ]
 
   page.resBookId = book.resBookId || ''
   page.setData({
     name: book.name || '',
-    bookCover: book.bookCover || '',
-    total: Number(book.total || learningUnits || 0),
-    wordCount: Number(book.wordCount || 0),
-    proverbCount: Number(book.proverbCount || 0),
-    totalText: formatCount(book.total || learningUnits),
-    wordCountText: formatCount(book.wordCount),
-    proverbCountText: formatCount(book.proverbCount),
+    bookCover: book.bookCover || DEFAULT_BOOK_COVER,
+    total,
+    wordCount,
+    proverbCount,
+    totalText,
+    wordCountText,
+    proverbCountText,
     press: book.press || '',
+    gradeTags: displayGradeTags,
+    bookSummary: wordCountText + ' 词 · ' + proverbCountText + ' 句 · ' + totalText + ' 单元',
+    contentStats,
+    featureCards: FEATURE_CARDS,
+    methodSteps: METHOD_STEPS,
     intro: book.intro || '',
     unlocked: !!unlocked,
     packages: PACKAGES,
@@ -109,6 +186,11 @@ Page({
     proverbCountText: '0',
     minPrice: MIN_PRICE,
     press: '',
+    gradeTags: DEFAULT_GRADE_TAGS,
+    bookSummary: '0 词 · 0 句 · 0 单元',
+    contentStats: [],
+    featureCards: FEATURE_CARDS,
+    methodSteps: METHOD_STEPS,
     intro: '',
     unlocked: false,
     skuSheetVisible: false,
@@ -145,6 +227,7 @@ Page({
       wordCount: options.wordCount,
       proverbCount: options.proverbCount,
       press: decodeQueryValue(options.press),
+      grades: decodeQueryValue(options.grades || options.grade || options.gradeTags),
       intro: decodeQueryValue(options.intro)
     }, unlocked)
   },
@@ -202,6 +285,7 @@ Page({
       wordCount: this.data.wordCount,
       proverbCount: this.data.proverbCount,
       press: this.data.press,
+      grades: this.data.gradeTags.join(','),
       intro: this.data.intro,
       resBookId: this.resBookId,
       unlocked: this.data.unlocked ? '1' : '0',

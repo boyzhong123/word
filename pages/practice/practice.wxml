@@ -184,7 +184,7 @@
 
   <block wx:else>
   <template is="tip" data="{{...axis['anchor-page']}}"></template>
-  <swiper class="practice-swiper" current="{{current}}" indicator-dots="{{false}}" autoplay="{{false}}" circular="{{false}}" vertical="{{false}}" style="height: {{scrollHeight}}px;width: 100%;" bindchange="swiperChanged" bindtransition="touchMove" bindtouchend="touchEnd" bindanimationfinish="animationfinish" capture-catch:tap="{{marking ? 'disable': ''}}">
+  <swiper class="practice-swiper" current="{{current}}" disable-touch="{{from != 'search'}}" indicator-dots="{{false}}" autoplay="{{false}}" circular="{{false}}" vertical="{{false}}" style="height: {{scrollHeight}}px;width: 100%;" bindchange="swiperChanged" bindtransition="touchMove" bindtouchend="touchEnd" bindanimationfinish="animationfinish" capture-catch:tap="{{marking ? 'disable': ''}}">
     <block wx:for="{{contents}}" wx:key="item">
       <swiper-item skip-hidden-item-layout="true" catch:touchmove="{{needVip == 1 ? 'disable':''}}">
         <view wx:if="{{current == index}}" style="height: 100%;" bindtouchstart="onRecitationTouchStart" bindtouchend="onRecitationTouchEnd">
@@ -216,7 +216,8 @@
               <template is='bottom' data="{{showMedia:pIndex + 1 == item.selectedIndex,index:pIndex + 1,autoplay:from != 'search',audio:proverb.audio,refText:proverb.content,coreType:'en.sent.score',score:proverb.result.score}}" />
               </view>
             <view style="height: 84rpx;"></view>
-            <view wx:if="{{from != 'search'}}" class="recitation-footer">向左滑动继续学习</view>
+            <view wx:if="{{from != 'search' && autoNextCountdown > 0 && !autoNextPaused}}" class="recitation-countdown" catchtap="pauseAutoNext">{{autoNextCountdown}} 秒后自动进入下一词 · 点击取消</view>
+            <view wx:elif="{{from != 'search' && autoNextPaused}}" class="recitation-countdown recitation-countdown-paused" catchtap="manualGoNext">已暂停自动切换 · 点击进入下一词</view>
 
             <!-- 各种tip -->
             <template is="tip" data="{{...axis['anchor-record']}}"></template>

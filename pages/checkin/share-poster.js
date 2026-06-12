@@ -111,17 +111,6 @@ function createRandom(seed) {
   }
 }
 
-function roundRectPath(ctx, x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, height / 2)
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.arcTo(x + width, y, x + width, y + height, r)
-  ctx.arcTo(x + width, y + height, x, y + height, r)
-  ctx.arcTo(x, y + height, x, y, r)
-  ctx.arcTo(x, y, x + width, y, r)
-  ctx.closePath()
-}
-
 function loadCanvasImage(canvas, src) {
   return new Promise(resolve => {
     if (!src) {
@@ -281,6 +270,54 @@ function wrapText(ctx, text, maxWidth) {
   return lines
 }
 
+function roundRectPath(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2)
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.arcTo(x + width, y, x + width, y + height, r)
+  ctx.arcTo(x + width, y + height, x, y + height, r)
+  ctx.arcTo(x, y + height, x, y, r)
+  ctx.arcTo(x, y, x + width, y, r)
+  ctx.closePath()
+}
+
+const LOGO_X = 48
+const LOGO_Y = 42
+const LOGO_SIZE = 52
+const LOGO_RADIUS = 12
+const LOGO_INSET = 3
+
+function drawLogoBadge(ctx, logoImage, light) {
+  const x = LOGO_X
+  const y = LOGO_Y
+  const size = LOGO_SIZE
+  const inner = size - LOGO_INSET * 2
+  const innerRadius = Math.max(6, LOGO_RADIUS - 2)
+
+  ctx.save()
+  ctx.shadowColor = light ? 'rgba(31, 39, 51, 0.24)' : 'rgba(0, 0, 0, 0.42)'
+  ctx.shadowBlur = 10
+  ctx.shadowOffsetY = 2
+
+  roundRectPath(ctx, x, y, size, size, LOGO_RADIUS)
+  ctx.fillStyle = light ? '#ffffff' : 'rgba(255, 255, 255, 0.14)'
+  ctx.fill()
+
+  ctx.shadowColor = 'transparent'
+  ctx.shadowBlur = 0
+  ctx.shadowOffsetY = 0
+
+  ctx.lineWidth = light ? 2.5 : 2
+  ctx.strokeStyle = light ? 'rgba(31, 39, 51, 0.9)' : 'rgba(255, 255, 255, 0.94)'
+  roundRectPath(ctx, x + 0.5, y + 0.5, size - 1, size - 1, LOGO_RADIUS)
+  ctx.stroke()
+
+  roundRectPath(ctx, x + LOGO_INSET, y + LOGO_INSET, inner, inner, innerRadius)
+  ctx.clip()
+  ctx.drawImage(logoImage, x + LOGO_INSET, y + LOGO_INSET, inner, inner)
+  ctx.restore()
+}
+
 function drawHeader(ctx, options, logoImage) {
   const light = isLightPosterTheme(options.theme)
   ctx.save()
@@ -297,7 +334,7 @@ function drawHeader(ctx, options, logoImage) {
   }
 
   if (logoImage) {
-    ctx.drawImage(logoImage, 48, 42, 52, 52)
+    drawLogoBadge(ctx, logoImage, light)
   }
   ctx.fillStyle = light ? '#1f2733' : '#ffffff'
   ctx.font = 'bold 30px sans-serif'

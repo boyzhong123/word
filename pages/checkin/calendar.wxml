@@ -53,7 +53,10 @@
       </view>
       <view class="power-buttons">
         <button class="power-button" hover-class="power-button-hover" bindtap="startLearning">开始背单词</button>
-        <button class="power-button power-button-share" hover-class="power-button-hover" bindtap="openShareDialog">分享打卡</button>
+        <button class="power-button power-button-share" hover-class="power-button-hover" bindtap="openShareDialog">
+          <image class="power-button-share-icon" src="../../images/checkin/share-out.svg" mode="aspectFit" />
+          分享打卡
+        </button>
       </view>
     </view>
 
@@ -74,7 +77,7 @@
       </view>
       <view class="day-grid">
         <view
-          class="day-cell {{item.inMonth ? '' : 'day-cell-empty'}} {{item.inMonth && !item.checked && !item.isToday && item.day !== rewardDay ? 'day-cell-unchecked' : ''}} {{item.checked ? 'day-cell-checked' : ''}} {{item.isToday ? 'day-cell-today' : ''}} {{item.inMonth && item.day === rewardDay ? 'day-cell-reward' : ''}} {{item.inMonth && item.day === rewardDay && giftUnlocked ? 'day-cell-reward-unlocked' : ''}} {{item.inMonth && item.day === rewardDay && !giftUnlocked ? 'day-cell-reward-locked' : ''}}"
+          class="day-cell {{item.inMonth ? '' : 'day-cell-empty'}} {{item.inMonth && !item.checked && !item.isToday && item.day !== rewardDay ? 'day-cell-unchecked' : ''}} {{item.checked ? 'day-cell-checked' : ''}} {{item.isToday ? 'day-cell-today' : ''}} {{item.inMonth && item.day === rewardDay ? 'day-cell-reward' : ''}} {{item.inMonth && item.day === rewardDay && giftUnlocked ? 'day-cell-reward-unlocked' : ''}} {{item.inMonth && item.day === rewardDay && giftUnlocked && !giftClaimed ? 'day-cell-reward-claimable' : ''}} {{item.inMonth && item.day === rewardDay && giftClaimed ? 'day-cell-reward-claimed' : ''}} {{item.inMonth && item.day === rewardDay && !giftUnlocked ? 'day-cell-reward-locked' : ''}}"
           bindtap="openCalendarDay"
           data-is-reward="{{item.inMonth && item.day === rewardDay}}"
           wx:for="{{calendarDays}}"
@@ -82,7 +85,7 @@
         >
           <block wx:if="{{item.inMonth}}">
             <block wx:if="{{item.day === rewardDay}}">
-              <view class="day-reward-badge">{{giftUnlocked ? '已领' : '30天'}}</view>
+              <view class="day-reward-badge">{{giftClaimed ? '已领' : (giftUnlocked ? '可领' : '30天')}}</view>
               <image class="day-reward-icon" src="../../images/checkin/gift-day-jelly.png" mode="aspectFit" />
             </block>
             <view wx:else class="day-number {{item.isToday ? 'day-number-today' : ''}}">{{item.day}}</view>
@@ -118,10 +121,18 @@
   <view class="gift-dialog-mask" wx:if="{{showGiftDialog}}" bindtap="closeGiftDialog">
     <view class="gift-dialog" catchtap="">
       <view class="gift-dialog-title">30天连续打卡奖励</view>
-      <block wx:if="{{giftUnlocked}}">
+      <block wx:if="{{giftClaimed}}">
         <view class="gift-dialog-subtitle">5天听说在线 VIP 兑换码</view>
         <view class="gift-dialog-code">{{rewardCode}}</view>
         <button class="gift-dialog-copy {{giftCopied ? 'gift-dialog-copy-done' : ''}}" hover-class="power-button-hover" bindtap="copyRewardCode">{{giftCopied ? '已复制' : '复制兑换码'}}</button>
+      </block>
+      <block wx:elif="{{giftUnlocked}}">
+        <view class="gift-dialog-subtitle">已连续不断电 {{displayContinuousDays}} 天，可领取 5 天听说在线 VIP</view>
+        <view class="gift-progress-track">
+          <view class="gift-progress-fill" style="width: 100%;"></view>
+        </view>
+        <view class="gift-progress-copy">已达成 30 天连续打卡，奖励待领取</view>
+        <button class="gift-dialog-copy" hover-class="power-button-hover" bindtap="closeGiftDialog">立即领取</button>
       </block>
       <block wx:else>
         <view class="gift-dialog-subtitle">连续不断电满 30 天，可领 5 天听说在线 VIP</view>

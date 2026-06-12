@@ -61,27 +61,47 @@ def ensure_transparent_source(source_path, work_dir):
     return keyed_path
 
 
+def extract_tile(source, row, col):
+    tile_width = source.width // GRID_COLS
+    tile_height = source.height // GRID_ROWS
+    return source.crop(
+        (
+            col * tile_width,
+            row * tile_height,
+            (col + 1) * tile_width,
+            (row + 1) * tile_height,
+        )
+    )
+
+
+def build_static(source_path, output_path, frame_row=0, frame_col=0, output_width=320):
+    work_dir = output_path.parent
+    keyed_source = ensure_transparent_source(source_path, work_dir)
+    source = Image.open(keyed_source).convert("RGBA")
+    tile = extract_tile(source, frame_row, frame_col)
+    box = get_content_bbox(tile)
+    if box is None:
+        raise ValueError("Static frame has no visible content")
+
+    content = tile.crop(box)
+    scale = output_width / content.width
+    output_height = max(1, round(content.height * scale))
+    content = content.resize((output_width, output_height), Image.Resampling.LANCZOS)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    content.save(output_path, optimize=True)
+
+
 def build_sprite(source_path, output_path, frame_count=4):
     work_dir = output_path.parent
     keyed_source = ensure_transparent_source(source_path, work_dir)
     source = Image.open(keyed_source).convert("RGBA")
-    tile_width = source.width // GRID_COLS
-    tile_height = source.height // GRID_ROWS
     tiles = []
     for row in range(GRID_ROWS):
         for col in range(GRID_COLS):
             if len(tiles) >= frame_count:
                 break
-            tiles.append(
-                source.crop(
-                    (
-                        col * tile_width,
-                        row * tile_height,
-                        (col + 1) * tile_width,
-                        (row + 1) * tile_height,
-                    )
-                )
-            )
+            tiles.append(extract_tile(source, row, col))
 
     boxes = [get_content_bbox(tile) for tile in tiles]
     if any(box is None for box in boxes):
@@ -115,7 +135,24 @@ def main():
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--frames", type=int, default=4)
+    parser.add_argument(
+        "--static",
+        action="store_true",
+        help="Export a single frame as a static PNG (no animation).",
+    )
+    parser.add_argument("--frame-row", type=int, default=0)
+    parser.add_argument("--frame-col", type=int, default=0)
+    parser.add_argument("--width", type=int, default=320)
     args = parser.parse_args()
+    if args.static:
+        build_static(
+            args.source,
+            args.output,
+            frame_row=args.frame_row,
+            frame_col=args.frame_col,
+            output_width=args.width,
+        )
+        return
     build_sprite(args.source, args.output, args.frames)
 
 

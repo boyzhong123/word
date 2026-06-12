@@ -23,6 +23,8 @@ const DETAIL_TAB_DEFS = [
 ]
 
 const WORD_HINT_VISIBLE_MS = 2000
+// 跟读模式：当前词全部条目读完评分后，倒计时自动进入下一词（与小测一致）
+const AUTO_NEXT_COUNTDOWN_S = 3
 const WORD_HINT_TOAST_IMAGES = [
   '/images/word-new/toast-known.png',
   '/images/word-new/toast-unknown.png',
@@ -104,6 +106,8 @@ Page({
       'anchor-tone': { text: '句末需要升调 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-tone' }
     },
     current: 0,
+    autoNextCountdown: 0,
+    autoNextPaused: false,
     wordTotal: 0,
     contents: [],
     needVip: 0,
@@ -289,6 +293,7 @@ Page({
    */
   onHide() {
       this.clearWordHintTimers()
+      this.stopAutoNextCountdown()
       this.stopAudio()
       this.stopWordNewAudio()
   },
@@ -298,6 +303,7 @@ Page({
    */
   onUnload() {
       this.clearWordHintTimers()
+      this.stopAutoNextCountdown()
       if (this.data.innerAudioContext) {
         this.data.innerAudioContext.offEnded()
         this.data.innerAudioContext.offError()
@@ -368,6 +374,71 @@ Page({
         ['contents[' + index + '].proverb[' + (i - 1) + '].result']: result
       })
     }
+    this.scheduleAutoNextIfDone()
+  },
+
+  // ===== 读完自动切题（跟读模式） =====
+  isRecitationItemDone(item) {
+    const hasScore = r => r && r.score !== undefined && r.score !== null && r.score !== ''
+    if (!item || !item.word || !hasScore(item.word.result)) {
+      return false
+    }
+    const proverbs = Array.isArray(item.proverb) ? item.proverb : []
+    return proverbs.every(p => hasScore(p.result))
+  },
+
+  scheduleAutoNextIfDone() {
+    if (this.data.isWordNewMode || this.data.from === 'search' || this.data.needVip) {
+      return
+    }
+    const index = this.data.current
+    if (!this.isRecitationItemDone(this.data.contents[index])) {
+      return
+    }
+    this.startAutoNextCountdown(index)
+  },
+
+  startAutoNextCountdown(index) {
+    this.stopAutoNextCountdown()
+    const token = this.autoNextSeq
+    let left = AUTO_NEXT_COUNTDOWN_S
+
+    const tick = () => {
+      if (token !== this.autoNextSeq || this.data.current !== index) {
+        return
+      }
+      this.setData({ autoNextCountdown: left })
+      if (left <= 0) {
+        this.goAutoNext(index)
+        return
+      }
+      left -= 1
+      this.autoNextTimer = setTimeout(tick, 1000)
+    }
+
+    tick()
+  },
+
+  stopAutoNextCountdown() {
+    this.autoNextSeq = (this.autoNextSeq || 0) + 1
+    if (this.autoNextTimer) {
+      clearTimeout(this.autoNextTimer)
+      this.autoNextTimer = null
+    }
+    if (this.data.autoNextCountdown) {
+      this.setData({ autoNextCountdown: 0 })
+    }
+  },
+
+  goAutoNext(index) {
+    this.setData({ autoNextCountdown: 0 })
+    if (index < this.data.contents.length - 1) {
+      this.changeRecitationIndex(index + 1)
+      return
+    }
+    if (!this.wordId) {
+      this.goFinishPage()
+    }
   },
   back() {
     this.setData({
@@ -386,6 +457,10 @@ Page({
   onMediaStateChange(e) {
     if (e.detail.state != 0) {
         this.stopAudio()
+        // 播放/录音/评分中暂停自动切题；回到空闲后若本词已读完会重新计时
+        this.stopAutoNextCountdown()
+    } else {
+        this.scheduleAutoNextIfDone()
     }
     switch (e.detail.state) {
       case 2:
@@ -503,6 +578,7 @@ Page({
   },
   swiperChanged(e) {
     this.hideTip()
+    this.stopAutoNextCountdown()
     this.setData({
       current: e.detail.current
     })
@@ -528,6 +604,10 @@ Page({
     this._recitationTouchStartY = touch.pageY
   },
   onRecitationTouchEnd(e) {
+    // 学习模式下不再支持滑动切题，读完后倒计时自动切换；搜索查词保留滑动
+    if (this.data.from !== 'search') {
+      return
+    }
     if (this.data.needVip || this.data.marking) {
       return
     }
@@ -563,6 +643,7 @@ Page({
       return
     }
     this.hideTip()
+    this.stopAutoNextCountdown()
     this.setData({
       current: next
     })

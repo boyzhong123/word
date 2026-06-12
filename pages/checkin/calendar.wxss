@@ -208,9 +208,16 @@ page {
 }
 
 .power-button-share {
-  color: #4c1d95;
-  background: #ede9fe;
-  box-shadow: none;
+  gap: 10rpx;
+  color: #ffffff;
+  background: linear-gradient(145deg, #a98aff 0%, #7b5cf4 52%, #6d28d9 100%);
+  box-shadow: 0 8rpx 18rpx rgba(109, 40, 217, 0.32), inset 0 2rpx 0 rgba(255, 255, 255, 0.22);
+}
+
+.power-button-share-icon {
+  width: 34rpx;
+  height: 34rpx;
+  flex: none;
 }
 
 .calendar-card {
@@ -399,6 +406,20 @@ page {
   box-shadow: 0 10rpx 20rpx rgba(255, 176, 32, 0.24), inset 0 3rpx 0 rgba(255, 255, 255, 0.72);
 }
 
+.day-cell-reward-claimable::before,
+.day-cell-reward-claimable.day-cell-today::before {
+  background: radial-gradient(circle at 36% 25%, #fff8d8 0%, #ffe27a 42%, #ffb92f 100%);
+  border-color: #ff9f1c;
+  box-shadow: 0 0 0 7rpx rgba(255, 213, 90, 0.24), 0 12rpx 24rpx rgba(255, 162, 28, 0.34), inset 0 3rpx 0 rgba(255, 255, 255, 0.78);
+}
+
+.day-cell-reward-claimed::before,
+.day-cell-reward-claimed.day-cell-today::before {
+  background: linear-gradient(180deg, #fff0a8 0%, #ffc94a 100%);
+  border-color: rgba(255, 183, 30, 0.94);
+  box-shadow: 0 10rpx 20rpx rgba(255, 176, 32, 0.2), inset 0 3rpx 0 rgba(255, 255, 255, 0.72);
+}
+
 .day-cell-reward-locked::before,
 .day-cell-reward-locked.day-cell-today::before {
   background: linear-gradient(180deg, #fffdf4 0%, #fff2c6 100%);
@@ -444,6 +465,18 @@ page {
   box-shadow: 0 5rpx 12rpx rgba(123, 92, 244, 0.24);
 }
 
+.day-cell-reward-claimable .day-reward-badge {
+  color: #ffffff;
+  background: linear-gradient(90deg, #ff8a00 0%, #ff4d6d 100%);
+  box-shadow: 0 5rpx 12rpx rgba(255, 89, 32, 0.28);
+}
+
+.day-cell-reward-claimed .day-reward-badge {
+  color: #ffffff;
+  background: #7b5cf4;
+  box-shadow: 0 5rpx 12rpx rgba(123, 92, 244, 0.24);
+}
+
 .day-cell-reward-locked .day-reward-badge {
   color: #7a3c00;
   background: #ffe08a;
@@ -461,6 +494,10 @@ page {
 
 .day-cell-reward-locked .day-reward-icon {
   opacity: 0.78;
+}
+
+.day-cell-reward-claimable .day-reward-icon {
+  transform: scale(1.08);
 }
 
 .rules-dialog-mask,

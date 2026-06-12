@@ -11,10 +11,10 @@ const {
 } = require('./calendar-data')
 const { drawPoster, getDailyQuote, POSTER_THEMES } = require('./share-poster')
 const { LEVEL_SIZE, getTodayDone } = require('../../utils/checkin-progress')
+const { APP_LOGO_SRC } = require('../../utils/app-brand')
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 const DEFAULT_AVATAR = '../../images/home/mascot-report-jelly.png'
-const SHARE_BADGE_SRC = '/images/home/icon-book-picker-jelly.png'
 const DEFAULT_SHARE_NICKNAME = '爱学习的小词友'
 
 // canvas.createImage 需要绝对路径，页面相对路径转为根路径
@@ -44,6 +44,12 @@ function pickLearnedWords(book) {
 }
 const STREAK_REWARD_DAYS = 30
 const STREAK_REWARD_CODE = 'TSZXVIP5D'
+const DEFAULT_REWARD_SCENARIO_ID = 'claimable'
+const REWARD_SCENARIOS = [
+  { id: 'locked', label: '未达标', continuousDays: 18, giftClaimed: false },
+  { id: 'claimable', label: '可领取', continuousDays: 34, giftClaimed: false },
+  { id: 'claimed', label: '已领取', continuousDays: 34, giftClaimed: true }
+]
 
 function getSafeArea() {
   const systemInfo = wx.getSystemInfoSync()
@@ -123,6 +129,40 @@ function pickRewardCode(data) {
   return data.streakRewardCode || data.vipRedeemCode || data.rewardCode || STREAK_REWARD_CODE
 }
 
+function pickRewardClaimed(data) {
+  const candidates = [
+    data.giftClaimed,
+    data.rewardClaimed,
+    data.streakRewardClaimed,
+    data.vipRewardClaimed,
+    data.hasClaimedReward,
+    data.rewardReceived
+  ]
+
+  for (let i = 0; i < candidates.length; i++) {
+    const value = candidates[i]
+    if (value === true || value === 1 || value === '1' || value === 'true') {
+      return true
+    }
+    if (value === false || value === 0 || value === '0' || value === 'false') {
+      return false
+    }
+  }
+
+  const status = String(data.rewardStatus || data.streakRewardStatus || '').toLowerCase()
+  return status === 'claimed' || status === 'received'
+}
+
+function getRewardScenario(id) {
+  const target = id || DEFAULT_REWARD_SCENARIO_ID
+  for (let i = 0; i < REWARD_SCENARIOS.length; i++) {
+    if (REWARD_SCENARIOS[i].id === target) {
+      return REWARD_SCENARIOS[i]
+    }
+  }
+  return REWARD_SCENARIOS[1]
+}
+
 function pickPracticeUnitId(book) {
   const learningInfo = (book && book.learningInfo) || {}
   const candidates = [
@@ -163,7 +203,10 @@ Page({
     avatarUrl: '',
     avatarSrc: DEFAULT_AVATAR,
     rewardDay: STREAK_REWARD_DAYS,
+    rewardScenarios: REWARD_SCENARIOS,
+    rewardScenarioId: DEFAULT_REWARD_SCENARIO_ID,
     giftUnlocked: false,
+    giftClaimed: false,
     showGiftDialog: false,
     showRulesDialog: false,
     giftCopied: false,
@@ -204,7 +247,7 @@ Page({
     this.setData(Object.assign(getSafeArea(), getNavLayout(), {
       bookName: book.name || '当前教材'
     }))
-    this.renderCalendar()
+    this.applyRewardScenario(DEFAULT_REWARD_SCENARIO_ID)
     this.loadCheckin()
   },
 
@@ -252,19 +295,35 @@ Page({
       }
 
       this.setData({
-        continuousDays,
+        giftClaimed: pickRewardClaimed(info),
         rewardCode: pickRewardCode(info),
         nickName: info.nickName || '',
         avatarUrl: pickAvatarUrl(info),
         avatarSrc: pickAvatarUrl(info) || DEFAULT_AVATAR
       })
-      this.renderCalendar()
+      this.applyRewardScenario(this.data.rewardScenarioId || DEFAULT_REWARD_SCENARIO_ID)
     }).catch(error => {
       console.log('[checkin-calendar] demo fallback', error)
-      this.checkedDates = buildDemoCheckedDates(this.today)
-      this.setData({ continuousDays: DEMO_CONTINUOUS_DAYS })
-      this.renderCalendar()
+      this.applyRewardScenario(this.data.rewardScenarioId || DEFAULT_REWARD_SCENARIO_ID)
     })
+  },
+
+  applyRewardScenario(id) {
+    const scenario = getRewardScenario(id)
+    this.checkedDates = buildRecentCheckedDates(scenario.continuousDays, this.today)
+    this.setData({
+      rewardScenarioId: scenario.id,
+      continuousDays: scenario.continuousDays,
+      giftClaimed: scenario.giftClaimed,
+      showGiftDialog: false,
+      giftCopied: false
+    })
+    this.renderCalendar()
+  },
+
+  switchRewardScenario(event) {
+    const id = event && event.currentTarget && event.currentTarget.dataset && event.currentTarget.dataset.id
+    this.applyRewardScenario(id)
   },
 
   changeMonth(offset) {
@@ -437,16 +496,19 @@ Page({
     if (!mode || mode === this.data.shareMode) {
       return
     }
+    // 不整体清空图片（image 节点一卸载 swiper 会生硬复位），
+    // 新模式已缓存的直接换上，没缓存的先留旧图占位，渲染完成后原地换 src；
+    // 同时显式把 swiper 平滑滚回第一张。
+    const cache = this.posterCache || {}
+    const nextPaths = {}
+    POSTER_THEMES.forEach(theme => {
+      nextPaths[theme] = cache[mode + ':' + theme] || this.data.sharePosterPaths[theme] || ''
+    })
     this.setData({
       shareMode: mode,
-      sharePosterPaths: {
-        monster: '',
-        pk: '',
-        words: '',
-        monsterLight: '',
-        pkLight: '',
-        wordsLight: ''
-      }
+      shareThemeIndex: 0,
+      shareTheme: POSTER_THEMES[0],
+      sharePosterPaths: nextPaths
     })
     this.sharePosterQueue = Promise.resolve()
     POSTER_THEMES.forEach(theme => this.enqueueSharePosterRender(theme))
@@ -497,7 +559,7 @@ Page({
       quote: getDailyQuote(this.today),
       nickName: this.data.nickName || DEFAULT_SHARE_NICKNAME,
       avatarSrc: toCanvasImageSrc(this.data.avatarSrc || DEFAULT_AVATAR),
-      badgeSrc: SHARE_BADGE_SRC,
+      logoSrc: APP_LOGO_SRC,
       continuousDays: this.data.displayContinuousDays,
       totalDays: (this.checkedDates || []).length,
       todayDone,
@@ -530,7 +592,6 @@ Page({
     const cacheKey = mode + ':' + targetTheme
     const cache = this.posterCache || {}
 
-    this.setData({ ['sharePosterPaths.' + targetTheme]: '' })
     const options = Object.assign({}, this.buildPosterOptions(), { theme: targetTheme })
     return this.getShareCanvas().then(canvas => {
       return drawPoster(canvas, options).then(() => canvas)
@@ -553,9 +614,18 @@ Page({
     })
   },
 
-  saveShareImage() {
+  // 仅返回当前模式下渲染完成的海报路径，避免存到旧模式的占位图
+  getFreshPosterPath() {
+    const cache = this.posterCache || {}
+    const key = this.data.shareMode + ':' + this.data.shareTheme
     const path = this.data.sharePosterPaths[this.data.shareTheme]
+    return path && cache[key] === path ? path : ''
+  },
+
+  saveShareImage() {
+    const path = this.getFreshPosterPath()
     if (!path) {
+      wx.showToast({ title: '海报生成中…', icon: 'none' })
       return
     }
     this.ensurePhotosAlbumPermission().then(allowed => {
@@ -580,8 +650,9 @@ Page({
   },
 
   sendShareImage() {
-    const path = this.data.sharePosterPaths[this.data.shareTheme]
+    const path = this.getFreshPosterPath()
     if (!path) {
+      wx.showToast({ title: '海报生成中…', icon: 'none' })
       return
     }
     if (typeof wx.showShareImageMenu === 'function') {
