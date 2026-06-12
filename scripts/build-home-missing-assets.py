@@ -631,16 +631,17 @@ def main():
             optimize=True,
         )
 
+    build_work = PROJECT_ROOT / "assets" / "build-work"
     build_single_monster_sprite(
-        MONSTER_DIR / "jelly-green-monster-defeated.png",
+        build_work / "jelly-green-monster-defeated.png",
         MONSTER_DIR / "jelly-defeated.png",
     )
     build_single_monster_sprite(
-        MONSTER_DIR / "jelly-green-monster-locked.png",
+        build_work / "jelly-green-monster-locked.png",
         MONSTER_DIR / "jelly-locked.png",
     )
     build_horizontal_monster_sprite(
-        MONSTER_DIR / "jelly-green-monster-fighting-6-frames.png",
+        build_work / "jelly-green-monster-fighting-6-frames.png",
         MONSTER_DIR / "jelly-fighting.png",
         frame_count=6,
     )
@@ -669,9 +670,9 @@ def main():
         fit_icon(source, size=72).save(HOME_DIR / output_name, optimize=True)
 
     mascot_sources = {
-        "mascot-progress.png": MONSTER_DIR / "jelly-green-monster-defeated.png",
-        "mascot-alert.png": MONSTER_DIR / "jelly-green-monster-base.png",
-        "mascot-sleep.png": MONSTER_DIR / "jelly-green-monster-locked.png",
+        "mascot-progress.png": build_work / "jelly-green-monster-defeated.png",
+        "mascot-alert.png": build_work / "jelly-green-monster-base.png",
+        "mascot-sleep.png": build_work / "jelly-green-monster-locked.png",
     }
     for output_name, source_path in mascot_sources.items():
         source = chroma_key(source_path, HOME_DIR)

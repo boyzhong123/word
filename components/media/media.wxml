@@ -9,7 +9,7 @@
     <view class="good" wx:elif="{{score >= 55}}">
       <image class="media-action-icon" style="width: 25rpx;height: 46rpx;" wx:if="{{media_state == 3}}" src="../../images/pass_playing.png" />
       <image style="width: 56rpx;height: 51rpx;" class="bad media-action-icon" wx:else src="../../images/pass_paused.png" />
-      <text class="score">{{score}}</text>
+      <text class="media-circle-score">{{score}}</text>
     </view>
     <image class="bad media-action-icon" wx:elif="{{media_state == 3}}" src="../../images/cry_playing.png" />
     <image class="bad media-action-icon" wx:else src="../../images/cry_paused.png" />

@@ -1,0 +1,163 @@
+<view class="study-record-page">
+  <navigation background="transparent">
+    <view class="record-nav-title">学习记录</view>
+  </navigation>
+
+  <scroll-view class="record-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="range-hero">
+      <view class="range-meta">
+        <text>当前周期</text>
+        <text class="range-meta-strong">{{rangeLabel}}</text>
+      </view>
+      <view class="range-main">
+        <view class="range-title">这段时间累计学习</view>
+        <view class="range-minutes">{{summary.minutes}}<text>分钟</text></view>
+      </view>
+      <view class="quick-row">
+        <button
+          class="quick-button {{item.active ? 'quick-button-active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectPreset"
+          wx:for="{{quickRanges}}"
+          wx:key="id"
+        >{{item.label}}</button>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-head">
+        <view class="panel-title">选择学习周期</view>
+        <button class="panel-action" bindtap="toggleCalendar">{{calendarExpanded ? '收起月历' : '展开月历'}}</button>
+      </view>
+
+      <view class="recent-strip">
+        <view
+          class="{{item.className}}"
+          data-date="{{item.date}}"
+          bindtap="selectRecentDate"
+          wx:for="{{recentDays}}"
+          wx:key="date"
+        >
+          <view class="recent-week">{{item.weekday}}</view>
+          <view class="recent-date">{{item.day}}</view>
+          <view class="recent-minutes">{{item.minutes ? item.minutes + 'm' : ''}}</view>
+        </view>
+      </view>
+
+      <view class="month-picker" wx:if="{{calendarExpanded}}">
+        <view class="month-bar">
+          <button class="month-btn" bindtap="prevMonth">‹</button>
+          <view class="month-title">{{monthTitle}}</view>
+          <button class="month-btn" bindtap="nextMonth">›</button>
+        </view>
+        <view class="weekday-row">
+          <view class="weekday" wx:for="{{weekdays}}" wx:key="*this">{{item}}</view>
+        </view>
+        <view class="calendar-grid">
+          <view
+            class="{{item.className}}"
+            data-date="{{item.date}}"
+            data-in-month="{{item.inMonth}}"
+            bindtap="selectCalendarDate"
+            wx:for="{{calendarDays}}"
+            wx:key="date"
+          >
+            <block wx:if="{{item.inMonth}}">
+              <view class="calendar-day-number">{{item.day}}</view>
+              <view class="calendar-day-minutes">{{item.minutes ? item.minutes + 'm' : ''}}</view>
+            </block>
+          </view>
+        </view>
+      </view>
+
+      <view class="select-tip">{{selectTip}}</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-head">
+        <view class="panel-title">周期汇总</view>
+        <view class="panel-pill">{{rangeTag}}</view>
+      </view>
+      <view class="summary-grid">
+        <view class="summary-item">
+          <view class="summary-value">{{summary.newWords}}词</view>
+          <view class="summary-label">新学单词</view>
+        </view>
+        <view class="summary-item">
+          <view class="summary-value">{{summary.practiceCount}}次</view>
+          <view class="summary-label">词句练习</view>
+        </view>
+        <view class="summary-item">
+          <view class="summary-value">{{summary.audioMinutes}}分钟</view>
+          <view class="summary-label">听力音频</view>
+        </view>
+      </view>
+      <view class="trend-list">
+        <view class="trend-row" wx:for="{{trendRows}}" wx:key="label">
+          <view class="trend-label">{{item.label}}</view>
+          <view class="trend-track">
+            <view class="trend-fill {{item.fillClass}}" style="{{item.fillStyle}}"></view>
+          </view>
+          <view class="trend-value">{{item.valueText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-head">
+        <view class="panel-title">每天记录</view>
+        <view class="panel-pill">{{summary.studyDays}}天</view>
+      </view>
+      <block wx:if="{{hasRangeRecords}}">
+        <view
+          class="{{item.className}}"
+          wx:for="{{rangeRecords}}"
+          wx:key="date"
+        >
+          <view class="record-head" data-date="{{item.date}}" bindtap="toggleRecordDay">
+            <view class="record-date">
+              <view class="record-month">{{item.monthLabel}}</view>
+              <view class="record-day-num">{{item.dayLabel}}</view>
+            </view>
+            <view class="record-copy">
+              <view class="record-title">学习 {{item.minutes}} 分钟</view>
+              <view class="record-sub">新学 {{item.newWords}} 词 · 听力 {{item.audioMinutes}} 分钟</view>
+            </view>
+            <view class="record-arrow">›</view>
+          </view>
+          <view class="record-detail" wx:if="{{item.expanded}}">
+            <view class="detail-grid">
+              <view class="detail-item">
+                <view class="detail-value">{{item.newWords}}词</view>
+                <view class="detail-label">新学单词</view>
+              </view>
+              <view class="detail-item">
+                <view class="detail-value">{{item.readWords}}词</view>
+                <view class="detail-label">跟读单词</view>
+              </view>
+              <view class="detail-item">
+                <view class="detail-value">{{item.readSentences}}句</view>
+                <view class="detail-label">跟读句子</view>
+              </view>
+              <view class="detail-item">
+                <view class="detail-value">{{item.quizWords}}词</view>
+                <view class="detail-label">小测单词</view>
+              </view>
+              <view class="detail-item">
+                <view class="detail-value">{{item.reciteWords}}词</view>
+                <view class="detail-label">背诵单词</view>
+              </view>
+              <view class="detail-item">
+                <view class="detail-value">{{item.reviewWords}}词</view>
+                <view class="detail-label">待复习</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view wx:else class="empty-record">这个周期暂无学习记录</view>
+    </view>
+
+    <view class="scroll-spacer" style="height: {{110 + safeAreaBottom}}rpx;"></view>
+  </scroll-view>
+</view>

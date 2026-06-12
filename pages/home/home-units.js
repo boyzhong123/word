@@ -72,9 +72,30 @@ const TASK_DEFINITIONS = [
 ]
 
 const TASK_COLOR_PALETTE = {
-  word: { vivid: '#16a34a', muted: '#d9dbe0', iconBg: '#dcfce7' },
-  recitation: { vivid: '#f97316', muted: '#ffd4a8', iconBg: '#ffedd5' },
-  listening: { vivid: '#111318', muted: '#d9dbe0', iconBg: '#ededf0' }
+  word: {
+    vivid: '#16a34a',
+    upcoming: '#5fae79',
+    done: '#4f9d6a',
+    muted: '#8eb79a',
+    iconBg: '#dcfce7',
+    iconBgMuted: '#edf7f0'
+  },
+  recitation: {
+    vivid: '#f97316',
+    upcoming: '#ea8a2e',
+    done: '#d97706',
+    muted: '#e8a85a',
+    iconBg: '#ffedd5',
+    iconBgMuted: '#fff4e8'
+  },
+  listening: {
+    vivid: '#111318',
+    upcoming: '#4b5563',
+    done: '#374151',
+    muted: '#6b7280',
+    iconBg: '#ededf0',
+    iconBgMuted: '#f3f4f6'
+  }
 }
 
 const TASK_ICON_ASSETS = {
@@ -95,22 +116,43 @@ const TASK_ICON_ASSETS = {
 function decorateTaskVisual(task) {
   const palette = TASK_COLOR_PALETTE[task.type] || {
     vivid: task.color || '#111318',
-    muted: '#d0d0d0',
-    iconBg: '#eef2f7'
+    upcoming: '#6b7280',
+    done: '#4b5563',
+    muted: '#9ca3af',
+    iconBg: '#eef2f7',
+    iconBgMuted: '#f3f4f6'
   }
   const icons = TASK_ICON_ASSETS[task.type]
   const mapState = task.mapState || 'upcoming'
   const isActive = mapState === 'active'
+  const isLocked = mapState === 'locked'
+  const isCompleted = mapState === 'completed'
+
+  let displayColor = palette.upcoming || palette.muted
+  let iconOpacity = 0.94
+  let iconBg = palette.iconBgMuted || '#f3f4f6'
+
+  if (isActive) {
+    displayColor = palette.vivid
+    iconOpacity = 1
+    iconBg = palette.iconBg
+  } else if (isLocked) {
+    displayColor = '#9aa3ad'
+    iconOpacity = 0.9
+    iconBg = '#eceff3'
+  } else if (isCompleted) {
+    displayColor = palette.done || palette.upcoming || palette.muted
+    iconOpacity = 0.96
+    iconBg = palette.iconBgMuted || '#f3f4f6'
+  }
 
   return Object.assign({}, task, {
     icon: icons ? (isActive ? icons.active : icons.muted) : task.icon,
-    displayColor: isActive
-      ? palette.vivid
-      : (mapState === 'locked' ? '#d5d5d5' : palette.muted),
-    iconBg: isActive ? palette.iconBg : 'transparent',
-    iconOpacity: isActive ? 1 : 0.72,
-    iconWrapStyle: 'background: ' + (isActive ? palette.iconBg : 'transparent') + ';',
-    iconStyle: 'opacity: ' + (isActive ? 1 : 0.72) + ';'
+    displayColor,
+    iconBg: isActive ? palette.iconBg : iconBg,
+    iconOpacity,
+    iconWrapStyle: 'background: ' + iconBg + ';',
+    iconStyle: 'opacity: ' + iconOpacity + ';'
   })
 }
 
@@ -133,8 +175,8 @@ const UNIT_STATES = {
   },
   locked: {
     subtitle: '积跬步，至千里。',
-    subtitleColor: '#777777',
-    stageColor: '#777777',
+    subtitleColor: '#5c636a',
+    stageColor: '#5c636a',
     mascot: '../../images/home/mascot-sleep.png',
     mascotSprite: '../../images/home/mascot-sleep-sprite.png',
     mascotDuration: 3.2
@@ -163,7 +205,9 @@ function buildSubtitleStyle(color) {
 }
 
 function buildTaskFillStyle(task) {
-  const color = task.mapState === 'locked' ? '#bdbdbd' : (task.displayColor || task.color || '#111318')
+  const color = task.mapState === 'locked'
+    ? '#9aa3ad'
+    : (task.displayColor || task.color || '#111318')
   return 'width: ' + toPercent(task.percent) + '%; background: ' + color + ';'
 }
 

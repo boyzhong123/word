@@ -90,8 +90,15 @@
                       <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
                       <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
                     </view>
-                    <image wx:if="{{item.revealed && item.known}}" class="wn-word-status" src="../../images/word-new/mark-familiar.png" mode="aspectFit" />
-                    <image wx:elif="{{item.revealed && !item.known}}" class="wn-word-status wn-word-status-unknown" src="../../images/word-new/mark-unknown.png" mode="aspectFit" />
+                    <view wx:if="{{item.revealed && item.known}}" class="wn-word-status wn-word-status-known">
+                      <view class="wn-word-status-check"></view>
+                    </view>
+                    <view wx:elif="{{item.revealed && !item.known}}" class="wn-word-status wn-word-status-unknown">
+                      <view class="wn-word-status-bang">
+                        <view class="wn-word-status-bang-line"></view>
+                        <view class="wn-word-status-bang-dot"></view>
+                      </view>
+                    </view>
                     <view wx:if="{{item.wordHint && item.revealed}}" class="wn-jelly-hint wn-jelly-hint-{{item.wordHint}} wn-jelly-hint-pop">
                       <image class="wn-jelly-hint-img" src="../../images/word-new/toast-{{item.wordHint}}.png" mode="aspectFit" />
                       <text class="wn-jelly-hint-label">{{item.wordHintLabel}}</text>
@@ -191,7 +198,7 @@
           <view class="top-container">
             <image class="anchor-page" src="../../images/icon_tip.png" style="width: 26rpx;height: 26rpx;margin-left: 18rpx;vertical-align: middle;padding: 10rpx;" bindtap="showTipPopup" />
             <text style="color: #4e6a70;font-size: 24rpx;">{{item.word.page ? 'P' + item.word.page : ''}}</text>
-            <image wx:if="{{from != 'search'}}" src="../../images/icon_route_deep.svg" class="route-icon" mode="aspectFit" bindtap="goRoute" />
+            <image wx:if="{{from != 'search'}}" src="../../images/icon_route.png" class="route-icon" mode="aspectFit" bindtap="goRoute" />
           </view>
           <scroll-view scroll-y class="scroll-container" scroll-into-view="v{{item.selectedIndex}}" scroll-with-animation="true" bindscroll="onScroll" bindtouchstart="onRecitationTouchStart" bindtouchend="onRecitationTouchEnd" capture-catch:tap="{{needVip == 1 ? 'showVip':''}}">
             <view class="word-container" bindtap="onItemClick" id="v0" data-index="0">
@@ -216,8 +223,14 @@
               <template is='bottom' data="{{showMedia:pIndex + 1 == item.selectedIndex,index:pIndex + 1,autoplay:from != 'search',audio:proverb.audio,refText:proverb.content,coreType:'en.sent.score',score:proverb.result.score}}" />
               </view>
             <view style="height: 84rpx;"></view>
-            <view wx:if="{{from != 'search' && autoNextCountdown > 0 && !autoNextPaused}}" class="recitation-countdown" catchtap="pauseAutoNext">{{autoNextCountdown}} 秒后自动进入下一词 · 点击取消</view>
-            <view wx:elif="{{from != 'search' && autoNextPaused}}" class="recitation-countdown recitation-countdown-paused" catchtap="manualGoNext">已暂停自动切换 · 点击进入下一词</view>
+            <view wx:if="{{from != 'search' && autoNextCountdown > 0 && !autoNextPaused}}" class="recitation-countdown" catchtap="pauseAutoNext">
+              <text>{{autoNextCountdown}} 秒后自动进入下一词</text>
+              <text class="auto-next-cancel">取消</text>
+            </view>
+            <view wx:elif="{{from != 'search' && autoNextPaused}}" class="recitation-countdown" catchtap="manualGoNext">
+              <text>已暂停自动切换</text>
+              <text class="auto-next-go">进入下一词 ›</text>
+            </view>
 
             <!-- 各种tip -->
             <template is="tip" data="{{...axis['anchor-record']}}"></template>

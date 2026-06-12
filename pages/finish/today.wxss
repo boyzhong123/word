@@ -1,4 +1,9 @@
 /* pages/finish/today.wxss */
+.finish-header {
+  display: block;
+  width: 100%;
+}
+
 .content {
   text-align: center;
   font-size: 80rpx;

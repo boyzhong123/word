@@ -1,10 +1,19 @@
+:host {
+  display: block;
+  width: 100%;
+  --tab-bar-body-height: 102rpx;
+}
+
+.tab-bar-shell {
+  position: relative;
+  width: 100%;
+}
+
 .bottom-nav {
-  position: fixed;
-  z-index: 100;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  min-height: 87rpx;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--tab-bar-body-height);
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
@@ -64,7 +73,8 @@
   z-index: 101;
   left: 20rpx;
   right: 20rpx;
-  margin-bottom: 16rpx;
+  bottom: calc(var(--tab-bar-body-height) + env(safe-area-inset-bottom) + 16rpx);
+  margin-bottom: 0;
   background: #b8c4d0;
   border-radius: 30rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.4);

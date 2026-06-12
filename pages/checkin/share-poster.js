@@ -284,15 +284,15 @@ function roundRectPath(ctx, x, y, width, height, radius) {
 const LOGO_X = 48
 const LOGO_Y = 42
 const LOGO_SIZE = 52
-const LOGO_RADIUS = 12
-const LOGO_INSET = 3
+const LOGO_RADIUS = 11
+const LOGO_PAD = 2
 
 function drawLogoBadge(ctx, logoImage, light) {
   const x = LOGO_X
   const y = LOGO_Y
   const size = LOGO_SIZE
-  const inner = size - LOGO_INSET * 2
-  const innerRadius = Math.max(6, LOGO_RADIUS - 2)
+  const inner = size - LOGO_PAD * 2
+  const innerRadius = Math.max(7, LOGO_RADIUS - 1)
 
   ctx.save()
   ctx.shadowColor = light ? 'rgba(31, 39, 51, 0.24)' : 'rgba(0, 0, 0, 0.42)'
@@ -300,7 +300,7 @@ function drawLogoBadge(ctx, logoImage, light) {
   ctx.shadowOffsetY = 2
 
   roundRectPath(ctx, x, y, size, size, LOGO_RADIUS)
-  ctx.fillStyle = light ? '#ffffff' : 'rgba(255, 255, 255, 0.14)'
+  ctx.fillStyle = '#ffffff'
   ctx.fill()
 
   ctx.shadowColor = 'transparent'
@@ -312,9 +312,9 @@ function drawLogoBadge(ctx, logoImage, light) {
   roundRectPath(ctx, x + 0.5, y + 0.5, size - 1, size - 1, LOGO_RADIUS)
   ctx.stroke()
 
-  roundRectPath(ctx, x + LOGO_INSET, y + LOGO_INSET, inner, inner, innerRadius)
+  roundRectPath(ctx, x + LOGO_PAD, y + LOGO_PAD, inner, inner, innerRadius)
   ctx.clip()
-  ctx.drawImage(logoImage, x + LOGO_INSET, y + LOGO_INSET, inner, inner)
+  ctx.drawImage(logoImage, x + LOGO_PAD, y + LOGO_PAD, inner, inner)
   ctx.restore()
 }
 

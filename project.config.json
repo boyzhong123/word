@@ -3,8 +3,80 @@
   "packOptions": {
     "ignore": [
       {
+        "type": "glob",
+        "value": "images/**/*-source.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/finish/finish-today-header*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/**/pk-parts/**"
+      },
+      {
+        "type": "folder",
+        "value": ".git"
+      },
+      {
+        "type": "glob",
+        "value": ".git/**"
+      },
+      {
+        "type": "regexp",
+        "value": "^\\.git/"
+      },
+      {
         "type": "folder",
         "value": "scripts/__pycache__"
+      },
+      {
+        "type": "folder",
+        "value": "node_modules"
+      },
+      {
+        "type": "folder",
+        "value": "assets"
+      },
+      {
+        "type": "folder",
+        "value": "tmp"
+      },
+      {
+        "type": "folder",
+        "value": "docs"
+      },
+      {
+        "type": "folder",
+        "value": "tests"
+      },
+      {
+        "type": "folder",
+        "value": "scripts"
+      },
+      {
+        "type": "folder",
+        "value": "mockups"
+      },
+      {
+        "type": "folder",
+        "value": "raw"
+      },
+      {
+        "type": "folder",
+        "value": "output"
+      },
+      {
+        "type": "folder",
+        "value": ".superpowers"
+      },
+      {
+        "type": "folder",
+        "value": ".claude"
+      },
+      {
+        "type": "folder",
+        "value": ".github"
       }
     ],
     "include": []
@@ -65,7 +137,7 @@
     "autoAudits": false,
     "newFeature": false,
     "uglifyFileName": false,
-    "uploadWithSourceMap": true,
+    "uploadWithSourceMap": false,
     "useIsolateContext": true,
     "nodeModules": false,
     "enhance": true,
@@ -84,7 +156,7 @@
       "disablePlugins": [],
       "outputPath": ""
     },
-    "ignoreUploadUnusedFiles": false,
+    "ignoreUploadUnusedFiles": true,
     "compileWorklet": false,
     "localPlugins": false,
     "disableUseStrict": false,

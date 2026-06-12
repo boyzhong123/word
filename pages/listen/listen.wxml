@@ -92,9 +92,21 @@
         </view>
 
         <view
-          wx:if="{{quizNextCountdown > 0 && (quizChecked || quizPhase === 'recite')}}"
+          wx:if="{{quizNextCountdown > 0 && !quizNextPaused && (quizChecked || quizPhase === 'recite')}}"
           class="quiz-countdown"
-        >{{quizNextCountdown}} 秒后进入下一步</view>
+          catchtap="pauseQuizCountdown"
+        >
+          <text>{{quizNextCountdown}} 秒后进入下一步</text>
+          <text class="quiz-countdown-cancel">取消</text>
+        </view>
+        <view
+          wx:elif="{{quizNextPaused && (quizChecked || quizPhase === 'recite')}}"
+          class="quiz-countdown"
+          catchtap="resumeQuizNext"
+        >
+          <text>已暂停自动切换</text>
+          <text class="quiz-countdown-go">进入下一步 ›</text>
+        </view>
 
         <view wx:if="{{quizPhase === 'recite'}}" class="quiz-recite-panel listen-full-bleed">
           <media

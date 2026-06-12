@@ -130,7 +130,7 @@ test('needVip locks a unit and overrides completed progress', () => {
 
   assert.equal(unit.locked, true)
   assert.equal(unit.doneStages, 0)
-  assert.equal(unit.stageColor, '#777777')
+  assert.equal(unit.stageColor, '#5c636a')
   assert.equal(unit.mascot, '../../images/home/mascot-sleep.png')
   assert.equal(unit.mascotSprite, '../../images/home/mascot-sleep-sprite.png')
   assert.equal(unit.mascotDuration, 3.2)

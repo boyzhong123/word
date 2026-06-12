@@ -13,7 +13,7 @@ const framePaths = [
   'student-monster-pk-anim-frame-05.png',
   'student-monster-pk-anim-frame-06.png',
   'student-monster-pk-anim-frame-07.png'
-].map(name => path.join(projectRoot, 'images/home/map/monsters', name))
+].map(name => path.join(projectRoot, 'assets/pk-build/frames', name))
 
 function readPngSize(filePath) {
   const header = fs.readFileSync(filePath).subarray(0, 24)

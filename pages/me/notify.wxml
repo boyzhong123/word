@@ -1,0 +1,46 @@
+<view class="sub-page">
+  <navigation background="#fffdf8">
+    <view class="nav-title">消息授权状态</view>
+  </navigation>
+
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="status-card">
+      <view class="status-icon status-icon-bell"></view>
+      <view class="status-copy">
+        <view class="status-title">订阅消息</view>
+        <view class="status-desc">复习提醒、错题回顾和练习结果通知</view>
+      </view>
+      <view class="status-pill">{{statusText}}</view>
+    </view>
+
+    <view class="section-card">
+      <view class="section-head">
+        <view>
+          <view class="section-title">学习提醒</view>
+          <view class="section-desc">开启后，每次提醒仍会由微信确认授权。</view>
+        </view>
+        <view class="switch-state">{{mainSwitchText}}</view>
+      </view>
+      <view class="primary-btn {{hasTemplates ? '' : 'primary-btn-disabled'}}" bindtap="requestSubscribe">
+        {{hasTemplates ? '开启订阅消息' : '暂无可订阅模板'}}
+      </view>
+      <view class="ghost-btn" bindtap="openSetting">管理微信授权</view>
+    </view>
+
+    <view class="section-card">
+      <view class="section-title">公众号提醒</view>
+      <view class="section-desc section-desc-wide">关注公众号后，可以接收资料更新、活动说明和学习内容提醒。</view>
+      <view class="official-wrap">
+        <official-account bindload="onOfficialAccountLoad" binderror="onOfficialAccountError"></official-account>
+      </view>
+    </view>
+
+    <view class="tip-card">
+      <view class="tip-title">提醒说明</view>
+      <view class="tip-line">订阅消息只用于学习相关提醒，不会发送无关推广。</view>
+      <view class="tip-line">如果关闭了微信总开关，可以在“管理微信授权”中重新开启。</view>
+    </view>
+
+    <view class="scroll-spacer"></view>
+  </scroll-view>
+</view>

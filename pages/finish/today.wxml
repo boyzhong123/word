@@ -1,7 +1,7 @@
 <!--pages/finish/today.wxml-->
 <view class='container' style="background-color: white;" wx:if="{{unitSort < unitCount}}">
-  <image style="width: 100%;" src="https://17ks.chivoxapp.com/proverbs/finish_today_study_bg.png" mode="widthFix" />
-  <view class="content">完成今日学习!</view>
+  <image class="finish-header" src="{{headerImage}}" mode="widthFix" />
+  <view class="content">{{stageTitle}}</view>
   <view class="periodical" style="margin-top: 77rpx;">完成<text style="color:#111318;">第{{unitSort}}期</text>学习</view>
   <view class="periodical" style="padding-top:15rpx; font-weight:normal;">再学{{unitCount - unitSort}}期就完成本书的学习</view>
   <view class="checkin-progress-line">今日已完成 {{todayDone}}/{{todayGoal}} 关</view>
@@ -13,7 +13,7 @@
     </view>
     <view class="checkin-calendar-btn" bindtap="goCheckinCalendar">查看打卡日历</view>
   </view>
-  <view class="btn" style="margin-top: {{checkinComplete ? 48 : 96}}rpx;" bindtap="continue">继续学习</view>
+  <view wx:if="{{showContinue}}" class="btn" style="margin-top: {{checkinComplete ? 48 : 96}}rpx;" bindtap="continue">{{continueLabel}}</view>
   <view class="btn btn-secondary" style="margin-top: 40rpx;" bindtap="finish">完成</view>
 </view>
 <view class="box" wx:elif="{{unitSort == unitCount}}">

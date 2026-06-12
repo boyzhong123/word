@@ -122,13 +122,41 @@ page,
   margin: 17rpx 30rpx 0 0;
 }
 
+/* 固定在页面底部，不随内容/动画移动 */
 .recitation-countdown {
-  padding: 20rpx 0 40rpx;
-  text-align: center;
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 48rpx);
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   color: #434a56;
   font-size: 24rpx;
   line-height: 34rpx;
-  background: transparent;
+  white-space: nowrap;
+}
+
+.auto-next-cancel {
+  padding: 2rpx 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid rgba(21, 23, 28, 0.3);
+  background: #f3f4f6;
+  color: #15171c;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.auto-next-go {
+  padding: 4rpx 24rpx;
+  border-radius: 999rpx;
+  background: #111318;
+  color: #ffffff;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 6rpx 14rpx rgba(17, 19, 24, 0.18);
 }
 
 /* 导航栏 + 底部进度条容器 */
@@ -209,6 +237,7 @@ page,
   display: flex;
   align-items: center;
   gap: 12rpx;
+  overflow: visible;
 }
 
 .wn-word {
@@ -243,14 +272,59 @@ page,
 
 .wn-word-status {
   flex: none;
-  width: 58rpx;
-  height: 36rpx;
-  margin-left: 2rpx;
-  transform: translateY(4rpx);
+  width: 38rpx;
+  height: 38rpx;
+  margin-left: -4rpx;
+  margin-right: 2rpx;
+  border-radius: 50%;
+  transform: translateY(-18rpx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.wn-word-status-known {
+  background: linear-gradient(180deg, #58c98e, #31ae6d);
+  border: 1rpx solid rgba(255, 255, 255, 0.56);
+  box-shadow: 0 6rpx 12rpx rgba(34, 166, 107, 0.16);
 }
 
 .wn-word-status-unknown {
-  width: 106rpx;
+  background: #ffe2d3;
+  border: 1rpx solid #ffb28a;
+  box-shadow: 0 6rpx 12rpx rgba(239, 111, 44, 0.1);
+}
+
+.wn-word-status-check {
+  width: 18rpx;
+  height: 10rpx;
+  border-left: 6rpx solid #ffffff;
+  border-bottom: 6rpx solid #ffffff;
+  border-radius: 2rpx;
+  transform: rotate(-45deg) translate(1rpx, -1rpx);
+  transform-origin: center;
+}
+
+.wn-word-status-bang {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.wn-word-status-bang-line {
+  width: 6rpx;
+  height: 18rpx;
+  border-radius: 999rpx;
+  background: #ef6f2c;
+}
+
+.wn-word-status-bang-dot {
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background: #ef6f2c;
 }
 
 .wn-jelly-hint {
@@ -553,14 +627,14 @@ page,
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 42rpx 54rpx 0;
+  padding: 50rpx 54rpx 0;
   overflow: hidden;
 }
 
 .wn-quiz-foot {
   flex: none;
   display: flex;
-  padding-top: 10rpx;
+  padding-top: 8rpx;
 }
 
 .wn-foot-col {
@@ -596,7 +670,7 @@ page,
 .word-new-scroll {
   height: 100%;
   box-sizing: border-box;
-  padding: 42rpx 54rpx 0;
+  padding: 50rpx 54rpx 0;
 }
 
 .wn-detail-head {

@@ -1,13 +1,5 @@
 const { player } = require('../utils/player')
 
-function getSafeAreaBottom() {
-  const systemInfo = wx.getSystemInfoSync()
-  if (!systemInfo.safeArea) {
-    return 0
-  }
-  return Math.max(systemInfo.windowHeight - systemInfo.safeArea.bottom, 0)
-}
-
 function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255
   const max = Math.max(r, g, b)
@@ -75,7 +67,6 @@ Component({
   data: {
     selected: 0,
     hidden: false,
-    safeAreaBottom: 0,
 
     // 迷你播放器（随身听正在播放时悬浮于底栏之上）
     miniActive: false,
@@ -95,7 +86,6 @@ Component({
     },
 
     attached() {
-      this.setData({ safeAreaBottom: getSafeAreaBottom() })
       this.onPlayerState = this.onPlayerState.bind(this)
       player.subscribe(this.onPlayerState)
     },

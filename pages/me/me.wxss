@@ -348,5 +348,5 @@ page {
 }
 
 .scroll-spacer {
-  height: 140rpx;
+  height: calc(102rpx + 36rpx + env(safe-area-inset-bottom));
 }

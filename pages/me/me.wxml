@@ -73,14 +73,14 @@
           wx:for="{{menus}}"
           wx:key="id"
           data-action="{{item.action}}"
+          data-url="{{item.url}}"
           bindtap="handleMenuTap"
         >
           <template is="menuInner" data="{{...item}}" />
           <button
             wx:if="{{item.openType}}"
             class="contact-hit"
-            open-type="{{item.openType}}"
-            bindcontact="onContact"
+            data-action="{{item.action}}"
             catchtap="onContact"
           ></button>
         </view>

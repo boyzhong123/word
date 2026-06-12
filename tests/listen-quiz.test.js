@@ -250,6 +250,18 @@ test('listen page renders a home-styled fill-in quiz with top progress and new w
   assert.match(listenStyle, /\.loading-panel\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.62\)/s)
 })
 
+test('quiz hint action aligns with the word-new hint placement', () => {
+  assert.match(listenTemplate, /class="quiz-audio-hint"/)
+  assert.match(listenTemplate, /word-new\/hint-bulb\.png/)
+  assert.match(listenStyle, /\.quiz-audio-hint\s*{[^}]*margin-top:\s*auto/s)
+  assert.match(listenStyle, /\.quiz-audio-hint\s*{[^}]*padding-top:\s*60rpx/s)
+  assert.match(listenStyle, /\.quiz-audio-hint\s*{[^}]*padding-bottom:\s*126rpx/s)
+  assert.match(listenStyle, /\.quiz-hint-btn\s*{[^}]*width:\s*108rpx/s)
+  assert.match(listenStyle, /\.quiz-hint-icon\s*{[^}]*width:\s*66rpx/s)
+  assert.match(listenStyle, /\.quiz-hint-label\s*{[^}]*margin-top:\s*32rpx/s)
+  assert.match(listenStyle, /\.quiz-hint-label\s*{[^}]*font-size:\s*26rpx/s)
+})
+
 test('auto-advance countdown renders below the quiz card with one shared style', () => {
   assert.match(listenTemplate, /<\/view>\s*<view\s+wx:if="{{quizNextCountdown > 0 && \(quizChecked \|\| quizPhase === 'recite'\)}}"\s+class="quiz-countdown"/)
   assert.doesNotMatch(listenTemplate, /quiz-countdown-fill/)

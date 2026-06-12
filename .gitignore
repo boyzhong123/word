@@ -3,3 +3,7 @@ node_modules/
 project.private.config.json
 scripts/__pycache__/
 .superpowers/
+assets/_archive/
+assets/originals/
+assets/build-work/
+tmp/

@@ -373,21 +373,41 @@ page {
   font-weight: 500;
 }
 
+/* 固定在页面底部，不随内容/动画移动 */
 .quiz-countdown {
-  margin: 26rpx auto 0;
-  padding: 0;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 48rpx);
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   color: #434a56;
   font-size: 24rpx;
   line-height: 34rpx;
-  font-weight: 400;
-  text-align: center;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  white-space: nowrap;
+}
+
+.quiz-countdown-cancel {
+  padding: 2rpx 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid rgba(21, 23, 28, 0.3);
+  background: #f3f4f6;
+  color: #15171c;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.quiz-countdown-go {
+  padding: 4rpx 24rpx;
+  border-radius: 999rpx;
+  background: #111318;
+  color: #ffffff;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 6rpx 14rpx rgba(17, 19, 24, 0.18);
 }
 
 .quiz-empty {
@@ -466,11 +486,11 @@ page {
   border-color: rgba(230, 77, 61, 0.36);
 }
 
-/* 提示一下：对齐单词新学 */
+/* 提示一下：位置与单词新学页保持一致 */
 .quiz-audio-hint {
   margin-top: auto;
-  padding-top: 40rpx;
-  padding-bottom: 24rpx;
+  padding-top: 60rpx;
+  padding-bottom: 126rpx;
   display: flex;
   flex-direction: column;
   align-items: center;

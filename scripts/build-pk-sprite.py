@@ -12,7 +12,8 @@ from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MONSTER_DIR = PROJECT_ROOT / "images/home/map/monsters"
-PARTS_DIR = MONSTER_DIR / "pk-parts"
+PARTS_DIR = PROJECT_ROOT / "assets/pk-build/pk-parts"
+FRAMES_DIR = PROJECT_ROOT / "assets/pk-build/frames"
 HOME_DIR = PROJECT_ROOT / "images/home"
 
 FRAME_COUNT = 7
@@ -145,8 +146,10 @@ def build_sprite(frames, output_path):
 
 def main():
     frames = compose_frames()
+    FRAMES_DIR.mkdir(parents=True, exist_ok=True)
+    PARTS_DIR.mkdir(parents=True, exist_ok=True)
     for output_name, frame in zip(FRAME_OUTPUT_NAMES, frames):
-        frame.save(MONSTER_DIR / output_name, optimize=True)
+        frame.save(FRAMES_DIR / output_name, optimize=True)
     build_sprite(frames, HOME_DIR / "student-monster-pk-sprite.png")
     print(f"Composed {FRAME_COUNT} PK frames ({PK_FRAME_W}x{PK_FRAME_H}) and sprite in {HOME_DIR}")
 

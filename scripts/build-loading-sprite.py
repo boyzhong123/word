@@ -91,8 +91,12 @@ def ensure_transparent_source(source_path, work_dir):
     return keyed_path
 
 
+BUILD_WORK_DIR = Path(__file__).resolve().parent.parent / "assets" / "build-work"
+
+
 def build_sprite(source_path, output_path, frame_count=6):
-    work_dir = output_path.parent
+    work_dir = BUILD_WORK_DIR
+    work_dir.mkdir(parents=True, exist_ok=True)
     keyed_source = ensure_transparent_source(source_path, work_dir)
     source = Image.open(keyed_source).convert("RGBA")
     tile_width = source.width // GRID_COLS

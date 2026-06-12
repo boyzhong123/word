@@ -12,6 +12,7 @@ const {
 const {
   buildMockReviewResource
 } = require('../../utils/review-mock')
+const { computeQuizScoreRate } = require('../../utils/finish-stars')
 // 通常听力播放走全局单例（跨页持续 + 迷你播放器）；buildTracks 复用单例里的实现
 const { player, buildTracks } = require('../../utils/player')
 
@@ -19,6 +20,8 @@ const LISTEN_PAGE_ANIM_MS = 320
 // 与 app.json tabBar.list 保持一致
 const TAB_ROUTES = ['pages/home/home', 'pages/me/me']
 const QUIZ_NEXT_COUNTDOWN_S = 3
+// media 组件评分反馈（彩带/表情）展示 2000ms 后淡出，倒计时等它播完
+const QUIZ_CELEBRATE_DELAY_MS = 2200
 
 function postListeningQuizResult(payload) {
   let report
@@ -85,6 +88,7 @@ Page({
     quizReciteScore: '',
     quizMarking: false,
     quizNextCountdown: 0,
+    quizNextPaused: false,
     quizAllDone: false,
     quizRecords: [],
     quizAudioPlaying: false,
@@ -97,6 +101,9 @@ Page({
     this.setData({ pageAnimState: 'listen-page-preenter' })
     const book = (getApp().globalData && getApp().globalData.book) || {}
     this.resBookId = options.resBookId || book.resBookId || ''
+    this.resBookName = options.name
+      ? decodeURIComponent(options.name)
+      : (book.name || '')
     this.targetUnitId = options.unitId || ''
     const quizMode = options.mode === 'quiz' || options.taskType === 'listening'
     // 错词复习模式：review=1，reviewUnitIds 为覆盖的关卡 id 列表。
@@ -547,13 +554,35 @@ Page({
 
   clearQuizTimers() {
     this.stopQuizCountdownTimer()
-    if (this.data.quizNextCountdown) {
-      this.setData({ quizNextCountdown: 0 })
+    this.quizPendingNext = null
+    if (this.data.quizNextCountdown || this.data.quizNextPaused) {
+      this.setData({ quizNextCountdown: 0, quizNextPaused: false })
     }
   },
 
-  scheduleQuizCountdown(done) {
+  // 单次取消：点倒计时暂停本题的自动切换，点「进入下一步」手动继续；新倒计时恢复自动
+  pauseQuizCountdown() {
+    const done = this.quizCountdownDone
     this.stopQuizCountdownTimer()
+    this.quizPendingNext = done
+    this.setData({ quizNextCountdown: 0, quizNextPaused: true })
+  },
+
+  resumeQuizNext() {
+    const done = this.quizPendingNext
+    this.quizPendingNext = null
+    this.setData({ quizNextPaused: false })
+    if (typeof done === 'function') {
+      done()
+    }
+  },
+
+  scheduleQuizCountdown(done, delayMs) {
+    this.stopQuizCountdownTimer()
+    this.quizPendingNext = null
+    if (this.data.quizNextPaused) {
+      this.setData({ quizNextPaused: false })
+    }
     this.quizCountdownDone = done
     const token = this.quizCountdownSeq
     let left = QUIZ_NEXT_COUNTDOWN_S
@@ -574,7 +603,11 @@ Page({
       this.quizCountdownTimer = setTimeout(tick, 1000)
     }
 
-    tick()
+    if (delayMs > 0) {
+      this.quizCountdownTimer = setTimeout(tick, delayMs)
+    } else {
+      tick()
+    }
   },
 
   scheduleFillToRecite() {
@@ -586,11 +619,12 @@ Page({
   },
 
   scheduleReciteToNext() {
+    // 等评分庆祝动画（彩带 2s）播完再起倒计时，避免两者叠在一起
     this.scheduleQuizCountdown(() => {
       if (this.data.quizPhase === 'recite') {
         this.goToNextQuizQuestion()
       }
-    })
+    }, QUIZ_CELEBRATE_DELAY_MS)
   },
 
   startQuizRecite() {
@@ -663,11 +697,7 @@ Page({
     const nextIndex = this.data.quizIndex + 1
     const total = this.data.quizQuestions.length || 1
     if (nextIndex >= this.data.quizQuestions.length) {
-      this.setData({
-        quizAllDone: true,
-        quizProgressPercent: 100,
-        quizAnsweredCount: total
-      })
+      this.goFinishPage()
       return
     }
 
@@ -676,6 +706,22 @@ Page({
       quizProgressPercent: Math.round(nextIndex * 100 / total)
     })
     this.showQuizQuestion(nextIndex, true)
+  },
+
+  goFinishPage() {
+    const unit = (this.data.units && this.data.units[this.data.unitIndex]) || {}
+    const unitId = unit.unitId || this.targetUnitId || ''
+    const unitSort = unit.sort || 1
+    const total = this.data.quizQuestions.length || 0
+    const scoreRate = computeQuizScoreRate(this.data.quizRecords, total)
+    wx.redirectTo({
+      url: '/pages/finish/today?unitId=' + unitId +
+        '&unitSort=' + unitSort +
+        '&taskType=listening' +
+        '&resBookId=' + encodeURIComponent(this.resBookId || '') +
+        '&name=' + encodeURIComponent(this.resBookName || '') +
+        '&scoreRate=' + scoreRate
+    })
   },
 
   openQuizReport() {

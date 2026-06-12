@@ -45,31 +45,27 @@ const PACKAGES = [
   }
 ]
 
-const DETAIL_BANNERS = [
-  { src: '/images/home/ad/detail-page.png', caption: '' }
-]
-
 const MIN_PRICE = PACKAGES.reduce((min, item) => Math.min(min, item.price), Infinity)
 const DEFAULT_BOOK_COVER = '/images/home/book-cover.png'
 const DEFAULT_GRADE_TAGS = ['初中']
 const FEATURE_CARDS = [
   {
-    icon: '/images/home/ad/icon-word-jelly.png',
+    mark: '词',
     title: '词汇同步',
     desc: '围绕教材词表拆分学习任务'
   },
   {
-    icon: '/images/home/ad/icon-proverb-jelly.png',
+    mark: '句',
     title: '句子积累',
     desc: '把短句、谚语和表达放进同一套练习'
   },
   {
-    icon: '/images/home/ad/icon-read-jelly.png',
+    mark: '读',
     title: '跟读测评',
     desc: '读音反馈帮助孩子及时修正'
   },
   {
-    icon: '/images/home/ad/icon-review-jelly.png',
+    mark: '练',
     title: '复习追踪',
     desc: '按进度安排复习和报告'
   }
@@ -130,21 +126,18 @@ function applyBookDetail(page, book, unlocked) {
   const displayGradeTags = gradeTags.length ? gradeTags : DEFAULT_GRADE_TAGS
   const contentStats = [
     {
-      icon: '/images/home/ad/icon-word-jelly.png',
       value: wordCountText,
       unit: '个',
       label: '收录单词'
     },
     {
-      icon: '/images/home/ad/icon-proverb-jelly.png',
       value: proverbCountText,
       unit: '条',
       label: '实用句子'
     },
     {
-      icon: '/images/home/ad/icon-review-jelly.png',
       value: totalText,
-      unit: '期',
+      unit: '个',
       label: '学习单元'
     }
   ]
@@ -168,7 +161,6 @@ function applyBookDetail(page, book, unlocked) {
     intro: book.intro || '',
     unlocked: !!unlocked,
     packages: PACKAGES,
-    detailBanners: DETAIL_BANNERS,
     currentPackage,
     currentPackageItems: currentPackage.items
   })
@@ -196,7 +188,6 @@ Page({
     skuSheetVisible: false,
     selectedPackage: 'full',
     packages: PACKAGES,
-    detailBanners: DETAIL_BANNERS,
     currentPackage: PACKAGES[0],
     currentPackageItems: PACKAGES[0].items,
     scrollHeight,

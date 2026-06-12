@@ -22,8 +22,10 @@ test('word-new starts each card in an unrevealed "认识不" quiz state', () => 
   assert.match(practiceScript, /item\.mistaken = false/)
   assert.match(practiceTemplate, /wx:if="{{!item\.revealed}}"/)
   assert.match(practiceTemplate, /提示一下/)
-  assert.match(practiceTemplate, /认识/)
-  assert.match(practiceTemplate, /不认识/)
+  assert.match(practiceTemplate, /<text class="wn-foot-text">认识<\/text>/)
+  assert.match(practiceTemplate, /<text class="wn-foot-text">不认识<\/text>/)
+  assert.doesNotMatch(practiceTemplate, /wn-answer-known/)
+  assert.doesNotMatch(practiceTemplate, /wn-answer-unknown/)
 })
 
 test('word-new audio progress uses the three dots as one-time stage markers', () => {
@@ -106,14 +108,24 @@ test('detail footer shows 记错了 only after tapping 认识', () => {
 })
 
 test('word row shows a persistent status mark after an answer', () => {
-  assert.match(practiceTemplate, /mark-familiar\.png/)
-  assert.match(practiceTemplate, /mark-unknown\.png/)
+  assert.doesNotMatch(practiceTemplate, /mark-familiar\.png/)
+  assert.doesNotMatch(practiceTemplate, /mark-unknown\.png/)
   assert.match(practiceTemplate, /item\.revealed && item\.known/)
   assert.match(practiceTemplate, /item\.revealed && !item\.known/)
+  assert.match(practiceTemplate, /<text class="wn-word">\{\{item\.word\.content\}\}<\/text>[\s\S]*<view class="wn-dots">[\s\S]*wn-word-status-known/)
   assert.match(practiceStyle, /\.wn-word-status\s*{/)
+  assert.match(practiceStyle, /\.wn-word-status-known\s*{/)
   assert.match(practiceStyle, /\.wn-word-status-unknown\s*{/)
-  assert.ok(fs.existsSync(path.join(projectRoot, 'images/word-new/mark-familiar.png')))
-  assert.ok(fs.existsSync(path.join(projectRoot, 'images/word-new/mark-unknown.png')))
+  assert.match(practiceStyle, /\.wn-word-status\s*{[^}]*width:\s*38rpx/s)
+  assert.match(practiceStyle, /\.wn-word-status\s*{[^}]*margin-left:\s*-4rpx/s)
+  assert.match(practiceStyle, /\.wn-word-status\s*{[^}]*transform:\s*translateY\(-18rpx\)/s)
+  assert.match(practiceStyle, /\.wn-detail-head\s*{[^}]*padding-top:\s*0/s)
+  assert.match(practiceStyle, /\.wn-word-status-known\s*{[^}]*#58c98e/s)
+  assert.match(practiceStyle, /\.wn-word-status-unknown\s*{[^}]*background:\s*#ffe2d3/s)
+  assert.match(practiceStyle, /\.wn-word-status-unknown\s*{[^}]*border:\s*1rpx solid #ffb28a/s)
+  assert.match(practiceTemplate, /wn-word-status-check/)
+  assert.match(practiceTemplate, /wn-word-status-bang-line/)
+  assert.match(practiceTemplate, /wn-word-status-bang-dot/)
 })
 
 test('detail page renders data-backed sections plus 下一词', () => {
@@ -179,14 +191,15 @@ test('masked definition placeholders look like soft frosted overlays', () => {
 })
 
 test('word-new quiz layout matches the reference learning card composition', () => {
-  assert.match(practiceStyle, /\.wn-quiz-body\s*{[^}]*padding:\s*42rpx 54rpx 0/s)
+  assert.match(practiceStyle, /\.wn-quiz-body\s*{[^}]*padding:\s*50rpx 54rpx 0/s)
+  assert.match(practiceStyle, /\.word-new-scroll\s*{[^}]*padding:\s*50rpx 54rpx 0/s)
   assert.match(practiceStyle, /\.wn-word\s*{[^}]*font-size:\s*70rpx/s)
   assert.match(practiceStyle, /\.wn-ex-text\s*{[^}]*font-size:\s*34rpx/s)
   assert.match(practiceStyle, /\.wn-example\s*{[^}]*margin-top:\s*64rpx/s)
   assert.match(practiceStyle, /\.wn-example\s*{[^}]*min-height:\s*292rpx/s)
   assert.match(practiceStyle, /\.wn-card\s*{[^}]*border-radius:\s*40rpx/s)
   assert.match(practiceStyle, /\.wn-hint\s*{[^}]*padding-bottom:\s*126rpx/s)
-  assert.match(practiceStyle, /\.wn-quiz-foot\s*{[^}]*padding-top:\s*10rpx/s)
+  assert.match(practiceStyle, /\.wn-quiz-foot\s*{[^}]*padding-top:\s*8rpx/s)
 })
 
 test('word-new pronunciation row exposes British and American accents', () => {

@@ -8,6 +8,10 @@ const {
 const {
     buildMockReviewResource
 } = require('../../utils/review-mock')
+const {
+    computePracticeScoreRate,
+    computeWordNewScoreRate
+} = require('../../utils/finish-stars')
 
 const PRONUNCIATION_TIPS = [
   '先发 /æ/ 音，嘴巴张大，舌尖抵下齿背',
@@ -25,6 +29,8 @@ const DETAIL_TAB_DEFS = [
 const WORD_HINT_VISIBLE_MS = 2000
 // 跟读模式：当前词全部条目读完评分后，倒计时自动进入下一词（与小测一致）
 const AUTO_NEXT_COUNTDOWN_S = 3
+// media 组件评分反馈（彩带/表情）展示 2000ms 后淡出，倒计时等它播完
+const AUTO_NEXT_CELEBRATE_DELAY_MS = 2200
 const WORD_HINT_TOAST_IMAGES = [
   '/images/word-new/toast-known.png',
   '/images/word-new/toast-unknown.png',
@@ -391,14 +397,28 @@ Page({
     if (this.data.isWordNewMode || this.data.from === 'search' || this.data.needVip) {
       return
     }
+    if (this.data.autoNextPaused) {
+      return
+    }
     const index = this.data.current
     if (!this.isRecitationItemDone(this.data.contents[index])) {
       return
     }
-    this.startAutoNextCountdown(index)
+    this.startAutoNextCountdown(index, AUTO_NEXT_CELEBRATE_DELAY_MS)
   },
 
-  startAutoNextCountdown(index) {
+  // 单次取消：点倒计时暂停本词的自动切换，点「进入下一词」手动切换；换词后恢复自动
+  pauseAutoNext() {
+    this.stopAutoNextCountdown()
+    this.setData({ autoNextPaused: true })
+  },
+
+  manualGoNext() {
+    this.setData({ autoNextPaused: false })
+    this.goAutoNext(this.data.current)
+  },
+
+  startAutoNextCountdown(index, delayMs) {
     this.stopAutoNextCountdown()
     const token = this.autoNextSeq
     let left = AUTO_NEXT_COUNTDOWN_S
@@ -416,7 +436,11 @@ Page({
       this.autoNextTimer = setTimeout(tick, 1000)
     }
 
-    tick()
+    if (delayMs > 0) {
+      this.autoNextTimer = setTimeout(tick, delayMs)
+    } else {
+      tick()
+    }
   },
 
   stopAutoNextCountdown() {
@@ -431,7 +455,7 @@ Page({
   },
 
   goAutoNext(index) {
-    this.setData({ autoNextCountdown: 0 })
+    this.setData({ autoNextCountdown: 0, autoNextPaused: false })
     if (index < this.data.contents.length - 1) {
       this.changeRecitationIndex(index + 1)
       return
@@ -580,7 +604,8 @@ Page({
     this.hideTip()
     this.stopAutoNextCountdown()
     this.setData({
-      current: e.detail.current
+      current: e.detail.current,
+      autoNextPaused: false
     })
   },
   touchMove(e) {
@@ -645,21 +670,23 @@ Page({
     this.hideTip()
     this.stopAutoNextCountdown()
     this.setData({
-      current: next
+      current: next,
+      autoNextPaused: false
     })
     this.last = next
     this.dx = 0
   },
   goFinishPage() {
+    const scoreRate = this.data.isWordNewMode
+      ? computeWordNewScoreRate(this.data.contents)
+      : computePracticeScoreRate(this.data.contents)
     wx.navigateTo({
-      url: '../finish/today?unitId=' + this.unitId + "&unitSort=" + this.unitSort,
-      events: {
-        'continue': p => {
-          this.resBookId = p.resBookId
-          this.unitId = p.unitId
-          this.studyNew = true
-        }
-      }
+      url: '../finish/today?unitId=' + this.unitId +
+        '&unitSort=' + this.unitSort +
+        '&taskType=' + (this.data.taskType || 'recitation') +
+        '&resBookId=' + encodeURIComponent(this.resBookId || '') +
+        '&name=' + encodeURIComponent(this.resBookName || '') +
+        '&scoreRate=' + scoreRate
     })
   },
   buildNavTitle(item, index, total) {
@@ -873,15 +900,14 @@ Page({
     }
 
     if (!this.wordId) {
+      const scoreRate = computeWordNewScoreRate(this.data.contents)
       wx.navigateTo({
-        url: '../finish/today?unitId=' + this.unitId + "&unitSort=" + this.unitSort,
-        events: {
-          'continue': p => {
-            this.resBookId = p.resBookId
-            this.unitId = p.unitId
-            this.studyNew = true
-          }
-        }
+        url: '../finish/today?unitId=' + this.unitId +
+          '&unitSort=' + this.unitSort +
+          '&taskType=word' +
+          '&resBookId=' + encodeURIComponent(this.resBookId || '') +
+          '&name=' + encodeURIComponent(this.resBookName || '') +
+          '&scoreRate=' + scoreRate
       })
     }
   },

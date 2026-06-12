@@ -1,0 +1,30 @@
+<view class="sub-page">
+  <navigation background="#fffdf8">
+    <view class="nav-title">隐私与协议</view>
+  </navigation>
+
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero-card">
+      <view class="hero-icon"></view>
+      <view class="hero-copy">
+        <view class="hero-title">账号安全和数据说明</view>
+        <view class="hero-desc">这里汇总用户协议、隐私政策和微信授权管理说明。</view>
+      </view>
+    </view>
+
+    <view class="policy-card" wx:for="{{sections}}" wx:key="title">
+      <view class="policy-title">{{item.title}}</view>
+      <view wx:for="{{item.lines}}" wx:for-item="line" wx:key="*this" class="policy-line">{{line}}</view>
+    </view>
+
+    <view class="manage-card" bindtap="openNotify">
+      <view>
+        <view class="manage-title">管理通知授权</view>
+        <view class="manage-desc">前往消息授权状态页面查看订阅消息和公众号提醒。</view>
+      </view>
+      <view class="manage-arrow">›</view>
+    </view>
+
+    <view class="scroll-spacer"></view>
+  </scroll-view>
+</view>

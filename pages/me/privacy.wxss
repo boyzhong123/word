@@ -1,0 +1,119 @@
+page {
+  height: 100%;
+  background: #fffdf8;
+  color: #101010;
+}
+
+.sub-page {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fffdf8;
+  font-family: PingFang SC, PingFangSC-Regular, sans-serif;
+}
+
+.nav-title {
+  width: 100%;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.sub-scroll {
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 18rpx 31rpx 0;
+}
+
+.hero-card,
+.policy-card,
+.manage-card {
+  background: #ffffff;
+  border: 1rpx solid rgba(247, 247, 247, 0.9);
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 18rpx rgba(47, 96, 150, 0.045);
+}
+
+.hero-card {
+  padding: 28rpx;
+  display: flex;
+  align-items: center;
+}
+
+.hero-icon {
+  flex: none;
+  width: 66rpx;
+  height: 66rpx;
+  border-radius: 22rpx;
+  background-color: #eef0f3;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40rpx 40rpx;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM1YzZhNzciIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMjJzOC00IDgtMTBWNWwtOC0zLTggM3Y3YzAgNiA4IDEwIDggMTB6Ii8+PHBhdGggZD0iTTkgMTJsMiAyIDQtNCIvPjwvc3ZnPg==");
+}
+
+.hero-copy {
+  flex: 1;
+  min-width: 0;
+  margin-left: 22rpx;
+}
+
+.hero-title,
+.policy-title,
+.manage-title {
+  color: #111318;
+  font-size: 29rpx;
+  line-height: 38rpx;
+  font-weight: 700;
+}
+
+.hero-desc,
+.policy-line,
+.manage-desc {
+  margin-top: 8rpx;
+  color: #8b9098;
+  font-size: 23rpx;
+  line-height: 34rpx;
+}
+
+.policy-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
+.policy-line {
+  position: relative;
+  padding-left: 22rpx;
+}
+
+.policy-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #24aa66;
+}
+
+.manage-card {
+  min-height: 112rpx;
+  margin-top: 24rpx;
+  padding: 0 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.manage-arrow {
+  flex: none;
+  color: #c4c4c4;
+  font-size: 40rpx;
+}
+
+.scroll-spacer {
+  height: 72rpx;
+}

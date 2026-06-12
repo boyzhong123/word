@@ -27,11 +27,13 @@ def _load_builder():
 
 def build_logo(source: Path, output: Path, size: int = TARGET_SIZE) -> None:
     builder = _load_builder()
-    square = builder._prepare_square(builder.Image.open(source))
-    logo = builder._build_logo(square, size, with_stroke=True)
+    from PIL import Image
+
+    square = builder._prepare_square(Image.open(source))
+    logo = builder._ui_logo(square, size)
     output.parent.mkdir(parents=True, exist_ok=True)
     logo.save(output, optimize=True)
-    print(f"source={source.name} -> {output} {logo.size} stroke")
+    print(f"source={source.name} -> {output} {logo.size}")
 
 
 def main() -> None:

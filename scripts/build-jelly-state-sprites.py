@@ -9,6 +9,7 @@ from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ASSETS_DIR = PROJECT_ROOT / "assets"
+BUILD_WORK_DIR = ASSETS_DIR / "build-work"
 MONSTER_DIR = PROJECT_ROOT / "images/home/map/monsters"
 HOME_DIR = PROJECT_ROOT / "images/home"
 CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
@@ -140,14 +141,14 @@ def main():
     if not defeated_source.exists():
         raise FileNotFoundError(f"Defeated source not found: {defeated_source}")
 
-    work_dir = MONSTER_DIR / ".jelly-build"
+    work_dir = BUILD_WORK_DIR
     work_dir.mkdir(parents=True, exist_ok=True)
 
     locked_raw = split_locked_from_sheet(chroma_key(locked_sheet, work_dir))
     defeated_raw = chroma_key(defeated_source, work_dir)
 
-    locked_raw.save(MONSTER_DIR / "jelly-green-monster-locked.png", optimize=True)
-    defeated_raw.save(MONSTER_DIR / "jelly-green-monster-defeated.png", optimize=True)
+    locked_raw.save(work_dir / "jelly-green-monster-locked.png", optimize=True)
+    defeated_raw.save(work_dir / "jelly-green-monster-defeated.png", optimize=True)
 
     build_single_sprite(locked_raw, MONSTER_DIR / "jelly-locked.png")
     build_single_sprite(defeated_raw, MONSTER_DIR / "jelly-defeated.png")

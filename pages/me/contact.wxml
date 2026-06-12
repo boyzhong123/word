@@ -1,0 +1,32 @@
+<view class="sub-page">
+  <navigation background="#fffdf8">
+    <view class="nav-title">联系客服</view>
+  </navigation>
+
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="service-card">
+      <view class="service-icon"></view>
+      <view class="service-title">遇到问题时找我们</view>
+      <view class="service-copy">学习记录、教材切换、订阅提醒和订单问题都可以通过客服入口反馈。</view>
+      <button class="contact-btn" open-type="contact" bindcontact="onContact">联系客服</button>
+    </view>
+
+    <view class="quick-card" bindtap="openNotify">
+      <view>
+        <view class="quick-title">消息授权状态</view>
+        <view class="quick-desc">管理订阅消息和公众号提醒</view>
+      </view>
+      <view class="quick-arrow">›</view>
+    </view>
+
+    <view class="faq-title">常见问题</view>
+    <view class="faq-list">
+      <view wx:for="{{faqs}}" wx:key="q" class="faq-item">
+        <view class="faq-question">{{item.q}}</view>
+        <view class="faq-answer">{{item.a}}</view>
+      </view>
+    </view>
+
+    <view class="scroll-spacer"></view>
+  </scroll-view>
+</view>

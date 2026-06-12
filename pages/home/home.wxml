@@ -480,61 +480,65 @@
         </view>
       </view>
 
-      <scroll-view scroll-y class="book-picker-list" show-scrollbar="{{false}}">
-        <view class="book-picker-cards">
+      <!-- 学段切换：整个 tab 可点 -->
+      <view class="book-picker-stages">
+        <view
+          class="book-picker-stage {{item.id === pickerStageId ? 'book-picker-stage-active' : ''}}"
+          wx:for="{{pickerStages}}"
+          wx:key="id"
+          data-stage-id="{{item.id}}"
+          bindtap="selectBookStage"
+        >
+          <text class="book-picker-stage-name">{{item.name}}</text>
+        </view>
+      </view>
+
+      <view class="book-picker-body">
+        <!-- 左侧版本分类栏：「推荐」为接口返回的词书，整行可点切换分类 -->
+        <scroll-view scroll-y class="book-picker-side" show-scrollbar="{{false}}">
           <view
-            class="book-picker-card {{item.resBookId === book.resBookId ? 'book-picker-card-active' : ''}} {{item.locked ? 'book-picker-card-locked' : ''}}"
-            wx:for="{{allBooks}}"
-            wx:key="resBookId"
-            data-res-book-id="{{item.resBookId}}"
-            bindtap="openBookDetail"
+            class="book-picker-side-item {{item.id === pickerCategoryId ? 'book-picker-side-item-active' : ''}}"
+            wx:for="{{pickerCategories}}"
+            wx:key="id"
+            data-category-id="{{item.id}}"
+            bindtap="selectBookCategory"
           >
-            <view class="book-picker-cover-wrap">
-              <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" />
-              <view wx:if="{{item.locked}}" class="book-picker-cover-mask">
-                <image class="book-picker-cover-lock" src="../../images/home/icon-picker-lock.svg" mode="aspectFit" />
-              </view>
-            </view>
+            <text class="book-picker-side-name">{{item.name}}</text>
+          </view>
+        </scroll-view>
 
-            <view class="book-picker-info">
-              <view class="book-picker-name-row">
-                <text class="book-picker-name">{{item.name}}</text>
-                <view wx:if="{{item.resBookId === book.resBookId}}" class="book-picker-current">当前</view>
-              </view>
-              <view class="book-picker-meta">
-                <view class="book-picker-words">
-                  <image class="book-picker-words-icon" src="../../images/home/icon-picker-words.svg" mode="aspectFit" />
-                  <text>{{item.wordCount}} 词</text>
-                </view>
-                <view class="book-picker-status {{item.locked ? 'book-picker-status-locked' : 'book-picker-status-unlocked'}}">
-                  <image
-                    wx:if="{{!item.locked}}"
-                    class="book-picker-status-icon"
-                    src="../../images/home/icon-picker-unlock.svg"
-                    mode="aspectFit"
-                  />
-                  <text>{{item.locked ? '未解锁' : '已解锁'}}</text>
-                </view>
-              </view>
-            </view>
-
-            <view wx:if="{{item.locked}}" class="book-picker-buy">购买</view>
+        <!-- 右侧封面网格：整张卡片可点，未解锁的跳购买页 -->
+        <scroll-view scroll-y class="book-picker-list" show-scrollbar="{{false}}">
+          <view wx:if="{{!pickerBooks.length}}" class="book-picker-empty">
+            <text class="book-picker-empty-title">该版本教材整理中</text>
+            <text class="book-picker-empty-tip">可先在「推荐」里选择词书</text>
+          </view>
+          <view class="book-picker-grid">
             <view
-              wx:else
-              class="book-picker-radio {{item.resBookId === book.resBookId ? 'book-picker-radio-checked' : ''}}"
+              class="book-picker-cell {{item.resBookId === book.resBookId ? 'book-picker-cell-active' : ''}} {{item.locked ? 'book-picker-cell-locked' : ''}}"
+              wx:for="{{pickerBooks}}"
+              wx:key="resBookId"
               data-res-book-id="{{item.resBookId}}"
-              catchtap="selectBook"
+              bindtap="selectBook"
             >
-              <image
-                wx:if="{{item.resBookId === book.resBookId}}"
-                class="book-picker-radio-check"
-                src="../../images/home/icon-picker-check.svg"
-                mode="aspectFit"
-              />
+              <view class="book-picker-cover-wrap">
+                <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" />
+                <view wx:if="{{item.locked}}" class="book-picker-cover-mask">
+                  <image class="book-picker-cover-lock" src="../../images/home/icon-picker-lock.svg" mode="aspectFit" />
+                </view>
+                <view wx:if="{{item.newStandard}}" class="book-picker-tag-new">新课标</view>
+                <view wx:if="{{item.resBookId === book.resBookId}}" class="book-picker-current">当前</view>
+                <view wx:if="{{item.locked}}" class="book-picker-buy">购买</view>
+                <view wx:elif="{{!item.demo}}" class="book-picker-status-owned">已购买</view>
+              </view>
+              <text class="book-picker-name">{{item.name}}</text>
+              <view class="book-picker-meta">
+                <text class="book-picker-words">{{item.wordCount}} 词</text>
+              </view>
             </view>
           </view>
-        </view>
-      </scroll-view>
+        </scroll-view>
+      </view>
     </view>
   </view>
 </view>

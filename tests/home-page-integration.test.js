@@ -510,15 +510,16 @@ test('word tasks navigate to the word new detail mode', () => {
   assert.match(calls.navigateTo[0].url, /taskType=word/)
 })
 
-test('book picker shows unlock status and a buy action for locked books', () => {
-  assert.match(homeTemplate, /book-picker-status/)
-  assert.match(homeTemplate, /{{item\.locked \? '未解锁' : '已解锁'}}/)
+test('book picker shows an owned badge on covers and a buy action for locked books', () => {
+  assert.match(homeTemplate, /点击教材查看详情/)
+  assert.doesNotMatch(homeTemplate, /切换后立即生效/)
+  assert.match(homeTemplate, /class="book-picker-status-owned">已购买/)
   assert.match(homeTemplate, /class="book-picker-buy">购买/)
   assert.match(homeScript, /isBookLocked/)
   assert.match(homeScript, /enrichPickerBooks/)
 })
 
-test('selectBook on a locked book opens the purchase page', () => {
+test('selectBook on a locked book opens the product detail page', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
@@ -540,4 +541,62 @@ test('selectBook on a locked book opens the purchase page', () => {
   assert.equal(page.data.bookPickerVisible, false)
   assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
   assert.match(calls.navigateTo[0].url, /resBookId=book-2/)
+})
+
+test('selectBook on an owned book opens the product detail page instead of switching immediately', () => {
+  const { page, calls } = loadHomePage()
+  page.data.book = { resBookId: 'book-1', name: 'Book Name' }
+  page.data.allBooks = [{
+    resBookId: 'book-2',
+    name: 'Owned Book',
+    bookCover: '/cover.png',
+    wordCount: 1200,
+    proverbCount: 300,
+    press: '人教版',
+    locked: false
+  }]
+  page.data.bookPickerVisible = true
+
+  page.selectBook({
+    currentTarget: {
+      dataset: {
+        resBookId: 'book-2'
+      }
+    }
+  })
+
+  assert.equal(page.data.bookPickerVisible, false)
+  assert.equal(calls.showToast.length, 0)
+  assert.equal(calls.navigateTo.length, 1)
+  assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
+  assert.match(calls.navigateTo[0].url, /resBookId=book-2/)
+  assert.match(calls.navigateTo[0].url, /unlocked=1/)
+})
+
+test('selectBook on a demo textbook opens the product detail page', () => {
+  const { page, calls } = loadHomePage()
+  page.data.book = { resBookId: 'book-1', name: 'Book Name' }
+  page.data.allBooks = [{
+    resBookId: 'demo-rj-7a',
+    name: '(新)七年级上册',
+    bookCover: '/mock.png',
+    wordCount: 486,
+    press: '人教版',
+    demo: true
+  }]
+  page.data.bookPickerVisible = true
+
+  page.selectBook({
+    currentTarget: {
+      dataset: {
+        resBookId: 'demo-rj-7a'
+      }
+    }
+  })
+
+  assert.equal(page.data.bookPickerVisible, false)
+  assert.equal(calls.showToast.length, 0)
+  assert.equal(calls.navigateTo.length, 1)
+  assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
+  assert.match(calls.navigateTo[0].url, /resBookId=demo-rj-7a/)
 })

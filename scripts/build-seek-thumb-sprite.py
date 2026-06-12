@@ -14,6 +14,7 @@ FRAME_PADDING_Y = 4
 GRID_COLS = 2
 GRID_ROWS = 2
 CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
+BUILD_WORK_DIR = Path(__file__).resolve().parent.parent / "assets" / "build-work"
 
 
 def get_content_bbox(image):
@@ -75,7 +76,8 @@ def extract_tile(source, row, col):
 
 
 def build_static(source_path, output_path, frame_row=0, frame_col=0, output_width=320):
-    work_dir = output_path.parent
+    work_dir = BUILD_WORK_DIR
+    work_dir.mkdir(parents=True, exist_ok=True)
     keyed_source = ensure_transparent_source(source_path, work_dir)
     source = Image.open(keyed_source).convert("RGBA")
     tile = extract_tile(source, frame_row, frame_col)
@@ -93,7 +95,8 @@ def build_static(source_path, output_path, frame_row=0, frame_col=0, output_widt
 
 
 def build_sprite(source_path, output_path, frame_count=4):
-    work_dir = output_path.parent
+    work_dir = BUILD_WORK_DIR
+    work_dir.mkdir(parents=True, exist_ok=True)
     keyed_source = ensure_transparent_source(source_path, work_dir)
     source = Image.open(keyed_source).convert("RGBA")
     tiles = []

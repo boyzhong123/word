@@ -22,6 +22,7 @@ const { normalizeCheckedDates, buildDemoCheckedDates, DEMO_CONTINUOUS_DAYS } = r
 const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
 const { computeScrollTopToCenterTarget } = require('./home-scroll')
 const { withTestBook, isDevTestBook } = require('../../utils/dev-books')
+const { withMockTextbooks } = require('../../utils/mock-textbooks')
 
 function isTruthyFlag(value) {
   return value === true || value === 1 || value === '1'
@@ -37,13 +38,95 @@ function isBookLocked(book) {
   return isTruthyFlag(book.needVip)
 }
 
+// 新课标教材：优先看后端显式标记，没有就从名称/简介/版本字段里识别
+function isNewStandardBook(book) {
+  if (!book) {
+    return false
+  }
+  if (isTruthyFlag(book.newStandard) || isTruthyFlag(book.isNewStandard)) {
+    return true
+  }
+  const text = [book.name, book.intro, book.edition, book.version, book.tags]
+    .filter(Boolean)
+    .join(' ')
+  return text.indexOf('新课标') >= 0
+}
+
 function enrichPickerBooks(books) {
   if (!Array.isArray(books)) {
     return []
   }
   return books.map(book => Object.assign({}, book, {
-    locked: isBookLocked(book)
+    locked: isBookLocked(book),
+    newStandard: isNewStandardBook(book)
   }))
+}
+
+// 选教材弹窗：顶部学段切换 + 左侧版本分类栏。
+// 「推荐」固定第一项，承接我们接口返回的词书；版本目录先内置占位，
+// 词书带 press（出版社/版本）时自动归类，后端补数据后逐步点亮
+const PICKER_RECOMMEND_ID = 'recommend'
+
+const PICKER_STAGES = [
+  { id: 'primary', name: '小学' },
+  { id: 'junior', name: '初中' },
+  { id: 'senior', name: '高中' }
+]
+
+const PICKER_VERSIONS = {
+  primary: ['人教版PEP', '人教精通版', '人教版新起点', '牛津译林版', '外研版一起', '外研版三起', '北师大版', '沪教版'],
+  junior: ['人教版', '外研版', '牛津译林版', '仁爱版', '北师大版', '冀教版'],
+  senior: ['人教版', '外研版', '牛津译林版', '北师大版']
+}
+
+// 词书学段：优先看后端字段，没有就从名称里识别；识别不出的各学段都展示
+function getBookStage(book) {
+  if (!book) {
+    return ''
+  }
+  const text = [book.stage, book.grades, book.name].filter(Boolean).join(' ')
+  if (text.indexOf('小学') >= 0) {
+    return 'primary'
+  }
+  if (text.indexOf('初中') >= 0) {
+    return 'junior'
+  }
+  if (text.indexOf('高中') >= 0) {
+    return 'senior'
+  }
+  return ''
+}
+
+function getStageBooks(books, stageId) {
+  const list = Array.isArray(books) ? books : []
+  return list.filter(book => {
+    const stage = getBookStage(book)
+    return !stage || stage === stageId
+  })
+}
+
+function buildPickerCategories(books, stageId) {
+  const categories = [{ id: PICKER_RECOMMEND_ID, name: '推荐' }]
+  const versions = PICKER_VERSIONS[stageId] || []
+  versions.forEach(name => {
+    categories.push({ id: name, name })
+  })
+  // 词书自带的 press 不在内置目录里时也追加成分类，保证每本书都能被找到
+  getStageBooks(books, stageId).forEach(book => {
+    const press = book && book.press ? String(book.press).trim() : ''
+    if (press && !categories.some(item => item.id === press)) {
+      categories.push({ id: press, name: press })
+    }
+  })
+  return categories
+}
+
+function filterPickerBooks(books, stageId, categoryId) {
+  const stageBooks = getStageBooks(books, stageId)
+  if (!categoryId || categoryId === PICKER_RECOMMEND_ID) {
+    return stageBooks
+  }
+  return stageBooks.filter(book => book && book.press === categoryId)
 }
 
 function hasTodayTaskGroup(listGroups) {
@@ -156,8 +239,8 @@ const FALLBACK_UNITS = [
   {
     levelWords: 180,
     subtitle: '积跬步，至千里。',
-    subtitleColor: '#777777',
-    stageColor: '#777777',
+    subtitleColor: '#5c636a',
+    stageColor: '#5c636a',
     doneStages: 0,
     mascot: '../../images/home/mascot-sleep.png',
     mascotSprite: '../../images/home/mascot-sleep-sprite.png',
@@ -186,6 +269,8 @@ function getSafeAreaBottom() {
 const BOOK_CARD_HEIGHT = 275
 const HERO_TITLE_BLOCK_HEIGHT = 101
 
+const TAB_BAR_BODY_RPX = 102
+
 function getHeroLayout() {
   const systemInfo = wx.getSystemInfoSync()
   const windowWidth = Number(systemInfo.windowWidth) || 375
@@ -202,7 +287,7 @@ function getHeroLayout() {
   const heroContentTop = Math.ceil((menuBottom + 8) * 750 / windowWidth)
   const bookCardTop = heroContentTop + HERO_TITLE_BLOCK_HEIGHT + 40
   const heroSectionHeight = bookCardTop + BOOK_CARD_HEIGHT
-  const scrollSpacerRpx = Math.ceil(120 + safeAreaBottom * 750 / windowWidth)
+  const scrollSpacerRpx = Math.ceil(TAB_BAR_BODY_RPX + 36 + safeAreaBottom * 750 / windowWidth)
 
   return {
     heroContentTop,
@@ -265,6 +350,11 @@ Page({
     safeAreaBottom: getSafeAreaBottom(),
     bookPickerVisible: false,
     allBooks: [],
+    pickerStages: PICKER_STAGES,
+    pickerStageId: PICKER_STAGES[0].id,
+    pickerCategories: [],
+    pickerCategoryId: PICKER_RECOMMEND_ID,
+    pickerBooks: [],
     hasTodayTasks: hasTodayTaskGroup(FALLBACK_LIST_UNITS),
     showTodayLocateFab: false,
     ...getHeroLayout()
@@ -340,7 +430,7 @@ Page({
         return
       }
 
-      books = withTestBook(books)
+      books = withMockTextbooks(withTestBook(books))
       let selectedBook = books.find(item => item.defaultBook) || books[0]
       let otherBook = books.find(item => item.resBookId !== selectedBook.resBookId) || {}
       selectedBook = normalizeBook(selectedBook)
@@ -426,13 +516,10 @@ Page({
   },
 
   setTabBarHidden(hidden) {
+    // 已启用 custom tabBar：只通过 custom-tab-bar 的 hidden 控制显隐。
+    // wx.showTabBar / wx.hideTabBar 会额外露出 app.json 里 2 项的系统底栏。
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ hidden })
-    }
-    if (hidden) {
-      wx.hideTabBar({ animation: false })
-    } else {
-      wx.showTabBar({ animation: false })
     }
   },
 
@@ -442,24 +529,45 @@ Page({
       this.showPending()
       return
     }
-    this.setData({ bookPickerVisible: true })
+    // 默认落在当前教材所属学段，找不到就用第一个学段
+    const stageId = getBookStage(this.data.book) || PICKER_STAGES[0].id
+    this.setData({
+      bookPickerVisible: true,
+      pickerStageId: stageId,
+      pickerCategories: buildPickerCategories(allBooks, stageId),
+      pickerCategoryId: PICKER_RECOMMEND_ID,
+      pickerBooks: filterPickerBooks(allBooks, stageId, PICKER_RECOMMEND_ID)
+    })
     this.setTabBarHidden(true)
+  },
+
+  selectBookStage(event) {
+    const stageId = event.currentTarget.dataset.stageId
+    if (!stageId || stageId === this.data.pickerStageId) {
+      return
+    }
+    this.setData({
+      pickerStageId: stageId,
+      pickerCategories: buildPickerCategories(this.data.allBooks, stageId),
+      pickerCategoryId: PICKER_RECOMMEND_ID,
+      pickerBooks: filterPickerBooks(this.data.allBooks, stageId, PICKER_RECOMMEND_ID)
+    })
+  },
+
+  selectBookCategory(event) {
+    const categoryId = event.currentTarget.dataset.categoryId
+    if (!categoryId || categoryId === this.data.pickerCategoryId) {
+      return
+    }
+    this.setData({
+      pickerCategoryId: categoryId,
+      pickerBooks: filterPickerBooks(this.data.allBooks, this.data.pickerStageId, categoryId)
+    })
   },
 
   closeBookPicker() {
     this.setData({ bookPickerVisible: false })
     this.setTabBarHidden(false)
-  },
-
-  openBookDetail(event) {
-    const resBookId = event.currentTarget.dataset.resBookId
-    const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
-
-    if (!target) {
-      return
-    }
-
-    this.goBuyBook(target)
   },
 
   selectBook(event) {
@@ -468,6 +576,15 @@ Page({
     const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
 
     if (!target) {
+      return
+    }
+
+    // 演示教材只用于预览分类效果，不进入切换/购买流程
+    if (target.demo) {
+      wx.showToast({
+        title: '演示教材，仅供预览',
+        icon: 'none'
+      })
       return
     }
 
@@ -890,6 +1007,7 @@ Page({
       'wordCount=' + encodeURIComponent(book.wordCount || 0),
       'proverbCount=' + encodeURIComponent(book.proverbCount || 0),
       'press=' + encodeURIComponent(book.press || ''),
+      'grades=' + encodeURIComponent(book.grades || book.grade || book.gradeTags || book.applyGrades || book.applicableGrades || ''),
       'intro=' + encodeURIComponent(book.intro || ''),
       'unlocked=' + (book.locked ? '0' : '1')
     ].join('&')

@@ -1,6 +1,17 @@
 // pages/finish/today.js
 const { saveRecord } = require('../../utils/api')
 const { getDailyGoal, getTodayDone, recordLevelDone } = require('../../utils/checkin-progress')
+const { refreshHomePage } = require('../../utils/util')
+const {
+  getStageInfo,
+  buildContinueUrl,
+  hasContinueAction,
+  normalizeTaskType
+} = require('../../utils/finish-stage')
+const {
+  normalizeScoreRate,
+  headerImageForScoreRate
+} = require('../../utils/finish-stars')
 
 const STREAK_REWARD_DAYS = 30
 
@@ -15,21 +26,32 @@ Page({
     todayGoal: 0,
     justCheckedIn: false,
     checkinComplete: false,
-    rewardRemainingDays: STREAK_REWARD_DAYS
+    rewardRemainingDays: STREAK_REWARD_DAYS,
+    stageTitle: '完成今日学习!',
+    continueLabel: '继续学习',
+    showContinue: true,
+    headerImage: '../../images/finish/finish-today-header-1star.png',
+    scoreRate: 0
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
+    options = options || {}
     this.book = getApp().globalData.book
+    this.unitId = options.unitId || ''
+    this.taskType = normalizeTaskType(options.taskType)
+    this.resBookId = options.resBookId || (this.book && this.book.resBookId) || ''
+    this.bookName = options.name
+      ? decodeURIComponent(options.name)
+      : (this.book && this.book.name) || ''
+
     const resBookId = this.book && this.book.resBookId
     const todayGoal = getDailyGoal(resBookId)
     const todayDoneBefore = getTodayDone(resBookId)
-    // 完成一个关卡即记录今日打卡进度（按 unitId 去重、跨天自动重置）
     const todayDoneAfter = recordLevelDone(resBookId, options.unitId)
     const checkinComplete = todayDoneAfter >= todayGoal
     const justCheckedIn = todayDoneBefore < todayGoal && checkinComplete
+    const stage = getStageInfo(this.taskType)
+    const scoreRate = normalizeScoreRate(options.scoreRate)
 
     this.setData({
       unitSort: options.unitSort,
@@ -41,28 +63,46 @@ Page({
       todayGoal,
       justCheckedIn,
       checkinComplete,
-      rewardRemainingDays: STREAK_REWARD_DAYS
+      rewardRemainingDays: STREAK_REWARD_DAYS,
+      stageTitle: stage.title,
+      continueLabel: stage.continueLabel,
+      scoreRate,
+      headerImage: headerImageForScoreRate(scoreRate)
     })
+
     saveRecord(options.unitId).then(data => {
-      this.nextUnitId = data.nextUnitId
+      this.nextUnitId = data && data.nextUnitId
+      this.setData({
+        showContinue: hasContinueAction(this.taskType, this.nextUnitId)
+      })
     })
-    var pages = getCurrentPages() //获取加载的页面
-    for (let i = 0; i < pages.length; i++) {
-      pages[i].route == 'pages/home/home'
-      pages[i].refresh = true
-      break
-    }
+
+    refreshHomePage()
   },
+
   continue() {
-    this.getOpenerEventChannel().emit('continue', { resBookId: this.book.resBookId, unitId: this.nextUnitId })
-    wx.navigateBack()
+    const url = buildContinueUrl({
+      taskType: this.taskType,
+      resBookId: this.resBookId,
+      unitId: this.unitId,
+      bookName: this.bookName,
+      nextUnitId: this.nextUnitId
+    })
+
+    if (!url) {
+      this.finish()
+      return
+    }
+
+    wx.redirectTo({ url })
   },
+
   goCheckinCalendar() {
     wx.navigateTo({ url: '/pages/checkin/calendar' })
   },
+
   finish() {
-    wx.navigateBack({
-      delta: getCurrentPages().length - 1
-    })
+    refreshHomePage()
+    wx.switchTab({ url: '/pages/home/home' })
   }
 })

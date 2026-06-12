@@ -1,60 +1,73 @@
 <view class="page">
-  <navigation class="title-box" background="#fffdf8">
+  <navigation class="title-box" background="#fbfcff">
     <view class="ad-nav-title-wrap">
       <view class="ad-nav-title">{{name || '教材详情'}}</view>
     </view>
   </navigation>
 
   <scroll-view scroll-y class="content" style="height: {{scrollHeight}}px;" enhanced show-scrollbar="{{false}}">
-    <!-- 表头：书本信息（动态填充） -->
-    <view class="product-head">
-      <view class="head-banner">
-        <image class="head-banner-art" src="/images/home/ad/detail-hero.png" mode="aspectFill" />
-        <view class="head-banner-wash"></view>
+    <view class="hero">
+      <image class="hero-image" src="/images/home/ad/product-hero-clean.png" mode="aspectFill" />
+      <view class="hero-fade"></view>
+    </view>
+
+    <view class="book-card">
+      <view class="book-main">
+        <view class="book-cover-frame">
+          <image class="book-cover" src="{{bookCover}}" mode="aspectFill" />
+        </view>
+        <view class="book-meta">
+          <view class="book-pills">
+            <view wx:for="{{gradeTags}}" wx:key="*this" class="grade-pill">{{item}}</view>
+            <view wx:if="{{press}}" class="press-pill">{{press}}</view>
+          </view>
+          <text class="book-name">{{name}}</text>
+          <text class="book-summary">{{bookSummary}}</text>
+        </view>
       </view>
 
-      <view class="head-card">
-        <view class="head-main">
-          <view class="product-cover-wrap">
-            <image class="product-cover" src="{{bookCover}}" mode="aspectFill" />
-          </view>
-          <view class="product-meta">
-            <text class="product-kicker">教材同步学习包</text>
-            <text class="product-name">{{name}}</text>
-            <view class="product-tags">
-              <view wx:if="{{press}}" class="product-press-pill">
-                <image class="press-icon" src="/images/home/ad/icon-press-jelly.png" mode="aspectFit" />
-                <text class="product-press">{{press}}</text>
-              </view>
-              <view wx:for="{{gradeTags}}" wx:key="*this" class="product-grade-pill">
-                <text>{{item}}</text>
-              </view>
-            </view>
-            <text class="product-summary">{{bookSummary}}</text>
-          </view>
-        </view>
-
-        <view class="product-stats-card">
-          <view class="product-stat" wx:for="{{contentStats}}" wx:key="label">
-            <image class="stat-icon" src="{{item.icon}}" mode="aspectFit" />
-            <view class="stat-number-row">
-              <text class="stat-value">{{item.value}}</text>
-              <text class="stat-unit">{{item.unit}}</text>
-            </view>
+      <view class="stat-grid">
+        <view class="stat-item" wx:for="{{contentStats}}" wx:key="label">
+          <text class="stat-value">{{item.value}}</text>
+          <view class="stat-caption">
+            <text class="stat-unit">{{item.unit}}</text>
             <text class="stat-label">{{item.label}}</text>
           </view>
         </view>
       </view>
     </view>
 
-    <view class="template-panel learning-panel">
+    <view class="section section-scope">
       <view class="section-head">
-        <text class="section-title">学习内容</text>
-        <text class="section-subtitle">跟随教材单元组织</text>
+        <text class="section-title">这本书适合谁</text>
+        <text class="section-note">不同教材共用模板，只替换书本数据</text>
       </view>
-      <view class="feature-grid">
-        <view class="feature-card" wx:for="{{featureCards}}" wx:key="title">
-          <image class="feature-icon" src="{{item.icon}}" mode="aspectFit" />
+      <view class="scope-list">
+        <view class="scope-row">
+          <text class="scope-label">适用年级</text>
+          <view class="scope-tags">
+            <text wx:for="{{gradeTags}}" wx:key="*this" class="scope-tag">{{item}}</text>
+          </view>
+        </view>
+        <view wx:if="{{press}}" class="scope-row">
+          <text class="scope-label">出版社</text>
+          <text class="scope-value">{{press}}</text>
+        </view>
+        <view class="scope-row">
+          <text class="scope-label">内容范围</text>
+          <text class="scope-value">{{wordCountText}} 个单词 / {{proverbCountText}} 条句子 / {{totalText}} 个单元</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <text class="section-title">购买后包含</text>
+        <text class="section-note">词典内容和学习任务分开呈现</text>
+      </view>
+      <view class="feature-list">
+        <view class="feature-item" wx:for="{{featureCards}}" wx:key="title">
+          <view class="feature-mark">{{item.mark}}</view>
           <view class="feature-copy">
             <text class="feature-title">{{item.title}}</text>
             <text class="feature-desc">{{item.desc}}</text>
@@ -63,50 +76,47 @@
       </view>
     </view>
 
-    <view class="template-panel method-panel">
-      <image class="method-visual" src="/images/home/ad/detail-method.png" mode="aspectFill" />
-      <view class="method-copy">
-        <view class="section-head section-head-tight">
-          <text class="section-title">学习路径</text>
-          <text class="section-subtitle">新学、跟读、复习连在一起</text>
-        </view>
-        <view class="method-list">
-          <view class="method-step" wx:for="{{methodSteps}}" wx:key="title">
-            <view class="method-index">{{index + 1}}</view>
-            <view class="method-text">
-              <text class="method-title">{{item.title}}</text>
-              <text class="method-desc">{{item.desc}}</text>
-            </view>
+    <view class="section">
+      <view class="section-head">
+        <text class="section-title">学习方式</text>
+        <text class="section-note">按教材单元推进，适合长期上新</text>
+      </view>
+      <view class="timeline">
+        <view class="timeline-item" wx:for="{{methodSteps}}" wx:key="title">
+          <view class="timeline-index">{{index + 1}}</view>
+          <view class="timeline-copy">
+            <text class="timeline-title">{{item.title}}</text>
+            <text class="timeline-desc">{{item.desc}}</text>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 商品详情长图 -->
-    <view wx:if="{{detailBanners.length}}" class="detail-section">
-      <view class="detail-tab">
-        <text class="detail-tab-text">商品详情</text>
+    <view class="section">
+      <view class="section-head">
+        <text class="section-title">选择套餐</text>
+        <text class="section-note">下单前还可以再次确认</text>
       </view>
-      <view class="detail-gallery">
-        <image
-          wx:for="{{detailBanners}}"
-          wx:key="src"
-          class="detail-banner"
-          src="{{item.src}}"
-          mode="widthFix"
-          show-menu-by-longpress="{{false}}"
-        />
+      <view class="package-list">
+        <view class="package-card {{item.id === selectedPackage ? 'package-card-active' : ''}}" wx:for="{{packages}}" wx:key="id">
+          <view class="package-top">
+            <text class="package-name">{{item.name}}</text>
+            <text wx:if="{{item.tag}}" class="package-tag">{{item.tag}}</text>
+          </view>
+          <view class="package-price">
+            <text class="package-currency">¥</text>
+            <text class="package-amount">{{item.price}}</text>
+          </view>
+          <text class="package-summary">{{item.summary}}</text>
+        </view>
       </view>
     </view>
 
-    <!-- 教材简介 -->
-    <view wx:if="{{intro}}" class="panel intro-panel">
-      <view class="panel-title">教材简介</view>
+    <view wx:if="{{intro}}" class="section">
+      <view class="section-head">
+        <text class="section-title">教材简介</text>
+      </view>
       <text class="intro-text">{{intro}}</text>
-    </view>
-
-    <view wx:if="{{!detailBanners.length && !intro}}" class="detail-placeholder">
-      <text class="detail-placeholder-text">商品详情图文即将上线</text>
     </view>
 
     <view style="height: {{actionHeight}}px;"></view>
@@ -127,7 +137,6 @@
     </block>
   </view>
 
-  <!-- SKU 选择弹层：点击购买后出现 -->
   <view wx:if="{{skuSheetVisible}}" class="sku-mask" bindtap="closeSkuSheet">
     <view class="sku-sheet" catchtap="noop">
       <view class="sku-handle"></view>
@@ -136,7 +145,7 @@
         <image class="sku-cover" src="{{bookCover}}" mode="aspectFill" />
         <view class="sku-book-meta">
           <text class="sku-book-name">{{name}}</text>
-          <text class="sku-book-stats">{{wordCount}} 词 · {{proverbCount}} 条句子 · {{total}} 期单元</text>
+          <text class="sku-book-stats">{{wordCountText}} 词 · {{proverbCountText}} 条句子 · {{totalText}} 个单元</text>
           <text wx:if="{{press}}" class="sku-book-press">{{press}}</text>
         </view>
       </view>

@@ -9,7 +9,12 @@
     "pages/catalogue/catalogue",
     "pages/listen/listen",
     "pages/checkin/calendar",
+    "pages/study-record/record",
     "pages/me/me",
+    "pages/me/book",
+    "pages/me/notify",
+    "pages/me/contact",
+    "pages/me/privacy",
     "pages/plan/plan",
     "pages/report/report"
   ],

@@ -53,8 +53,12 @@
   align-items: center;
 }
 
-.score {
+/* 类名避开页面里的同名 .score（styleIsolation: apply-shared 会让页面样式穿透进来） */
+.media-circle-score {
   position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-size: 36rpx;
   font-family: OPPOSans;
   font-weight: bold;

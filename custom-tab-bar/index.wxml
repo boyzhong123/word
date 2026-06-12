@@ -1,8 +1,9 @@
+<view class="tab-bar-shell">
 <!-- 迷你播放器：随身听正在播放时悬浮于底栏之上 -->
 <view
   wx:if="{{!hidden && miniActive}}"
   class="mini-player {{miniPlaying ? 'mini-player-playing' : ''}}"
-  style="bottom: calc(87rpx + {{safeAreaBottom}}px); --mini-shadow: {{miniShadow}};"
+  style="--mini-shadow: {{miniShadow}};"
   bindtap="openListen"
 >
   <view class="mini-bg" aria-hidden="true">
@@ -47,7 +48,7 @@
 <!-- 离屏 canvas：仅用于取封面主色，不显示 -->
 <canvas type="2d" id="miniColorCanvas" class="mini-color-canvas"></canvas>
 
-<view wx:if="{{!hidden}}" class="bottom-nav" style="padding-bottom: {{safeAreaBottom}}px;">
+<view wx:if="{{!hidden}}" class="bottom-nav">
   <view class="bottom-nav-item {{selected === 0 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
     <view class="bottom-nav-icon-wrap">
       <image class="bottom-nav-icon" src="{{selected === 0 ? '/images/home/nav-study-jelly-active.png' : '/images/home/nav-study-jelly.png'}}" mode="aspectFit" />
@@ -66,4 +67,5 @@
     </view>
     <text>我的</text>
   </view>
+</view>
 </view>

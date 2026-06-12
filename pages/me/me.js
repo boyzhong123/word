@@ -47,19 +47,22 @@ Page({
         id: 'book',
         label: '我的教材',
         desc: '查看当前学习内容',
+        url: '/pages/me/book',
         action: 'book'
       },
       {
         id: 'notify',
         label: '消息授权状态',
         desc: '管理订阅消息、公众号提醒状态',
+        url: '/pages/me/notify',
         action: 'notify'
       },
       {
         id: 'contact',
         label: '联系客服',
         desc: '遇到问题时找我们',
-        openType: 'contact'
+        url: '/pages/me/contact',
+        action: 'contact'
       }
     ],
     settings: [
@@ -67,6 +70,7 @@ Page({
         id: 'privacy',
         label: '隐私与协议',
         desc: '账号安全和数据说明',
+        url: '/pages/me/privacy',
         action: 'privacy'
       }
     ]
@@ -143,6 +147,10 @@ Page({
     })
   },
 
+  goStudyRecord() {
+    this.navTo('/pages/study-record/record')
+  },
+
   requestSubscribe() {
     const app = getApp()
     const tmplIds = (app.globalData && app.globalData.subscribeTmplIds) || []
@@ -175,23 +183,21 @@ Page({
 
   handleMenuTap(event) {
     const action = event.currentTarget.dataset.action
-    if (!action) {
-      return
-    }
-    if (action === 'book') {
-      this.navToStudy()
+    const url = event.currentTarget.dataset.url
+    if (url) {
+      this.navTo(url)
       return
     }
     if (action === 'notify') {
       this.requestSubscribe()
-      return
-    }
-    if (action === 'privacy') {
-      this.showPending()
     }
   },
 
-  onContact() {
+  onContact(event) {
+    if (event && event.currentTarget && event.currentTarget.dataset.action === 'contact') {
+      this.navTo('/pages/me/contact')
+      return
+    }
     console.log('[me] open customer service')
   },
 
@@ -199,10 +205,7 @@ Page({
     wx.switchTab({ url: '/pages/home/home' })
   },
 
-  showPending() {
-    wx.showToast({
-      title: '内容待补充',
-      icon: 'none'
-    })
+  navTo(url) {
+    wx.navigateTo({ url })
   }
 })
