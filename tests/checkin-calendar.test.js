@@ -74,6 +74,8 @@ test('check-in calendar page renders summary, weekday headers, and day cells', (
   assert.match(template, /wx:for="{{weekdays}}"/)
   assert.match(template, /wx:for="{{calendarDays}}"/)
   assert.match(template, /class="day-cell/)
+  assert.match(template, /day-cell-unchecked/)
+  assert.match(template, /day-reward-badge/)
   assert.match(template, /day-cell-reward/)
   assert.match(template, /gift-jelly\.png/)
   assert.match(template, /charge-jelly\.png/)
@@ -89,7 +91,9 @@ test('check-in calendar page renders summary, weekday headers, and day cells', (
   assert.match(style, /\.power-card/)
   assert.match(style, /\.calendar-card/)
   assert.match(style, /\.day-cell-checked\s*{/)
+  assert.match(style, /\.day-cell-unchecked\s*{/)
   assert.match(style, /\.day-cell-today\s*{/)
+  assert.match(style, /\.day-reward-badge\s*{/)
   assert.match(style, /\.gift-dialog/)
 })
 

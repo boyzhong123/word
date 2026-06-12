@@ -74,14 +74,14 @@
       </view>
       <view class="day-grid">
         <view
-          class="day-cell {{item.inMonth ? '' : 'day-cell-empty'}} {{item.checked ? 'day-cell-checked' : ''}} {{item.isToday ? 'day-cell-today' : ''}} {{item.inMonth && item.day === rewardDay ? 'day-cell-reward' : ''}}"
+          class="day-cell {{item.inMonth ? '' : 'day-cell-empty'}} {{item.inMonth && !item.checked && !item.isToday && item.day !== rewardDay ? 'day-cell-unchecked' : ''}} {{item.checked ? 'day-cell-checked' : ''}} {{item.isToday ? 'day-cell-today' : ''}} {{item.inMonth && item.day === rewardDay ? 'day-cell-reward' : ''}}"
           wx:for="{{calendarDays}}"
           wx:key="date"
         >
           <block wx:if="{{item.inMonth}}">
             <block wx:if="{{item.day === rewardDay}}">
+              <view class="day-reward-badge">30天</view>
               <image class="day-reward-icon" src="../../images/checkin/gift-day-jelly.png" mode="aspectFit" />
-              <view class="day-number day-number-reward">{{item.day}}</view>
             </block>
             <view wx:else class="day-number">{{item.day}}</view>
           </block>

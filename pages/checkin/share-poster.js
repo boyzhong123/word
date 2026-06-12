@@ -5,6 +5,8 @@ const POSTER_WIDTH = 600
 const POSTER_HEIGHT = 960
 const APP_NAME = '词句刷刷刷'
 const POSTER_THEMES = ['monster', 'pk', 'words']
+// 占位小程序码（scripts 外手动生成）：上线前替换为 getwxacodeunlimit 生成的官方小程序码
+const POSTER_QR_SRC = '/images/checkin/share-qrcode.png'
 
 const POSTER_BACKGROUNDS = {
   today: {
@@ -248,20 +250,57 @@ function drawWater(ctx) {
   ctx.restore()
 }
 
-function drawHeader(ctx, options) {
-  ctx.fillStyle = '#ffffff'
+// 英文按单词折行，避免长励志语溢出海报
+function wrapText(ctx, text, maxWidth) {
+  const words = String(text || '').split(' ')
+  const lines = []
+  let line = ''
+  words.forEach(word => {
+    const candidate = line ? line + ' ' + word : word
+    if (line && ctx.measureText(candidate).width > maxWidth) {
+      lines.push(line)
+      line = word
+    } else {
+      line = candidate
+    }
+  })
+  if (line) {
+    lines.push(line)
+  }
+  return lines
+}
+
+function drawHeader(ctx, options, logoImage) {
+  ctx.save()
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
-  ctx.font = 'bold 46px sans-serif'
-  ctx.fillText(formatPosterDate(options.date), 48, 110)
+  // 背景主题图偏亮，文字统一加投影保证可读
+  ctx.shadowColor = 'rgba(10, 8, 32, 0.55)'
+  ctx.shadowBlur = 10
+  ctx.shadowOffsetY = 2
 
-  ctx.font = '25px sans-serif'
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'
-  ctx.fillText(options.quote.en, 48, 168)
+  if (logoImage) {
+    ctx.drawImage(logoImage, 48, 42, 52, 52)
+  }
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 30px sans-serif'
+  ctx.fillText(APP_NAME, logoImage ? 114 : 48, 80)
 
-  ctx.font = '20px sans-serif'
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
-  ctx.fillText(options.quote.cn, 48, 206)
+  ctx.font = 'bold 50px sans-serif'
+  ctx.fillText(formatPosterDate(options.date), 48, 164)
+
+  ctx.font = 'bold 27px sans-serif'
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.96)'
+  let quoteY = 216
+  wrapText(ctx, options.quote.en, 504).forEach(line => {
+    ctx.fillText(line, 48, quoteY)
+    quoteY += 38
+  })
+
+  ctx.font = '22px sans-serif'
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.82)'
+  ctx.fillText(options.quote.cn, 48, quoteY + 2)
+  ctx.restore()
 }
 
 function drawPanel(ctx) {
@@ -296,41 +335,42 @@ function drawIdentity(ctx, options, avatarImage) {
 
   ctx.fillStyle = '#ffffff'
   ctx.textAlign = 'left'
-  ctx.font = 'bold 27px sans-serif'
+  ctx.font = 'bold 28px sans-serif'
   ctx.fillText(options.nickName, 136, 678)
 
   const text = buildPosterText(options)
-  ctx.font = 'bold 38px sans-serif'
-  ctx.fillText(text.headline[0], 48, 762)
-  ctx.fillText(text.headline[1], 48, 818)
+  ctx.font = 'bold 40px sans-serif'
+  ctx.fillText(text.headline[0], 48, 764)
+  ctx.fillText(text.headline[1], 48, 820)
 }
 
 function drawStats(ctx, options) {
   const text = buildPosterText(options)
-  const columns = [104, 250, 396]
+  // 右侧让位给小程序码，三列整体左移
+  const columns = [96, 238, 380]
 
   ctx.textAlign = 'center'
   text.stats.forEach((stat, index) => {
     ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 46px sans-serif'
+    ctx.font = 'bold 47px sans-serif'
     ctx.fillText(String(stat.value), columns[index], 890)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.66)'
-    ctx.font = '21px sans-serif'
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.72)'
+    ctx.font = '20px sans-serif'
     ctx.fillText(stat.label, columns[index], 926)
   })
 }
 
-function drawBadge(ctx, badgeImage) {
-  roundRectPath(ctx, 474, 838, 84, 84, 18)
+function drawQrBlock(ctx, qrImage) {
+  roundRectPath(ctx, 452, 806, 116, 116, 20)
   ctx.fillStyle = '#ffffff'
   ctx.fill()
-  if (badgeImage) {
-    ctx.drawImage(badgeImage, 482, 846, 68, 68)
+  if (qrImage) {
+    ctx.drawImage(qrImage, 460, 814, 100, 100)
   }
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.66)'
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.78)'
   ctx.textAlign = 'center'
-  ctx.font = '18px sans-serif'
-  ctx.fillText(APP_NAME, 516, 946)
+  ctx.font = '17px sans-serif'
+  ctx.fillText('长按识别小程序', 510, 948)
 }
 
 // 绘制完整海报，resolve 时画布已就绪可导出
@@ -348,14 +388,15 @@ function drawPoster(canvas, options) {
   return Promise.all([
     loadCanvasImage(canvas, getPosterBackgroundSrc(mode, theme)),
     loadCanvasImage(canvas, options.avatarSrc),
-    loadCanvasImage(canvas, options.badgeSrc)
+    loadCanvasImage(canvas, options.logoSrc || options.badgeSrc),
+    loadCanvasImage(canvas, options.qrSrc || POSTER_QR_SRC)
   ]).then(images => {
     drawBackgroundImage(ctx, images[0])
-    drawHeader(ctx, options)
+    drawHeader(ctx, options, images[2])
     drawPanel(ctx)
     drawIdentity(ctx, options, images[1])
     drawStats(ctx, options)
-    drawBadge(ctx, images[2])
+    drawQrBlock(ctx, images[3])
   })
 }
 
