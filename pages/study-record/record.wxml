@@ -5,13 +5,16 @@
 
   <scroll-view class="record-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="range-hero">
-      <view class="range-meta">
-        <text>当前周期</text>
-        <text class="range-meta-strong">{{rangeLabel}}</text>
-      </view>
-      <view class="range-main">
-        <view class="range-title">这段时间累计学习</view>
-        <view class="range-minutes">{{summary.minutes}}<text>分钟</text></view>
+      <view class="range-hero-top">
+        <view class="range-hero-copy">
+          <view class="range-main">
+            <view class="range-title">这段时间累计学习</view>
+            <view class="range-minutes">{{summary.minutes}}<text>分钟</text></view>
+          </view>
+        </view>
+        <view class="range-hero-art">
+          <image class="range-hero-mascot" src="{{heroMascot}}" mode="aspectFit" />
+        </view>
       </view>
       <view class="quick-row">
         <button
@@ -27,28 +30,33 @@
     <view class="panel">
       <view class="panel-head">
         <view class="panel-title">选择学习周期</view>
-        <button class="panel-action" bindtap="toggleCalendar">{{calendarExpanded ? '收起月历' : '展开月历'}}</button>
+        <view class="panel-action" bindtap="toggleCalendar">{{calendarExpanded ? '收起' : '展开'}}</view>
       </view>
 
-      <view class="recent-strip">
-        <view
-          class="{{item.className}}"
-          data-date="{{item.date}}"
-          bindtap="selectRecentDate"
-          wx:for="{{recentDays}}"
-          wx:key="date"
-        >
-          <view class="recent-week">{{item.weekday}}</view>
-          <view class="recent-date">{{item.day}}</view>
-          <view class="recent-minutes">{{item.minutes ? item.minutes + 'm' : ''}}</view>
+      <view class="recent-range-shell" wx:if="{{!calendarExpanded}}">
+        <view class="recent-strip">
+          <view
+            class="{{item.className}}"
+            data-date="{{item.date}}"
+            bindtap="selectRecentDate"
+            wx:for="{{recentDays}}"
+            wx:key="date"
+          >
+            <view wx:if="{{item.showRangeBand}}" class="{{item.bandClassName}}"></view>
+            <view class="{{item.cellClassName}}">
+              <view class="recent-week">{{item.weekday}}</view>
+              <view class="recent-date">{{item.day}}</view>
+              <view class="recent-minutes">{{item.minutes ? item.minutes + 'm' : ''}}</view>
+            </view>
+          </view>
         </view>
       </view>
 
       <view class="month-picker" wx:if="{{calendarExpanded}}">
         <view class="month-bar">
-          <button class="month-btn" bindtap="prevMonth">‹</button>
+          <view class="month-btn" bindtap="prevMonth">‹</view>
           <view class="month-title">{{monthTitle}}</view>
-          <button class="month-btn" bindtap="nextMonth">›</button>
+          <view class="month-btn" bindtap="nextMonth">›</view>
         </view>
         <view class="weekday-row">
           <view class="weekday" wx:for="{{weekdays}}" wx:key="*this">{{item}}</view>
@@ -62,9 +70,13 @@
             wx:for="{{calendarDays}}"
             wx:key="date"
           >
+            <view wx:if="{{item.showRangeBand}}" class="{{item.bandClassName}}"></view>
             <block wx:if="{{item.inMonth}}">
-              <view class="calendar-day-number">{{item.day}}</view>
-              <view class="calendar-day-minutes">{{item.minutes ? item.minutes + 'm' : ''}}</view>
+              <view class="{{item.cellClassName}}">
+                <view class="calendar-day-label {{item.labelClass}}" wx:if="{{item.topLabel}}">{{item.topLabel}}</view>
+                <view class="calendar-day-number">{{item.day}}</view>
+                <view class="calendar-day-minutes">{{item.minutes ? item.minutes + 'm' : ''}}</view>
+              </view>
             </block>
           </view>
         </view>
@@ -79,21 +91,19 @@
         <view class="panel-pill">{{rangeTag}}</view>
       </view>
       <view class="summary-grid">
-        <view class="summary-item">
-          <view class="summary-value">{{summary.newWords}}词</view>
-          <view class="summary-label">新学单词</view>
-        </view>
-        <view class="summary-item">
-          <view class="summary-value">{{summary.practiceCount}}次</view>
-          <view class="summary-label">词句练习</view>
-        </view>
-        <view class="summary-item">
-          <view class="summary-value">{{summary.audioMinutes}}分钟</view>
-          <view class="summary-label">听力音频</view>
+        <view class="summary-item" wx:for="{{summaryItems}}" wx:key="key">
+          <view class="summary-icon-box">
+            <image class="summary-icon" src="{{item.icon}}" mode="aspectFit" />
+          </view>
+          <view class="summary-value">{{item.valueText}}</view>
+          <view class="summary-label">{{item.label}}</view>
         </view>
       </view>
       <view class="trend-list">
         <view class="trend-row" wx:for="{{trendRows}}" wx:key="label">
+          <view class="trend-icon-box">
+            <image class="trend-icon" src="{{item.icon}}" mode="aspectFit" />
+          </view>
           <view class="trend-label">{{item.label}}</view>
           <view class="trend-track">
             <view class="trend-fill {{item.fillClass}}" style="{{item.fillStyle}}"></view>
@@ -119,7 +129,7 @@
               <view class="record-month">{{item.monthLabel}}</view>
               <view class="record-day-num">{{item.dayLabel}}</view>
             </view>
-            <view class="record-copy">
+            <view class="record-copy-box">
               <view class="record-title">学习 {{item.minutes}} 分钟</view>
               <view class="record-sub">新学 {{item.newWords}} 词 · 听力 {{item.audioMinutes}} 分钟</view>
             </view>
@@ -127,29 +137,12 @@
           </view>
           <view class="record-detail" wx:if="{{item.expanded}}">
             <view class="detail-grid">
-              <view class="detail-item">
-                <view class="detail-value">{{item.newWords}}词</view>
-                <view class="detail-label">新学单词</view>
-              </view>
-              <view class="detail-item">
-                <view class="detail-value">{{item.readWords}}词</view>
-                <view class="detail-label">跟读单词</view>
-              </view>
-              <view class="detail-item">
-                <view class="detail-value">{{item.readSentences}}句</view>
-                <view class="detail-label">跟读句子</view>
-              </view>
-              <view class="detail-item">
-                <view class="detail-value">{{item.quizWords}}词</view>
-                <view class="detail-label">小测单词</view>
-              </view>
-              <view class="detail-item">
-                <view class="detail-value">{{item.reciteWords}}词</view>
-                <view class="detail-label">背诵单词</view>
-              </view>
-              <view class="detail-item">
-                <view class="detail-value">{{item.reviewWords}}词</view>
-                <view class="detail-label">待复习</view>
+              <view class="detail-item" wx:for="{{item.detailItems}}" wx:for-item="detail" wx:key="key">
+                <view class="detail-icon-box">
+                  <image class="detail-icon" src="{{detail.icon}}" mode="aspectFit" />
+                </view>
+                <view class="detail-value">{{detail.valueText}}</view>
+                <view class="detail-label">{{detail.label}}</view>
               </view>
             </view>
           </view>

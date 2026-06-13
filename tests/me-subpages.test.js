@@ -47,9 +47,15 @@ test('me secondary pages provide real page content', () => {
   const contactPage = read('pages/me/contact.wxml')
   const privacyPage = read('pages/me/privacy.wxml')
 
-  assert.match(bookPage, /当前教材/)
-  assert.match(bookPage, /学习进度/)
-  assert.match(bookPage, /切换教材/)
+  assert.match(bookPage, /已购买/)
+  assert.match(bookPage, /继续学习/)
+  assert.match(bookPage, /bindtap="continueStudy"/)
+  assert.match(bookPage, /class="book-count"/)
+  assert.match(bookPage, /class="book-row-card/)
+  assert.match(bookPage, /class="row-progress-fill"/)
+  assert.doesNotMatch(bookPage, /学习进度/)
+  assert.doesNotMatch(bookPage, /切换教材/)
+  assert.doesNotMatch(bookPage, /解锁/)
 
   assert.match(notifyPage, /订阅消息/)
   assert.match(notifyPage, /公众号提醒/)

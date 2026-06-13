@@ -13,29 +13,56 @@ ASSETS_DIR = PROJECT_ROOT / "assets"
 WORK_DIR = RECORD_DIR / ".jelly-build"
 CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
 
-ICON_SET_COLUMNS = 7
-ICON_SET_SIZE = 72
-HERO_SIZE = 120
+ICON_SIZE = 96
+HERO_SIZE = 136
 
-ICON_SET_MAPPING = {
-    "icon-stat-new-words-jelly.png": 0,
-    "icon-stat-practice-jelly.png": 1,
-    "icon-stat-listen-jelly.png": 2,
-    "icon-trend-new-jelly.png": 3,
-    "icon-trend-read-jelly.png": 4,
-    "icon-trend-quiz-jelly.png": 5,
-    "icon-trend-recite-jelly.png": 6,
+# source filename -> list of output filenames
+INDIVIDUAL_ICONS = {
+    "study-record-detail-new-words-source.png": [
+        "icon-detail-new-words-jelly.png",
+        "icon-stat-new-words-jelly.png",
+        "icon-trend-new-jelly.png",
+    ],
+    "study-record-detail-read-word-source.png": [
+        "icon-detail-read-word-jelly.png",
+        "icon-trend-read-jelly.png",
+    ],
+    "study-record-detail-read-sentence-source.png": [
+        "icon-detail-read-sentence-jelly.png",
+    ],
+    "study-record-detail-quiz-source.png": [
+        "icon-detail-quiz-jelly.png",
+        "icon-trend-quiz-jelly.png",
+    ],
+    "study-record-detail-recite-source.png": [
+        "icon-detail-recite-jelly.png",
+        "icon-trend-recite-jelly.png",
+    ],
+    "study-record-detail-review-source.png": [
+        "icon-detail-review-jelly.png",
+    ],
+    "study-record-stat-practice-source.png": [
+        "icon-stat-practice-jelly.png",
+    ],
+    "study-record-stat-listen-source.png": [
+        "icon-stat-listen-jelly.png",
+    ],
 }
 
-CHROMA_ARGS = [
+GREEN_CHROMA_ARGS = [
+    "--key-color",
+    "#00ff00",
+    "--tolerance",
+    "38",
+]
+
+HERO_CHROMA_ARGS = [
     "--auto-key",
     "border",
-    "--soft-matte",
     "--transparent-threshold",
     "12",
     "--opaque-threshold",
     "220",
-    "--despill",
 ]
 
 
@@ -49,19 +76,22 @@ def resolve_source(name):
     raise FileNotFoundError(f"missing source asset: {name}")
 
 
-def chroma_key(source_path, work_dir):
+def chroma_key(source_path, work_dir, chroma_args):
     keyed_path = work_dir / f"{source_path.stem}-keyed.png"
     if CHROMA_KEY_SCRIPT.exists():
-        args = [
-            sys.executable,
-            str(CHROMA_KEY_SCRIPT),
-            "--input",
-            str(source_path),
-            "--out",
-            str(keyed_path),
-            "--force",
-        ] + CHROMA_ARGS
-        subprocess.run(args, check=True)
+        subprocess.run(
+            [
+                sys.executable,
+                str(CHROMA_KEY_SCRIPT),
+                "--input",
+                str(source_path),
+                "--out",
+                str(keyed_path),
+                "--force",
+            ]
+            + chroma_args,
+            check=True,
+        )
         return Image.open(keyed_path).convert("RGBA")
     return Image.open(source_path).convert("RGBA")
 
@@ -72,60 +102,48 @@ def content_bbox(image):
     return visible.getbbox()
 
 
-def fit_icon(image, size, padding=6):
+def fit_icon(image, size, padding=8, padding_top=None):
     box = content_bbox(image)
     if box is None:
         raise ValueError(f"no visible content in {size}x{size}")
     content = image.crop(box)
-    inner = size - padding * 2
-    scale = min(inner / content.width, inner / content.height)
+    top_pad = padding_top if padding_top is not None else padding
+    inner_w = size - padding * 2
+    inner_h = size - padding - top_pad
+    scale = min(inner_w / content.width, inner_h / content.height)
     width = max(1, round(content.width * scale))
     height = max(1, round(content.height * scale))
     content = content.resize((width, height), Image.Resampling.LANCZOS)
     icon = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     x = (size - width) // 2
-    y = (size - height) // 2
+    y = top_pad + max(0, (inner_h - height) // 2)
     icon.alpha_composite(content, (x, y))
     return icon
 
 
-def extract_icon(source, column_index, output_path, size=ICON_SET_SIZE):
-    cell_width = source.width // ICON_SET_COLUMNS
-    cell = source.crop(
-        (
-            column_index * cell_width,
-            0,
-            (column_index + 1) * cell_width,
-            source.height,
-        )
-    )
-    icon = fit_icon(cell, size=size)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    icon.save(output_path, optimize=True)
-
-
-def build_icon_set(source_name):
-    source_path = resolve_source(source_name)
+def build_individual_icons():
     WORK_DIR.mkdir(parents=True, exist_ok=True)
-    keyed = chroma_key(source_path, WORK_DIR)
-    keyed_path = WORK_DIR / f"{source_path.stem}-keyed.png"
-    keyed.save(keyed_path, optimize=True)
-    for output_name, column_index in ICON_SET_MAPPING.items():
-        extract_icon(keyed, column_index, RECORD_DIR / output_name)
+    RECORD_DIR.mkdir(parents=True, exist_ok=True)
+    for source_name, outputs in INDIVIDUAL_ICONS.items():
+        source_path = resolve_source(source_name)
+        keyed = chroma_key(source_path, WORK_DIR, GREEN_CHROMA_ARGS)
+        icon = fit_icon(keyed, ICON_SIZE, padding=8)
+        for output_name in outputs:
+            icon.save(RECORD_DIR / output_name, optimize=True)
 
 
 def build_hero(source_name):
     source_path = resolve_source(source_name)
     WORK_DIR.mkdir(parents=True, exist_ok=True)
-    keyed = chroma_key(source_path, WORK_DIR)
-    icon = fit_icon(keyed, HERO_SIZE, padding=8)
+    keyed = chroma_key(source_path, WORK_DIR, HERO_CHROMA_ARGS)
+    icon = fit_icon(keyed, HERO_SIZE, padding=10, padding_top=16)
     output_path = RECORD_DIR / "hero-mascot-jelly.png"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     icon.save(output_path, optimize=True)
 
 
 def main():
-    build_icon_set("study-record-icon-set-source.png")
+    build_individual_icons()
     build_hero("study-record-hero-mascot-source.png")
     print(f"built study record assets in {RECORD_DIR}")
 

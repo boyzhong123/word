@@ -32,7 +32,7 @@ function normalizeBook(book, currentId) {
   const source = book || {}
   const learningInfo = source.learningInfo || {}
   const progress = learningInfo.book || {}
-  const totalWords = pickNumber(source.wordCount, progress.totalWords, progress.wordCount)
+  const totalWords = pickNumber(source.totalWords, source.wordCount, progress.totalWords, progress.wordCount)
   const learnedWords = pickNumber(progress.learningWords, source.learningWords)
   const percent = totalWords ? Math.min(Math.round(learnedWords * 100 / totalWords), 100) : 0
   const resBookId = source.resBookId || source.id || ''
@@ -89,21 +89,23 @@ Page({
       if (!Array.isArray(books)) {
         return
       }
-      const list = withTestBook(books)
-      const currentSource = list.find(item => isTruthy(item.defaultBook)) || list[0] || null
-      const currentId = currentSource && (currentSource.resBookId || currentSource.id)
-      const normalized = list.map(item => normalizeBook(item, currentId))
-      const currentBook = normalized.find(item => item.current) || normalized[0] || null
-      const totalWords = normalized.reduce((total, item) => total + item.totalWords, 0)
-      const learnedWords = normalized.reduce((total, item) => total + item.learnedWords, 0)
+      const normalized = withTestBook(books).map(item => normalizeBook(item))
+      const purchased = normalized.filter(item => !item.locked)
+      const selectedBook = purchased.find(item => item.current) || purchased[0] || null
+      const ownedBooks = purchased.map(item => Object.assign({}, item, {
+        current: !!selectedBook && item.resBookId === selectedBook.resBookId
+      }))
+      const currentBook = ownedBooks.find(item => item.current) || null
+      const totalWords = ownedBooks.reduce((total, item) => total + item.totalWords, 0)
+      const learnedWords = ownedBooks.reduce((total, item) => total + item.learnedWords, 0)
 
       this.setData({
         loading: false,
-        empty: !normalized.length,
-        books: normalized,
+        empty: !ownedBooks.length,
+        books: ownedBooks,
         currentBook,
         summary: {
-          bookCount: normalized.length,
+          bookCount: ownedBooks.length,
           learnedWords,
           totalWords
         }
@@ -121,10 +123,6 @@ Page({
       return
     }
     if (target.locked) {
-      wx.navigateTo({
-        url: '/pages/vip/vip?resBookId=' + encodeURIComponent(target.resBookId) +
-          '&name=' + encodeURIComponent(target.name)
-      })
       return
     }
     if (target.current) {
@@ -147,8 +145,9 @@ Page({
     })
   },
 
-  openCatalogue() {
-    const book = this.data.currentBook
+  openCatalogue(event) {
+    const resBookId = event && event.currentTarget && event.currentTarget.dataset.resBookId
+    const book = (this.data.books || []).find(item => item.resBookId === resBookId) || this.data.currentBook
     if (!book || !book.resBookId) {
       return
     }
@@ -158,7 +157,7 @@ Page({
     })
   },
 
-  startStudy() {
+  continueStudy() {
     wx.switchTab({ url: '/pages/home/home' })
   }
 })

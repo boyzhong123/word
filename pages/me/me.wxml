@@ -23,7 +23,11 @@
       </view>
     </view>
 
-    <view class="stats-card">
+    <view
+      class="stats-card stats-card-clickable"
+      data-url="/pages/study-record/record"
+      bindtap="handleMenuTap"
+    >
       <view class="stat-item">
         <view class="stat-number">{{stats.checkInDays}}</view>
         <view class="stat-label">连续打卡</view>

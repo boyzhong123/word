@@ -40,4 +40,4 @@ python3 "$IMAGE_GEN" generate-batch \
   --concurrency 2 \
   --force
 
-python3 "$ROOT/scripts/build-study-record-assets.py"
+python3 "$ROOT/scripts/build-study-record-assets.py" "$@"

@@ -540,8 +540,8 @@ page {
 }
 
 .unit-card {
-  height: 244rpx;
-  margin-top: 12rpx;
+  height: 246rpx;
+  margin-top: 14rpx;
   padding: 20rpx 19rpx;
   box-sizing: border-box;
   overflow: hidden;
@@ -608,12 +608,12 @@ page {
 
 /* 今日要学：一个大框把当天的关卡装在一起。清新薄荷绿，区别于复习卡的橙色 */
 .today-group {
-  margin-top: 0;
-  margin-bottom: 12rpx;
-  padding: 18rpx 14rpx 18rpx;
+  margin-top: 18rpx;
+  margin-bottom: 14rpx;
+  padding: 18rpx 14rpx 20rpx;
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 14rpx;
   background: linear-gradient(160deg, #e9fff3 0%, #f3fff9 55%, #ffffff 100%);
   border: 2rpx solid #aee9c2;
   border-radius: 30rpx;
@@ -807,7 +807,7 @@ page {
   z-index: 4;
   height: 100rpx;
   display: flex;
-  gap: 16rpx;
+  gap: 18rpx;
 }
 
 .task-card {

@@ -18,9 +18,37 @@ const QUICK_RANGES = [
   { id: 'custom', label: '自定义' }
 ]
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
+const RECORD_ICONS = {
+  heroMascot: '../../images/study-record/hero-mascot-home-record-v5.png',
+  newWords: '../../images/study-record/icon-detail-new-words-jelly.png',
+  practice: '../../images/study-record/icon-stat-practice-jelly.png',
+  listen: '../../images/study-record/icon-stat-listen-jelly.png',
+  readWord: '../../images/study-record/icon-detail-read-word-jelly.png',
+  readSentence: '../../images/study-record/icon-detail-read-sentence-jelly.png',
+  quiz: '../../images/study-record/icon-detail-quiz-jelly.png',
+  recite: '../../images/study-record/icon-detail-recite-jelly.png',
+  review: '../../images/study-record/icon-detail-review-jelly.png',
+  trendNew: '../../images/study-record/icon-trend-new-jelly.png',
+  trendRead: '../../images/study-record/icon-trend-read-jelly.png',
+  trendQuiz: '../../images/study-record/icon-trend-quiz-jelly.png',
+  trendRecite: '../../images/study-record/icon-trend-recite-jelly.png'
+}
+const SUMMARY_ITEMS = [
+  { key: 'newWords', label: '新学单词', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
+  { key: 'practice', label: '词句练习', unit: '次', field: 'practiceCount', icon: RECORD_ICONS.practice },
+  { key: 'listen', label: '听力音频', unit: '分钟', field: 'audioMinutes', icon: RECORD_ICONS.listen }
+]
+const DETAIL_ITEMS = [
+  { key: 'newWords', label: '新学单词', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
+  { key: 'readWords', label: '跟读单词', unit: '词', field: 'readWords', icon: RECORD_ICONS.readWord },
+  { key: 'readSentences', label: '跟读句子', unit: '句', field: 'readSentences', icon: RECORD_ICONS.readSentence },
+  { key: 'quizWords', label: '小测单词', unit: '词', field: 'quizWords', icon: RECORD_ICONS.quiz },
+  { key: 'reciteWords', label: '背诵单词', unit: '词', field: 'reciteWords', icon: RECORD_ICONS.recite },
+  { key: 'reviewWords', label: '待复习', unit: '词', field: 'reviewWords', icon: RECORD_ICONS.review }
+]
 
 function buildClass(base, flags) {
-  const classes = [base]
+  const classes = base ? [base] : []
   Object.keys(flags || {}).forEach(key => {
     if (flags[key]) {
       classes.push(key)
@@ -29,8 +57,76 @@ function buildClass(base, flags) {
   return classes.join(' ')
 }
 
+function buildHotelRangeClasses(prefix, day) {
+  const outer = {}
+  const cell = {}
+  const band = {}
+  let showRangeBand = false
+  const bandBase = `${prefix}-range-band`
+
+  if (day.inRange) {
+    if (day.isRangeSingle) {
+      outer[`${prefix}-single`] = true
+      outer[`${prefix}-edge`] = true
+      cell[`${prefix}-cell-edge`] = true
+    } else {
+      showRangeBand = true
+      band[bandBase] = true
+
+      if (day.isRangeStart) {
+        outer[`${prefix}-edge`] = true
+        outer[`${prefix}-start`] = true
+        cell[`${prefix}-cell-edge`] = true
+        band[`${bandBase}-from-center`] = true
+      } else if (day.isRangeEnd) {
+        outer[`${prefix}-edge`] = true
+        outer[`${prefix}-end`] = true
+        cell[`${prefix}-cell-edge`] = true
+        band[`${bandBase}-to-center`] = true
+      } else {
+        outer[`${prefix}-in-range`] = true
+        cell[`${prefix}-cell-in-range`] = true
+        band[`${bandBase}-full`] = true
+      }
+
+      if ((day.isRangeEnd && !day.isWeekStart) || (!day.isRangeStart && !day.isWeekStart)) {
+        band[`${bandBase}-round-left`] = true
+      }
+      if ((day.isRangeStart && !day.isWeekEnd) || (!day.isRangeEnd && !day.isWeekEnd)) {
+        band[`${bandBase}-round-right`] = true
+      }
+    }
+  }
+
+  const baseClass = prefix === 'calendar' ? 'calendar-day' : 'recent-day'
+  const cellBase = prefix === 'calendar' ? 'calendar-cell-inner' : 'recent-cell-inner'
+
+  return {
+    showRangeBand,
+    className: buildClass(baseClass, outer),
+    cellClassName: buildClass(cellBase, cell),
+    bandClassName: buildClass('', band).trim()
+  }
+}
+
 function formatMonthTitle(date) {
   return `${date.getFullYear()}年${date.getMonth() + 1}月`
+}
+
+function buildRangeLabel(day, todayDate) {
+  if (day.isRangeSingle) {
+    return '当天'
+  }
+  if (day.isRangeStart) {
+    return '开始'
+  }
+  if (day.isRangeEnd) {
+    return '截止'
+  }
+  if (day.date === todayDate) {
+    return '今天'
+  }
+  return ''
 }
 
 function getSafeAreaBottom() {
@@ -61,6 +157,9 @@ Page({
     recentDays: [],
     calendarDays: [],
     trendRows: [],
+    summaryItems: [],
+    detailItems: DETAIL_ITEMS,
+    heroMascot: RECORD_ICONS.heroMascot,
     rangeRecords: [],
     hasRangeRecords: false
   },
@@ -132,11 +231,17 @@ Page({
       summary,
       recentDays: this.buildRecentDays(startDate, endDate),
       calendarDays: this.buildCalendarDays(startDate, endDate),
+      summaryItems: SUMMARY_ITEMS.map(item => ({
+        key: item.key,
+        label: item.label,
+        icon: item.icon,
+        valueText: `${summary[item.field]}${item.unit}`
+      })),
       trendRows: [
-        this.buildTrendRow('新学', summary.newWords, '词', maxTrendValue, 'trend-fill-new'),
-        this.buildTrendRow('跟读', summary.readWords + summary.readSentences, '次', maxTrendValue, 'trend-fill-read'),
-        this.buildTrendRow('小测', summary.quizWords, '词', maxTrendValue, 'trend-fill-quiz'),
-        this.buildTrendRow('背诵', summary.reciteWords, '词', maxTrendValue, 'trend-fill-recite')
+        this.buildTrendRow('新学', summary.newWords, '词', maxTrendValue, 'trend-fill-new', RECORD_ICONS.trendNew),
+        this.buildTrendRow('跟读', summary.readWords + summary.readSentences, '次', maxTrendValue, 'trend-fill-read', RECORD_ICONS.trendRead),
+        this.buildTrendRow('小测', summary.quizWords, '词', maxTrendValue, 'trend-fill-quiz', RECORD_ICONS.trendQuiz),
+        this.buildTrendRow('背诵', summary.reciteWords, '词', maxTrendValue, 'trend-fill-recite', RECORD_ICONS.trendRecite)
       ],
       rangeRecords: this.buildRangeRecords(rangeRecords),
       hasRangeRecords: rangeRecords.length > 0
@@ -160,30 +265,45 @@ Page({
   },
 
   buildRecentDays(startDate, endDate) {
-    return buildRecentDays(this.today, this.studyRecords, startDate, endDate).map(day => Object.assign({}, day, {
-      className: buildClass('recent-day', {
-        'recent-day-range': day.inRange,
-        'recent-day-edge': day.isRangeStart || day.isRangeEnd,
-        'recent-day-empty': !day.hasRecord
+    return buildRecentDays(this.today, this.studyRecords, startDate, endDate).map(day => {
+      const rangeClasses = buildHotelRangeClasses('recent', day)
+      const isEdge = day.isRangeStart || day.isRangeEnd || day.isRangeSingle
+      const isToday = day.date === this.todayDate
+      let className = `${rangeClasses.className}${!day.hasRecord && !day.inRange ? ' recent-day-empty' : ''}`
+      if (isToday && !isEdge) {
+        className += ' recent-day-today'
+      }
+      return Object.assign({}, day, rangeClasses, {
+        className,
+        cellClassName: rangeClasses.cellClassName || 'recent-cell-inner'
       })
-    }))
+    })
   },
 
   buildCalendarDays(startDate, endDate) {
-    return buildStudyCalendarDays(this.viewDate, this.studyRecords, startDate, endDate).map(day => Object.assign({}, day, {
-      className: buildClass('calendar-day', {
-        'calendar-day-blank': !day.inMonth,
-        'calendar-day-has': day.inMonth && day.hasRecord,
-        'calendar-day-range': day.inMonth && day.inRange,
-        'calendar-day-edge': day.inMonth && (day.isRangeStart || day.isRangeEnd)
+    return buildStudyCalendarDays(this.viewDate, this.studyRecords, startDate, endDate).map(day => {
+      const rangeClasses = buildHotelRangeClasses('calendar', day)
+      const isEdge = day.isRangeStart || day.isRangeEnd || day.isRangeSingle
+      const isToday = day.date === this.todayDate
+      const topLabel = day.inMonth ? buildRangeLabel(day, this.todayDate) : ''
+      let className = `${rangeClasses.className}${!day.inMonth ? ' calendar-day-blank' : ''}${day.inMonth && day.hasRecord && !day.inRange ? ' calendar-day-has' : ''}`
+      if (day.inMonth && isToday && !isEdge) {
+        className += ' calendar-day-today'
+      }
+      return Object.assign({}, day, rangeClasses, {
+        className,
+        cellClassName: rangeClasses.cellClassName || 'calendar-cell-inner',
+        topLabel,
+        labelClass: isEdge ? 'calendar-day-label-edge' : (isToday ? 'calendar-day-label-today' : '')
       })
-    }))
+    })
   },
 
-  buildTrendRow(label, value, unit, maxValue, fillClass) {
+  buildTrendRow(label, value, unit, maxValue, fillClass, icon) {
     const percent = Math.max(6, Math.round((value / maxValue) * 100))
     return {
       label,
+      icon,
       valueText: `${value}${unit}`,
       fillClass,
       fillStyle: `width: ${percent}%;`
@@ -198,6 +318,12 @@ Page({
         monthLabel: `${date.getMonth() + 1}月`,
         dayLabel: date.getDate(),
         expanded,
+        detailItems: DETAIL_ITEMS.map(item => ({
+          key: item.key,
+          label: item.label,
+          icon: item.icon,
+          valueText: `${record[item.field]}${item.unit}`
+        })),
         className: buildClass('record-day', {
           'record-day-open': expanded
         })

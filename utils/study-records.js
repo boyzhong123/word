@@ -122,6 +122,34 @@ function summarizeStudyRecords(records) {
   return summary
 }
 
+function buildRangeDayMeta(date, startDate, endDate) {
+  const range = normalizeRange(startDate, endDate)
+  const inRange = compareDate(date, range.startDate) >= 0 && compareDate(date, range.endDate) <= 0
+  if (!inRange) {
+    return {
+      inRange: false,
+      isRangeStart: false,
+      isRangeEnd: false,
+      isRangeSingle: false,
+      isWeekStart: false,
+      isWeekEnd: false
+    }
+  }
+
+  const isRangeStart = date === range.startDate
+  const isRangeEnd = date === range.endDate
+  const dayOfWeek = parseDate(date).getDay()
+
+  return {
+    inRange: true,
+    isRangeStart,
+    isRangeEnd,
+    isRangeSingle: isRangeStart && isRangeEnd,
+    isWeekStart: dayOfWeek === 0,
+    isWeekEnd: dayOfWeek === 6
+  }
+}
+
 function buildRecentDays(today, records, startDate, endDate) {
   const byDate = recordMap(records)
   const first = addDays(today, -6)
@@ -129,16 +157,13 @@ function buildRecentDays(today, records, startDate, endDate) {
     const dateObj = addDays(first, index)
     const date = formatDate(dateObj)
     const record = byDate[date]
-    return {
+    return Object.assign({
       date,
       day: dateObj.getDate(),
       weekday: ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()],
       minutes: record ? record.minutes : 0,
-      hasRecord: Boolean(record),
-      inRange: compareDate(date, startDate) >= 0 && compareDate(date, endDate) <= 0,
-      isRangeStart: date === startDate,
-      isRangeEnd: date === endDate
-    }
+      hasRecord: Boolean(record)
+    }, buildRangeDayMeta(date, startDate, endDate))
   })
 }
 
@@ -154,16 +179,13 @@ function buildStudyCalendarDays(viewDate, records, startDate, endDate) {
     const dateObj = addDays(gridStart, index)
     const date = formatDate(dateObj)
     const record = byDate[date]
-    return {
+    return Object.assign({
       date,
       day: dateObj.getDate(),
       inMonth: dateObj.getMonth() === viewDate.getMonth(),
       minutes: record ? record.minutes : 0,
-      hasRecord: Boolean(record),
-      inRange: compareDate(date, startDate) >= 0 && compareDate(date, endDate) <= 0,
-      isRangeStart: date === startDate,
-      isRangeEnd: date === endDate
-    }
+      hasRecord: Boolean(record)
+    }, buildRangeDayMeta(date, startDate, endDate))
   })
 }
 
@@ -180,6 +202,7 @@ function formatRangeLabel(startDate, endDate) {
 module.exports = {
   addDays,
   buildDemoStudyRecords,
+  buildRangeDayMeta,
   buildRecentDays,
   buildStudyCalendarDays,
   compareDate,

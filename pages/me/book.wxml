@@ -7,64 +7,50 @@
     <view wx:if="{{loading}}" class="state-card">正在读取教材...</view>
     <view wx:elif="{{empty}}" class="state-card">
       <view class="state-title">还没有教材</view>
-      <view class="state-copy">登录后会在这里同步你的学习内容。</view>
+      <view class="state-copy">购买后的教材会在这里显示。</view>
     </view>
 
     <block wx:else>
-      <view class="hero-card">
-        <view class="hero-kicker">当前教材</view>
-        <view class="book-main">
-          <image class="book-cover" src="{{currentBook.bookCover}}" mode="aspectFill" />
-          <view class="book-info">
-            <view class="book-name">{{currentBook.name}}</view>
-            <view class="book-meta">{{currentBook.press}} · {{currentBook.totalWords}} 词</view>
-            <view class="book-desc">{{currentBook.intro}}</view>
+      <view class="library-summary">
+        <view class="summary-copy">
+          <view class="summary-kicker">教材库</view>
+          <view class="summary-title">我的教材</view>
+          <view class="summary-label">
+            <text class="book-count">{{summary.bookCount}}</text>
+            <text> 本已购买教材</text>
           </view>
         </view>
+        <view class="summary-action" bindtap="continueStudy">继续学习</view>
       </view>
 
-      <view class="section-card">
-        <view class="section-head">
-          <view class="section-title">学习进度</view>
-          <view class="section-tag">{{currentBook.percent}}%</view>
-        </view>
-        <view class="progress-bar">
-          <view class="progress-fill" style="{{currentBook.progressStyle}}"></view>
-        </view>
-        <view class="stat-grid">
-          <view class="stat-item">
-            <view class="stat-num">{{currentBook.learnedWords}}</view>
-            <view class="stat-label">已学单词</view>
-          </view>
-          <view class="stat-item">
-            <view class="stat-num">{{currentBook.totalWords}}</view>
-            <view class="stat-label">教材词量</view>
-          </view>
-          <view class="stat-item">
-            <view class="stat-num">{{summary.bookCount}}</view>
-            <view class="stat-label">我的教材</view>
-          </view>
-        </view>
-        <view class="action-row">
-          <view class="ghost-btn" bindtap="openCatalogue">查看目录</view>
-          <view class="primary-btn" bindtap="startStudy">开始学习</view>
-        </view>
+      <view class="section-head-out">
+        <view class="section-title-out">已购买</view>
+        <view class="section-note">共 {{summary.bookCount}} 本</view>
       </view>
-
-      <view class="section-title-out">切换教材</view>
       <view class="book-list">
-        <view wx:for="{{books}}" wx:key="resBookId" class="book-row">
+        <view wx:for="{{books}}" wx:key="resBookId" class="book-row-card {{item.current ? 'book-row-current' : ''}}">
           <image class="row-cover" src="{{item.bookCover}}" mode="aspectFill" />
           <view class="row-copy">
             <view class="row-title">{{item.name}}</view>
-            <view class="row-desc">{{item.totalWords}} 词 · 已学 {{item.learnedWords}}</view>
+            <view class="row-meta">{{item.press}} · {{item.totalWords}} 词</view>
+            <view class="row-desc">已学 {{item.learnedWords}} · 进度 {{item.percent}}%</view>
+            <view class="row-progress">
+              <view class="row-progress-fill" style="{{item.progressStyle}}"></view>
+            </view>
           </view>
-          <view
-            class="row-action {{item.current ? 'row-action-current' : ''}}"
-            data-res-book-id="{{item.resBookId}}"
-            bindtap="switchBook"
-          >
-            {{item.current ? '当前' : (item.locked ? '解锁' : '切换')}}
+          <view class="row-side">
+            <view
+              class="row-action {{item.current ? 'row-action-current' : ''}}"
+              data-res-book-id="{{item.resBookId}}"
+              bindtap="switchBook"
+            >
+              {{item.current ? '当前' : '切换'}}
+            </view>
+            <view
+              class="row-link"
+              data-res-book-id="{{item.resBookId}}"
+              bindtap="openCatalogue"
+            >目录</view>
           </view>
         </view>
       </view>
