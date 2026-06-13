@@ -7,7 +7,7 @@
 
   <scroll-view scroll-y class="content" style="height: {{scrollHeight}}px;" enhanced show-scrollbar="{{false}}">
     <view class="hero">
-      <image class="hero-image" src="/images/home/ad/product-hero-clean.png" mode="aspectFill" />
+      <image class="hero-image" src="{{imageBaseUrl}}/images/home/ad/product-hero-clean.png" mode="aspectFill" />
       <view class="hero-fade"></view>
     </view>
 

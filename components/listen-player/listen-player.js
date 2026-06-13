@@ -4,6 +4,9 @@
 // 覆盖层的开合就是纯 CSS 上滑/下滑。播放仍委托全局单例 player。
 const { login } = require('../../utils/login')
 const { player } = require('../../utils/player')
+const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
+const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
 
 // 与 wxss 里 listen-slide-down 动画时长一致
 const ANIM_OUT_MS = 300
@@ -15,6 +18,9 @@ Component({
   },
 
   data: {
+    imageBaseUrl: IMAGE_BASE_URL,
+    listenWordTagImage: LISTEN_WORD_TAG_IMAGE,
+    listenSentenceTagImage: LISTEN_SENTENCE_TAG_IMAGE,
     visible: false,
     pageAnimState: 'listen-page-preenter',
     statusBarHeight: wx.getStorageSync('statusBarHeight') || 0,

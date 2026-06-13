@@ -7,10 +7,8 @@
     <view class="range-hero">
       <view class="range-hero-top">
         <view class="range-hero-copy">
-          <view class="range-main">
-            <view class="range-title">这段时间累计学习</view>
-            <view class="range-minutes">{{summary.minutes}}<text>分钟</text></view>
-          </view>
+          <view class="range-title">这段时间累计学习</view>
+          <view class="range-minutes">{{summary.minutes}}<text>分钟</text></view>
         </view>
         <view class="range-hero-art">
           <image class="range-hero-mascot" src="{{heroMascot}}" mode="aspectFit" />
@@ -44,7 +42,7 @@
           >
             <view wx:if="{{item.showRangeBand}}" class="{{item.bandClassName}}"></view>
             <view class="{{item.cellClassName}}">
-              <view class="recent-week">{{item.weekday}}</view>
+              <view class="recent-week">{{item.topLabel || item.weekday}}</view>
               <view class="recent-date">{{item.day}}</view>
               <view class="recent-minutes">{{item.minutes ? item.minutes + 'm' : ''}}</view>
             </view>
@@ -131,7 +129,7 @@
             </view>
             <view class="record-copy-box">
               <view class="record-title">学习 {{item.minutes}} 分钟</view>
-              <view class="record-sub">新学 {{item.newWords}} 词 · 听力 {{item.audioMinutes}} 分钟</view>
+              <view class="record-sub">新学 {{item.newWords}} 词 · 随身听 {{item.audioMinutes}} 分钟</view>
             </view>
             <view class="record-arrow">›</view>
           </view>

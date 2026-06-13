@@ -30,7 +30,7 @@ Page({
     stageTitle: '完成今日学习!',
     continueLabel: '继续学习',
     showContinue: true,
-    headerImage: '../../images/finish/finish-today-header-1star.png',
+    headerImage: headerImageForScoreRate(0),
     scoreRate: 0
   },
 

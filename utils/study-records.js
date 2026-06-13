@@ -39,7 +39,7 @@ function getDateKeysInRange(startDate, endDate) {
   return keys
 }
 
-function buildRecord(date, minutes, newWords, readWords, readSentences, quizWords, reciteWords, reviewWords, audioMinutes) {
+function buildRecord(date, minutes, newWords, readWords, readSentences, quizWords, reciteWords, reviewWords, audioMinutes, listenAssessCount) {
   return {
     date,
     minutes,
@@ -49,22 +49,23 @@ function buildRecord(date, minutes, newWords, readWords, readSentences, quizWord
     quizWords,
     reciteWords,
     reviewWords,
-    audioMinutes
+    audioMinutes,
+    listenAssessCount
   }
 }
 
 function buildDemoStudyRecords(today) {
   const base = parseDate(today)
   const offsets = [
-    [-10, 31, 18, 22, 5, 18, 9, 2, 6],
-    [-9, 45, 24, 30, 8, 20, 11, 3, 11],
-    [-8, 12, 6, 8, 2, 8, 4, 1, 2],
-    [-7, 38, 18, 22, 6, 20, 12, 3, 9],
-    [-6, 29, 12, 18, 4, 16, 10, 1, 7],
-    [-4, 40, 20, 28, 6, 18, 14, 2, 10],
-    [-3, 36, 16, 24, 5, 16, 10, 2, 8],
-    [-1, 42, 22, 26, 7, 22, 12, 4, 8],
-    [0, 33, 14, 20, 5, 14, 8, 2, 7]
+    [-10, 31, 18, 22, 5, 18, 9, 2, 6, 5],
+    [-9, 45, 24, 30, 8, 20, 11, 3, 11, 9],
+    [-8, 12, 6, 8, 2, 8, 4, 1, 2, 3],
+    [-7, 38, 18, 22, 6, 20, 12, 3, 9, 7],
+    [-6, 29, 12, 18, 4, 16, 10, 1, 7, 6],
+    [-4, 40, 20, 28, 6, 18, 14, 2, 10, 8],
+    [-3, 36, 16, 24, 5, 16, 10, 2, 8, 6],
+    [-1, 42, 22, 26, 7, 22, 12, 4, 8, 7],
+    [0, 33, 14, 20, 5, 14, 8, 2, 7, 5]
   ]
 
   return offsets.map(item => buildRecord(
@@ -76,7 +77,8 @@ function buildDemoStudyRecords(today) {
     item[5],
     item[6],
     item[7],
-    item[8]
+    item[8],
+    item[9]
   ))
 }
 
@@ -104,6 +106,7 @@ function summarizeStudyRecords(records) {
     total.reciteWords += Number(record.reciteWords) || 0
     total.reviewWords += Number(record.reviewWords) || 0
     total.audioMinutes += Number(record.audioMinutes) || 0
+    total.listenAssessCount += Number(record.listenAssessCount) || 0
     return total
   }, {
     studyDays: (records || []).length,
@@ -115,10 +118,12 @@ function summarizeStudyRecords(records) {
     reciteWords: 0,
     reviewWords: 0,
     audioMinutes: 0,
+    listenAssessCount: 0,
     practiceCount: 0
   })
 
   summary.practiceCount = summary.readWords + summary.readSentences + summary.quizWords + summary.reciteWords
+  summary.recitationWords = summary.readWords + summary.reciteWords
   return summary
 }
 

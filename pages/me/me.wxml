@@ -10,7 +10,7 @@
 <view class="me-page">
   <scroll-view class="me-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="profile-header" style="padding-top: {{safeAreaTop}}px;">
-      <image class="profile-header-bg" src="../../images/home/me-profile-header-monster-v2.png" mode="aspectFill" />
+      <image class="profile-header-bg" src="{{imageBaseUrl}}/images/home/me-profile-header-monster-v2.png" mode="aspectFill" />
       <view class="profile-main">
         <view class="avatar-wrap" bindtap="handleLogin">
           <image wx:if="{{userInfo.avatarUrl}}" class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />

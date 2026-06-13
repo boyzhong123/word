@@ -4,6 +4,7 @@
 const POSTER_WIDTH = 600
 const POSTER_HEIGHT = 960
 const APP_NAME = '词句刷刷刷'
+const { imageUrl } = require('../../utils/image-host')
 const POSTER_THEMES = ['monster', 'pk', 'words', 'monsterLight', 'pkLight', 'wordsLight']
 const LIGHT_POSTER_THEMES = ['monsterLight', 'pkLight', 'wordsLight']
 // 占位小程序码（scripts 外手动生成）：上线前替换为 getwxacodeunlimit 生成的官方小程序码
@@ -11,20 +12,20 @@ const POSTER_QR_SRC = '/images/checkin/share-qrcode.png'
 
 const POSTER_BACKGROUNDS = {
   today: {
-    monster: '/images/checkin/share-bg-today-monster.png',
-    pk: '/images/checkin/share-bg-today-pk.png',
-    words: '/images/checkin/share-bg-today-words.png',
-    monsterLight: '/images/checkin/share-bg-today-monster-light.png',
-    pkLight: '/images/checkin/share-bg-today-pk-light.png',
-    wordsLight: '/images/checkin/share-bg-today-words-light.png'
+    monster: imageUrl('/images/checkin/share-bg-today-monster.png'),
+    pk: imageUrl('/images/checkin/share-bg-today-pk.png'),
+    words: imageUrl('/images/checkin/share-bg-today-words.png'),
+    monsterLight: imageUrl('/images/checkin/share-bg-today-monster-light.png'),
+    pkLight: imageUrl('/images/checkin/share-bg-today-pk-light.png'),
+    wordsLight: imageUrl('/images/checkin/share-bg-today-words-light.png')
   },
   streak: {
-    monster: '/images/checkin/share-bg-streak-monster.png',
-    pk: '/images/checkin/share-bg-streak-pk.png',
-    words: '/images/checkin/share-bg-streak-words.png',
-    monsterLight: '/images/checkin/share-bg-streak-monster-light.png',
-    pkLight: '/images/checkin/share-bg-streak-pk-light.png',
-    wordsLight: '/images/checkin/share-bg-streak-words-light.png'
+    monster: imageUrl('/images/checkin/share-bg-streak-monster.png'),
+    pk: imageUrl('/images/checkin/share-bg-streak-pk.png'),
+    words: imageUrl('/images/checkin/share-bg-streak-words.png'),
+    monsterLight: imageUrl('/images/checkin/share-bg-streak-monster-light.png'),
+    pkLight: imageUrl('/images/checkin/share-bg-streak-pk-light.png'),
+    wordsLight: imageUrl('/images/checkin/share-bg-streak-words-light.png')
   }
 }
 

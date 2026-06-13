@@ -15,6 +15,9 @@ const {
 const { computeQuizScoreRate } = require('../../utils/finish-stars')
 // 通常听力播放走全局单例（跨页持续 + 迷你播放器）；buildTracks 复用单例里的实现
 const { player, buildTracks } = require('../../utils/player')
+const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
+const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
 
 const LISTEN_PAGE_ANIM_MS = 320
 // 与 app.json tabBar.list 保持一致
@@ -38,6 +41,9 @@ function postListeningQuizResult(payload) {
 
 Page({
   data: {
+    imageBaseUrl: IMAGE_BASE_URL,
+    listenWordTagImage: LISTEN_WORD_TAG_IMAGE,
+    listenSentenceTagImage: LISTEN_SENTENCE_TAG_IMAGE,
     pageAnimState: 'listen-page-preenter',
     safeAreaBottom: Math.max((wx.getStorageSync('windowHeight') || 0) - ((wx.getStorageSync('safeArea') || {}).bottom || wx.getStorageSync('windowHeight') || 0), 0),
 

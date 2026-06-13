@@ -1,5 +1,6 @@
 const { getUserInfo, getUserBooks } = require('../../utils/api')
 const { login } = require('../../utils/login')
+const { IMAGE_BASE_URL } = require('../../utils/image-host')
 
 function getSafeArea() {
   const systemInfo = wx.getSystemInfoSync()
@@ -33,6 +34,7 @@ function sumLearnedWords(books) {
 
 Page({
   data: {
+    imageBaseUrl: IMAGE_BASE_URL,
     safeAreaTop: 0,
     safeAreaBottom: 0,
     logined: false,

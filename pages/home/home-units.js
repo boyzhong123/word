@@ -1,4 +1,5 @@
 const DISPLAY_BATCH_SIZE = 20
+const { imageUrl } = require('../../utils/image-host')
 // 临时放开顺序解锁，方便联调跟读背诵 / 听力小测；测完改回 false。
 const UNLOCK_ALL_TASKS_FOR_DEV = false
 // 演示：第一关视为已通关（三星 + 报告 + 小怪兽 defeated）；上线前改回 false。
@@ -286,7 +287,7 @@ function getMonsterFrameCount(monsterState) {
 }
 
 function buildMonsterSprite(monsterName, monsterState) {
-  return '/images/home/map/monsters/' + monsterName + '-' + monsterState + '.png'
+  return imageUrl('/images/home/map/monsters/' + monsterName + '-' + monsterState + '.png')
 }
 
 function getMapSectionTheme(sectionIndex) {

@@ -34,17 +34,17 @@ const RECORD_ICONS = {
   trendRecite: '../../images/study-record/icon-trend-recite-jelly.png'
 }
 const SUMMARY_ITEMS = [
-  { key: 'newWords', label: '新学单词', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
-  { key: 'practice', label: '词句练习', unit: '次', field: 'practiceCount', icon: RECORD_ICONS.practice },
-  { key: 'listen', label: '听力音频', unit: '分钟', field: 'audioMinutes', icon: RECORD_ICONS.listen }
+  { key: 'newWords', label: '单词新学', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
+  { key: 'quizWords', label: '关卡小测', unit: '词', field: 'quizWords', icon: RECORD_ICONS.quiz },
+  { key: 'listen', label: '随身听', unit: '分钟', field: 'audioMinutes', icon: RECORD_ICONS.listen }
 ]
 const DETAIL_ITEMS = [
-  { key: 'newWords', label: '新学单词', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
-  { key: 'readWords', label: '跟读单词', unit: '词', field: 'readWords', icon: RECORD_ICONS.readWord },
-  { key: 'readSentences', label: '跟读句子', unit: '句', field: 'readSentences', icon: RECORD_ICONS.readSentence },
-  { key: 'quizWords', label: '小测单词', unit: '词', field: 'quizWords', icon: RECORD_ICONS.quiz },
-  { key: 'reciteWords', label: '背诵单词', unit: '词', field: 'reciteWords', icon: RECORD_ICONS.recite },
-  { key: 'reviewWords', label: '待复习', unit: '词', field: 'reviewWords', icon: RECORD_ICONS.review }
+  { key: 'newWords', label: '单词新学', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
+  { key: 'recitationWords', label: '跟读背诵', unit: '词', field: 'recitationWords', icon: RECORD_ICONS.recite },
+  { key: 'quizWords', label: '关卡小测', unit: '词', field: 'quizWords', icon: RECORD_ICONS.quiz },
+  { key: 'reviewWords', label: '错词复习', unit: '词', field: 'reviewWords', icon: RECORD_ICONS.review },
+  { key: 'audioMinutes', label: '随身听', unit: '分钟', field: 'audioMinutes', icon: RECORD_ICONS.listen },
+  { key: 'listenAssess', label: '随身听测评', unit: '次', field: 'listenAssessCount', icon: RECORD_ICONS.practice }
 ]
 
 function buildClass(base, flags) {
@@ -216,9 +216,9 @@ Page({
     const rangeDays = getDateKeysInRange(startDate, endDate).length
     const maxTrendValue = Math.max(
       summary.newWords,
-      summary.readWords + summary.readSentences,
+      summary.recitationWords,
       summary.quizWords,
-      summary.reciteWords,
+      summary.reviewWords,
       1
     )
 
@@ -238,10 +238,10 @@ Page({
         valueText: `${summary[item.field]}${item.unit}`
       })),
       trendRows: [
-        this.buildTrendRow('新学', summary.newWords, '词', maxTrendValue, 'trend-fill-new', RECORD_ICONS.trendNew),
-        this.buildTrendRow('跟读', summary.readWords + summary.readSentences, '次', maxTrendValue, 'trend-fill-read', RECORD_ICONS.trendRead),
-        this.buildTrendRow('小测', summary.quizWords, '词', maxTrendValue, 'trend-fill-quiz', RECORD_ICONS.trendQuiz),
-        this.buildTrendRow('背诵', summary.reciteWords, '词', maxTrendValue, 'trend-fill-recite', RECORD_ICONS.trendRecite)
+        this.buildTrendRow('单词新学', summary.newWords, '词', maxTrendValue, 'trend-fill-new', RECORD_ICONS.trendNew),
+        this.buildTrendRow('跟读背诵', summary.recitationWords, '词', maxTrendValue, 'trend-fill-read', RECORD_ICONS.trendRead),
+        this.buildTrendRow('关卡小测', summary.quizWords, '词', maxTrendValue, 'trend-fill-quiz', RECORD_ICONS.trendQuiz),
+        this.buildTrendRow('错词复习', summary.reviewWords, '词', maxTrendValue, 'trend-fill-recite', RECORD_ICONS.trendRecite)
       ],
       rangeRecords: this.buildRangeRecords(rangeRecords),
       hasRangeRecords: rangeRecords.length > 0
@@ -275,7 +275,8 @@ Page({
       }
       return Object.assign({}, day, rangeClasses, {
         className,
-        cellClassName: rangeClasses.cellClassName || 'recent-cell-inner'
+        cellClassName: rangeClasses.cellClassName || 'recent-cell-inner',
+        topLabel: buildRangeLabel(day, this.todayDate)
       })
     })
   },
@@ -314,15 +315,18 @@ Page({
     return records.slice().reverse().map(record => {
       const date = new Date(record.date.replace(/-/g, '/'))
       const expanded = this.expandedRecordDates[record.date] !== false
+      const recitationWords = (Number(record.readWords) || 0) + (Number(record.reciteWords) || 0)
+      const fields = Object.assign({}, record, { recitationWords })
       return Object.assign({}, record, {
         monthLabel: `${date.getMonth() + 1}月`,
         dayLabel: date.getDate(),
         expanded,
+        recitationWords,
         detailItems: DETAIL_ITEMS.map(item => ({
           key: item.key,
           label: item.label,
           icon: item.icon,
-          valueText: `${record[item.field]}${item.unit}`
+          valueText: `${fields[item.field]}${item.unit}`
         })),
         className: buildClass('record-day', {
           'record-day-open': expanded

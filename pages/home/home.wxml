@@ -12,7 +12,7 @@
     bindscrolltolower="loadMoreUnits"
   >
     <view class="hero-section" style="{{heroSectionStyle}}">
-      <image class="hero-image" src="../../images/home/hero-campus-jelly-v5.png" mode="widthFix" />
+      <image class="hero-image" src="{{imageBaseUrl}}/images/home/hero-campus-jelly-v5.png" mode="widthFix" />
 
       <view class="hero-copy" style="{{heroCopyStyle}}">
         <view class="hero-title">
@@ -207,7 +207,7 @@
               <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
                 <frame-animation
                   wx:if="{{unit.cardMonsterState === 'fighting'}}"
-                  url="/images/home/student-monster-pk-sprite.png"
+                  url="{{imageBaseUrl}}/images/home/student-monster-pk-sprite.png"
                   count="7"
                   width="148"
                   height="84"
@@ -317,7 +317,7 @@
             <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
               <frame-animation
                 wx:if="{{unit.cardMonsterState === 'fighting'}}"
-                url="/images/home/student-monster-pk-sprite.png"
+                url="{{imageBaseUrl}}/images/home/student-monster-pk-sprite.png"
                 count="7"
                 width="148"
                 height="84"
@@ -460,7 +460,7 @@
     class="today-locate-fab"
     bindtap="scrollToTodayTasks"
   >
-    <image class="today-locate-fab-image" src="/images/home/fab-today-locate-jelly.png" mode="aspectFit" />
+    <image class="today-locate-fab-image" src="{{imageBaseUrl}}/images/home/fab-today-locate-jelly.png" mode="aspectFit" />
   </view>
 
   <!-- 切换教材弹窗：点击「切换教材」后弹出，选择某本教材才真正切换 -->

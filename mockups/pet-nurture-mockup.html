@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>金币宠物养成原型</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #25313d;
+      --muted: #6a7784;
+      --line: #dce6ed;
+      --paper: #fffaf0;
+      --mint: #d8f4e9;
+      --blue: #d9ebff;
+      --coral: #ffdfd2;
+      --sun: #ffd36b;
+      --green: #43b883;
+      --orange: #ef8c3f;
+      --red: #e45c5c;
+      --shadow: 0 18px 45px rgba(45, 65, 82, .16);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(255, 211, 107, .32), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(67, 184, 131, .22), transparent 26%),
+        linear-gradient(135deg, #f6fbff 0%, #fff8eb 52%, #f1fff8 100%);
+      color: var(--ink);
+    }
+
+    .stage {
+      width: min(100vw, 1180px);
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .phone {
+      width: 390px;
+      height: 844px;
+      margin: 0 auto;
+      border: 10px solid #1f2832;
+      border-radius: 38px;
+      background: #f7fbff;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .phone::before {
+      content: "";
+      width: 118px;
+      height: 24px;
+      border-radius: 0 0 16px 16px;
+      background: #1f2832;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+    }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, #ecf8ff 0%, #fffaf2 42%, #fff 100%);
+    }
+
+    .top {
+      padding: 42px 18px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .title {
+      min-width: 0;
+    }
+
+    .title small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .coin {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 92px;
+      justify-content: center;
+      height: 38px;
+      border-radius: 19px;
+      background: #fff;
+      border: 1px solid rgba(239, 140, 63, .26);
+      box-shadow: 0 8px 18px rgba(239, 140, 63, .14);
+      font-weight: 800;
+      color: #9d5b12;
+    }
+
+    .coin-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #ffe8a6, #f3a928);
+      border: 2px solid #fff2c9;
+      font-size: 13px;
+      color: #8a5100;
+    }
+
+    .hero {
+      margin: 0 16px;
+      border-radius: 26px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .68), rgba(255, 255, 255, .18)),
+        linear-gradient(135deg, #aeead5 0%, #d9ecff 58%, #ffe6c8 100%);
+      min-height: 302px;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, .85);
+      box-shadow: 0 14px 28px rgba(61, 114, 132, .15);
+      flex: 0 0 auto;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 86px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .78));
+    }
+
+    .hill {
+      position: absolute;
+      left: -12px;
+      right: -12px;
+      bottom: -42px;
+      height: 130px;
+      border-radius: 50% 50% 0 0;
+      background: #bce9b8;
+      border-top: 10px solid rgba(255, 255, 255, .42);
+    }
+
+    .pet {
+      position: absolute;
+      width: 176px;
+      height: 176px;
+      left: 50%;
+      bottom: 58px;
+      transform: translateX(-50%);
+      display: grid;
+      place-items: center;
+    }
+
+    .pet img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 18px rgba(31, 40, 50, .18));
+      transition: transform .24s ease, opacity .24s ease;
+    }
+
+    .pet.away img {
+      opacity: .28;
+      transform: translateY(16px) scale(.72);
+      filter: grayscale(.3) drop-shadow(0 10px 16px rgba(31, 40, 50, .1));
+    }
+
+    .bubble {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      right: 18px;
+      min-height: 56px;
+      border-radius: 18px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: 0 10px 18px rgba(68, 92, 108, .12);
+      font-size: 14px;
+      line-height: 1.38;
+      font-weight: 700;
+    }
+
+    .tag-row {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 14px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .tag {
+      flex: 1;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .82);
+      padding: 9px 8px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .tag strong {
+      display: block;
+      color: var(--ink);
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    .content {
+      padding: 14px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .switcher {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      padding: 5px;
+      border-radius: 18px;
+      background: #e9f1f6;
+    }
+
+    .switcher button,
+    .action button,
+    .restore button,
+    .shop button {
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .switcher button {
+      height: 38px;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .switcher button.active {
+      background: #fff;
+      color: #1f6f55;
+      box-shadow: 0 6px 14px rgba(55, 93, 112, .12);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .stat {
+      padding: 11px 12px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .stat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 99px;
+      background: #edf2f5;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: 50%;
+      border-radius: 99px;
+      background: var(--green);
+      transition: width .24s ease, background .24s ease;
+    }
+
+    .action {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .action button {
+      min-height: 70px;
+      border-radius: 17px;
+      background: #fff;
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-weight: 800;
+      color: var(--ink);
+      box-shadow: 0 8px 18px rgba(46, 72, 90, .06);
+    }
+
+    .action .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: var(--mint);
+      color: #116c50;
+      font-size: 16px;
+    }
+
+    .action small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .restore {
+      display: none;
+      padding: 12px;
+      border-radius: 18px;
+      background: #fff4ef;
+      border: 1px solid #ffd6c5;
+    }
+
+    .restore.visible {
+      display: block;
+    }
+
+    .restore h2 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .restore p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .restore-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .restore button {
+      height: 38px;
+      border-radius: 13px;
+      font-weight: 900;
+      background: #fff;
+      color: #9b5620;
+      border: 1px solid #ffd0a9;
+    }
+
+    .restore button.primary {
+      background: #ffb15a;
+      color: #fff;
+      border-color: #ffb15a;
+    }
+
+    .shop {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .shop-card {
+      min-height: 72px;
+      padding: 10px;
+      border-radius: 17px;
+      background: #fff;
+      border: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .shop-card img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .shop-card h3 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.1;
+    }
+
+    .shop-card p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .nav {
+      height: 66px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      border-top: 1px solid #e6eef3;
+      background: rgba(255, 255, 255, .92);
+      flex: 0 0 auto;
+    }
+
+    .nav-item {
+      text-align: center;
+      color: #74808c;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .nav-item img {
+      display: block;
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      margin: 0 auto 3px;
+    }
+
+    .nav-item.active {
+      color: #14966e;
+    }
+
+    .panel {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.68;
+      max-width: 620px;
+    }
+
+    .diagram {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(90px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      max-width: 690px;
+    }
+
+    .node {
+      min-height: 104px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .76);
+      border: 1px solid rgba(196, 212, 222, .92);
+      padding: 13px;
+      box-shadow: 0 12px 26px rgba(52, 74, 88, .08);
+      position: relative;
+    }
+
+    .node:not(:last-child)::after {
+      content: ">";
+      position: absolute;
+      right: -11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7a8a96;
+      font-weight: 900;
+    }
+
+    .node b {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 7px;
+    }
+
+    .node span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(160px, 1fr));
+      gap: 12px;
+      max-width: 690px;
+    }
+
+    .rule {
+      min-height: 124px;
+      border-radius: 20px;
+      padding: 16px;
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid rgba(196, 212, 222, .92);
+    }
+
+    .rule strong {
+      display: block;
+      margin-bottom: 9px;
+      font-size: 16px;
+    }
+
+    .rule ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        display: block;
+      }
+
+      .stage {
+        grid-template-columns: 1fr;
+        padding: 20px 14px 36px;
+      }
+
+      .phone {
+        width: min(390px, 100%);
+      }
+
+      .diagram,
+      .rules {
+        grid-template-columns: 1fr;
+      }
+
+      .node:not(:last-child)::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" aria-label="宠物养成小程序原型">
+      <div class="app">
+        <header class="top">
+          <div class="title">
+            <small>连续学习 7 天</small>
+            <h1>小果冻的家</h1>
+          </div>
+          <div class="coin"><span class="coin-mark">$</span><span id="coins">128</span></div>
+        </header>
+
+        <section class="hero">
+          <div class="hill"></div>
+          <div class="bubble" id="bubble">今天学得不错，我吃饱以后会更有精神。</div>
+          <div class="pet" id="pet">
+            <img id="petImage" src="../images/study-record/hero-mascot-jelly.png" alt="宠物小果冻" />
+          </div>
+          <div class="tag-row">
+            <div class="tag">等级<strong id="level">Lv.6</strong></div>
+            <div class="tag">亲密<strong id="bond">72</strong></div>
+            <div class="tag">状态<strong id="moodName">开心</strong></div>
+          </div>
+        </section>
+
+        <section class="content">
+          <div class="switcher" aria-label="状态切换">
+            <button class="active" data-mode="good">健康</button>
+            <button data-mode="hungry">饥饿</button>
+            <button data-mode="sleepy">困倦</button>
+            <button data-mode="away">离开</button>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-head"><span>饱食</span><span id="hungerText">82</span></div>
+              <div class="bar"><div class="fill" id="hungerBar"></div></div>
+            </div>
+            <div class="stat">
+              <div class="stat-head"><span>精力</span><span id="energyText">68</span></div>
+              <div class="bar"><div class="fill" id="energyBar"></div></div>
+            </div>
+            <div class="stat">
+              <div class="stat-head"><span>清洁</span><span id="cleanText">74</span></div>
+              <div class="bar"><div class="fill" id="cleanBar"></div></div>
+            </div>
+            <div class="stat">
+              <div class="stat-head"><span>心情</span><span id="happyText">80</span></div>
+              <div class="bar"><div class="fill" id="happyBar"></div></div>
+            </div>
+          </div>
+
+          <div class="restore" id="restore">
+            <h2>小果冻去散心了</h2>
+            <p>连续几天没有学习时触发。可以用金币找回，也可以完成今天的学习任务让它自己回家。</p>
+            <div class="restore-row">
+              <button class="primary" id="restoreCoin">花 60 金币找回</button>
+              <button id="restoreStudy">完成学习找回</button>
+            </div>
+          </div>
+
+          <div class="action">
+            <button id="feed"><span class="icon">+</span>喂食<small>-12 金币</small></button>
+            <button id="sleep"><span class="icon">~</span>睡觉<small>恢复精力</small></button>
+            <button id="clean"><span class="icon">*</span>清洁<small>-8 金币</small></button>
+            <button id="play"><span class="icon">^</span>玩耍<small>-10 金币</small></button>
+          </div>
+
+          <div class="shop">
+            <div class="shop-card">
+              <img src="../images/checkin/gift-jelly.png" alt="果冻餐盒" />
+              <div>
+                <h3>能量餐盒</h3>
+                <p>饱食 +35，心情 +6</p>
+              </div>
+            </div>
+            <div class="shop-card">
+              <img src="../images/home/nav-study-jelly.png" alt="学习徽章" />
+              <div>
+                <h3>连学徽章</h3>
+                <p>7 天解锁，不直接售卖</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <nav class="nav" aria-label="底部导航">
+          <div class="nav-item"><img src="../images/home/nav-study-jelly.png" alt="" />学习</div>
+          <div class="nav-item active"><img src="../images/study-record/hero-mascot-jelly.png" alt="" />宠物</div>
+          <div class="nav-item"><img src="../images/home/icon-checkin-calendar-jelly.png" alt="" />打卡</div>
+          <div class="nav-item"><img src="../images/home/me-profile-header-monster-v2.png" alt="" />我的</div>
+        </nav>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>强养成版金币宠物</h2>
+      <p>
+        这个原型把宠物做成学习后的奖励容器：金币主要来自每日学习，金币用于喂食、清洁、玩耍和找回。
+        宠物有饥饿、困倦、清洁、心情、等级和亲密度；长期不学习时不会死亡，而是进入“去散心了”的离开状态。
+      </p>
+
+      <div class="diagram" aria-label="核心循环">
+        <div class="node"><b>学习</b><span>完成今日任务、复习、听力、连续打卡。</span></div>
+        <div class="node"><b>金币</b><span>基础奖励加连续目标奖励，避免登录白送太多。</span></div>
+        <div class="node"><b>照顾</b><span>喂食、睡觉、清洁、玩耍改善状态。</span></div>
+        <div class="node"><b>成长</b><span>等级、亲密度、装扮和稀有道具。</span></div>
+        <div class="node"><b>回流</b><span>状态提醒和找回任务推动明天继续学。</span></div>
+      </div>
+
+      <div class="rules">
+        <div class="rule">
+          <strong>金币来源</strong>
+          <ul>
+            <li>首次完成学习 +20</li>
+            <li>额外练习 +5 到 +10</li>
+            <li>连续 3/7/14 天给奖励</li>
+          </ul>
+        </div>
+        <div class="rule">
+          <strong>状态下降</strong>
+          <ul>
+            <li>每天自然消耗饱食和清洁</li>
+            <li>精力随互动下降，睡觉恢复</li>
+            <li>心情受其他状态共同影响</li>
+          </ul>
+        </div>
+        <div class="rule">
+          <strong>离开机制</strong>
+          <ul>
+            <li>连续 3 天未学且心情很低</li>
+            <li>60 金币找回或完成学习找回</li>
+            <li>第一次离开建议免费找回</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const modes = {
+      good: {
+        coins: 128,
+        level: "Lv.6",
+        bond: 72,
+        moodName: "开心",
+        image: "../images/study-record/hero-mascot-jelly.png",
+        bubble: "今天学得不错，我吃饱以后会更有精神。",
+        stats: { hunger: 82, energy: 68, clean: 74, happy: 80 },
+        away: false
+      },
+      hungry: {
+        coins: 36,
+        level: "Lv.6",
+        bond: 69,
+        moodName: "饿了",
+        image: "../images/home/mascot-alert.png",
+        bubble: "肚子有点空。完成一次复习就可以买能量餐盒啦。",
+        stats: { hunger: 18, energy: 48, clean: 62, happy: 34 },
+        away: false
+      },
+      sleepy: {
+        coins: 92,
+        level: "Lv.6",
+        bond: 71,
+        moodName: "困了",
+        image: "../images/home/mascot-sleep.png",
+        bubble: "我想睡一会儿。睡醒后明天继续陪你背谚语。",
+        stats: { hunger: 58, energy: 16, clean: 66, happy: 42 },
+        away: false
+      },
+      away: {
+        coins: 48,
+        level: "Lv.6",
+        bond: 64,
+        moodName: "散心",
+        image: "../images/home/mascot-alert.png",
+        bubble: "小果冻留下了脚印。完成今天的学习，它就会回家。",
+        stats: { hunger: 8, energy: 20, clean: 14, happy: 10 },
+        away: true
+      }
+    };
+
+    let state = structuredClone(modes.good);
+
+    const el = {
+      coins: document.getElementById("coins"),
+      level: document.getElementById("level"),
+      bond: document.getElementById("bond"),
+      moodName: document.getElementById("moodName"),
+      bubble: document.getElementById("bubble"),
+      pet: document.getElementById("pet"),
+      petImage: document.getElementById("petImage"),
+      restore: document.getElementById("restore")
+    };
+
+    const statKeys = ["hunger", "energy", "clean", "happy"];
+
+    function clamp(value) {
+      return Math.max(0, Math.min(100, value));
+    }
+
+    function barColor(value) {
+      if (value < 25) return "var(--red)";
+      if (value < 50) return "var(--orange)";
+      return "var(--green)";
+    }
+
+    function render() {
+      el.coins.textContent = state.coins;
+      el.level.textContent = state.level;
+      el.bond.textContent = state.bond;
+      el.moodName.textContent = state.moodName;
+      el.bubble.textContent = state.bubble;
+      el.petImage.src = state.image;
+      el.pet.classList.toggle("away", state.away);
+      el.restore.classList.toggle("visible", state.away);
+
+      statKeys.forEach((key) => {
+        const value = clamp(state.stats[key]);
+        const text = document.getElementById(`${key}Text`);
+        const bar = document.getElementById(`${key}Bar`);
+        text.textContent = value;
+        bar.style.width = `${value}%`;
+        bar.style.background = barColor(value);
+      });
+    }
+
+    function setMode(mode) {
+      state = structuredClone(modes[mode]);
+      activateMode(mode);
+      render();
+    }
+
+    function activateMode(mode) {
+      document.querySelectorAll(".switcher button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.mode === mode);
+      });
+    }
+
+    function spend(cost) {
+      if (state.away || state.coins < cost) return false;
+      state.coins -= cost;
+      return true;
+    }
+
+    document.querySelectorAll(".switcher button").forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.mode));
+    });
+
+    document.getElementById("feed").addEventListener("click", () => {
+      if (!spend(12)) return;
+      state.stats.hunger = clamp(state.stats.hunger + 34);
+      state.stats.happy = clamp(state.stats.happy + 6);
+      state.bubble = "好吃！明天学习后还能换更好的餐盒。";
+      state.moodName = "满足";
+      render();
+    });
+
+    document.getElementById("sleep").addEventListener("click", () => {
+      if (state.away) return;
+      state.stats.energy = clamp(state.stats.energy + 46);
+      state.stats.hunger = clamp(state.stats.hunger - 6);
+      state.bubble = "我先睡一小会儿，精力恢复后再玩。";
+      state.moodName = "休息";
+      state.image = "../images/home/mascot-sleep.png";
+      render();
+    });
+
+    document.getElementById("clean").addEventListener("click", () => {
+      if (!spend(8)) return;
+      state.stats.clean = clamp(state.stats.clean + 42);
+      state.stats.happy = clamp(state.stats.happy + 4);
+      state.bubble = "清爽多啦，今天的小窝也亮晶晶。";
+      state.moodName = "清爽";
+      render();
+    });
+
+    document.getElementById("play").addEventListener("click", () => {
+      if (!spend(10)) return;
+      state.stats.happy = clamp(state.stats.happy + 28);
+      state.stats.energy = clamp(state.stats.energy - 10);
+      state.bond = clamp(state.bond + 3);
+      state.bubble = "再完成一次练习，我们就能解锁新玩具。";
+      state.moodName = "兴奋";
+      render();
+    });
+
+    document.getElementById("restoreCoin").addEventListener("click", () => {
+      if (state.coins < 60) {
+        state.bubble = "金币还不够，完成今天学习也能把我找回来。";
+        render();
+        return;
+      }
+      state.coins -= 60;
+      state.away = false;
+      state.image = "../images/study-record/hero-mascot-jelly.png";
+      state.stats = { hunger: 52, energy: 48, clean: 50, happy: 55 };
+      state.moodName = "回家";
+      state.bubble = "我回来啦。先吃点东西，明天继续一起学。";
+      activateMode("good");
+      render();
+    });
+
+    document.getElementById("restoreStudy").addEventListener("click", () => {
+      state.coins += 20;
+      state.away = false;
+      state.image = "../images/study-record/hero-mascot-jelly.png";
+      state.stats = { hunger: 46, energy: 48, clean: 45, happy: 62 };
+      state.moodName = "安心";
+      state.bubble = "看到你完成学习，我就自己回家啦。";
+      activateMode("good");
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,7 +1,9 @@
+const { imageUrl } = require('./image-host')
+
 const HEADER_IMAGES = {
-  1: '../../images/finish/finish-today-header-1star.png',
-  2: '../../images/finish/finish-today-header-2star.png',
-  3: '../../images/finish/finish-today-header-3star.png'
+  1: imageUrl('/images/finish/finish-today-header-1star.png'),
+  2: imageUrl('/images/finish/finish-today-header-2star.png'),
+  3: imageUrl('/images/finish/finish-today-header-3star.png')
 }
 
 function normalizeScoreRate(value) {

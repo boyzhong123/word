@@ -3,6 +3,7 @@ const {
   refreshHomePage
 } = require('../../utils/util')
 const { isDevPurchased } = require('../../utils/dev-books')
+const { IMAGE_BASE_URL } = require('../../utils/image-host')
 
 const systemInfo = wx.getSystemInfoSync()
 const safeArea = wx.getStorageSync('safeArea') || systemInfo.safeArea || {
@@ -168,6 +169,7 @@ function applyBookDetail(page, book, unlocked) {
 
 Page({
   data: {
+    imageBaseUrl: IMAGE_BASE_URL,
     name: '',
     bookCover: '',
     total: 0,

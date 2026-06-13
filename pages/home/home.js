@@ -23,6 +23,7 @@ const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
 const { computeScrollTopToCenterTarget } = require('./home-scroll')
 const { withTestBook, isDevTestBook } = require('../../utils/dev-books')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
+const { IMAGE_BASE_URL } = require('../../utils/image-host')
 
 function isTruthyFlag(value) {
   return value === true || value === 1 || value === '1'
@@ -326,6 +327,7 @@ const FALLBACK_LIST_UNITS = markTodayTasks(
 
 Page({
   data: {
+    imageBaseUrl: IMAGE_BASE_URL,
     loading: true,
     nickName: '',
     canUseUserProfile: false,

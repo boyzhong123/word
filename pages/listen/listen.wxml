@@ -196,7 +196,7 @@
           <view class="lyric-head">
             <image
               class="lyric-tag"
-              src="{{item.type == 'word' ? '../../images/listen/tag-word-jelly.png' : '../../images/listen/tag-sentence-jelly.png'}}"
+              src="{{item.type == 'word' ? listenWordTagImage : listenSentenceTagImage}}"
               mode="aspectFit"
             />
             <view class="lyric-en">{{item.content}}</view>

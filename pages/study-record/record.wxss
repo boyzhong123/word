@@ -42,13 +42,16 @@ page {
 
 .range-hero-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 18rpx;
 }
 
 .range-hero-copy {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .range-hero-art {
@@ -85,9 +88,10 @@ page {
 
 .range-title {
   color: #ffffff;
-  font-size: 40rpx;
-  line-height: 52rpx;
+  font-size: 32rpx;
+  line-height: 42rpx;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .range-minutes {
@@ -233,6 +237,11 @@ page {
   color: #9aa3af;
   font-size: 18rpx;
   line-height: 22rpx;
+}
+
+.recent-day-today .recent-week {
+  color: #0f9b4e;
+  font-weight: 800;
 }
 
 .recent-date {
@@ -525,8 +534,8 @@ page {
 
 .trend-row {
   display: grid;
-  grid-template-columns: 56rpx 72rpx 1fr 82rpx;
-  gap: 12rpx;
+  grid-template-columns: 48rpx 116rpx 1fr 76rpx;
+  gap: 10rpx;
   align-items: center;
   padding: 12rpx 14rpx;
   border-radius: 24rpx;
@@ -547,6 +556,7 @@ page {
 }
 
 .trend-label {
+  white-space: nowrap;
   font-weight: 800;
   color: #1a2430;
 }
@@ -583,11 +593,12 @@ page {
 }
 
 .record-day {
-  margin-top: 18rpx;
+  margin-top: 16rpx;
   overflow: hidden;
-  border-radius: 30rpx;
-  background: #f7faf9;
-  border: 2rpx solid #edf2ef;
+  border-radius: 28rpx;
+  background: #ffffff;
+  border: 1rpx solid #e7efe9;
+  box-shadow: 0 6rpx 16rpx rgba(16, 54, 31, 0.04);
 }
 
 .record-day:first-of-type {
@@ -629,10 +640,6 @@ page {
 .record-copy-box {
   flex: 1;
   min-width: 0;
-  padding: 16rpx 18rpx;
-  border-radius: 24rpx;
-  border: 2rpx solid #e6f0ea;
-  background: #ffffff;
 }
 
 .record-title {
@@ -657,9 +664,9 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9aa3af;
-  background: #ffffff;
-  border: 2rpx solid #edf2ef;
+  color: #7a8a82;
+  background: #f3f7f5;
+  border: 1rpx solid #e7efe9;
   font-size: 34rpx;
   line-height: 34rpx;
   transition: transform 0.16s ease;
@@ -667,20 +674,26 @@ page {
 
 .record-day-open .record-arrow {
   transform: rotate(90deg);
+  color: #0f7a42;
+  background: #e9f7ef;
+  border-color: #cdeed9;
 }
 
 .record-detail {
-  padding: 0 20rpx 20rpx;
+  margin: 0 20rpx;
+  padding: 18rpx 0 22rpx;
+  border-top: 1rpx solid #eef3f0;
 }
 
 .detail-grid {
+  grid-template-columns: repeat(2, 1fr);
   gap: 12rpx;
 }
 
 .detail-item {
-  min-height: 132rpx;
-  padding: 14rpx 12rpx 16rpx;
-  background: #ffffff;
+  min-height: 120rpx;
+  padding: 16rpx 14rpx;
+  background: #f5f9f7;
 }
 
 .detail-value {
