@@ -14,7 +14,7 @@
     <view class="book-card">
       <view class="book-main">
         <view class="book-cover-frame">
-          <image class="book-cover" src="{{bookCover}}" mode="aspectFill" />
+          <image class="book-cover" src="{{bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
         </view>
         <view class="book-meta">
           <view class="book-pills">
@@ -142,7 +142,7 @@
       <view class="sku-handle"></view>
 
       <view class="sku-book">
-        <image class="sku-cover" src="{{bookCover}}" mode="aspectFill" />
+        <image class="sku-cover" src="{{bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
         <view class="sku-book-meta">
           <text class="sku-book-name">{{name}}</text>
           <text class="sku-book-stats">{{wordCountText}} 词 · {{proverbCountText}} 条句子 · {{totalText}} 个单元</text>

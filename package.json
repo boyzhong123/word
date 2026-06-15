@@ -1,6 +1,15 @@
 {
   "name": "word",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": true,
-  "description": "谚语词典微信小程序"
+  "description": "谚语词典微信小程序",
+  "scripts": {
+    "check:images": "node scripts/check-image-assets.mjs",
+    "sync:large-images": "node scripts/sync-large-images.mjs",
+    "upload:images": "node scripts/upload-image-assets.mjs"
+  },
+  "devDependencies": {
+    "cos-nodejs-sdk-v5": "^2.15.4",
+    "mime-types": "^3.0.2"
+  }
 }

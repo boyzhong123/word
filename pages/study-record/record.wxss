@@ -1,13 +1,13 @@
 page {
   height: 100%;
   background: #fffdf8;
-  color: #1a2430;
+  color: #111318;
 }
 
 .study-record-page {
   height: 100%;
   overflow: hidden;
-  background: linear-gradient(180deg, #e8fbef 0%, #f4fbf6 320rpx, #fbfdfb 100%);
+  background: linear-gradient(180deg, #fffdf8 0%, #f8fbf8 320rpx, #fffdf8 100%);
   font-family: PingFang SC, PingFangSC-Regular, sans-serif;
 }
 
@@ -20,7 +20,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1a2430;
+  color: #111318;
   font-size: 32rpx;
   font-weight: 800;
   pointer-events: none;
@@ -35,9 +35,9 @@ page {
 .range-hero {
   padding: 32rpx;
   border-radius: 36rpx;
-  background: linear-gradient(150deg, #16361f 0%, #0c2417 100%);
+  background: linear-gradient(150deg, #1f344d 0%, #111318 100%);
   color: #ffffff;
-  box-shadow: 0 18rpx 36rpx rgba(12, 36, 23, 0.22);
+  box-shadow: 0 18rpx 36rpx rgba(17, 19, 24, 0.18);
 }
 
 .range-hero-top {
@@ -60,8 +60,8 @@ page {
   height: 136rpx;
   padding: 8rpx 10rpx 10rpx;
   border-radius: 32rpx;
-  border: 2rpx solid rgba(120, 240, 170, 0.22);
-  background: rgba(120, 240, 170, 0.1);
+  border: 2rpx solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.09);
   box-sizing: border-box;
   overflow: visible;
 }
@@ -102,7 +102,7 @@ page {
 }
 
 .range-minutes {
-  color: #7af0aa;
+  color: #4dd9a0;
 }
 
 .range-minutes text {
@@ -110,6 +110,39 @@ page {
   color: rgba(255, 255, 255, 0.7);
   font-size: 24rpx;
   font-weight: 700;
+}
+
+.range-period {
+  align-self: flex-start;
+  margin-top: 10rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 18rpx;
+  background: rgba(77, 217, 160, 0.16);
+  color: #4dd9a0;
+  font-size: 22rpx;
+  line-height: 30rpx;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@keyframes recordRefreshA {
+  0% { opacity: 0.4; transform: scale(0.98); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes recordRefreshB {
+  0% { opacity: 0.4; transform: scale(0.98); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.is-refreshed-a {
+  animation: recordRefreshA 0.45s ease;
+}
+
+.is-refreshed-b {
+  animation: recordRefreshB 0.45s ease;
 }
 
 .quick-row {
@@ -126,7 +159,7 @@ page {
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0.76);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   font-size: 22rpx;
   font-weight: 800;
   line-height: 52rpx;
@@ -139,17 +172,17 @@ page {
 }
 
 .quick-button-active {
-  color: #0c2417;
-  background: #7af0aa;
+  color: #111318;
+  background: #ffffff;
 }
 
 .panel {
   margin-top: 20rpx;
   padding: 24rpx;
-  border: 1rpx solid #e6efe9;
+  border: 1rpx solid #eef0f3;
   border-radius: 32rpx;
   background: #ffffff;
-  box-shadow: 0 8rpx 20rpx rgba(16, 54, 31, 0.05);
+  box-shadow: 0 8rpx 20rpx rgba(17, 19, 24, 0.05);
 }
 
 .panel-head {
@@ -162,7 +195,7 @@ page {
 .panel-title {
   flex: 1;
   min-width: 0;
-  color: #1a2430;
+  color: #111318;
   font-size: 28rpx;
   line-height: 36rpx;
   font-weight: 900;
@@ -179,9 +212,9 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0f7a42;
+  color: #168f3a;
   background: #f1fbf3;
-  border: 1rpx solid rgba(15, 122, 66, 0.1);
+  border: 1rpx solid rgba(22, 143, 58, 0.12);
   font-size: 22rpx;
   line-height: 44rpx;
   font-weight: 900;
@@ -199,8 +232,8 @@ page {
   display: block;
   padding: 8rpx 6rpx;
   border-radius: 28rpx;
-  border: 2rpx solid #e6f4ec;
-  background: #f8fcf9;
+  border: 2rpx solid #edf2ef;
+  background: #fbfcfb;
 }
 
 .recent-strip {
@@ -211,8 +244,11 @@ page {
 
 .recent-day {
   position: relative;
-  min-height: 96rpx;
+  min-height: 104rpx;
   padding: 4rpx 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   box-sizing: border-box;
 }
 
@@ -227,20 +263,25 @@ page {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #778293;
-  background: #f3f6f8;
+  color: #5c6b7a;
+  background: transparent;
   font-weight: 800;
   box-sizing: border-box;
 }
 
 .recent-week {
+  position: absolute;
+  top: 8rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
   color: #9aa3af;
   font-size: 18rpx;
   line-height: 22rpx;
 }
 
 .recent-day-today .recent-week {
-  color: #0f9b4e;
+  color: #ff8200;
   font-weight: 800;
 }
 
@@ -251,50 +292,61 @@ page {
 }
 
 .recent-minutes {
-  min-height: 16rpx;
-  margin-top: 2rpx;
-  color: #0f9b4e;
+  position: absolute;
+  bottom: 8rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #168f3a;
   font-size: 16rpx;
   line-height: 16rpx;
 }
 
 .recent-day-empty .recent-cell-inner {
-  color: #a7afbc;
-  background: #f3f6f8;
+  color: #b3bcc8;
+  background: transparent;
 }
 
-.recent-cell-edge,
-.calendar-cell-edge {
+.recent-cell-studied,
+.calendar-cell-studied {
   min-height: 88rpx;
-  padding: 4rpx 0;
-  border-radius: 22rpx;
+  margin: 0 5rpx;
+  border-radius: 20rpx;
   color: #ffffff;
-  background: #0f9b4e;
-  box-shadow: 0 8rpx 16rpx rgba(15, 155, 78, 0.26);
+  background: linear-gradient(150deg, #263f45 0%, #111318 100%);
+  border: 2rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8rpx 16rpx rgba(17, 19, 24, 0.18);
 }
 
-.recent-cell-edge .recent-date,
-.calendar-cell-edge .calendar-day-number {
-  margin-top: 2rpx;
+.recent-cell-studied .recent-date,
+.calendar-cell-studied .calendar-day-number {
   color: #ffffff;
-  font-size: 30rpx;
-  line-height: 34rpx;
+  font-size: 28rpx;
+  line-height: 32rpx;
 }
 
-.recent-cell-edge .recent-week,
-.calendar-cell-edge .recent-week {
-  color: rgba(255, 255, 255, 0.82);
+.recent-cell-studied .recent-week,
+.calendar-cell-studied .recent-week {
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.recent-cell-edge .recent-minutes,
-.calendar-cell-edge .calendar-day-minutes {
-  color: rgba(255, 255, 255, 0.92);
+.recent-week-label {
+  color: #168f3a;
+}
+
+.recent-cell-studied .recent-week-label {
+  color: #4dd9a0;
+}
+
+.recent-cell-studied .recent-minutes,
+.calendar-cell-studied .calendar-day-minutes {
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .recent-cell-in-range,
 .calendar-cell-in-range {
   background: transparent;
-  color: #0f7a42;
+  color: #168f3a;
 }
 
 .recent-range-band,
@@ -302,8 +354,8 @@ page {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  height: 68rpx;
-  background: #d8f3e3;
+  height: 88rpx;
+  background: #e8f7ee;
   box-sizing: border-box;
   z-index: 0;
 }
@@ -351,8 +403,8 @@ page {
 .month-picker {
   padding: 12rpx 6rpx 4rpx;
   border-radius: 24rpx;
-  background: #f8fcf9;
-  border: 2rpx solid #e6f4ec;
+  background: #fbfcfb;
+  border: 2rpx solid #edf2ef;
 }
 
 .month-bar {
@@ -379,8 +431,8 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0f7a42;
-  background: #eef6f3;
+  color: #168f3a;
+  background: #f1fbf3;
   border: none;
   font-size: 24rpx;
   line-height: 1;
@@ -404,20 +456,26 @@ page {
 
 .calendar-day {
   position: relative;
-  min-height: 108rpx;
+  min-height: 118rpx;
   padding: 4rpx 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   box-sizing: border-box;
 }
 
 .calendar-day-number {
-  font-size: 22rpx;
-  line-height: 24rpx;
+  font-size: 24rpx;
+  line-height: 26rpx;
 }
 
 .calendar-day-minutes {
-  min-height: 16rpx;
-  margin-top: 2rpx;
-  color: #0f9b4e;
+  position: absolute;
+  bottom: 8rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #168f3a;
   font-size: 16rpx;
   line-height: 16rpx;
 }
@@ -428,7 +486,7 @@ page {
   left: 0;
   right: 0;
   text-align: center;
-  color: #0f9b4e;
+  color: #168f3a;
   font-size: 16rpx;
   line-height: 18rpx;
   font-weight: 800;
@@ -436,7 +494,7 @@ page {
 }
 
 .calendar-day-label-edge {
-  color: rgba(255, 255, 255, 0.92);
+  color: #4dd9a0;
 }
 
 .calendar-day-label-today {
@@ -453,29 +511,43 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0f7a42;
-  border: 2rpx solid #0f9b4e;
+  color: #ff8200;
+  border: 2rpx solid #ff8200;
 }
 
 .calendar-day-blank {
   background: transparent;
 }
 
-.calendar-day-has .calendar-cell-inner {
-  color: #0f7a42;
-  background: #e8f8ef;
-  border: 1rpx solid #c9f2d8;
+.recent-minutes,
+.calendar-day-minutes {
+  font-weight: 800;
 }
 
 .select-tip {
-  margin-top: 16rpx;
-  padding: 14rpx 16rpx;
-  border-radius: 22rpx;
-  color: #606b7b;
-  background: #f7faf9;
-  border: 1rpx solid #edf2ef;
+  margin: 18rpx 8rpx;
+  padding: 16rpx 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 26rpx;
+  color: #5a6b61;
+  background: #f1f8f3;
+  border: 1rpx solid #e2efe8;
+  box-shadow: 0 6rpx 14rpx rgba(22, 143, 58, 0.05);
   font-size: 22rpx;
-  line-height: 32rpx;
+  line-height: 30rpx;
+  font-weight: 600;
+}
+
+.select-tip::before {
+  content: '';
+  flex: none;
+  width: 12rpx;
+  height: 12rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  background: #2bb35e;
 }
 
 .summary-item,
@@ -484,8 +556,8 @@ page {
   padding: 16rpx 14rpx 18rpx;
   border-radius: 30rpx;
   box-sizing: border-box;
-  background: #f7faf9;
-  border: 2rpx solid #edf2ef;
+  background: #fafbfc;
+  border: 2rpx solid #eef0f3;
 }
 
 .summary-icon-box,
@@ -496,7 +568,7 @@ page {
   margin: 0 auto 10rpx;
   padding: 6rpx;
   border-radius: 20rpx;
-  border: 2rpx solid rgba(15, 122, 66, 0.1);
+  border: 2rpx solid rgba(17, 19, 24, 0.06);
   background: #ffffff;
   box-sizing: border-box;
 }
@@ -520,7 +592,7 @@ page {
 .summary-label,
 .detail-label {
   margin-top: 8rpx;
-  color: #8a94a6;
+  color: #7a8798;
   font-size: 20rpx;
   line-height: 28rpx;
   text-align: center;
@@ -539,9 +611,9 @@ page {
   align-items: center;
   padding: 12rpx 14rpx;
   border-radius: 24rpx;
-  border: 2rpx solid #edf2ef;
-  background: #f7faf9;
-  color: #606b7b;
+  border: 2rpx solid #eef0f3;
+  background: #fafbfc;
+  color: #66707a;
   font-size: 22rpx;
   line-height: 28rpx;
   box-sizing: border-box;
@@ -558,15 +630,15 @@ page {
 .trend-label {
   white-space: nowrap;
   font-weight: 800;
-  color: #1a2430;
+  color: #111318;
 }
 
 .trend-track {
   height: 18rpx;
   overflow: hidden;
   border-radius: 18rpx;
-  background: #edf1f5;
-  border: 1rpx solid rgba(96, 107, 123, 0.12);
+  background: #eef0f3;
+  border: 1rpx solid rgba(17, 19, 24, 0.08);
 }
 
 .trend-fill {
@@ -576,15 +648,15 @@ page {
 }
 
 .trend-fill-read {
-  background: #2f80ed;
+  background: #3f9581;
 }
 
 .trend-fill-quiz {
-  background: #ffb020;
+  background: #ffa11c;
 }
 
 .trend-fill-recite {
-  background: #14b8a6;
+  background: #2f80ed;
 }
 
 .trend-value {
@@ -597,8 +669,8 @@ page {
   overflow: hidden;
   border-radius: 28rpx;
   background: #ffffff;
-  border: 1rpx solid #e7efe9;
-  box-shadow: 0 6rpx 16rpx rgba(16, 54, 31, 0.04);
+  border: 1rpx solid #eef0f3;
+  box-shadow: 0 6rpx 16rpx rgba(17, 19, 24, 0.04);
 }
 
 .record-day:first-of-type {
@@ -621,8 +693,8 @@ page {
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  background: linear-gradient(150deg, #16361f 0%, #0c2417 100%);
-  border: 2rpx solid rgba(120, 240, 170, 0.2);
+  background: linear-gradient(150deg, #263f45 0%, #111318 100%);
+  border: 2rpx solid rgba(255, 255, 255, 0.72);
   font-weight: 900;
 }
 
@@ -643,7 +715,7 @@ page {
 }
 
 .record-title {
-  color: #1a2430;
+  color: #111318;
   font-size: 28rpx;
   line-height: 36rpx;
   font-weight: 900;
@@ -651,7 +723,7 @@ page {
 
 .record-sub {
   margin-top: 6rpx;
-  color: #8a94a6;
+  color: #7a8798;
   font-size: 22rpx;
   line-height: 30rpx;
 }
@@ -664,9 +736,9 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #7a8a82;
-  background: #f3f7f5;
-  border: 1rpx solid #e7efe9;
+  color: #7a8798;
+  background: #f4f5f7;
+  border: 1rpx solid #eef0f3;
   font-size: 34rpx;
   line-height: 34rpx;
   transition: transform 0.16s ease;
@@ -674,15 +746,15 @@ page {
 
 .record-day-open .record-arrow {
   transform: rotate(90deg);
-  color: #0f7a42;
-  background: #e9f7ef;
-  border-color: #cdeed9;
+  color: #168f3a;
+  background: #f1fbf3;
+  border-color: #d8f0df;
 }
 
 .record-detail {
   margin: 0 20rpx;
   padding: 18rpx 0 22rpx;
-  border-top: 1rpx solid #eef3f0;
+  border-top: 1rpx solid #eef0f3;
 }
 
 .detail-grid {
@@ -693,7 +765,7 @@ page {
 .detail-item {
   min-height: 120rpx;
   padding: 16rpx 14rpx;
-  background: #f5f9f7;
+  background: #fafbfc;
 }
 
 .detail-value {
@@ -704,9 +776,9 @@ page {
 .empty-record {
   padding: 34rpx 20rpx;
   border-radius: 30rpx;
-  color: #8a94a6;
-  background: #f7faf9;
-  border: 2rpx dashed #dbe4df;
+  color: #7a8798;
+  background: #fafbfc;
+  border: 2rpx dashed #dde2e8;
   text-align: center;
   font-size: 26rpx;
   line-height: 36rpx;

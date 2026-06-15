@@ -1,1 +1,1 @@
-<canvas canvas-id="waveCanvas" class="wave-canvas"></canvas>
+<canvas canvas-id="{{canvasId}}" class="wave-canvas"></canvas>

@@ -11,6 +11,7 @@
     "pages/checkin/calendar",
     "pages/study-record/record",
     "pages/me/me",
+    "pages/me/pet",
     "pages/me/book",
     "pages/me/notify",
     "pages/me/contact",

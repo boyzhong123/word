@@ -200,3 +200,153 @@
     bottom: 60rpx;
   }
 }
+
+/* ---------------- 标记说明弹窗（instruction） ---------------- */
+.guide-card {
+  width: 620rpx;
+  padding: 48rpx 36rpx 40rpx;
+  box-sizing: border-box;
+  align-items: stretch;
+  border-radius: 32rpx;
+}
+
+.guide-header {
+  text-align: center;
+  margin-bottom: 6rpx;
+}
+
+.guide-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1d2b30;
+  line-height: 1.4;
+}
+
+.guide-subtitle {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #93a1a4;
+  line-height: 1.4;
+}
+
+.guide-section {
+  margin-top: 28rpx;
+  padding: 26rpx 26rpx 22rpx;
+  background: #f6f8f8;
+  border-radius: 24rpx;
+}
+
+.guide-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.guide-badge {
+  flex: none;
+  padding: 2rpx 14rpx;
+  border-radius: 12rpx;
+  background: #263f45;
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: bold;
+  line-height: 1.7;
+}
+
+.guide-icon {
+  flex: none;
+  width: 44rpx;
+  height: 40rpx;
+  border-radius: 12rpx;
+  background: #263f45;
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: bold;
+  text-align: center;
+  line-height: 40rpx;
+}
+
+.guide-name {
+  margin-left: 16rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #1d2b30;
+}
+
+.guide-text {
+  font-size: 25rpx;
+  color: #5b6b6e;
+  line-height: 40rpx;
+}
+
+.guide-em {
+  color: #263f45;
+  font-weight: bold;
+}
+
+.guide-row {
+  display: flex;
+  align-items: center;
+  margin-top: 10rpx;
+}
+
+.guide-key {
+  flex: none;
+  width: 72rpx;
+  margin-right: 16rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #263f45;
+}
+
+.guide-val {
+  flex: 1;
+  min-width: 0;
+  font-size: 25rpx;
+  color: #5b6b6e;
+  line-height: 40rpx;
+}
+
+.guide-bold {
+  font-weight: bold;
+  color: #1d2b30;
+}
+
+.guide-arrow {
+  width: 16rpx;
+  height: 22rpx;
+  margin-left: 6rpx;
+  vertical-align: middle;
+}
+
+.guide-dot {
+  flex: none;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  margin-left: 6rpx;
+}
+
+.guide-dot-green {
+  background: #3CC668;
+}
+
+.guide-dot-gray {
+  background: #b9c2c2;
+}
+
+.guide-dot-red {
+  background: #FF6666;
+}
+
+.guide-strong {
+  font-weight: bold;
+  color: #1d2b30;
+}
+
+.guide-btn {
+  margin-top: 40rpx;
+  align-self: center;
+  width: 300rpx;
+}

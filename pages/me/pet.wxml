@@ -1,0 +1,136 @@
+<view class="pet-page">
+  <view class="pet-header" style="padding-top: {{safeAreaTop}}px;">
+    <view class="back-btn" bindtap="goBack">‹</view>
+    <view class="header-copy">
+      <view class="header-title">我的宠物</view>
+      <view class="header-sub">学习得金币，金币照顾小伙伴</view>
+    </view>
+    <view class="coin-pill">
+      <view class="coin-dot">$</view>
+      <text>{{wallet.coins}}</text>
+    </view>
+  </view>
+
+  <scroll-view class="pet-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero-card">
+      <view class="hero-top">
+        <view>
+          <view class="hero-label">{{pet.adopted ? pet.name : '还没有认领'}}</view>
+          <view class="hero-desc">{{pet.adopted ? ('Lv.' + pet.level + ' · 亲密 ' + pet.bond) : '先选一个适合当前学段的伙伴'}}</view>
+        </view>
+        <view class="feature-switch">
+          <text>入口</text>
+          <switch checked="{{featureEnabled}}" color="#24aa66" bindchange="toggleFeature" />
+        </view>
+      </view>
+
+      <view class="scene-card scene-{{scene}}">
+        <view class="speech">
+          <block wx:if="{{!pet.adopted}}">选一个伙伴，它会陪你每天学习。</block>
+          <block wx:elif="{{scene === 'away'}}">我去散心了。完成学习或花金币就能找我回家。</block>
+          <block wx:elif="{{scene === 'sleep'}}">我先睡一会儿，恢复精力后继续陪你。</block>
+          <block wx:elif="{{scene === 'hungry'}}">有点饿了，完成学习就有金币买餐盒。</block>
+          <block wx:else>今天也一起学一点吧。</block>
+        </view>
+        <image
+          wx:if="{{pet.adopted}}"
+          class="pet-character pet-scene-{{scene}} {{pet.sceneClass}}"
+          src="{{pet.image}}"
+          mode="aspectFit"
+        />
+        <image
+          wx:else
+          class="pet-character pet-scene-idle pet-stage-primary"
+          src="../../images/home/nav-study-jelly.png"
+          mode="aspectFit"
+        />
+        <view class="scene-floor"></view>
+      </view>
+
+      <view class="stats-grid" wx:if="{{pet.adopted}}">
+        <view class="stat-card" wx:for="{{stats}}" wx:key="key">
+          <view class="stat-head">
+            <text>{{item.label}}</text>
+            <text>{{item.value}}</text>
+          </view>
+          <view class="stat-track">
+            <view class="stat-fill stat-fill-{{item.tone}}" style="width: {{item.width}};"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="action-grid" wx:if="{{pet.adopted && scene !== 'away'}}">
+        <view class="action-btn" bindtap="feed">
+          <view class="action-icon">+</view>
+          <view>喂食</view>
+          <text>-12</text>
+        </view>
+        <view class="action-btn" bindtap="sleep">
+          <view class="action-icon">~</view>
+          <view>睡觉</view>
+          <text>恢复</text>
+        </view>
+        <view class="action-btn" bindtap="clean">
+          <view class="action-icon">*</view>
+          <view>清洁</view>
+          <text>-8</text>
+        </view>
+        <view class="action-btn" bindtap="play">
+          <view class="action-icon">^</view>
+          <view>玩耍</view>
+          <text>-10</text>
+        </view>
+      </view>
+
+      <view class="away-panel" wx:if="{{pet.adopted && scene === 'away'}}">
+        <view class="away-title">它出去散心了</view>
+        <view class="away-text">金币找回或完成一次学习都可以。第一次正式上线可以做成免费找回教学。</view>
+        <view class="away-actions">
+          <view class="away-primary" bindtap="restorePet">花 {{restoreCost}} 金币找回</view>
+          <view class="away-secondary" bindtap="restoreByStudy">去学习找回</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="adopt-section" wx:if="{{!pet.adopted}}">
+      <view class="section-title">选择学段宠物</view>
+      <view class="group-card" wx:for="{{petGroups}}" wx:key="stage">
+        <view class="group-head">
+          <view class="group-title">{{item.label}}</view>
+          <view class="group-desc">{{item.desc}}</view>
+        </view>
+        <view class="pet-pick-row">
+          <view
+            class="pet-pick"
+            wx:for="{{item.pets}}"
+            wx:for-item="pet"
+            wx:key="id"
+            data-stage="{{item.stage}}"
+            data-id="{{pet.id}}"
+            bindtap="adopt"
+          >
+            <image class="pick-img {{pet.sceneClass}}" src="{{pet.image}}" mode="aspectFit" />
+            <view class="pick-name">{{pet.name}}</view>
+            <view class="pick-type">{{pet.type}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="ledger-section">
+      <view class="section-title">金币明细</view>
+      <view class="ledger-card">
+        <view class="ledger-empty" wx:if="{{!ledger.length}}">完成学习后，这里会记录金币来源和消耗。</view>
+        <view class="ledger-row" wx:for="{{ledger}}" wx:key="id">
+          <view class="ledger-copy">
+            <view class="ledger-title">{{item.title}}</view>
+            <view class="ledger-detail">{{item.detail}} · {{item.time}}</view>
+          </view>
+          <view class="ledger-amount {{item.amount > 0 ? 'ledger-plus' : 'ledger-minus'}}">{{item.amount > 0 ? '+' : ''}}{{item.amount}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="pet-bottom" style="height: {{safeAreaBottom + 36}}px;"></view>
+  </scroll-view>
+</view>

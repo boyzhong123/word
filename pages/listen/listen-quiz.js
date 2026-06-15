@@ -231,6 +231,7 @@ function buildSourceQuestion(sentence, proverb, item, learningWordKeys) {
     audio: proverb.audio || (word && (word.sentenceAudio || word.audio)) || '',
     word: word && word.content ? String(word.content).trim() : '',
     wordId: word && (word.wordId || word.id || word.sort || ''),
+    page: word && word.page ? word.page : '',
     unitId: item && item.unit && item.unit.unitId ? String(item.unit.unitId) : '',
     matches,
     gaps: matches.map((match, gapIndex) => ({
@@ -294,6 +295,7 @@ function instantiateQuizQuestion(source, random = Math.random) {
     audio: source.audio,
     word: source.word,
     wordId: source.wordId,
+    page: source.page,
     unitId: source.unitId,
     parts: buildParts(source.sentence, gapMatches),
     gaps: gapMatches.map((match, gapIndex) => ({

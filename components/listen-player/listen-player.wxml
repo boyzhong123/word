@@ -11,6 +11,9 @@
       <view class="listen-nav-title-wrap">
         <view class="listen-nav-title">{{unitName}}</view>
       </view>
+      <view class="listen-nav-help" bindtap="showMarkTip">
+        <image class="listen-nav-help-icon" mode="aspectFit" src="/images/icon_tip.png" />
+      </view>
     </view>
   </view>
 
@@ -31,7 +34,7 @@
             <image class="disc-tray" src="/images/listen/disc-tray.png" />
             <view class="disc-stack {{playing ? 'spinning' : ''}}">
               <image class="disc-texture" src="/images/listen/disc-texture-overlay.png" />
-              <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" />
+              <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
               <view class="disc-sheen"></view>
             </view>
             <view class="disc-spindle"></view>
@@ -63,6 +66,7 @@
               mode="aspectFit"
             />
             <view class="lyric-en">{{item.content}}</view>
+            <text wx:if="{{item.page}}" class="lyric-page">P{{item.page}}</text>
           </view>
           <view wx:if="{{item.translation}}" class="lyric-cn">{{item.translation}}</view>
 
@@ -177,7 +181,7 @@
     <view class="loading-panel">
       <view class="loading-mascot-wrap">
         <frame-animation
-          url="../../images/listen/loading-mascot-sprite.png"
+          url="{{loadingMascotSprite}}"
           count="6"
           width="160"
           height="160"
@@ -189,4 +193,7 @@
       <view class="loading-sub">马上开始播放</view>
     </view>
   </view>
+
+  <!-- 标记说明弹窗 -->
+  <dialog dialog="{{dialog}}"></dialog>
 </view>

@@ -12,14 +12,36 @@
     <view class="profile-header" style="padding-top: {{safeAreaTop}}px;">
       <image class="profile-header-bg" src="{{imageBaseUrl}}/images/home/me-profile-header-monster-v2.png" mode="aspectFill" />
       <view class="profile-main">
-        <view class="avatar-wrap" bindtap="handleLogin">
-          <image wx:if="{{userInfo.avatarUrl}}" class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
-          <view wx:else class="avatar avatar-empty">👤</view>
-        </view>
-        <view class="profile-copy" bindtap="handleLogin">
-          <view class="nickname">{{logined ? (userInfo.nickName || '英语学习者') : '点击登录'}}</view>
-          <view class="profile-sub">{{logined ? '账号、通知和学习资料都在这里' : '登录后同步你的学习进度'}}</view>
-        </view>
+        <block wx:if="{{logined}}">
+          <button class="avatar-wrap avatar-button" open-type="chooseAvatar" bindchooseavatar="handleChooseAvatar">
+            <image wx:if="{{userInfo.avatarUrl}}" class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+            <view wx:else class="avatar avatar-empty">👤</view>
+          </button>
+          <view class="profile-copy">
+            <input
+              class="nickname nickname-input"
+              type="nickname"
+              value="{{userInfo.nickName}}"
+              maxlength="16"
+              placeholder="英语学习者"
+              placeholder-style="color: #17406f;"
+              confirm-type="done"
+              bindinput="handleNickNameInput"
+              bindblur="handleNickNameBlur"
+              bindconfirm="handleNickNameBlur"
+            />
+            <view class="profile-sub">账号、通知和学习资料都在这里</view>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="avatar-wrap" bindtap="handleLogin">
+            <view class="avatar avatar-empty">👤</view>
+          </view>
+          <view class="profile-copy" bindtap="handleLogin">
+            <view class="nickname">点击登录</view>
+            <view class="profile-sub">登录后同步你的学习进度</view>
+          </view>
+        </block>
       </view>
     </view>
 
@@ -28,19 +50,24 @@
       data-url="/pages/study-record/record"
       bindtap="handleMenuTap"
     >
-      <view class="stat-item">
-        <view class="stat-number">{{stats.checkInDays}}</view>
-        <view class="stat-label">连续打卡</view>
+      <view class="stats-head">
+        <view class="stats-head-title">学习记录</view>
       </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
-        <view class="stat-number">{{stats.learnedWords}}</view>
-        <view class="stat-label">累计学词</view>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
-        <view class="stat-number">{{stats.studyMinutes}}</view>
-        <view class="stat-label">学习分钟</view>
+      <view class="stats-row">
+        <view class="stat-item">
+          <view class="stat-number">{{stats.checkInDays}}</view>
+          <view class="stat-label">连续打卡</view>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <view class="stat-number">{{stats.learnedWords}}</view>
+          <view class="stat-label">累计学词</view>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <view class="stat-number">{{stats.studyMinutes}}</view>
+          <view class="stat-label">学习分钟</view>
+        </view>
       </view>
     </view>
 
@@ -99,13 +126,29 @@
           wx:for="{{settings}}"
           wx:key="id"
           data-action="{{item.action}}"
+          data-url="{{item.url}}"
           bindtap="handleMenuTap"
         >
           <template is="menuInner" data="{{...item}}" />
+          <button
+            wx:if="{{item.openType}}"
+            class="menu-hit-button"
+            open-type="{{item.openType}}"
+            data-action="{{item.action}}"
+            catchtap="noop"
+            bindgetphonenumber="handleGetPhoneNumber"
+          ></button>
         </view>
       </view>
     </view>
 
     <view class="scroll-spacer"></view>
   </scroll-view>
+  <view wx:if="{{petFeatureEnabled}}" class="pet-fab" bindtap="goPetHome">
+    <image class="pet-fab-img" src="{{petEntry.image}}" mode="aspectFit" />
+    <view class="pet-fab-copy">
+      <view class="pet-fab-title">{{petEntry.name}}</view>
+      <view class="pet-fab-sub">{{petEntry.coins}} 金币</view>
+    </view>
+  </view>
 </view>

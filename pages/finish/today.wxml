@@ -13,6 +13,13 @@
     </view>
     <view class="checkin-calendar-btn" bindtap="goCheckinCalendar">查看打卡日历</view>
   </view>
+  <view class="pet-reward-card" wx:if="{{petReward.show}}">
+    <image class="pet-reward-icon" src="../../images/home/nav-study-jelly.png" mode="aspectFit" />
+    <view class="pet-reward-copy">
+      <view class="pet-reward-title">宠物金币 +{{petReward.amount}}</view>
+      <view class="pet-reward-subtitle">去我的宠物里喂食、清洁或存起来。</view>
+    </view>
+  </view>
   <view wx:if="{{showContinue}}" class="btn" style="margin-top: {{checkinComplete ? 48 : 96}}rpx;" bindtap="continue">{{continueLabel}}</view>
   <view class="btn btn-secondary" style="margin-top: 40rpx;" bindtap="finish">完成</view>
 </view>

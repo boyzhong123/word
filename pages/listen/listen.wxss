@@ -194,6 +194,36 @@ page {
 
 .quiz-head {
   margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quiz-head-right {
+  flex: none;
+  display: flex;
+  align-items: center;
+  margin-left: 16rpx;
+}
+
+/* 课本页码标记（P1=第1页） */
+.quiz-page {
+  flex: none;
+  padding: 2rpx 14rpx;
+  border-radius: 18rpx;
+  background: rgba(38, 63, 69, 0.08);
+  font-size: 22rpx;
+  color: #4e6a70;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* 标记说明入口 */
+.quiz-help-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 12rpx;
+  padding: 6rpx;
 }
 
 .quiz-tip,

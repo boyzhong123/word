@@ -15,9 +15,11 @@ const {
 const { computeQuizScoreRate } = require('../../utils/finish-stars')
 // 通常听力播放走全局单例（跨页持续 + 迷你播放器）；buildTracks 复用单例里的实现
 const { player, buildTracks } = require('../../utils/player')
-const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
+const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
 const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
+const LOADING_MASCOT_SPRITE = imageUrl('/images/listen/loading-mascot-sprite.png')
 
 const LISTEN_PAGE_ANIM_MS = 320
 // 与 app.json tabBar.list 保持一致
@@ -44,11 +46,12 @@ Page({
     imageBaseUrl: IMAGE_BASE_URL,
     listenWordTagImage: LISTEN_WORD_TAG_IMAGE,
     listenSentenceTagImage: LISTEN_SENTENCE_TAG_IMAGE,
+    loadingMascotSprite: LOADING_MASCOT_SPRITE,
     pageAnimState: 'listen-page-preenter',
     safeAreaBottom: Math.max((wx.getStorageSync('windowHeight') || 0) - ((wx.getStorageSync('safeArea') || {}).bottom || wx.getStorageSync('windowHeight') || 0), 0),
 
     loading: true,
-    bookCover: '../../images/home/book-cover.png',
+    bookCover: getFallbackBookCover(),
 
     // 期（单元）列表
     units: [],
@@ -118,7 +121,7 @@ Page({
       ? decodeURIComponent(options.reviewUnitIds).split(',').filter(Boolean)
       : []
     this.setData({ quizMode, review: this.review })
-    const bookCover = book.bookCover || this.data.bookCover
+    const bookCover = normalizeBookCover(book.bookCover || this.data.bookCover)
     if (book.bookCover) {
       this.setData({ bookCover })
     }
@@ -199,7 +202,7 @@ Page({
     this.setData({
       loading: !s.active,
       unitName: s.unitName,
-      bookCover: s.bookCover,
+      bookCover: normalizeBookCover(s.bookCover),
       units: s.units,
       unitIndex: s.unitIndex,
       tracks: s.tracks,
@@ -821,6 +824,11 @@ Page({
     })
   },
 
+  // 打开「标记说明」弹窗（页码 / 句子标记 / 评分配色）
+  showMarkTip() {
+    this.setData({ dialog: { type: 'instruction' } })
+  },
+
   // 录音未授权：提示去设置开启
   onMediaUnauthorized(e) {
     const dialog = (e.detail && e.detail.dialog) || {}
@@ -835,6 +843,10 @@ Page({
         }
       }
     })
+  },
+
+  onBookCoverError() {
+    this.setData({ bookCover: getFallbackBookCover() })
   },
 
   scrollToCurrent() {

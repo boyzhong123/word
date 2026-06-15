@@ -29,7 +29,7 @@
       </view>
       <view class="book-list">
         <view wx:for="{{books}}" wx:key="resBookId" class="book-row-card {{item.current ? 'book-row-current' : ''}}">
-          <image class="row-cover" src="{{item.bookCover}}" mode="aspectFill" />
+          <image class="row-cover" src="{{item.bookCover}}" mode="aspectFill" data-res-book-id="{{item.resBookId}}" binderror="onBookCoverError" />
           <view class="row-copy">
             <view class="row-title">{{item.name}}</view>
             <view class="row-meta">{{item.press}} · {{item.totalWords}} 词</view>

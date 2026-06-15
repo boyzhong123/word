@@ -1,7 +1,8 @@
-const REMOTE_IMAGE_HOST = 'https://project-24r2y.vercel.app'
+const REMOTE_IMAGE_HOST = 'https://proverbs-assets-1259216952.cos.ap-nanjing.myqcloud.com'
 const USE_REMOTE_IMAGES = true
 
 const REMOTE_IMAGE_PATHS = {
+  '/images/audio.png': true,
   '/images/checkin/share-bg-streak-monster-light.png': true,
   '/images/checkin/share-bg-streak-monster.png': true,
   '/images/checkin/share-bg-streak-pk-light.png': true,
@@ -20,14 +21,26 @@ const REMOTE_IMAGE_PATHS = {
   '/images/home/ad/product-hero-clean.png': true,
   '/images/home/fab-today-locate-jelly.png': true,
   '/images/home/hero-campus-jelly-v5.png': true,
+  '/images/home/map/monsters/jelly-defeated.png': true,
   '/images/home/map/monsters/jelly-fighting.png': true,
+  '/images/home/map/monsters/jelly-locked.png': true,
   '/images/home/me-profile-header-monster-v2.png': true,
   '/images/home/student-monster-pk-sprite.png': true,
   '/images/listen/loading-mascot.png': true,
+  '/images/listen/loading-mascot-sprite.png': true,
   '/images/listen/seek-thumb-mascot-sprite.png': true,
   '/images/listen/tag-sentence-jelly.png': true,
   '/images/listen/tag-word-jelly.png': true,
-  '/images/mini-program-icon-1024.png': true
+  '/images/mini-program-icon-1024.png': true,
+  '/images/pet/high-focus-cat.png': true,
+  '/images/pet/high-mentor-owl.png': true,
+  '/images/pet/high-planner-dog.png': true,
+  '/images/pet/middle-audio-cat.png': true,
+  '/images/pet/middle-explorer-dog.png': true,
+  '/images/pet/middle-note-fox.png': true,
+  '/images/pet/primary-reader-cat.png': true,
+  '/images/pet/primary-scarf-dog.png': true,
+  '/images/pet/primary-star-bunny.png': true
 }
 
 function normalizeImagePath(path) {

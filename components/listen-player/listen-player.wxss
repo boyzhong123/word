@@ -101,6 +101,24 @@
   height: 32rpx;
 }
 
+.listen-nav-help {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: 8rpx;
+  min-width: 64rpx;
+  height: 100%;
+  padding: 0 8rpx;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.listen-nav-help-icon {
+  width: 34rpx;
+  height: 34rpx;
+}
+
 .listen-nav-title {
   max-width: 52%;
   font-size: 34rpx;
@@ -285,6 +303,18 @@
   color: #41514a;
   line-height: 1.35;
   font-weight: 400;
+}
+/* 课本页码标记（P1=第1页），右侧浅灰 chip */
+.lyric-page {
+  flex: none;
+  margin-top: 4rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 16rpx;
+  background: rgba(78, 106, 112, 0.1);
+  font-size: 22rpx;
+  color: #4e6a70;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 .lyric-cn {
   margin-top: 6rpx;

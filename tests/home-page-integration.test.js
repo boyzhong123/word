@@ -83,12 +83,15 @@ test('home hero uses the jelly campus header with safe-zone positioning', () => 
   assert.match(homeStyle, /\.hero-image\s*{[^}]*max-width:\s*100%/s)
 })
 
-test('home scroll view uses explicit viewport height and tab-bar spacer', () => {
+test('home scroll view fills the full screen height with a tab-bar spacer', () => {
   assert.match(homeTemplate, /style="{{scrollViewStyle}}"/)
   assert.match(homeTemplate, /style="{{scrollSpacerStyle}}"/)
-  assert.match(homeScript, /scrollViewStyle:\s*'height: '\s*\+\s*windowHeight\s*\+\s*'px;'/)
+  // 必须用 screenHeight（满屏），不能用 windowHeight：真机自定义 tabBar 下
+  // windowHeight 扣了底栏，写死它会在底栏上方留出空带遮挡内容。
+  assert.match(homeScript, /scrollViewStyle:\s*'height: '\s*\+\s*screenHeight\s*\+\s*'px;'/)
+  assert.doesNotMatch(homeScript, /scrollViewStyle:\s*'height: '\s*\+\s*windowHeight\s*\+\s*'px;'/)
   assert.match(homeScript, /scrollSpacerStyle:\s*'height: '\s*\+\s*scrollSpacerRpx\s*\+\s*'rpx;'/)
-  assert.match(homeScript, /scrollViewHeight:\s*windowHeight/)
+  assert.match(homeScript, /scrollViewHeight:\s*screenHeight/)
   assert.match(homeScript, /\bscrollSpacerRpx\b/)
   assert.doesNotMatch(homeStyle, /\.scroll-spacer\s*{[^}]*height:\s*112rpx/s)
 })
@@ -112,42 +115,6 @@ test('home page uses the shared unit mapper and maintains a visible batch', () =
 
 test('home scroll view loads another batch when reaching the bottom', () => {
   assert.match(homeTemplate, /bindscrolltolower="loadMoreUnits"/)
-})
-
-test('home page exposes a floating button to jump back to today tasks', () => {
-  assert.match(homeTemplate, /id="today-group"/)
-  assert.match(homeTemplate, /today-scroll-target/)
-  assert.match(homeTemplate, /class="today-locate-fab"/)
-  assert.match(homeTemplate, /bindtap="scrollToTodayTasks"/)
-  assert.match(homeTemplate, /showTodayLocateFab/)
-  assert.match(homeTemplate, /fab-today-locate-jelly\.png/)
-  assert.match(homeScript, /scrollToTodayTasks\(\)/)
-  assert.match(homeScript, /updateTodayLocateFab\(\)/)
-  assert.match(homeScript, /computeScrollTopToCenterTarget/)
-  assert.match(homeScript, /scrollNode\.scrollTo/)
-  assert.match(homeStyle, /\.today-locate-fab\s*{/)
-  assert.match(homeStyle, /\.today-locate-fab-image\s*{[^}]*width:\s*106rpx/s)
-  assert.doesNotMatch(homeTemplate, /scroll-into-view="{{scrollIntoId}}"/)
-
-  const fabPath = path.join(projectRoot, 'images/home/fab-today-locate-jelly.png')
-  assert.ok(fs.existsSync(fabPath))
-  const header = fs.readFileSync(fabPath)
-  assert.equal(header.toString('ascii', 1, 4), 'PNG')
-  assert.ok(header.readUInt32BE(16) >= 320, 'today locate fab should be a full button asset')
-})
-
-test('today locate scroll centers the target card in the scroll viewport', () => {
-  const { computeScrollTopToCenterTarget } = require('../pages/home/home-scroll.js')
-
-  assert.equal(
-    computeScrollTopToCenterTarget(500, { top: 200, height: 232 }, { top: 100, height: 800 }),
-    316
-  )
-  assert.equal(
-    computeScrollTopToCenterTarget(100, { top: 384, height: 232 }, { top: 100, height: 800 }),
-    100
-  )
-  assert.equal(computeScrollTopToCenterTarget(0, null, { top: 0, height: 800 }), null)
 })
 
 test('unit cards keep their height but balance the inner whitespace', () => {

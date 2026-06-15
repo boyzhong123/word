@@ -1,6 +1,7 @@
 // components/meida/media.js
 const aiengine = require('../../lib/ChivoxAiEngine.js')
 const scoringSession = require('./scoring-session.js')
+const { imageUrl } = require('../../utils/image-host')
 
 function createWsEngineSafe() {
   if (typeof aiengine.createWsEngine !== 'function') {
@@ -243,6 +244,7 @@ Component({
     }
   },
   data: {
+    audioSprite: imageUrl('/images/audio.png'),
     _sig: {},
     media_state: IDLE,
     innerAudioContext: null

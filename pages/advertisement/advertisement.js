@@ -4,6 +4,7 @@ const {
 } = require('../../utils/util')
 const { isDevPurchased } = require('../../utils/dev-books')
 const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 
 const systemInfo = wx.getSystemInfoSync()
 const safeArea = wx.getStorageSync('safeArea') || systemInfo.safeArea || {
@@ -47,7 +48,7 @@ const PACKAGES = [
 ]
 
 const MIN_PRICE = PACKAGES.reduce((min, item) => Math.min(min, item.price), Infinity)
-const DEFAULT_BOOK_COVER = '/images/home/book-cover.png'
+const DEFAULT_BOOK_COVER = getFallbackBookCover()
 const DEFAULT_GRADE_TAGS = ['初中']
 const FEATURE_CARDS = [
   {
@@ -146,7 +147,7 @@ function applyBookDetail(page, book, unlocked) {
   page.resBookId = book.resBookId || ''
   page.setData({
     name: book.name || '',
-    bookCover: book.bookCover || DEFAULT_BOOK_COVER,
+    bookCover: normalizeBookCover(book.bookCover || book.cover || DEFAULT_BOOK_COVER),
     total,
     wordCount,
     proverbCount,
@@ -233,6 +234,10 @@ Page({
 
   closeSkuSheet() {
     this.setData({ skuSheetVisible: false })
+  },
+
+  onBookCoverError() {
+    this.setData({ bookCover: getFallbackBookCover() })
   },
 
   selectPackage(event) {

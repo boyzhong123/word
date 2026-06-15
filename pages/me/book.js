@@ -1,8 +1,9 @@
 const { getUserBooks, toggleBook } = require('../../utils/api')
 const { login } = require('../../utils/login')
 const { withTestBook, isDevTestBook } = require('../../utils/dev-books')
+const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 
-const FALLBACK_COVER = '../../images/home/book-cover.png'
+const FALLBACK_COVER = getFallbackBookCover()
 
 function pickNumber() {
   for (let i = 0; i < arguments.length; i++) {
@@ -42,7 +43,7 @@ function normalizeBook(book, currentId) {
     name: source.name || source.bookName || '未命名教材',
     press: source.press || source.publisher || '精选教材',
     intro: source.intro || source.description || '按关卡推进单词、跟读和听力小测。',
-    bookCover: source.bookCover || source.cover || FALLBACK_COVER,
+    bookCover: normalizeBookCover(source.bookCover || source.cover || FALLBACK_COVER),
     totalWords,
     learnedWords,
     proverbCount: pickNumber(source.proverbCount),
@@ -159,5 +160,18 @@ Page({
 
   continueStudy() {
     wx.switchTab({ url: '/pages/home/home' })
+  },
+
+  onBookCoverError(event) {
+    const resBookId = event.currentTarget.dataset.resBookId
+    const fallback = getFallbackBookCover()
+    const books = (this.data.books || []).map(item => item.resBookId === resBookId
+      ? Object.assign({}, item, { bookCover: fallback })
+      : item
+    )
+    const currentBook = this.data.currentBook && this.data.currentBook.resBookId === resBookId
+      ? Object.assign({}, this.data.currentBook, { bookCover: fallback })
+      : this.data.currentBook
+    this.setData({ books, currentBook })
   }
 })

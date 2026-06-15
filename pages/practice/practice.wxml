@@ -198,7 +198,6 @@
           <view class="top-container">
             <image class="anchor-page" src="../../images/icon_tip.png" style="width: 26rpx;height: 26rpx;margin-left: 18rpx;vertical-align: middle;padding: 10rpx;" bindtap="showTipPopup" />
             <text style="color: #4e6a70;font-size: 24rpx;">{{item.word.page ? 'P' + item.word.page : ''}}</text>
-            <image wx:if="{{from != 'search'}}" src="../../images/icon_route.png" class="route-icon" mode="aspectFit" bindtap="goRoute" />
           </view>
           <scroll-view scroll-y class="scroll-container" scroll-into-view="v{{item.selectedIndex}}" scroll-with-animation="true" bindscroll="onScroll" bindtouchstart="onRecitationTouchStart" bindtouchend="onRecitationTouchEnd" capture-catch:tap="{{needVip == 1 ? 'showVip':''}}">
             <view class="word-container" bindtap="onItemClick" id="v0" data-index="0">

@@ -9,7 +9,7 @@
 
     <!-- 教材概览 -->
     <view class="book-card">
-      <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" />
+      <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
       <view class="book-info">
         <view class="book-name">{{book.name}}</view>
         <view class="book-total">共 <text class="hl">{{book.wordCount}}</text> 个单词</view>

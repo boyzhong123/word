@@ -10,42 +10,58 @@
   </view>
 </view>
 <view class="dialog" wx:elif="{{dialog.type == 'instruction'}}">
-  <view class='dialog-bg normal-text'>
-    <view style="height: 1rpx;"></view>
-    <view class="title-row">
-      <view class="dot"></view>
-      <view class="dot-title">\t页码信息\t</view>
-      <view class="dot"></view>
+  <view class="dialog-bg guide-card">
+    <view class="guide-header">
+      <view class="guide-title">标记说明</view>
+      <view class="guide-subtitle">读懂这几个标记，跟读和背诵更高效</view>
     </view>
-    <view class="text-bg" style="padding: 23rpx 18rpx;">为对应实体书本中该内容所在页码/页码范围，示例：第1页，标识为：P1，第11页到第15页，标识为：P11~P15。</view>
-    <view class="title-row">
-      <view class="dot"></view>
-      <view class="dot-title">\t句子标记\t</view>
-      <view class="dot"></view>
+
+    <!-- 页码标记 -->
+    <view class="guide-section">
+      <view class="guide-head">
+        <text class="guide-badge">P1</text>
+        <text class="guide-name">页码标记</text>
+      </view>
+      <view class="guide-text">对应实体书中该内容所在的页码/范围。第 1 页记作 <text class="guide-em">P1</text>，第 11~15 页记作 <text class="guide-em">P11~P15</text>。</view>
     </view>
-    <view class="text-bg">
-      <view style="text-align: center;padding: 35rpx;">加粗：需要重读的单词，示例：</view>
-    </view>
-    <view style="margin-top: 23rpx; font-size: 34rpx;font-family: OPPOSans;font-weight: bold;text-align: center;">shortest</view>
-    <view class="text-bg">
-      <view style="padding: 66rpx 18rpx 0;">上箭头：句末需要升调，无标记表示降调，</view>
-      <view class="title-row" style="margin-top:38rpx;padding-bottom: 26rpx;">
-        示例：<view style="font-size: 34rpx;font-weight: bold;"> 升调 </view>
-        <image src="../../images/rising_tone.png" class="img" />
+
+    <!-- 句子标记 -->
+    <view class="guide-section">
+      <view class="guide-head">
+        <text class="guide-icon">Aa</text>
+        <text class="guide-name">句子标记</text>
+      </view>
+      <view class="guide-row">
+        <text class="guide-key">加粗</text>
+        <view class="guide-val">需要重读的单词，如 <text class="guide-bold">shortest</text></view>
+      </view>
+      <view class="guide-row">
+        <text class="guide-key">升调</text>
+        <view class="guide-val">句末需升调，如 <text class="guide-bold">升调</text><image src="../../images/rising_tone.png" class="guide-arrow" />；无标记则表示降调</view>
       </view>
     </view>
-    <view class="title-row">
-      <view class="dot"></view>
-      <text class="dot-title">内容标色</text>
-      <view class="dot"></view>
+
+    <!-- 评分配色 -->
+    <view class="guide-section">
+      <view class="guide-head">
+        <text class="guide-icon">★</text>
+        <text class="guide-name">评分配色</text>
+      </view>
+      <view class="guide-row">
+        <text class="guide-dot guide-dot-green"></text>
+        <view class="guide-val"><text class="guide-strong" style="color:#3CC668;">绿色</text> 读得很好，智能评分 80 分以上</view>
+      </view>
+      <view class="guide-row">
+        <text class="guide-dot guide-dot-gray"></text>
+        <view class="guide-val"><text class="guide-strong">灰色</text> 读得一般，智能评分 60~80 分</view>
+      </view>
+      <view class="guide-row">
+        <text class="guide-dot guide-dot-red"></text>
+        <view class="guide-val"><text class="guide-strong" style="color:#FF6666;">红色</text> 读得不够好，智能评分低于 60 分</view>
+      </view>
     </view>
-    <view class="text-bg" style="padding: 37rpx 36rpx;line-height: 46rpx;margin-bottom: 35rpx;">
-      <text><text style="color: #3CC668;font-weight: bold;">绿色：</text>读得很好，智能评分80分以上；\n</text>
-      <text><text style="font-weight: bold;">灰色：</text>读得一般，智能评分60~80分；\n</text>
-      <text><text style="color: #FF6666;font-weight: bold;">红色：</text>读得不够好，智能评分低于60分。\n</text>
-    </view>
-    <text class="dialog-button positive" bindtap="onConfirm">知道了</text>
-    <view style="margin-top: 39rpx;height: 1rpx;"></view>
+
+    <text class="dialog-button positive guide-btn" bindtap="onConfirm">知道了</text>
   </view>
 </view>
 <view class="dialog" style="display: block;" wx:elif="{{dialog.type == 'vip'}}">

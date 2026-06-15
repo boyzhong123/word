@@ -6,6 +6,7 @@
 // 听力小测（quiz）不走此单例，仍由 listen 页用局部音频处理。
 
 const { getUnits, getUnitResource } = require('./api')
+const { getFallbackBookCover, normalizeBookCover } = require('./book-cover')
 
 // 循环模式：列表循环 / 单曲循环 / 随机播放
 const LOOP_MODES = [
@@ -37,12 +38,15 @@ function buildTracks(source) {
     if (!item) {
       return
     }
+    // 例句归属于该单词，沿用单词的课本页码（P1=第1页）。
+    const page = item.word && item.word.page ? item.word.page : ''
     if (item.word && item.word.audio) {
       tracks.push({
         type: 'word',
         content: item.word.content || '',
         symbol: item.word.symbol ? '[' + item.word.symbol + ']' : '',
         translation: (item.word.attribute || '') + (item.word.translation || ''),
+        page,
         audio: item.word.audio
       })
     }
@@ -54,6 +58,7 @@ function buildTracks(source) {
             content: p.content || p.label || '',
             symbol: '',
             translation: p.translation || '',
+            page: p.page || page,
             audio: p.audio
           })
         }
@@ -70,7 +75,7 @@ const player = {
   units: [],
   unitIndex: 0,
   unitName: '随身听',
-  bookCover: '../../images/home/book-cover.png',
+  bookCover: getFallbackBookCover(),
   tracks: [],
   current: 0,
   playing: false,
@@ -193,7 +198,7 @@ const player = {
   // 返回 Promise，便于调用方在加载完成后处理。
   start({ resBookId, bookCover, targetUnitId } = {}) {
     if (bookCover) {
-      this.bookCover = bookCover
+      this.bookCover = normalizeBookCover(bookCover)
     }
     if (this.isActiveFor(resBookId)) {
       this.emit()

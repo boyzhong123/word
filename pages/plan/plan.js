@@ -4,6 +4,7 @@ const PREVIEW_COUNT = 5
 const DEFAULT_GROUPS = 2
 const MIN_GROUPS = 1
 const MAX_GROUPS = 8
+const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 
 function toPositiveInt(value, fallback) {
   const number = Math.floor(Number(value))
@@ -79,6 +80,7 @@ Page({
       { name: '', bookCover: '', wordCount: 0, resBookId: '' },
       (getApp().globalData && getApp().globalData.book) || {}
     )
+    book.bookCover = normalizeBookCover(book.bookCover)
     const totalWords = toPositiveInt(options.wordCount, toPositiveInt(book.wordCount, 0))
     book.wordCount = totalWords
 
@@ -171,4 +173,7 @@ Page({
     }, 600)
   },
 
+  onBookCoverError() {
+    this.setData({ 'book.bookCover': getFallbackBookCover() })
+  }
 })

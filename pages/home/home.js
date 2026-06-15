@@ -24,6 +24,7 @@ const { computeScrollTopToCenterTarget } = require('./home-scroll')
 const { withTestBook, isDevTestBook } = require('../../utils/dev-books')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 
 function isTruthyFlag(value) {
   return value === true || value === 1 || value === '1'
@@ -57,10 +58,14 @@ function enrichPickerBooks(books) {
   if (!Array.isArray(books)) {
     return []
   }
-  return books.map(book => Object.assign({}, book, {
-    locked: isBookLocked(book),
-    newStandard: isNewStandardBook(book)
-  }))
+  return books.map(book => {
+    const source = book || {}
+    return Object.assign({}, source, {
+      bookCover: normalizeBookCover(source.bookCover || source.cover),
+      locked: isBookLocked(book),
+      newStandard: isNewStandardBook(book)
+    })
+  })
 }
 
 // 选教材弹窗：顶部学段切换 + 左侧版本分类栏。
@@ -187,7 +192,7 @@ function buildDemoCheckinMetrics() {
 
 const FALLBACK_BOOK = {
   name: '小学英语图解词汇词典',
-  bookCover: '../../images/home/book-cover.png',
+  bookCover: getFallbackBookCover(),
   wordCount: 6392,
   proverbCount: 1413,
   resBookId: '',
@@ -276,6 +281,9 @@ function getHeroLayout() {
   const systemInfo = wx.getSystemInfoSync()
   const windowWidth = Number(systemInfo.windowWidth) || 375
   const windowHeight = Number(systemInfo.windowHeight) || 667
+  // 满屏页高度用 screenHeight：navigationStyle:custom + 自定义 tabBar 下页面满屏，
+  // 而真机 windowHeight 会扣掉底栏高度，用它撑 scroll-view 会矮一截。
+  const screenHeight = Number(systemInfo.screenHeight) || windowHeight
   const statusBarHeight = Number(systemInfo.statusBarHeight) || 20
   let menuBottom = statusBarHeight + 40
 
@@ -294,9 +302,11 @@ function getHeroLayout() {
     heroContentTop,
     bookCardTop,
     heroSectionHeight,
-    scrollViewHeight: windowHeight,
+    scrollViewHeight: screenHeight,
     scrollSpacerRpx,
-    scrollViewStyle: 'height: ' + windowHeight + 'px;',
+    // 用 screenHeight 撑满整屏：真机 windowHeight 扣了底栏，写死它会让 scroll-view
+    // 比满屏的 .home-page 矮一个底栏，底栏上方露出一条页面背景空带（遮挡内容）。
+    scrollViewStyle: 'height: ' + screenHeight + 'px;',
     heroSectionStyle: 'height: ' + heroSectionHeight + 'rpx;',
     heroCopyStyle: 'top: ' + heroContentTop + 'rpx;',
     bookCardStyle: 'top: ' + bookCardTop + 'rpx;',
@@ -306,7 +316,7 @@ function getHeroLayout() {
 
 function normalizeBook(book) {
   const result = Object.assign({}, clone(FALLBACK_BOOK), book || {})
-  result.bookCover = result.bookCover || FALLBACK_BOOK.bookCover
+  result.bookCover = normalizeBookCover(result.bookCover || result.cover || FALLBACK_BOOK.bookCover)
   result.wordCount = Number(result.wordCount) || FALLBACK_BOOK.wordCount
   result.proverbCount = Number(result.proverbCount) || FALLBACK_BOOK.proverbCount
   result.learningInfo = result.learningInfo || FALLBACK_BOOK.learningInfo
@@ -899,32 +909,6 @@ Page({
     })
   },
 
-  goCheckinCalendar() {
-    wx.navigateTo({
-      url: '/pages/checkin/calendar'
-    })
-  },
-
-  goUnitReport(event) {
-    const unitIndex = Number(event.currentTarget.dataset.unitIndex)
-    const units = Array.isArray(this.data.listUnits) ? this.data.listUnits : []
-    const unit = units[unitIndex]
-    if (!unit || unit.doneStages < 3) {
-      return
-    }
-
-    const query = [
-      'sort=' + (unit.sort || 1),
-      'words=' + (unit.levelWords || unit.wordTotal || 12),
-      'en=' + encodeURIComponent(unit.subtitleEnglish || ''),
-      'zh=' + encodeURIComponent(unit.subtitleChinese || '')
-    ].join('&')
-
-    wx.navigateTo({
-      url: '/pages/report/report?' + query
-    })
-  },
-
   onHomeScroll() {
     this.updateTodayLocateFab()
   },
@@ -997,6 +981,32 @@ Page({
     })
   },
 
+  goCheckinCalendar() {
+    wx.navigateTo({
+      url: '/pages/checkin/calendar'
+    })
+  },
+
+  goUnitReport(event) {
+    const unitIndex = Number(event.currentTarget.dataset.unitIndex)
+    const units = Array.isArray(this.data.listUnits) ? this.data.listUnits : []
+    const unit = units[unitIndex]
+    if (!unit || unit.doneStages < 3) {
+      return
+    }
+
+    const query = [
+      'sort=' + (unit.sort || 1),
+      'words=' + (unit.levelWords || unit.wordTotal || 12),
+      'en=' + encodeURIComponent(unit.subtitleEnglish || ''),
+      'zh=' + encodeURIComponent(unit.subtitleChinese || '')
+    ].join('&')
+
+    wx.navigateTo({
+      url: '/pages/report/report?' + query
+    })
+  },
+
   goBuyBook(book) {
     const learningUnits = book.learningInfo && book.learningInfo.book
       ? book.learningInfo.book.learningUnits
@@ -1016,6 +1026,26 @@ Page({
 
     wx.navigateTo({
       url: '../advertisement/advertisement?' + query
+    })
+  },
+
+  onMainBookCoverError() {
+    const fallback = getFallbackBookCover()
+    if (this.data.book && this.data.book.bookCover !== fallback) {
+      this.setData({ 'book.bookCover': fallback })
+    }
+  },
+
+  onPickerBookCoverError(event) {
+    const resBookId = event.currentTarget.dataset.resBookId
+    const fallback = getFallbackBookCover()
+    const patchBook = item => item && item.resBookId === resBookId
+      ? Object.assign({}, item, { bookCover: fallback })
+      : item
+
+    this.setData({
+      allBooks: (this.data.allBooks || []).map(patchBook),
+      pickerBooks: (this.data.pickerBooks || []).map(patchBook)
     })
   },
 

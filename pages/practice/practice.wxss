@@ -35,14 +35,6 @@ page,
   background: transparent;
 }
 
-.route-icon {
-  position: absolute;
-  top: 55rpx;
-  right: 30rpx;
-  width: 45rpx;
-  height: 37rpx;
-}
-
 .scroll-container {
   height: calc(100% - 118rpx);
   position: relative;

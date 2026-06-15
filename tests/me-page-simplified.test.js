@@ -53,3 +53,28 @@ test('me page uses the jelly monster header and clean card stack', () => {
   assert.doesNotMatch(meStyle, /\.profile-header::before\s*{[^}]*content:\s*'A B C'/s)
   assert.doesNotMatch(meStyle, /\.message-grid\s*{/)
 })
+
+test('me page lets users refresh WeChat avatar and nickname from the profile header', () => {
+  const apiScript = fs.readFileSync(path.join(projectRoot, 'utils/api.js'), 'utf8')
+
+  assert.match(meTemplate, /open-type="chooseAvatar"/)
+  assert.match(meTemplate, /bindchooseavatar="handleChooseAvatar"/)
+  assert.match(meTemplate, /type="nickname"/)
+  assert.match(meTemplate, /bindblur="handleNickNameBlur"/)
+  assert.match(meScript, /saveUserInfo/)
+  assert.match(meScript, /handleChooseAvatar\(event\)/)
+  assert.match(meScript, /commitNickName\(/)
+  assert.match(apiScript, /saveUserInfo/)
+})
+
+test('me page adds WeChat phone verification in account settings', () => {
+  const apiScript = fs.readFileSync(path.join(projectRoot, 'utils/api.js'), 'utf8')
+
+  assert.match(meScript, /label: '手机号验证'/)
+  assert.match(meScript, /openType: 'getPhoneNumber'/)
+  assert.match(meTemplate, /bindgetphonenumber="handleGetPhoneNumber"/)
+  assert.match(meScript, /handleGetPhoneNumber\(event\)/)
+  assert.match(meScript, /bindPhoneNumber/)
+  assert.match(apiScript, /function bindPhoneNumber/)
+  assert.match(apiScript, /\/mini-app\/user\/phone-number/)
+})

@@ -64,38 +64,24 @@ function buildHotelRangeClasses(prefix, day) {
   let showRangeBand = false
   const bandBase = `${prefix}-range-band`
 
+  // 选中区间 = 一条连续的浅绿背景带（覆盖区间内每一天，仅在区间首尾/周首尾收圆角）
   if (day.inRange) {
-    if (day.isRangeSingle) {
-      outer[`${prefix}-single`] = true
-      outer[`${prefix}-edge`] = true
-      cell[`${prefix}-cell-edge`] = true
-    } else {
-      showRangeBand = true
-      band[bandBase] = true
-
-      if (day.isRangeStart) {
-        outer[`${prefix}-edge`] = true
-        outer[`${prefix}-start`] = true
-        cell[`${prefix}-cell-edge`] = true
-        band[`${bandBase}-from-center`] = true
-      } else if (day.isRangeEnd) {
-        outer[`${prefix}-edge`] = true
-        outer[`${prefix}-end`] = true
-        cell[`${prefix}-cell-edge`] = true
-        band[`${bandBase}-to-center`] = true
-      } else {
-        outer[`${prefix}-in-range`] = true
-        cell[`${prefix}-cell-in-range`] = true
-        band[`${bandBase}-full`] = true
-      }
-
-      if ((day.isRangeEnd && !day.isWeekStart) || (!day.isRangeStart && !day.isWeekStart)) {
-        band[`${bandBase}-round-left`] = true
-      }
-      if ((day.isRangeStart && !day.isWeekEnd) || (!day.isRangeEnd && !day.isWeekEnd)) {
-        band[`${bandBase}-round-right`] = true
-      }
+    showRangeBand = true
+    band[bandBase] = true
+    band[`${bandBase}-full`] = true
+    outer[`${prefix}-in-range`] = true
+    if (day.isRangeStart || day.isWeekStart) {
+      band[`${bandBase}-round-left`] = true
     }
+    if (day.isRangeEnd || day.isWeekEnd) {
+      band[`${bandBase}-round-right`] = true
+    }
+  }
+
+  // 深绿块 = 当天学习过（与是否在区间无关），用于清楚区分哪几天学了
+  if (day.hasRecord) {
+    cell[`${prefix}-cell-studied`] = true
+    outer[`${prefix}-studied`] = true
   }
 
   const baseClass = prefix === 'calendar' ? 'calendar-day' : 'recent-day'
@@ -161,7 +147,8 @@ Page({
     detailItems: DETAIL_ITEMS,
     heroMascot: RECORD_ICONS.heroMascot,
     rangeRecords: [],
-    hasRangeRecords: false
+    hasRangeRecords: false,
+    rangePulse: ''
   },
 
   onLoad() {
@@ -222,11 +209,19 @@ Page({
       1
     )
 
+    const rangeKey = `${startDate}~${endDate}`
+    let rangePulse = this.data.rangePulse
+    if (this._lastRangeKey && this._lastRangeKey !== rangeKey) {
+      rangePulse = rangePulse === 'is-refreshed-a' ? 'is-refreshed-b' : 'is-refreshed-a'
+    }
+    this._lastRangeKey = rangeKey
+
     this.setData({
       quickRanges: this.buildQuickRanges(),
       monthTitle: formatMonthTitle(this.viewDate),
       rangeLabel: formatRangeLabel(startDate, endDate),
       rangeTag: rangeDays === 1 ? '当天' : `${summary.studyDays}天有记录`,
+      rangePulse,
       selectTip: this.buildSelectTip(),
       summary,
       recentDays: this.buildRecentDays(startDate, endDate),
@@ -270,7 +265,7 @@ Page({
       const isEdge = day.isRangeStart || day.isRangeEnd || day.isRangeSingle
       const isToday = day.date === this.todayDate
       let className = `${rangeClasses.className}${!day.hasRecord && !day.inRange ? ' recent-day-empty' : ''}`
-      if (isToday && !isEdge) {
+      if (isToday && !day.hasRecord && !isEdge) {
         className += ' recent-day-today'
       }
       return Object.assign({}, day, rangeClasses, {
@@ -287,15 +282,21 @@ Page({
       const isEdge = day.isRangeStart || day.isRangeEnd || day.isRangeSingle
       const isToday = day.date === this.todayDate
       const topLabel = day.inMonth ? buildRangeLabel(day, this.todayDate) : ''
-      let className = `${rangeClasses.className}${!day.inMonth ? ' calendar-day-blank' : ''}${day.inMonth && day.hasRecord && !day.inRange ? ' calendar-day-has' : ''}`
-      if (day.inMonth && isToday && !isEdge) {
+      let className = `${rangeClasses.className}${!day.inMonth ? ' calendar-day-blank' : ''}`
+      if (day.inMonth && isToday && !day.hasRecord && !isEdge) {
         className += ' calendar-day-today'
+      }
+      let labelClass = ''
+      if (day.hasRecord) {
+        labelClass = 'calendar-day-label-edge'
+      } else if (isToday && !isEdge) {
+        labelClass = 'calendar-day-label-today'
       }
       return Object.assign({}, day, rangeClasses, {
         className,
         cellClassName: rangeClasses.cellClassName || 'calendar-cell-inner',
         topLabel,
-        labelClass: isEdge ? 'calendar-day-label-edge' : (isToday ? 'calendar-day-label-today' : '')
+        labelClass
       })
     })
   },

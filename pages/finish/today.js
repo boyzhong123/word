@@ -12,6 +12,10 @@ const {
   normalizeScoreRate,
   headerImageForScoreRate
 } = require('../../utils/finish-stars')
+const {
+  awardStudyCoins,
+  getPetFeatureEnabled
+} = require('../../utils/pet-system')
 
 const STREAK_REWARD_DAYS = 30
 
@@ -31,7 +35,11 @@ Page({
     continueLabel: '继续学习',
     showContinue: true,
     headerImage: headerImageForScoreRate(0),
-    scoreRate: 0
+    scoreRate: 0,
+    petReward: {
+      show: false,
+      amount: 0
+    }
   },
 
   onLoad(options) {
@@ -52,6 +60,13 @@ Page({
     const justCheckedIn = todayDoneBefore < todayGoal && checkinComplete
     const stage = getStageInfo(this.taskType)
     const scoreRate = normalizeScoreRate(options.scoreRate)
+    const petReward = getPetFeatureEnabled()
+      ? awardStudyCoins({
+        unitId: options.unitId,
+        taskType: this.taskType,
+        dailyGoalCompleted: justCheckedIn
+      })
+      : { awarded: 0 }
 
     this.setData({
       unitSort: options.unitSort,
@@ -67,7 +82,11 @@ Page({
       stageTitle: stage.title,
       continueLabel: stage.continueLabel,
       scoreRate,
-      headerImage: headerImageForScoreRate(scoreRate)
+      headerImage: headerImageForScoreRate(scoreRate),
+      petReward: {
+        show: petReward.awarded > 0,
+        amount: petReward.awarded || 0
+      }
     })
 
     saveRecord(options.unitId).then(data => {

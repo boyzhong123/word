@@ -4,9 +4,11 @@
 // 覆盖层的开合就是纯 CSS 上滑/下滑。播放仍委托全局单例 player。
 const { login } = require('../../utils/login')
 const { player } = require('../../utils/player')
-const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
+const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
 const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
+const LOADING_MASCOT_SPRITE = imageUrl('/images/listen/loading-mascot-sprite.png')
 
 // 与 wxss 里 listen-slide-down 动画时长一致
 const ANIM_OUT_MS = 300
@@ -21,14 +23,16 @@ Component({
     imageBaseUrl: IMAGE_BASE_URL,
     listenWordTagImage: LISTEN_WORD_TAG_IMAGE,
     listenSentenceTagImage: LISTEN_SENTENCE_TAG_IMAGE,
+    loadingMascotSprite: LOADING_MASCOT_SPRITE,
     visible: false,
+    dialog: { type: '' },
     pageAnimState: 'listen-page-preenter',
     statusBarHeight: wx.getStorageSync('statusBarHeight') || 0,
     navigationBarHeight: wx.getStorageSync('navigationBarHeight') || 0,
     safeAreaBottom: Math.max((wx.getStorageSync('windowHeight') || 0) - ((wx.getStorageSync('safeArea') || {}).bottom || wx.getStorageSync('windowHeight') || 0), 0),
 
     loading: true,
-    bookCover: '../../images/home/book-cover.png',
+    bookCover: getFallbackBookCover(),
 
     // 期（单元）列表
     units: [],
@@ -81,7 +85,7 @@ Component({
       this.closing = false
       const book = (getApp().globalData && getApp().globalData.book) || {}
       const resBookId = opts.resBookId || book.resBookId || ''
-      const bookCover = book.bookCover || this.data.bookCover
+      const bookCover = normalizeBookCover(book.bookCover || this.data.bookCover)
       this.setData({
         visible: true,
         bookCover,
@@ -133,7 +137,7 @@ Component({
       this.setData({
         loading: !s.active,
         unitName: s.unitName,
-        bookCover: s.bookCover,
+        bookCover: normalizeBookCover(s.bookCover),
         units: s.units,
         unitIndex: s.unitIndex,
         tracks: s.tracks,
@@ -220,6 +224,15 @@ Component({
           }
         }
       })
+    },
+
+    // 打开「标记说明」弹窗（页码 / 句子标记 / 评分配色）
+    showMarkTip() {
+      this.setData({ dialog: { type: 'instruction' } })
+    },
+
+    onBookCoverError() {
+      this.setData({ bookCover: getFallbackBookCover() })
     },
 
     scrollToCurrent() {

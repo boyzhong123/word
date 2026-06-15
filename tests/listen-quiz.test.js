@@ -206,13 +206,13 @@ test('recite countdown advances without treating a zero score as missing', () =>
   assert.ok(scheduleReciteToNext)
   assert.match(scheduleReciteToNext[0], /goToNextQuizQuestion\(\)/)
   assert.doesNotMatch(scheduleReciteToNext[0], /quizReciteScore/)
-  assert.match(listenTemplate, /wx:if="{{quizNextCountdown > 0 && \(quizChecked \|\| quizPhase === 'recite'\)}}"/)
+  assert.match(listenTemplate, /wx:if="{{quizNextCountdown > 0 && !quizNextPaused && \(quizChecked \|\| quizPhase === 'recite'\)}}"/)
   assert.match(listenTemplate, /{{quizNextCountdown}} 秒后进入下一步/)
   assert.doesNotMatch(listenTemplate, /wx:if="{{quizReciteScore && quizNextCountdown > 0}}"/)
 })
 
 test('fill and recite countdown use the same auto-advance copy', () => {
-  const countdownCopies = [...listenTemplate.matchAll(/>{{quizNextCountdown}} 秒后进入下一步<\/view>/g)]
+  const countdownCopies = [...listenTemplate.matchAll(/>{{quizNextCountdown}} 秒后进入下一步<\/text>/g)]
   assert.equal(countdownCopies.length, 1)
   assert.doesNotMatch(listenTemplate, /秒后自动进入背诵/)
   assert.doesNotMatch(listenTemplate, /秒后即将切换下一单词/)
@@ -263,11 +263,18 @@ test('quiz hint action aligns with the word-new hint placement', () => {
 })
 
 test('auto-advance countdown renders below the quiz card with one shared style', () => {
-  assert.match(listenTemplate, /<\/view>\s*<view\s+wx:if="{{quizNextCountdown > 0 && \(quizChecked \|\| quizPhase === 'recite'\)}}"\s+class="quiz-countdown"/)
+  assert.match(listenTemplate, /<\/view>\s*<view\s+wx:if="{{quizNextCountdown > 0 && !quizNextPaused && \(quizChecked \|\| quizPhase === 'recite'\)}}"\s+class="quiz-countdown"/)
+  // 暂停态复用同一个 quiz-countdown 容器（不引入独立样式），点按可恢复自动切换
+  assert.match(listenTemplate, /<view\s+wx:elif="{{quizNextPaused && \(quizChecked \|\| quizPhase === 'recite'\)}}"\s+class="quiz-countdown"/)
+  assert.match(listenTemplate, /catchtap="pauseQuizCountdown"/)
+  assert.match(listenTemplate, /catchtap="resumeQuizNext"/)
+  assert.match(listenTemplate, /已暂停自动切换/)
   assert.doesNotMatch(listenTemplate, /quiz-countdown-fill/)
   assert.doesNotMatch(listenTemplate, /quiz-countdown-recite/)
+  assert.doesNotMatch(listenTemplate, /quiz-countdown-paused/)
   assert.doesNotMatch(listenStyle, /\.quiz-countdown-fill/)
   assert.doesNotMatch(listenStyle, /\.quiz-countdown-recite/)
+  assert.doesNotMatch(listenStyle, /\.quiz-countdown-paused/)
   assert.doesNotMatch(listenStyle, /\.quiz-countdown\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.72\)/s)
 })
 

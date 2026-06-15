@@ -65,7 +65,7 @@
         </block>
         <block wx:else>
           <view class="book-cover-column">
-            <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" />
+            <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" binderror="onMainBookCoverError" />
             <view class="switch-book switch-book-cover" bindtap="switchBook">
               <image class="switch-icon" src="../../images/home/icon-switch-book.svg" mode="aspectFit" />
               <text>切换教材</text>
@@ -522,7 +522,7 @@
               bindtap="selectBook"
             >
               <view class="book-picker-cover-wrap">
-                <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" />
+                <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" data-res-book-id="{{item.resBookId}}" binderror="onPickerBookCoverError" />
                 <view wx:if="{{item.locked}}" class="book-picker-cover-mask">
                   <image class="book-picker-cover-lock" src="../../images/home/icon-picker-lock.svg" mode="aspectFit" />
                 </view>

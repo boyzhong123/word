@@ -88,11 +88,19 @@
       },
       {
         "type": "glob",
+        "value": "images/audio.png"
+      },
+      {
+        "type": "glob",
         "value": "images/home/hero-campus-jelly-v5.png"
       },
       {
         "type": "glob",
         "value": "images/listen/loading-mascot.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/listen/loading-mascot-sprite.png"
       },
       {
         "type": "glob",
@@ -176,6 +184,14 @@
       },
       {
         "type": "glob",
+        "value": "images/home/map/monsters/jelly-defeated.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/map/monsters/jelly-locked.png"
+      },
+      {
+        "type": "glob",
         "value": "images/listen/tag-sentence-jelly.png"
       },
       {
@@ -189,6 +205,42 @@
       {
         "type": "glob",
         "value": "images/home/fab-today-locate-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/high-focus-cat.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/high-mentor-owl.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/high-planner-dog.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/middle-audio-cat.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/middle-explorer-dog.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/middle-note-fox.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/primary-reader-cat.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/primary-scarf-dog.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/pet/primary-star-bunny.png"
       }
     ],
     "include": []

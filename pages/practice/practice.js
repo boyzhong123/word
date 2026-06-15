@@ -325,18 +325,6 @@ Page({
         path: '/pages/practice/practice?id=' + this.wordId + "&resBookId=" + this.resBookId + '&unitId=' + this.unitId + '&name=' + this.resBookName + '&taskType=' + this.data.taskType
     }
   },
-  goRoute() {
-    wx.navigateTo({
-      url: '../catalogue/catalogue?resBookId=' + this.resBookId + '&unitId=' + this.unitId + '&name=' + this.resBookName,
-      events: {
-        'study': p => {
-          this.resBookId = p.resBookId
-          this.unitId = p.unitId
-          this.studyNew = true
-        }
-      }
-    })
-  },
   onScroll(e) {
     this.scrollTop = e.detail.scrollTop
   },

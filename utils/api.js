@@ -8,6 +8,16 @@ function saveUserInfo(userInfo) {
   })
 }
 
+function bindPhoneNumber(phoneInfo) {
+  return new Promise((resolve, reject) => {
+    util.request('POST', '/mini-app/user/phone-number', { data: phoneInfo }, (data) => {
+      resolve(data)
+    }, (status, data, message) => {
+      reject({ status, data, message })
+    })
+  })
+}
+
 function getUserBooks() {
   return new Promise(resolve => {
     util.request('GET', '/mini-app/user-books', {}, (data) => {
@@ -179,6 +189,7 @@ function reportListeningQuizResult(payload) {
 
 module.exports = {
   saveUserInfo,
+  bindPhoneNumber,
   getUserInfo,
   getUserBooks,
   search,

@@ -55,6 +55,10 @@
         <view class="quiz-head">
           <view class="quiz-tip" wx:if="{{quizPhase === 'fill'}}">听音频，把缺的单词填进去</view>
           <view class="quiz-tip" wx:else>看着中文默念，然后开口背诵</view>
+          <view class="quiz-head-right">
+            <text wx:if="{{quizQuestion.page}}" class="quiz-page">P{{quizQuestion.page}}</text>
+            <image class="quiz-help-icon" src="/images/icon_tip.png" mode="aspectFit" bindtap="showMarkTip" />
+          </view>
         </view>
 
         <view class="quiz-card {{quizPhase === 'recite' ? 'quiz-card-recite' : ''}}">
@@ -168,7 +172,7 @@
             <image class="disc-tray" src="/images/listen/disc-tray.png" />
             <view class="disc-stack {{playing ? 'spinning' : ''}}">
               <image class="disc-texture" src="/images/listen/disc-texture-overlay.png" />
-              <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" />
+              <image class="cover-disc" src="{{bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
               <view class="disc-sheen"></view>
             </view>
             <view class="disc-spindle"></view>
@@ -314,7 +318,7 @@
     <view class="loading-panel">
       <view class="loading-mascot-wrap">
         <frame-animation
-          url="../../images/listen/loading-mascot-sprite.png"
+          url="{{loadingMascotSprite}}"
           count="6"
           width="160"
           height="160"
