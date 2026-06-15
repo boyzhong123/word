@@ -18,6 +18,7 @@ const {
 const {
     normalizeProverb
 } = require('../../utils/proverb-text')
+const { player } = require('../../utils/player')
 
 const PRONUNCIATION_TIPS = [
   '先发 /æ/ 音，嘴巴张大，舌尖抵下齿背',
@@ -388,6 +389,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    player.suspendForExternalAudio('practice')
     if (this.studyNew) {
       this.studyNew = false
       this.setData({
@@ -414,6 +416,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload() {
+      player.resumeFromExternalAudio('practice')
       this.clearWordHintTimers()
       this.stopAutoNextCountdown()
       if (this.data.innerAudioContext) {

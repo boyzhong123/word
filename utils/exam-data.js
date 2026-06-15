@@ -93,6 +93,13 @@ function stripPunctuation(text) {
   return String(text || '').replace(/[.,!?;:]+$/, '')
 }
 
+// 单词发音地址。当前用有道词典 TTS（InnerAudioContext 播放媒体不受小程序域名白名单限制），
+// 后期对接后端音频时，把这里换成接口返回的 audioUrl 即可，其余逻辑不变。
+// type=1 英式，type=2 美式。
+function voiceUrl(word) {
+  return 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=1'
+}
+
 // ----------------------------- 组卷 -----------------------------
 // 单词模块：四种题型轮流覆盖整个词库。
 function buildWordQuestions(random) {
@@ -143,6 +150,7 @@ function buildWordQuestions(random) {
         stem: '',
         stemSub: '点击喇叭听发音，选出正确单词',
         audioWord: word.spell,
+        audioUrl: voiceUrl(word.spell),
         options: built.options,
         answer: built.answer,
         explain: word.spell + ' ' + word.phonetic + ' ' + word.meaning
@@ -364,11 +372,53 @@ function hasResult(resBookId, type) {
   return !!getResult(resBookId, type)
 }
 
+// ----------------------------- 结业测解锁 -----------------------------
+// 取某个关卡的星级。每个关卡有 3 个环节（单词新学 / 跟读背诵 / 关卡小测），
+// 满星 = 3 星。优先读后端可能下发的星级字段，兜底用 doneStages / completed。
+// 待后端补充每关星级后，前面的字段分支会自然生效。
+function unitStarCount(unit) {
+  if (!unit) {
+    return 0
+  }
+  if (typeof unit.stars === 'number') return unit.stars
+  if (typeof unit.star === 'number') return unit.star
+  if (typeof unit.starNum === 'number') return unit.starNum
+  if (typeof unit.doneStages === 'number') return unit.doneStages
+  if (Array.isArray(unit.stageStars)) return unit.stageStars.filter(Boolean).length
+  // 仅有 completed 字段时：通关按满星计，否则 0。
+  return unit.completed ? 3 : 0
+}
+
+// 单关是否达标：星级 ≥ 2。
+// 星级由 unitStarCount 给出（首页用 doneStages/stageStars，接口用 stars/completed 兜底），
+// 因此「通关」与「至少 2 星」在这里统一为一个星级门槛。
+function isUnitPassed(unit) {
+  return !!unit && unitStarCount(unit) >= 2
+}
+
+// 结业测解锁状态：所有真实关卡都达标才解锁（排除测评节点本身）。
+function getExitLockState(units) {
+  const real = (Array.isArray(units) ? units : []).filter(function (u) { return u && !u.isExam })
+  const total = real.length
+  const passed = real.filter(isUnitPassed).length
+  const locked = total === 0 || passed < total
+  return {
+    locked: locked,
+    total: total,
+    passed: passed,
+    reason: total === 0
+      ? '暂未获取到关卡进度'
+      : '需先通关全部 ' + total + ' 个关卡且每关至少 2 星（当前 ' + passed + '/' + total + '）'
+  }
+}
+
 module.exports = {
   getExam: getExam,
   scoreExam: scoreExam,
   isCorrect: isCorrect,
   saveResult: saveResult,
   getResult: getResult,
-  hasResult: hasResult
+  hasResult: hasResult,
+  getExitLockState: getExitLockState,
+  isUnitPassed: isUnitPassed
 }

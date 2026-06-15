@@ -48,6 +48,7 @@ function createWaveInstance(config, rect) {
     height: 0,
     requestAnimationFrame(cb) {
       this._raf = cb
+      return 1
     },
     cancelAnimationFrame() {
       this._raf = null
@@ -122,6 +123,13 @@ test('media increments waveSession and only force-restarts wave as fallback', ()
   assert.match(mediaScript, /retry >= 8/)
 })
 
+test('media clears pending wave retry timers when recording stops', () => {
+  assert.match(mediaScript, /clearRecordingWaveRetry/)
+  assert.match(mediaScript, /clearTimeout\(this\.waveRetryTimer\)/)
+  assert.match(mediaScript, /this\.waveRetryToken/)
+  assert.match(mediaScript, /this\.data\.media_state !== RECORDING/)
+})
+
 test('simulated wave lifecycle starts drawing on first and third recording', async () => {
   const { config } = loadWaveComponent()
   const rect = { width: 320, height: 53 }
@@ -150,4 +158,18 @@ test('simulated restart remounts canvas after stop', async () => {
   await flushTimers(250)
   assert.equal(wave.running, true)
   wave.stop()
+})
+
+test('wave stop cancels pending animation frame before releasing canvas', async () => {
+  const { config } = loadWaveComponent()
+  const wave = createWaveInstance(config, { width: 300, height: 53 })
+  config.lifetimes.ready.call(wave)
+  await flushTimers(200)
+
+  const canvas = wave.canvas
+  assert.equal(typeof canvas._raf, 'function')
+  wave.stop()
+  assert.equal(wave.running, false)
+  assert.equal(canvas._raf, null)
+  assert.equal(wave.canvas, null)
 })

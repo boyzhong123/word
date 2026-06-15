@@ -9,6 +9,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif'])
 const DEFAULT_THRESHOLD_KB = 150
 const DEFAULT_MAX_PACKAGE_KB = 4096
+const GENERATED_IMAGE_DIRS = ['/.jelly-build/', '/.build/']
 
 const args = new Map()
 for (const arg of process.argv.slice(2)) {
@@ -124,7 +125,7 @@ const ignoreMatchers = getIgnoreMatchers(projectConfig)
 const remoteImagePaths = extractRemoteImagePaths()
 
 const imageFiles = walk(path.join(ROOT, 'images'), {
-  skip: relPath => relPath.includes('/.jelly-build/')
+  skip: relPath => GENERATED_IMAGE_DIRS.some(dir => `/${relPath}/`.includes(dir))
 })
   .filter(filePath => IMAGE_EXTENSIONS.has(path.extname(filePath).toLowerCase()))
   .map(filePath => {

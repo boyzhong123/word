@@ -1,13 +1,23 @@
 <!--pages/exam/exam.wxml-->
 <view class="exam-page">
-  <navigation background="transparent" backInner="{{false}}" bind:back="confirmQuit">
-    <view class="exam-nav-title">{{stage === 'intro' ? '测评' : sectionName + '测评'}}</view>
-  </navigation>
+  <view class="exam-nav">
+    <navigation background="transparent" backInner="{{false}}" bind:back="confirmQuit">
+      <view class="nav-title-wrap">
+        <view class="nav-title-block">
+          <view class="nav-title">{{stage === 'intro' ? '测评' : sectionName + '测评'}}</view>
+          <view wx:if="{{stage === 'quiz'}}" class="nav-subtitle">{{counter}}</view>
+        </view>
+      </view>
+    </navigation>
+    <view wx:if="{{stage === 'quiz'}}" class="exam-top-progress" style="{{progressTrackStyle}}"></view>
+  </view>
 
   <!-- 开始页 -->
   <view wx:if="{{stage === 'intro'}}" class="intro">
     <view class="intro-card">
-      <image class="intro-mascot" src="../../images/home/mascot-report-jelly.png" mode="aspectFit" />
+      <view class="intro-hero">
+        <image class="intro-hero-img" src="../../images/home/exam-intro-hero-v2.jpg" mode="aspectFill" />
+      </view>
       <view class="intro-title">{{title}}</view>
       <view class="intro-subtitle">{{subtitle}}</view>
       <view class="intro-total">共 {{total}} 题</view>
@@ -22,33 +32,64 @@
         </view>
       </view>
     </view>
-    <view class="intro-tip">认真作答，结束后会生成专属测评报告</view>
-    <view class="intro-btn" bindtap="startExam">开始测评</view>
+    <view class="intro-benefits">
+      <view class="intro-benefit">
+        <image class="intro-benefit-icon" src="../../images/home/icon-exam-target.svg" mode="aspectFit" />
+        <text>定位水平</text>
+      </view>
+      <view class="intro-benefit">
+        <image class="intro-benefit-icon" src="../../images/home/icon-exam-diagnose.svg" mode="aspectFit" />
+        <text>发现薄弱项</text>
+      </view>
+      <view class="intro-benefit">
+        <image class="intro-benefit-icon" src="../../images/home/icon-exam-report.svg" mode="aspectFit" />
+        <text>生成报告</text>
+      </view>
+    </view>
+    <view class="intro-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+      <view class="intro-tip">认真作答，结束后会生成专属测评报告</view>
+      <view class="intro-btn" bindtap="startExam">开始测评</view>
+    </view>
   </view>
 
   <!-- 答题页 -->
-  <block wx:if="{{stage === 'quiz'}}">
+  <view wx:if="{{stage === 'quiz'}}" class="quiz">
     <view class="quiz-head">
-      <view class="progress-row">
-        <view class="progress-track">
-          <view class="progress-fill" style="width: {{progress}}%;"></view>
-        </view>
-        <text class="progress-counter">{{counter}}</text>
-      </view>
       <view class="quiz-tags">
         <text class="tag tag-section">{{sectionName}}</text>
         <text class="tag tag-type">{{question.typeLabel}}</text>
       </view>
     </view>
 
-    <scroll-view class="quiz-body" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="quiz-stage">
       <!-- 题干 -->
-      <view class="stem-wrap">
-        <!-- 听音辨词：喇叭 -->
-        <view wx:if="{{question.type === 'word-audio'}}" class="audio-stem" bindtap="playAudio">
-          <view class="audio-btn">🔊</view>
-          <text class="audio-hint">{{question.stemSub}}</text>
-        </view>
+      <view class="stem">
+        <!-- 听音辨词：英/美 喇叭药丸 -->
+        <block wx:if="{{question.type === 'word-audio'}}">
+          <view class="stem-audio-row" bindtap="playAudio">
+            <view class="stem-pron {{audioPlaying ? 'stem-pron-active' : ''}}">
+              <view class="stem-pron-pill">
+                <text class="stem-lang">发音</text>
+                <image class="stem-spk {{audioPlaying ? 'wn-spk-playing' : ''}}" src="{{audioPlaying ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
+              </view>
+            </view>
+          </view>
+          <view class="stem-tip">{{question.stemSub}}</view>
+        </block>
+
+        <!-- 词义理解：英文单词 + 音标药丸 -->
+        <block wx:elif="{{question.type === 'word-cn'}}">
+          <view class="stem-word">{{question.stem}}</view>
+          <view wx:if="{{question.stemSub}}" class="stem-ipa-row">
+            <view class="stem-pron stem-pron-active">
+              <view class="stem-pron-pill">
+                <text class="stem-lang">英</text>
+                <image class="stem-spk" src="../../images/audio_small_white.png" mode="aspectFit" />
+              </view>
+            </view>
+            <text class="stem-ipa">{{question.stemSub}}</text>
+          </view>
+        </block>
 
         <!-- 其它题型 -->
         <block wx:else>
@@ -58,16 +99,15 @@
       </view>
 
       <!-- 选择题 -->
-      <view wx:if="{{question.interaction === 'choice'}}" class="options">
+      <view wx:if="{{question.interaction === 'choice'}}" class="choice-list">
         <view
-          class="option {{selected === index ? 'option-active' : ''}}"
+          class="choice-card {{selected === index ? 'choice-card-active' : ''}}"
           wx:for="{{question.options}}"
           wx:key="index"
           data-idx="{{index}}"
           bindtap="selectOption"
         >
-          <text class="option-key">{{['A','B','C','D'][index]}}</text>
-          <text class="option-text">{{item}}</text>
+          <text class="choice-text">{{item}}</text>
         </view>
       </view>
 
@@ -95,14 +135,17 @@
           >{{item.text}}</text>
         </view>
       </view>
-
-      <view class="quiz-body-space"></view>
-    </scroll-view>
+    </view>
 
     <!-- 底部操作 -->
-    <view class="quiz-foot">
-      <view class="foot-btn foot-btn-ghost {{index === 0 ? 'foot-btn-disabled' : ''}}" bindtap="prevQuestion">上一题</view>
-      <view class="foot-btn foot-btn-primary {{canNext ? '' : 'foot-btn-mute'}}" bindtap="nextQuestion">{{isLast ? '交卷' : '下一题'}}</view>
+    <view class="quiz-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+      <view wx:if="{{index > 0}}" class="foot-prev" bindtap="prevQuestion">上一题</view>
+      <view class="foot-col {{canNext ? '' : 'foot-col-disabled'}}" bindtap="nextQuestion">
+        <text class="foot-text">{{isLast ? '交卷' : '继续'}}</text>
+        <view class="foot-underline"></view>
+      </view>
     </view>
-  </block>
+  </view>
+
+  <dialog dialog="{{dialog}}"></dialog>
 </view>

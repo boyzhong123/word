@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif'])
 const DEFAULT_THRESHOLD_KB = 150
-const SKIP_PATH_PARTS = ['/.jelly-build/']
+const SKIP_PATH_PARTS = ['/.jelly-build/', '/.build/']
 
 const args = new Map()
 for (const arg of process.argv.slice(2)) {

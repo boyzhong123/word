@@ -136,9 +136,7 @@ Page({
     if (quizMode) {
       // 关卡小测：独立局部音频，不影响/不复用全局随身听
       this.setData({ pageAnimState: '' })
-      if (player.active) {
-        player.pause()
-      }
+      player.suspendForExternalAudio('listen-quiz')
       this.initQuizAudio()
       login().then(() => this.loadUnits())
       return
@@ -186,6 +184,7 @@ Page({
 
   onUnload() {
     if (this.data.quizMode) {
+      player.resumeFromExternalAudio('listen-quiz')
       this.clearQuizTimers()
       if (this.quizAudio) {
         this.quizAudio.offEnded()

@@ -87,6 +87,14 @@
         "value": "images/study-record/.jelly-build"
       },
       {
+        "type": "folder",
+        "value": "images/home/.build"
+      },
+      {
+        "type": "folder",
+        "value": "images/word-new/.build"
+      },
+      {
         "type": "glob",
         "value": "images/audio.png"
       },
@@ -256,11 +264,19 @@
       },
       {
         "type": "glob",
-        "value": "images/home/.build/toast-hint-source-keyed.png"
+        "value": "images/home/student-monster-pk-sprite-girl.png"
       },
       {
         "type": "glob",
-        "value": "images/home/student-monster-pk-sprite-girl.png"
+        "value": "images/home/exam-entry-banner-entry.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/exam-entry-banner-exit.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/exam-entry-banner-exit-locked.png"
       }
     ],
     "include": []

@@ -124,21 +124,6 @@ function handleRecorderErrorFor(target, res) {
   target.resetMarkingState('录音失败，请重试')
 }
 
-// 录音会话开始时，把引擎与录音机的回调直接绑定到发起录音的实例。
-// 结果回来时不再经过路由表，避免组件切换（展开另一句/进入下一题）后指针
-// 过期导致评分结果丢失、界面卡在"评分中..."。
-function claimSessionHandlers(media) {
-  if (!wsEngine) {
-    return
-  }
-  wsEngine.onResult(res => handleEngineResultFor(media, res))
-  wsEngine.onErrorResult(res => handleEngineErrorResultFor(media, res))
-  recorderManager.onStart(() => handleRecorderStartFor(media))
-  recorderManager.onStop(res => handleRecorderStopFor(media, res))
-  recorderManager.onFrameRecorded(res => handleFrameRecordedFor(media, res))
-  recorderManager.onError(res => handleRecorderErrorFor(media, res))
-}
-
 function bindEngineEvents() {
   if (!wsEngine || engineBound) {
     return
@@ -147,7 +132,7 @@ function bindEngineEvents() {
   wsEngine.onResult(res => {
     const target = scoringSession.routeMediaTarget()
     if (target) {
-      target.handleEngineResult(res)
+      handleEngineResultFor(target, res)
     } else {
       console.warn('[media] onResult with no active scorer', JSON.stringify(res))
     }
@@ -155,7 +140,7 @@ function bindEngineEvents() {
   wsEngine.onErrorResult(res => {
     const target = scoringSession.routeMediaTarget()
     if (target) {
-      target.handleEngineErrorResult(res)
+      handleEngineErrorResultFor(target, res)
     } else {
       console.warn('[media] onErrorResult with no active scorer', JSON.stringify(res))
     }
@@ -255,10 +240,13 @@ Component({
     media_state: function (value) {
       this.triggerEvent('mediaStateChange', { state: value })
       if (value === RECORDING) {
+        this.clearRecordingWaveRetry()
         const waveSession = this.data.waveSession + 1
+        this.waveRetryToken = (this.waveRetryToken || 0) + 1
+        const waveRetryToken = this.waveRetryToken
         waveDebug.log('media.recording.start', { waveSession, index: this.data._index })
         this.setData({ waveSession: waveSession }, () => {
-          this.restartRecordingWave()
+          this.restartRecordingWave(0, waveRetryToken)
         })
         return
       }
@@ -557,7 +545,6 @@ Component({
         this.preparingRecord = false
         scoringSession.setActiveMedia(this)
         scoringSession.abortOtherScoring(this)
-        claimSessionHandlers(this)
         this.devtoolsMock = true
         this.setData({ media_state: RECORDING })
         startRecorder()
@@ -568,7 +555,6 @@ Component({
         this.preparingRecord = false
         scoringSession.setActiveMedia(this)
         scoringSession.abortOtherScoring(this)
-        claimSessionHandlers(this)
         this.devtoolsMock = false
         if (!isValidSig(this.data._sig)) {
           this.resetMarkingState('评分准备失败，请重试')
@@ -717,17 +703,35 @@ Component({
     cancel() {
       if (this.timerId) {
         clearTimeout(this.timerId)
+        this.timerId = null
       }
+      this.clearRecordingWaveRetry()
       this.stopAudio()
       this.cancelRecord()
     },
-    restartRecordingWave(attempt) {
+    clearRecordingWaveRetry() {
+      this.waveRetryToken = (this.waveRetryToken || 0) + 1
+      if (this.waveRetryTimer) {
+        clearTimeout(this.waveRetryTimer)
+        this.waveRetryTimer = null
+      }
+    },
+    scheduleRecordingWaveRetry(retry, token) {
+      this.waveRetryTimer = setTimeout(() => {
+        this.waveRetryTimer = null
+        this.restartRecordingWave(retry, token)
+      }, 64)
+    },
+    restartRecordingWave(attempt, token) {
+      if (token !== this.waveRetryToken || this.data.media_state !== RECORDING) {
+        return
+      }
       const retry = attempt || 0
       const wave = this.selectComponent('#recording-wave') || this.selectComponent('.recording-wave')
       if (!wave) {
         waveDebug.log('media.wave.wait', { retry })
         if (retry < 30) {
-          setTimeout(() => this.restartRecordingWave(retry + 1), 64)
+          this.scheduleRecordingWaveRetry(retry + 1, token)
         } else {
           waveDebug.log('media.wave.missing', { retry })
         }
@@ -744,9 +748,10 @@ Component({
         }
         return
       }
-      setTimeout(() => this.restartRecordingWave(retry + 1), 64)
+      this.scheduleRecordingWaveRetry(retry + 1, token)
     },
     stopRecordingWave() {
+      this.clearRecordingWaveRetry()
       const wave = this.selectComponent('#recording-wave') || this.selectComponent('.recording-wave')
       if (wave && typeof wave.stop === 'function') {
         wave.stop()

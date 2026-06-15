@@ -7,10 +7,12 @@
     enhanced
     show-scrollbar="{{false}}"
     scroll-with-animation
+    scroll-into-view="{{homeIntoView}}"
     lower-threshold="240"
     bindscroll="onHomeScroll"
     bindscrolltolower="loadMoreUnits"
   >
+    <view id="home-top-anchor"></view>
     <view class="hero-section" style="{{heroSectionStyle}}">
       <image class="hero-image" src="{{heroImageUrl}}" mode="widthFix" />
 
@@ -148,6 +150,11 @@
 
       <block wx:else>
       <block wx:if="{{levelViewMode === 'category'}}">
+      <!-- 入门测：关卡列表最前面 -->
+      <view class="exam-entry-banner" bindtap="goExamEntry">
+        <image class="exam-entry-banner-image" src="{{examEntryBannerUrl}}" mode="widthFix" />
+      </view>
+
       <block wx:for="{{listGroups}}" wx:for-item="group" wx:key="key">
         <!-- 今日要学：把当天要学的关卡装进一个大框，配色区别于复习卡 -->
         <view wx:if="{{group.today}}" id="today-group" class="today-group">
@@ -378,6 +385,15 @@
         </view>
         </block>
       </block>
+
+      <!-- 结业测：全部关卡加载完后再显示，避免分页中间误以为是列表底部 -->
+      <view wx:if="{{showExamExitBanner}}" class="exam-entry-banner" bindtap="goExamExit">
+        <image
+          class="exam-entry-banner-image"
+          src="{{examExitLocked ? examExitLockedBannerUrl : examExitBannerUrl}}"
+          mode="widthFix"
+        />
+      </view>
       </block>
 
       <block wx:else>
@@ -458,7 +474,7 @@
   <view
     wx:if="{{!loading && levelViewMode === 'category' && showTodayLocateFab}}"
     class="today-locate-fab"
-    bindtap="scrollToTodayTasks"
+    bindtap="scrollToTop"
   >
     <image class="today-locate-fab-image" src="{{imageBaseUrl}}/images/home/fab-today-locate-jelly.png" mode="aspectFit" />
   </view>

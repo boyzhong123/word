@@ -46,11 +46,6 @@
             >
               {{item.current ? '当前' : '切换'}}
             </view>
-            <view
-              class="row-link"
-              data-res-book-id="{{item.resBookId}}"
-              bindtap="openCatalogue"
-            >目录</view>
           </view>
         </view>
       </view>

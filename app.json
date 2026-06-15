@@ -6,7 +6,6 @@
     "pages/advertisement/advertisement",
     "pages/vip/vip",
     "pages/finish/today",
-    "pages/catalogue/catalogue",
     "pages/listen/listen",
     "pages/checkin/calendar",
     "pages/study-record/record",
@@ -24,13 +23,14 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationStyle": "custom"
+    "navigationStyle": "custom",
+    "backgroundColor": "#fffdf8"
   },
   "tabBar": {
     "custom": true,
     "color": "#151515",
     "selectedColor": "#2f80ed",
-    "backgroundColor": "#ffffff",
+    "backgroundColor": "#fffdf8",
     "list": [
       {
         "pagePath": "pages/home/home",
@@ -43,6 +43,9 @@
     ]
   },
   "style": "v2",
+  "requiredBackgroundModes": [
+    "audio"
+  ],
   "sitemapLocation": "sitemap.json",
   "useExtendedLib": {
     "weui": true

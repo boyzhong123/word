@@ -22,6 +22,7 @@ const { normalizeCheckedDates, buildDemoCheckedDates, DEMO_CONTINUOUS_DAYS } = r
 const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
 const { computeScrollTopToAlignTarget } = require('./home-scroll')
 const { withTestBook, applyDevPurchaseToBook, applyDevPurchaseToBooks, isDevPurchased } = require('../../utils/dev-books')
+const { getExitLockState } = require('../../utils/exam-data')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { IMAGE_BASE_URL } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
@@ -30,6 +31,17 @@ const {
   pickGenderFromUserInfo,
   setCharacterGender
 } = require('../../utils/character-gender')
+
+function buildExamBannerUrls(imageBaseUrl) {
+  const prefix = imageBaseUrl || ''
+  const version = '20260615-chatgpt-exit'
+  const withVersion = path => `${path}?v=${version}`
+  return {
+    examEntryBannerUrl: withVersion(prefix + '/images/home/exam-entry-banner-entry.png'),
+    examExitBannerUrl: withVersion(prefix + '/images/home/exam-entry-banner-exit.png'),
+    examExitLockedBannerUrl: withVersion(prefix + '/images/home/exam-entry-banner-exit-locked.png')
+  }
+}
 
 function isTruthyFlag(value) {
   return value === true || value === 1 || value === '1'
@@ -371,6 +383,14 @@ Page({
     },
     levelViewMode: 'category',
     selectedMapUnitIndex: -1,
+    // 入门测 / 结业测入口（插在关卡列表首尾）
+    examBookName: '',
+    examExitLocked: true,
+    examExitLockReason: '',
+    showExamExitBanner: false,
+    examEntryBannerUrl: '',
+    examExitBannerUrl: '',
+    examExitLockedBannerUrl: '',
     units: buildDisplayUnits([], FALLBACK_UNITS),
     listUnits: FALLBACK_LIST_UNITS,
     listGroups: groupListUnits(FALLBACK_LIST_UNITS),
@@ -385,6 +405,7 @@ Page({
     pickerBooks: [],
     hasTodayTasks: hasTodayTaskGroup(FALLBACK_LIST_UNITS),
     showTodayLocateFab: false,
+    homeIntoView: '',
     monsterHint: {
       visible: false,
       text: ''
@@ -395,7 +416,8 @@ Page({
   onLoad() {
     this.setData({
       canUseUserProfile: canUseUserProfile(),
-      ...buildCharacterImageUrls(IMAGE_BASE_URL)
+      ...buildCharacterImageUrls(IMAGE_BASE_URL),
+      ...buildExamBannerUrls(IMAGE_BASE_URL)
     })
     this.resetVisibleUnits()
     this.loadHomeData()
@@ -518,15 +540,53 @@ Page({
     const visibleUnits = allUnits.slice(0, visibleCount)
     const listUnits = this.markedListUnits(visibleUnits)
     const listGroups = groupListUnits(listUnits)
+    // 结业测解锁需全部关卡至少 2 星，用完整关卡列表判定
+    const exitLock = getExitLockState(allUnits)
     this.setData({
       units: visibleUnits,
       listUnits,
       listGroups,
       hasTodayTasks: hasTodayTaskGroup(listGroups),
       mapTrail: buildMapTrail(visibleUnits),
-      selectedMapUnitIndex: -1
+      selectedMapUnitIndex: -1,
+      examBookName: (this.data.book && this.data.book.name) || '',
+      examExitLocked: exitLock.locked,
+      examExitLockReason: exitLock.reason,
+      showExamExitBanner: visibleCount >= allUnits.length
     })
     this.updateTodayLocateFab()
+  },
+
+  // 入门测：关卡列表最前面的入口
+  goExamEntry() {
+    this.openExam('entry')
+  },
+
+  // 结业测：关卡列表最后的入口，未解锁时提示
+  goExamExit() {
+    if (this.data.examExitLocked) {
+      wx.showModal({
+        title: '结业测未解锁',
+        content: this.data.examExitLockReason || '需先通关全部关卡且每关至少 2 星',
+        showCancel: false,
+        confirmText: '我知道了'
+      })
+      return
+    }
+    this.openExam('exit')
+  },
+
+  openExam(type) {
+    const book = this.data.book || {}
+    if (!book.resBookId) {
+      wx.showToast({ title: '请先选择教材', icon: 'none' })
+      return
+    }
+    wx.navigateTo({
+      url: '/pages/exam/exam?resBookId=' + encodeURIComponent(book.resBookId) +
+        '&type=' + type +
+        '&name=' + encodeURIComponent(book.name || '')
+    })
   },
 
   loadMoreUnits() {
@@ -545,7 +605,8 @@ Page({
       listUnits,
       listGroups,
       hasTodayTasks: hasTodayTaskGroup(listGroups),
-      mapTrail: buildMapTrail(visibleUnits)
+      mapTrail: buildMapTrail(visibleUnits),
+      showExamExitBanner: nextVisibleCount >= allUnits.length
     })
     this.updateTodayLocateFab()
   },
@@ -983,6 +1044,17 @@ Page({
         this.setData({ showTodayLocateFab })
       }
     })
+  },
+
+  scrollToTop() {
+    // 先清空再设回目标，保证每次点击都能触发 scroll-into-view（值不变不会重新滚动）
+    this.setData({ homeIntoView: '' }, () => {
+      this.setData({ homeIntoView: 'home-top-anchor' })
+    })
+
+    if (this.data.showTodayLocateFab) {
+      this.setData({ showTodayLocateFab: false })
+    }
   },
 
   scrollToTodayTasks() {

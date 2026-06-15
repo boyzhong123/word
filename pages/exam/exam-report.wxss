@@ -1,7 +1,7 @@
 /* pages/exam/exam-report.wxss */
 .report-page {
   min-height: 100vh;
-  background: #f6f7fb;
+  background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 22%, #eef1fb 52%, #f6f7fb 100%);
   display: flex;
   flex-direction: column;
 }
@@ -22,7 +22,7 @@
   margin: 12rpx 32rpx 0;
   padding: 40rpx 40rpx 48rpx;
   border-radius: 36rpx;
-  background: linear-gradient(160deg, #16a34a 0%, #0f9d58 100%);
+  background: linear-gradient(160deg, #2bb89a 0%, #1d9e86 100%);
   color: #ffffff;
   box-shadow: 0 18rpx 40rpx rgba(22, 163, 74, 0.28);
 }
@@ -159,7 +159,7 @@
 }
 
 .compare-bar-exit {
-  background: #16a34a;
+  background: #2bb89a;
 }
 
 .compare-bar-val {
@@ -185,7 +185,7 @@
 }
 
 .compare-delta-up {
-  color: #16a34a;
+  color: #2bb89a;
 }
 
 .compare-delta-down {
@@ -294,7 +294,7 @@
 
 .type-fill {
   height: 100%;
-  background: #16a34a;
+  background: #2bb89a;
   border-radius: 999rpx;
 }
 
@@ -350,7 +350,7 @@
   display: block;
   margin-top: 14rpx;
   font-size: 24rpx;
-  color: #16a34a;
+  color: #2bb89a;
   line-height: 1.5;
 }
 
@@ -376,6 +376,6 @@
 }
 
 .action-btn-primary {
-  background: #16a34a;
+  background: #2bb89a;
   color: #ffffff;
 }

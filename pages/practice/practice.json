@@ -1,4 +1,5 @@
 {
+  "backgroundColor": "#e7e1f0",
   "usingComponents": {
     "media": "/components/media/media"
   }

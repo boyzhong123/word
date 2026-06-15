@@ -58,8 +58,9 @@ test('media scoring watchdog waits longer than the SDK result timeout', () => {
 test('media falls back to mock scoring inside devtools (recorder emits WebM, not mp3)', () => {
   assert.match(mediaScript, /platform\s*===\s*'devtools'/)
   assert.match(mediaScript, /devtoolsMock/)
-  assert.match(mediaScript, /claimSessionHandlers\(this\)/)
-  assert.match(mediaScript, /function claimSessionHandlers\(media\)/)
+  assert.match(mediaScript, /scoringSession\.setActiveMedia\(this\)/)
+  assert.doesNotMatch(mediaScript, /claimSessionHandlers\(this\)/)
+  assert.doesNotMatch(mediaScript, /function claimSessionHandlers\(media\)/)
 })
 
 test('media binds recorder callbacks once and routes events to the active scorer', () => {

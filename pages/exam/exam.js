@@ -5,6 +5,7 @@ const {
   scoreExam,
   saveResult
 } = require('../../utils/exam-data')
+const { player } = require('../../utils/player')
 
 Page({
   data: {
@@ -16,6 +17,7 @@ Page({
 
     index: 0,
     progress: 0,
+    progressTrackStyle: '',
     counter: '',
     sectionName: '',
     question: null,
@@ -24,7 +26,10 @@ Page({
     ordered: [],             // 连词成句：已排好的词 [{text, key}]
     bank: [],                // 连词成句：词块 [{text, key, used}]
     canNext: false,
-    isLast: false
+    isLast: false,
+    audioPlaying: false,     // 听音题：发音播放中
+    safeAreaBottom: 0,
+    dialog: { type: '' }     // 复用全局 dialog 组件，统一弹窗风格
   },
 
   onLoad(options) {
@@ -36,14 +41,25 @@ Page({
     this.responses = {}      // questionId -> 选项下标 / 词序数组
     this.orderStates = {}    // questionId -> 连词成句的 UI 状态，便于回看还原
 
+    let safeAreaBottom = 0
+    try {
+      const info = wx.getSystemInfoSync()
+      safeAreaBottom = Math.max(0, info.screenHeight - (info.safeArea ? info.safeArea.bottom : info.screenHeight))
+    } catch (e) {}
+
     const exam = getExam(this.resBookId, this.examType)
     this.exam = exam
     this.setData({
       title: exam.title,
       subtitle: exam.subtitle,
       total: exam.total,
-      sections: exam.sections
+      sections: exam.sections,
+      safeAreaBottom: safeAreaBottom
     })
+  },
+
+  onShow() {
+    player.suspendForExternalAudio('exam')
   },
 
   startExam() {
@@ -57,10 +73,16 @@ Page({
     const sectionName = q.section === 'word' ? '单词' : '句子'
     const isLast = index === exam.total - 1
 
+    // 切题时停掉上一题的发音
+    this.stopAudio()
+
+    const percent = Math.round(((index + 1) / exam.total) * 100)
     const view = {
       stage: 'quiz',
       index: index,
-      progress: Math.round(((index + 1) / exam.total) * 100),
+      progress: percent,
+      // 照搬练习页：整宽细条用渐变填充，填充色统一为薄荷绿
+      progressTrackStyle: 'background:linear-gradient(to right, #4dd9a0 ' + percent + '%, rgba(255,255,255,0.36) ' + percent + '%);',
       counter: (index + 1) + ' / ' + exam.total,
       sectionName: sectionName,
       question: q,
@@ -103,10 +125,45 @@ Page({
     this.setData({ selected: idx, canNext: true })
   },
 
-  // 听音辨词：播放发音（音频接口后期接入，先做交互占位，避免暴露答案）
+  // 听音辨词：播放真实发音
   playAudio() {
-    wx.showToast({ title: '正在播放发音…', icon: 'none', duration: 800 })
+    const q = this.data.question
+    const src = q && q.audioUrl
+    if (!src) {
+      wx.showToast({ title: '暂无发音', icon: 'none' })
+      return
+    }
+    if (!this.audioCtx) {
+      this.audioCtx = wx.createInnerAudioContext({ useWebAudioImplement: false })
+      this.audioCtx.onEnded(() => { this.setData({ audioPlaying: false }) })
+      this.audioCtx.onStop(() => { this.setData({ audioPlaying: false }) })
+      this.audioCtx.onError(() => {
+        this.setData({ audioPlaying: false })
+        wx.showToast({ title: '发音加载失败', icon: 'none' })
+      })
+    }
+    this.audioCtx.stop()
+    this.audioCtx.src = src
+    this.audioCtx.play()
+    this.setData({ audioPlaying: true })
     wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+  },
+
+  stopAudio() {
+    if (this.audioCtx) {
+      this.audioCtx.stop()
+    }
+    if (this.data.audioPlaying) {
+      this.setData({ audioPlaying: false })
+    }
+  },
+
+  onUnload() {
+    player.resumeFromExternalAudio('exam')
+    if (this.audioCtx) {
+      this.audioCtx.destroy()
+      this.audioCtx = null
+    }
   },
 
   // 连词成句：点词块入句
@@ -163,15 +220,15 @@ Page({
     const answered = Object.keys(this.responses).length
     if (answered < this.exam.total) {
       const that = this
-      wx.showModal({
-        title: '还有题没做完',
-        content: '已作答 ' + answered + ' / ' + this.exam.total + ' 题，确定交卷吗？',
-        confirmText: '交卷',
-        cancelText: '再检查',
-        success(res) {
-          if (res.confirm) {
-            that.doSubmit()
-          }
+      this.setData({
+        dialog: {
+          type: 'general',
+          title: '还有题没做完',
+          content: '确定交卷吗？',
+          subtitle: '还有 ' + (this.exam.total - answered) + ' 题未作答。',
+          cancelText: '再检查',
+          confirmText: '交卷',
+          confirm: function () { that.doSubmit() }
         }
       })
       return
@@ -190,16 +247,15 @@ Page({
 
   // 答题中退出确认
   confirmQuit() {
-    const that = this
-    wx.showModal({
-      title: '退出测评',
-      content: '退出后本次作答不会保存，确定退出吗？',
-      confirmText: '退出',
-      cancelText: '继续答题',
-      success(res) {
-        if (res.confirm) {
-          wx.navigateBack()
-        }
+    this.setData({
+      dialog: {
+        type: 'general',
+        title: '退出测评',
+        content: '确认退出测评？',
+        subtitle: '退出后本次作答不会保存。',
+        cancelText: '继续答题',
+        confirmText: '退出',
+        confirm: function () { wx.navigateBack() }
       }
     })
   }

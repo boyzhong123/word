@@ -63,8 +63,11 @@ Component({
     },
     stop() {
       this.running = false
-      this.canvas = null
-      this.ctx = null
+      const canvas = this.canvas
+      if (this.rafId != null && this.canvas && this.canvas.cancelAnimationFrame) {
+        canvas.cancelAnimationFrame(this.rafId)
+      }
+      this.rafId = null
       if (this.measureTimer) {
         clearTimeout(this.measureTimer)
         this.measureTimer = null
@@ -73,10 +76,8 @@ Component({
         clearTimeout(this.frameTimer)
         this.frameTimer = null
       }
-      if (this.rafId != null && this.canvas && this.canvas.cancelAnimationFrame) {
-        this.canvas.cancelAnimationFrame(this.rafId)
-      }
-      this.rafId = null
+      this.canvas = null
+      this.ctx = null
     },
     measure() {
       this.measureTimer = null

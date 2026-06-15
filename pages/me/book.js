@@ -149,18 +149,6 @@ Page({
     })
   },
 
-  openCatalogue(event) {
-    const resBookId = event && event.currentTarget && event.currentTarget.dataset.resBookId
-    const book = (this.data.books || []).find(item => item.resBookId === resBookId) || this.data.currentBook
-    if (!book || !book.resBookId) {
-      return
-    }
-    wx.navigateTo({
-      url: '/pages/catalogue/catalogue?resBookId=' + encodeURIComponent(book.resBookId) +
-        '&name=' + encodeURIComponent(book.name)
-    })
-  },
-
   continueStudy() {
     wx.switchTab({ url: '/pages/home/home' })
   },

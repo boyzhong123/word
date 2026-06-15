@@ -5,7 +5,9 @@ page {
 }
 
 .home-page {
-  position: relative;
+  position: fixed;
+  inset: 0;
+  width: 100%;
   height: 100%;
   overflow: hidden;
   background: #fffdf8;
@@ -13,6 +15,7 @@ page {
 }
 
 .home-scroll {
+  width: 100%;
   height: 100%;
 }
 
@@ -419,7 +422,7 @@ page {
 }
 
 .section-heading {
-  padding: 20rpx 0;
+  padding: 0;
   min-height: 52rpx;
   box-sizing: border-box;
   display: flex;
@@ -553,10 +556,6 @@ page {
   box-shadow: 0 6rpx 14rpx rgba(40, 48, 60, 0.06);
 }
 
-.unit-card:first-of-type {
-  margin-top: 0;
-}
-
 .unit-card-review {
   background: #ffffff;
   border-color: #dde2e8;
@@ -609,7 +608,7 @@ page {
 
 /* 今日要学：一个大框把当天的关卡装在一起。清新薄荷绿，区别于复习卡的橙色 */
 .today-group {
-  margin-top: 18rpx;
+  margin-top: 14rpx;
   margin-bottom: 14rpx;
   padding: 18rpx 14rpx 20rpx;
   display: flex;
@@ -1622,4 +1621,18 @@ page {
     opacity: 0;
     transform: scale(0.96);
   }
+}
+
+/* 入门测 / 结业测入口横幅：与关卡卡统一 14rpx 间距、27rpx 圆角 */
+.exam-entry-banner {
+  margin-top: 14rpx;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 27rpx;
+}
+
+.exam-entry-banner-image {
+  display: block;
+  width: 100%;
+  vertical-align: top;
 }

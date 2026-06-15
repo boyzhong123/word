@@ -1,7 +1,17 @@
 @import '/template/template.wxss';
 @import "./practice.skeleton.wxss";
-page,
+page {
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
+}
+
 .container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
 }
 
@@ -684,7 +694,7 @@ page,
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 50rpx 54rpx 0;
+  padding: 50rpx 32rpx 0;
   overflow: hidden;
 }
 

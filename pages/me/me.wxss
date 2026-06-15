@@ -5,7 +5,9 @@ page {
 }
 
 .me-page {
-  position: relative;
+  position: fixed;
+  inset: 0;
+  width: 100%;
   height: 100%;
   overflow: hidden;
   background: #fffdf8;
@@ -13,6 +15,7 @@ page {
 }
 
 .me-scroll {
+  width: 100%;
   height: 100%;
 }
 

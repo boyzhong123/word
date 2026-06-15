@@ -70,6 +70,11 @@ test('media binds engine and recorder once at module load', () => {
   assert.match(mediaScript, /scoringSession\.setActiveMedia\(this\)/)
 })
 
+test('media does not re-register global recorder listeners for each recording', () => {
+  assert.doesNotMatch(mediaScript, /function claimSessionHandlers\(/)
+  assert.doesNotMatch(mediaScript, /claimSessionHandlers\(this\)/)
+})
+
 test('media sets active scorer before async signature fetch', () => {
   assert.match(mediaScript, /this\.preparingRecord = true[\s\S]*scoringSession\.setActiveMedia\(this\)[\s\S]*ensureSigReady\(start, true\)/)
   assert.match(mediaScript, /if \(isValidSig\(this\.data\._sig\)\) {[\s\S]*start\(\)[\s\S]*return/)

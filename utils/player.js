@@ -1,8 +1,10 @@
 // 随身听全局播放器（单例）
 //
-// 把音频上下文与“通常听力播放”的状态/逻辑收敛到这里，使得：
-//   1. 离开 listen 页时不销毁音频，跨页持续播放；
-//   2. 底部 tab 栏的迷你播放器可订阅同一份状态。
+// 使用 BackgroundAudioManager，支持切后台/锁屏继续播放。
+// 把“通常听力播放”的状态/逻辑收敛到这里，使得：
+//   1. 离开 listen 页时不销毁音频，跨 tab 页持续播放；
+//   2. 底部 tab 栏的迷你播放器可订阅同一份状态；
+//   3. 进入带独立音频的二级页时通过 suspend/resume 让路。
 // 听力小测（quiz）不走此单例，仍由 listen 页用局部音频处理。
 
 const { getUnits, getUnitResource } = require('./api')
@@ -99,6 +101,9 @@ const player = {
   listeners: [],
   seeking: false,
   pendingSeekFrac: null,
+  _wantPlaying: false,
+  _externalSuspendTokens: null,
+  _wasPlayingBeforeExternalSuspend: false,
 
   /* --------------------------- 订阅 / 快照 --------------------------- */
 
@@ -157,7 +162,7 @@ const player = {
     if (this.audio) {
       return this.audio
     }
-    const audio = wx.createInnerAudioContext({ useWebAudioImplement: false })
+    const audio = wx.getBackgroundAudioManager()
     this.audio = audio
 
     audio.onTimeUpdate(() => {
@@ -185,17 +190,81 @@ const player = {
           audio.seek(frac * d)
         }
       }
+      if (!this._wantPlaying && this.playing) {
+        audio.pause()
+      }
+    })
+
+    audio.onPlay(() => {
+      if (!this._wantPlaying) {
+        audio.pause()
+        this.playing = false
+        this.emit()
+        return
+      }
+      this.playing = true
+      this.emit()
+    })
+
+    audio.onPause(() => {
+      this.playing = false
+      this.emit()
+    })
+
+    audio.onStop(() => {
+      this.playing = false
+      this.emit()
     })
 
     audio.onEnded(() => this.handleEnded())
 
     audio.onError(res => {
       console.log('[player] audio error', res)
+      this._wantPlaying = false
       this.playing = false
       this.emit()
     })
 
     return audio
+  },
+
+  // 二级页（练习/测验等）有独立音频时暂停随身听；页面卸载后若之前在播则恢复
+  suspendForExternalAudio(token) {
+    const key = token || 'default'
+    if (!this._externalSuspendTokens) {
+      this._externalSuspendTokens = new Set()
+    }
+    if (this._externalSuspendTokens.size === 0) {
+      this._wasPlayingBeforeExternalSuspend = this.playing
+      if (this.playing) {
+        this.pause()
+      }
+    }
+    this._externalSuspendTokens.add(key)
+  },
+
+  resumeFromExternalAudio(token) {
+    const key = token || 'default'
+    if (!this._externalSuspendTokens) {
+      return
+    }
+    this._externalSuspendTokens.delete(key)
+    if (this._externalSuspendTokens.size === 0 &&
+      this._wasPlayingBeforeExternalSuspend &&
+      this.active) {
+      this._wasPlayingBeforeExternalSuspend = false
+      this.play()
+    }
+  },
+
+  syncBackgroundMetadata(track) {
+    const audio = this.ensureAudio()
+    audio.title = (track && track.content) || this.unitName || '随身听'
+    audio.epname = this.unitName || '随身听'
+    audio.singer = track && track.type === 'sentence' ? '例句' : '单词'
+    if (this.bookCover) {
+      audio.coverImgUrl = this.bookCover
+    }
   },
 
   /* --------------------------- 启动 / 加载 --------------------------- */
@@ -280,20 +349,20 @@ const player = {
     if (!track) {
       return
     }
-    audio.stop()
-    audio.src = track.audio
+    this._wantPlaying = !!autoPlay
+    this.syncBackgroundMetadata(track)
+    if (audio.src !== track.audio) {
+      audio.src = track.audio
+    } else if (autoPlay) {
+      audio.play()
+    }
     if (audio.playbackRate !== undefined) {
       try { audio.playbackRate = SPEEDS[this.speedIndex] } catch (e) {}
     }
     const count = this.tracks.length || 1
     this.progress = (this.current / count) * 100
     this.currentTime = '00:00'
-    if (autoPlay) {
-      audio.play()
-      this.playing = true
-    } else {
-      this.playing = false
-    }
+    this.playing = !!autoPlay
     this.emit()
   },
 
@@ -336,12 +405,22 @@ const player = {
     if (!this.tracks.length) {
       return
     }
+    if (this._externalSuspendTokens && this._externalSuspendTokens.size > 0) {
+      this._externalSuspendTokens.clear()
+      this._wasPlayingBeforeExternalSuspend = false
+    }
+    this._wantPlaying = true
+    const track = this.tracks[this.current]
+    if (track) {
+      this.syncBackgroundMetadata(track)
+    }
     this.ensureAudio().play()
     this.playing = true
     this.emit()
   },
 
   pause() {
+    this._wantPlaying = false
     if (this.audio) {
       this.audio.pause()
     }
@@ -351,6 +430,11 @@ const player = {
 
   // 关闭随身听：停止播放并下线（迷你播放条随 active=false 消失）
   stop() {
+    this._wantPlaying = false
+    if (this._externalSuspendTokens) {
+      this._externalSuspendTokens.clear()
+    }
+    this._wasPlayingBeforeExternalSuspend = false
     if (this.audio) {
       this.audio.stop()
     }
