@@ -1,0 +1,113 @@
+<!--pages/exam/exam-report.wxml-->
+<view class="report-page">
+  <navigation background="transparent">
+    <view class="report-nav-title">{{typeName}}</view>
+  </navigation>
+
+  <scroll-view class="report-scroll" scroll-y enhanced show-scrollbar="{{false}}" wx:if="{{result}}">
+    <!-- 顶部总览 -->
+    <view class="hero">
+      <view class="hero-head">
+        <text class="hero-book">{{bookName || '本书'}}</text>
+        <text class="hero-grade">{{grade}}</text>
+      </view>
+      <view class="hero-score">
+        <text class="hero-score-num">{{result.accuracy}}</text>
+        <text class="hero-score-unit">%</text>
+      </view>
+      <text class="hero-score-label">总正确率 · 答对 {{result.correct}}/{{result.total}} 题</text>
+      <view class="hero-encourage">{{encourage}}</view>
+    </view>
+
+    <!-- 结业测 vs 入门测 对比 -->
+    <view class="section" wx:if="{{showCompare}}">
+      <view class="section-title">
+        <text class="section-title-main">入门 → 结业 对比</text>
+      </view>
+
+      <view wx:if="{{compareReady}}" class="compare-card">
+        <view class="compare-row" wx:for="{{compares}}" wx:key="label">
+          <text class="compare-label">{{item.label}}</text>
+          <view class="compare-bars">
+            <view class="compare-bar">
+              <view class="compare-bar-fill compare-bar-entry" style="width: {{item.entry}}%;"></view>
+              <text class="compare-bar-val">入门 {{item.entry}}%</text>
+            </view>
+            <view class="compare-bar">
+              <view class="compare-bar-fill compare-bar-exit" style="width: {{item.exit}}%;"></view>
+              <text class="compare-bar-val">结业 {{item.exit}}%</text>
+            </view>
+          </view>
+          <view class="compare-delta compare-delta-{{item.trend}}">
+            <text wx:if="{{item.trend === 'up'}}">▲</text>
+            <text wx:elif="{{item.trend === 'down'}}">▼</text>
+            <text wx:else>—</text>
+            <text class="compare-delta-num">{{item.deltaText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="compare-empty">
+        未找到入门测成绩，先完成入门测即可看到进步对比。
+      </view>
+    </view>
+
+    <!-- 单词 / 句子 分项 -->
+    <view class="section">
+      <view class="section-title">
+        <text class="section-title-main">分项表现</text>
+      </view>
+      <view class="seg-grid">
+        <view class="seg-card" wx:for="{{sections}}" wx:key="key">
+          <view class="seg-head">
+            <text class="seg-name">{{item.name}}</text>
+            <text class="seg-acc" style="color: {{item.color}};">{{item.accuracy}}%</text>
+          </view>
+          <view class="seg-track">
+            <view class="seg-fill" style="width: {{item.accuracy}}%; background: {{item.color}};"></view>
+          </view>
+          <text class="seg-caption">答对 {{item.correct}}/{{item.total}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 题型掌握度 -->
+    <view class="section">
+      <view class="section-title">
+        <text class="section-title-main">各题型掌握度</text>
+      </view>
+      <view class="type-list">
+        <view class="type-row" wx:for="{{byType}}" wx:key="type">
+          <text class="type-name">{{item.label}}</text>
+          <view class="type-track">
+            <view class="type-fill" style="width: {{item.accuracy}}%;"></view>
+          </view>
+          <text class="type-val">{{item.correct}}/{{item.total}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 错题清单 -->
+    <view class="section" wx:if="{{hasWrong}}">
+      <view class="section-title">
+        <text class="section-title-main">待巩固</text>
+        <text class="section-title-tag">{{result.wrongCount}} 题</text>
+      </view>
+      <view class="wrong-list">
+        <view class="wrong-row" wx:for="{{wrong}}" wx:key="id">
+          <view class="wrong-head">
+            <text class="wrong-type">{{item.typeLabel}}</text>
+            <text class="wrong-stem">{{item.stem}}</text>
+          </view>
+          <text class="wrong-explain">{{item.explain}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="footer-space"></view>
+  </scroll-view>
+
+  <view class="action-bar" wx:if="{{result}}">
+    <view class="action-btn action-btn-primary" bindtap="back">完成</view>
+  </view>
+</view>

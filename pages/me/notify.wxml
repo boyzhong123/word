@@ -30,9 +30,7 @@
     <view class="section-card">
       <view class="section-title">公众号提醒</view>
       <view class="section-desc section-desc-wide">关注公众号后，可以接收资料更新、活动说明和学习内容提醒。</view>
-      <view class="official-wrap">
-        <official-account bindload="onOfficialAccountLoad" binderror="onOfficialAccountError"></official-account>
-      </view>
+      <view class="primary-btn" bindtap="openOfficialAccount">关注公众号</view>
     </view>
 
     <view class="tip-card">

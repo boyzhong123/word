@@ -6,7 +6,7 @@
   <scroll-view scroll-y="true" style="height: {{scrollHeight}}px;" scroll-into-view="v{{selectedIndex}}" scroll-with-animation="true">
     <view style="position: relative;" wx:for="{{pages}}" wx:key="index">
       <image class="bg" src="https://17ks.chivoxapp.com/proverbs/catalogue_bg.png" mode="widthFix"> </image>
-      <view wx:for="{{item.units}}" wx:key="unit" wx:for-index="childIndex" wx:for-item="unit" id="v{{unit.unitId}}" data-index="{{childIndex + 5*index}}" class="phases" style="{{unit.style}}" bindtap="onItemClick" bindlongpress="longPress">
+      <view wx:for="{{item.units}}" wx:key="unit" wx:for-index="childIndex" wx:for-item="unit" id="v{{unit.unitId}}" data-index="{{childIndex + 5*index}}" class="phases {{unit.isExam ? 'exam-node' : ''}}" style="{{unit.style}}" bindtap="onItemClick" bindlongpress="longPress">
         <image class="{{unit.class}}" src="{{unit.src}}" mode="widthFix" />
         <text class="content" style="color: {{unit.color}};">{{unit.unitName}}</text>
       </view>

@@ -18,7 +18,7 @@ test('home book card places check-in calendar in the title row', () => {
   assert.match(homeTemplate, /icon-checkin-today-jelly\.png/)
   assert.match(homeTemplate, /class="checkin-calendar-button" bindtap="goCheckinCalendar"/)
   assert.match(homeTemplate, /bindtap="goCheckinCalendar"/)
-  assert.match(homeTemplate, /class="switch-book switch-book-cover" bindtap="switchBook"/)
+  assert.match(homeTemplate, /class="book-cover-column" bindtap="switchBook"/)
   assert.match(homeScript, /goCheckinCalendar\(\)/)
   assert.match(homeScript, /\/pages\/checkin\/calendar/)
 })

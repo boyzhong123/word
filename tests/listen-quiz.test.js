@@ -191,7 +191,7 @@ test('quiz mode uses standard page navigation instead of bottom sheet animation'
   assert.match(listenScript, /if \(this\.data\.quizMode\)\s*{\s*return\s*}/)
   assert.match(listenTemplate, /quizMode \? 'listen-quiz-shell' : pageAnimState/)
   assert.match(listenTemplate, /<dialog dialog="{{dialog}}"><\/dialog>/)
-  assert.match(listenStyle, /\.listen-quiz-shell\s*{[^}]*position:\s*relative/s)
+  assert.match(listenStyle, /\.listen-quiz-shell\s*{[^}]*position:\s*fixed/s)
   assert.match(listenStyle, /\.listen-quiz-shell\s*{[^}]*transform:\s*none/s)
 })
 
@@ -248,6 +248,17 @@ test('listen page renders a home-styled fill-in quiz with top progress and new w
   assert.match(listenStyle, /\.quiz-recite-media \.recording\s*{[^}]*left:\s*-48rpx/s)
   assert.match(listenStyle, /\.quiz-recite-media \.recording-wave\s*{[^}]*min-width:\s*0/s)
   assert.match(listenStyle, /\.loading-panel\s*{[^}]*background:\s*rgba\(255,\s*255,\s*255,\s*0\.62\)/s)
+})
+
+test('quiz page badge uses a dedicated class so it does not mask the whole screen', () => {
+  assert.match(listenTemplate, /class="quiz-page-tag"/)
+  assert.doesNotMatch(listenTemplate, /class="quiz-page">P/)
+  assert.match(listenStyle, /\.quiz-page\s*{[^}]*background:\s*transparent/s)
+  assert.match(listenStyle, /\.quiz-page-tag\s*{[^}]*background:\s*rgba\(38,\s*63,\s*69,\s*0\.08\)/s)
+  assert.match(listenStyle, /\.quiz-body\s*{[^}]*flex:\s*1/s)
+  assert.match(listenTemplate, /class="quiz-body"/)
+  assert.doesNotMatch(listenTemplate, /quiz-help-icon/)
+  assert.doesNotMatch(listenTemplate, /bindtap="showMarkTip"/)
 })
 
 test('quiz hint action aligns with the word-new hint placement', () => {

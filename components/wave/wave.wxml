@@ -1,1 +1,1 @@
-<canvas canvas-id="{{canvasId}}" class="wave-canvas"></canvas>
+<canvas wx:if="{{canvasReady}}" type="2d" class="wave-canvas"></canvas>

@@ -146,12 +146,6 @@ page {
   margin-top: 10rpx;
 }
 
-.official-wrap {
-  margin-top: 22rpx;
-  overflow: hidden;
-  border-radius: 18rpx;
-}
-
 .scroll-spacer {
   height: 72rpx;
 }

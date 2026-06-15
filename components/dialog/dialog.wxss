@@ -52,7 +52,7 @@
 .dialog-subtitle {
   word-break: break-all;
   text-align: center;
-  margin: 16rpx 32rpx 0;
+  margin: 8rpx 32rpx 0;
   padding: 0 10rpx;
   font-size: 26rpx;
   font-family: PingFang SC;

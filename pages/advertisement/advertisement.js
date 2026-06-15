@@ -17,12 +17,25 @@ const purchaseBarHeight = Math.round(62 + safeAreaBottom)
 const scrollHeight = systemInfo.windowHeight - statusBarHeight - navigationBarHeight - purchaseBarHeight
 const encodeQueryValue = (value) => encodeURIComponent(value == null ? '' : value)
 
-const PACKAGES = [
+const VALIDITY_OPTIONS = [
+  {
+    id: '6m',
+    name: '6个月',
+    summary: '适合短期备考或试学'
+  },
+  {
+    id: 'forever',
+    name: '永久有效',
+    tag: '推荐',
+    summary: '一次购买，长期使用'
+  }
+]
+
+const PACKAGE_OPTIONS = [
   {
     id: 'full',
-    name: '学习卡套餐',
+    name: '词典+智能学习卡',
     tag: '推荐',
-    price: 98,
     summary: '词典 + 智能学习卡，听说读写测完整闭环',
     items: [
       '电子词典全部词汇与谚语',
@@ -34,9 +47,8 @@ const PACKAGES = [
   },
   {
     id: 'book',
-    name: '词典套餐',
+    name: '仅词典',
     tag: '',
-    price: 48,
     summary: '仅含词典内容，适合查阅与自主背诵',
     items: [
       '电子词典全部词汇与谚语',
@@ -47,7 +59,15 @@ const PACKAGES = [
   }
 ]
 
-const MIN_PRICE = PACKAGES.reduce((min, item) => Math.min(min, item.price), Infinity)
+const SKU_PRICES = {
+  'book-6m': 29,
+  'book-forever': 48,
+  'full-6m': 68,
+  'full-forever': 98
+}
+
+const MIN_PRICE = Object.keys(SKU_PRICES).reduce((min, key) => Math.min(min, SKU_PRICES[key]), Infinity)
+const SKU_COUNT = Object.keys(SKU_PRICES).length
 const DEFAULT_BOOK_COVER = getFallbackBookCover()
 const DEFAULT_GRADE_TAGS = ['初中']
 const FEATURE_CARDS = [
@@ -107,7 +127,40 @@ function decodeQueryValue(value) {
 }
 
 function getPackageById(packageId) {
-  return PACKAGES.find(item => item.id === packageId) || PACKAGES[0]
+  return PACKAGE_OPTIONS.find(item => item.id === packageId) || PACKAGE_OPTIONS[0]
+}
+
+function getValidityById(validityId) {
+  return VALIDITY_OPTIONS.find(item => item.id === validityId) || VALIDITY_OPTIONS[0]
+}
+
+function getSkuPrice(packageId, validityId) {
+  return SKU_PRICES[packageId + '-' + validityId] || MIN_PRICE
+}
+
+function buildCurrentSku(packageId, validityId) {
+  const currentPackage = getPackageById(packageId)
+  const currentValidity = getValidityById(validityId)
+  const price = getSkuPrice(currentPackage.id, currentValidity.id)
+  return {
+    packageId: currentPackage.id,
+    validityId: currentValidity.id,
+    packageName: currentPackage.name,
+    validityName: currentValidity.name,
+    skuLabel: currentPackage.name + ' · ' + currentValidity.name,
+    price,
+    items: currentPackage.items
+  }
+}
+
+function resolveUnlocked(options) {
+  if (options.unlocked === '1') {
+    return true
+  }
+  if (options.unlocked === '0') {
+    return false
+  }
+  return isDevPurchased(decodeQueryValue(options.resBookId))
 }
 
 function applyBookDetail(page, book, unlocked) {
@@ -115,7 +168,8 @@ function applyBookDetail(page, book, unlocked) {
     ? book.learningInfo.book.learningUnits
     : 0
   const selectedPackage = page.data.selectedPackage || 'full'
-  const currentPackage = getPackageById(selectedPackage)
+  const selectedValidity = page.data.selectedValidity || 'forever'
+  const currentSku = buildCurrentSku(selectedPackage, selectedValidity)
   const total = Number(book.total || learningUnits || 0)
   const wordCount = Number(book.wordCount || 0)
   const proverbCount = Number(book.proverbCount || 0)
@@ -162,9 +216,13 @@ function applyBookDetail(page, book, unlocked) {
     methodSteps: METHOD_STEPS,
     intro: book.intro || '',
     unlocked: !!unlocked,
-    packages: PACKAGES,
-    currentPackage,
-    currentPackageItems: currentPackage.items
+    packages: PACKAGE_OPTIONS,
+    validityOptions: VALIDITY_OPTIONS,
+    selectedValidity,
+    currentSku,
+    currentPackage: getPackageById(selectedPackage),
+    currentPackageItems: currentSku.items,
+    skuCount: SKU_COUNT
   })
 }
 
@@ -180,6 +238,7 @@ Page({
     wordCountText: '0',
     proverbCountText: '0',
     minPrice: MIN_PRICE,
+    skuCount: SKU_COUNT,
     press: '',
     gradeTags: DEFAULT_GRADE_TAGS,
     bookSummary: '0 词 · 0 句 · 0 单元',
@@ -190,9 +249,12 @@ Page({
     unlocked: false,
     skuSheetVisible: false,
     selectedPackage: 'full',
-    packages: PACKAGES,
-    currentPackage: PACKAGES[0],
-    currentPackageItems: PACKAGES[0].items,
+    selectedValidity: 'forever',
+    packages: PACKAGE_OPTIONS,
+    validityOptions: VALIDITY_OPTIONS,
+    currentSku: buildCurrentSku('full', 'forever'),
+    currentPackage: PACKAGE_OPTIONS[0],
+    currentPackageItems: PACKAGE_OPTIONS[0].items,
     scrollHeight,
     safeAreaBottom,
     actionHeight: purchaseBarHeight
@@ -202,10 +264,14 @@ Page({
     const app = getApp()
     const pendingBook = app.globalData.pendingBookDetail
     const resBookId = decodeQueryValue(options.resBookId)
-    const unlocked = options.unlocked === '1' || isDevPurchased(resBookId)
+    const unlocked = resolveUnlocked(options)
     const selectedPackage = decodeQueryValue(options.packageId) || 'full'
+    const selectedValidity = decodeQueryValue(options.validityId) || 'forever'
 
-    this.setData({ selectedPackage: getPackageById(selectedPackage).id })
+    this.setData({
+      selectedPackage: getPackageById(selectedPackage).id,
+      selectedValidity: getValidityById(selectedValidity).id
+    })
 
     if (pendingBook && pendingBook.resBookId === resBookId) {
       applyBookDetail(this, pendingBook, unlocked)
@@ -240,14 +306,25 @@ Page({
     this.setData({ bookCover: getFallbackBookCover() })
   },
 
-  selectPackage(event) {
-    const packageId = event.currentTarget.dataset.id
+  updateSkuSelection(packageId, validityId) {
     const currentPackage = getPackageById(packageId)
+    const currentValidity = getValidityById(validityId)
+    const currentSku = buildCurrentSku(currentPackage.id, currentValidity.id)
     this.setData({
       selectedPackage: currentPackage.id,
+      selectedValidity: currentValidity.id,
       currentPackage,
-      currentPackageItems: currentPackage.items
+      currentSku,
+      currentPackageItems: currentSku.items
     })
+  },
+
+  selectPackage(event) {
+    this.updateSkuSelection(event.currentTarget.dataset.id, this.data.selectedValidity)
+  },
+
+  selectValidity(event) {
+    this.updateSkuSelection(this.data.selectedPackage, event.currentTarget.dataset.id)
   },
 
   confirmPurchase() {
@@ -256,15 +333,17 @@ Page({
   },
 
   goVip() {
-    const currentPackage = getPackageById(this.data.selectedPackage)
+    const currentSku = buildCurrentSku(this.data.selectedPackage, this.data.selectedValidity)
     wx.navigateTo({
       url: '../vip/vip?resBookId=' + encodeURIComponent(this.resBookId || '')
         + '&name=' + encodeURIComponent(this.data.name || '')
         + '&bookCover=' + encodeURIComponent(this.data.bookCover || '')
         + '&press=' + encodeURIComponent(this.data.press || '')
-        + '&packageId=' + encodeURIComponent(currentPackage.id)
-        + '&packageName=' + encodeURIComponent(currentPackage.name)
-        + '&price=' + encodeURIComponent(currentPackage.price || 0),
+        + '&packageId=' + encodeURIComponent(currentSku.packageId)
+        + '&packageName=' + encodeURIComponent(currentSku.packageName)
+        + '&validityId=' + encodeURIComponent(currentSku.validityId)
+        + '&validityName=' + encodeURIComponent(currentSku.validityName)
+        + '&price=' + encodeURIComponent(currentSku.price || 0),
       events: {
         vip: () => {
           this.setData({ unlocked: true })
@@ -287,7 +366,8 @@ Page({
       intro: this.data.intro,
       resBookId: this.resBookId,
       unlocked: this.data.unlocked ? '1' : '0',
-      packageId: this.data.selectedPackage
+      packageId: this.data.selectedPackage,
+      validityId: this.data.selectedValidity
     }
 
     return {

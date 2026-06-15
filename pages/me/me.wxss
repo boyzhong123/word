@@ -43,8 +43,9 @@ page {
 }
 
 .avatar-wrap {
-  flex: none;
+  flex: 0 0 108rpx;
   width: 108rpx;
+  max-width: 108rpx;
   height: 108rpx;
   display: flex;
   align-items: center;
@@ -52,7 +53,9 @@ page {
 }
 
 .avatar-button {
+  flex: 0 0 108rpx;
   width: 108rpx;
+  max-width: 108rpx;
   height: 108rpx;
   margin: 0;
   padding: 0;
@@ -107,6 +110,7 @@ page {
   height: 48rpx;
   min-height: 48rpx;
   padding: 0;
+  text-align: left;
   background: transparent;
   border: none;
   box-sizing: border-box;
@@ -297,12 +301,6 @@ page {
   background: #f2f2f2;
 }
 
-.official-account-wrap {
-  margin: 0 26rpx 22rpx;
-  overflow: hidden;
-  border-radius: 18rpx;
-}
-
 .menu-item {
   position: relative;
   height: 112rpx;
@@ -341,21 +339,35 @@ page {
   border: none;
 }
 
-.menu-hit-button {
+.menu-status-action {
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-status-text {
+  font-size: 21rpx;
+  line-height: 42rpx;
+  font-weight: 700;
+}
+
+.menu-status-hit {
   position: absolute;
-  z-index: 2;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  background: transparent;
+  min-width: 0;
+  min-height: 0;
+  line-height: 1;
   opacity: 0;
+  border: 0;
+  background: transparent;
 }
 
-.menu-hit-button::after {
-  border: none;
+.menu-status-hit::after {
+  border: 0;
 }
 
 .menu-icon {
@@ -392,6 +404,44 @@ page {
 .menu-ic-privacy {
   background-color: #eef0f3;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM1YzZhNzciIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMjJzOC00IDgtMTBWNWwtOC0zLTggM3Y3YzAgNiA4IDEwIDggMTB6Ii8+PHBhdGggZD0iTTkgMTJsMiAyIDQtNCIvPjwvc3ZnPg==");
+}
+
+.menu-ic-gender {
+  background-color: #fff0f6;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlOTFhNDUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjgiIHI9IjQiLz48cGF0aCBkPSJNMTYgMjF2LTJhNCA0IDAgMCAwLTQtNEg2YTQgNCAwIDAgMC00IDR2MiIvPjxwYXRoIGQ9Im0xNiAxMSAyIDIgNC00Ii8+PC9zdmc+");
+}
+
+.menu-item-gender::after {
+  left: 106rpx;
+}
+
+.gender-switch {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 4rpx;
+  border-radius: 999rpx;
+  background: #f3f5f8;
+}
+
+.gender-option {
+  min-width: 88rpx;
+  height: 52rpx;
+  padding: 0 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  color: #667085;
+  font-size: 22rpx;
+  line-height: 52rpx;
+  font-weight: 600;
+}
+
+.gender-option-active {
+  color: #17406f;
+  background: #ffffff;
+  box-shadow: 0 4rpx 10rpx rgba(23, 64, 111, 0.08);
 }
 
 .menu-copy {

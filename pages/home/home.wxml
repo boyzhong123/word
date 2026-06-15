@@ -12,7 +12,7 @@
     bindscrolltolower="loadMoreUnits"
   >
     <view class="hero-section" style="{{heroSectionStyle}}">
-      <image class="hero-image" src="{{imageBaseUrl}}/images/home/hero-campus-jelly-v5.png" mode="widthFix" />
+      <image class="hero-image" src="{{heroImageUrl}}" mode="widthFix" />
 
       <view class="hero-copy" style="{{heroCopyStyle}}">
         <view class="hero-title">
@@ -64,9 +64,9 @@
           </view>
         </block>
         <block wx:else>
-          <view class="book-cover-column">
+          <view class="book-cover-column" bindtap="switchBook">
             <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" binderror="onMainBookCoverError" />
-            <view class="switch-book switch-book-cover" bindtap="switchBook">
+            <view class="switch-book switch-book-cover">
               <image class="switch-icon" src="../../images/home/icon-switch-book.svg" mode="aspectFit" />
               <text>切换教材</text>
             </view>
@@ -207,11 +207,11 @@
               <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
                 <frame-animation
                   wx:if="{{unit.cardMonsterState === 'fighting'}}"
-                  url="{{imageBaseUrl}}/images/home/student-monster-pk-sprite.png"
+                  url="{{pkSpriteUrl}}"
                   count="7"
                   width="148"
                   height="84"
-                  duration="1.75"
+                  duration="{{pkSpriteDuration}}"
                   state="running"
                 />
                 <frame-animation
@@ -317,11 +317,11 @@
             <view class="unit-card-monster unit-card-monster-{{unit.cardMonsterState}}">
               <frame-animation
                 wx:if="{{unit.cardMonsterState === 'fighting'}}"
-                url="{{imageBaseUrl}}/images/home/student-monster-pk-sprite.png"
+                url="{{pkSpriteUrl}}"
                 count="7"
                 width="148"
                 height="84"
-                duration="1.75"
+                duration="{{pkSpriteDuration}}"
                 state="running"
               />
               <frame-animation
@@ -518,18 +518,31 @@
               class="book-picker-cell {{item.resBookId === book.resBookId ? 'book-picker-cell-active' : ''}} {{item.locked ? 'book-picker-cell-locked' : ''}}"
               wx:for="{{pickerBooks}}"
               wx:key="resBookId"
-              data-res-book-id="{{item.resBookId}}"
-              bindtap="selectBook"
             >
-              <view class="book-picker-cover-wrap">
+              <!-- 封面：点击进详情；底部条「切换/当前」叠在封面上 -->
+              <view class="book-picker-cover-wrap" data-res-book-id="{{item.resBookId}}" catchtap="goBookDetail">
                 <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" data-res-book-id="{{item.resBookId}}" binderror="onPickerBookCoverError" />
                 <view wx:if="{{item.locked}}" class="book-picker-cover-mask">
                   <image class="book-picker-cover-lock" src="../../images/home/icon-picker-lock.svg" mode="aspectFit" />
                 </view>
                 <view wx:if="{{item.newStandard}}" class="book-picker-tag-new">新课标</view>
-                <view wx:if="{{item.resBookId === book.resBookId}}" class="book-picker-current">当前</view>
-                <view wx:if="{{item.locked}}" class="book-picker-buy">购买</view>
-                <view wx:elif="{{!item.demo}}" class="book-picker-status-owned">已购买</view>
+
+                <view
+                  wx:if="{{item.resBookId === book.resBookId}}"
+                  class="book-picker-switch book-picker-switch-current"
+                >当前使用</view>
+                <view
+                  wx:elif="{{item.locked}}"
+                  class="book-picker-switch book-picker-switch-buy"
+                  data-res-book-id="{{item.resBookId}}"
+                  catchtap="goBuyFromPicker"
+                >去购买</view>
+                <view
+                  wx:else
+                  class="book-picker-switch"
+                  data-res-book-id="{{item.resBookId}}"
+                  catchtap="switchBookUse"
+                >切换使用</view>
               </view>
               <text class="book-picker-name">{{item.name}}</text>
               <view class="book-picker-meta">
@@ -539,6 +552,13 @@
           </view>
         </scroll-view>
       </view>
+    </view>
+  </view>
+
+  <view wx:if="{{monsterHint.visible}}" class="home-monster-hint">
+    <view class="home-monster-hint-box">
+      <image class="home-monster-hint-icon" src="/images/home/toast-hint.png" mode="aspectFit" />
+      <text class="home-monster-hint-text">{{monsterHint.text}}</text>
     </view>
   </view>
 </view>

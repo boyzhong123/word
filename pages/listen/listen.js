@@ -13,6 +13,10 @@ const {
   buildMockReviewResource
 } = require('../../utils/review-mock')
 const { computeQuizScoreRate } = require('../../utils/finish-stars')
+const {
+  buildLevelNavTitle,
+  buildLevelNavSubtitle
+} = require('../../utils/level-nav')
 // 通常听力播放走全局单例（跨页持续 + 迷你播放器）；buildTracks 复用单例里的实现
 const { player, buildTracks } = require('../../utils/player')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
@@ -57,6 +61,8 @@ Page({
     units: [],
     unitIndex: 0,
     unitName: '随身听',
+    navTitle: '',
+    navSubtitle: '',
 
     // 当前期的播放列表（单词 + 例句，顺序混排）
     tracks: [],
@@ -81,6 +87,7 @@ Page({
     trackScores: {},
     // 课文滚动位置（受控 scroll-top）。激活/展开时只在必要时滚动，不再贴顶
     scrollTop: 0,
+    tonearmInstant: false,
 
     quizMode: false,
     quizQuestions: [],
@@ -199,7 +206,8 @@ Page({
     }
     const prevCurrent = this.data.current
     const prevUnitIndex = this.data.unitIndex
-    this.setData({
+    const wasLoading = this.data.loading
+    const patch = {
       loading: !s.active,
       unitName: s.unitName,
       bookCover: normalizeBookCover(s.bookCover),
@@ -214,6 +222,14 @@ Page({
       speedLabel: s.speedLabel,
       loopIndex: s.loopIndex,
       loopLabel: s.loopLabel
+    }
+    if (wasLoading && s.active && s.playing) {
+      patch.tonearmInstant = true
+    }
+    this.setData(patch, () => {
+      if (patch.tonearmInstant) {
+        setTimeout(() => this.setData({ tonearmInstant: false }), 32)
+      }
     })
     // 切换期：清空展开面板与该期的得分缓存
     if (s.unitIndex !== prevUnitIndex) {
@@ -255,17 +271,20 @@ Page({
   // 假数据没有音频，tracks 为空，因此只走 quizMode 的听力填空。
   loadReviewUnit() {
     const source = buildMockReviewResource(this.reviewUnitIds)
+    const quizQuestions = buildListeningQuizQuestions(source)
+    this.unitSort = 0
     this.setData({
       loading: false,
       units: [],
       unitIndex: 0,
       unitName: '错词复习',
+      ...this.getQuizNavMeta(0, quizQuestions.length),
       tracks: buildTracks(source),
       current: 0,
       progress: 0,
       currentTime: '00:00',
       showPlaylist: false,
-      quizQuestions: buildListeningQuizQuestions(source),
+      quizQuestions,
       quizIndex: 0,
       quizAnsweredCount: 0,
       quizProgressPercent: 0,
@@ -282,6 +301,21 @@ Page({
     this.showQuizQuestion(0, true)
   },
 
+  getQuizNavMeta(index, totalOptional) {
+    const total = totalOptional != null ? totalOptional : (this.data.quizQuestions.length || 0)
+    if (this.data.review) {
+      return {
+        navTitle: '错词复习',
+        navSubtitle: buildLevelNavSubtitle(index, total)
+      }
+    }
+    const sort = this.unitSort || ((this.data.units[this.data.unitIndex] || {}).sort) || (this.data.unitIndex + 1)
+    return {
+      navTitle: buildLevelNavTitle(sort),
+      navSubtitle: buildLevelNavSubtitle(index, total)
+    }
+  },
+
   loadUnit(index, autoPlay, toEnd) {
     const unit = this.data.units[index]
     if (!unit) {
@@ -295,7 +329,9 @@ Page({
     getUnitResource(unit.unitId).then(list => {
       const source = normalizeUnitResource(list)
       const tracks = buildTracks(source)
-      const unitName = (source[0] && source[0].unit && source[0].unit.unitName) || unit.unitName || ('第' + (unit.sort || index + 1) + '期')
+      const sort = unit.sort || index + 1
+      this.unitSort = sort
+      const unitName = (source[0] && source[0].unit && source[0].unit.unitName) || unit.unitName || ('关卡' + sort)
 
       const quizQuestions = buildListeningQuizQuestions(source)
 
@@ -303,6 +339,7 @@ Page({
         loading: false,
         unitIndex: index,
         unitName,
+        ...this.getQuizNavMeta(0, quizQuestions.length),
         tracks,
         current: toEnd ? Math.max(tracks.length - 1, 0) : 0,
         progress: 0,
@@ -372,6 +409,7 @@ Page({
 
     this.setData({
       quizIndex: index,
+      ...this.getQuizNavMeta(index),
       quizPhase: 'fill',
       quizReciteParts: buildReciteParts(sourceQuestion.sentence),
       quizReciteScore: '',
@@ -813,14 +851,17 @@ Page({
     }
   },
 
-  // 评测返回：缓存该句得分，重新展开时回显
+  // 评测返回：缓存该句得分与逐词 detail，重新展开时回显
   onMediaResult(e) {
-    const { index, score } = e.detail
+    const { index, score, detail } = e.detail
     if (index == null) {
       return
     }
     this.setData({
-      ['trackScores[' + index + ']']: score
+      ['trackScores[' + index + ']']: {
+        score: score,
+        detail: detail
+      }
     })
   },
 

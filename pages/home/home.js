@@ -2,7 +2,8 @@ const {
   saveUserInfo,
   getUserInfo,
   getUserBooks,
-  getUnits
+  getUnits,
+  toggleBook
 } = require('../../utils/api')
 const { login } = require('../../utils/login')
 const {
@@ -19,11 +20,16 @@ const {
 } = require('./home-units')
 const { normalizeCheckedDates, buildDemoCheckedDates, DEMO_CONTINUOUS_DAYS } = require('../checkin/calendar-data')
 const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
-const { computeScrollTopToCenterTarget } = require('./home-scroll')
-const { withTestBook } = require('../../utils/dev-books')
+const { computeScrollTopToAlignTarget } = require('./home-scroll')
+const { withTestBook, applyDevPurchaseToBook, applyDevPurchaseToBooks, isDevPurchased } = require('../../utils/dev-books')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { IMAGE_BASE_URL } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
+const {
+  buildCharacterImageUrls,
+  pickGenderFromUserInfo,
+  setCharacterGender
+} = require('../../utils/character-gender')
 
 function isTruthyFlag(value) {
   return value === true || value === 1 || value === '1'
@@ -31,6 +37,9 @@ function isTruthyFlag(value) {
 
 function isBookLocked(book) {
   if (!book) {
+    return false
+  }
+  if (book.resBookId && isDevPurchased(book.resBookId)) {
     return false
   }
   if (book.unlocked !== undefined && book.unlocked !== null && book.unlocked !== '') {
@@ -314,12 +323,19 @@ function getHeroLayout() {
 }
 
 function normalizeBook(book) {
-  const result = Object.assign({}, clone(FALLBACK_BOOK), book || {})
+  const result = applyDevPurchaseToBook(Object.assign({}, clone(FALLBACK_BOOK), book || {}))
   result.bookCover = normalizeBookCover(result.bookCover || result.cover || FALLBACK_BOOK.bookCover)
   result.wordCount = Number(result.wordCount) || FALLBACK_BOOK.wordCount
   result.proverbCount = Number(result.proverbCount) || FALLBACK_BOOK.proverbCount
   result.learningInfo = result.learningInfo || FALLBACK_BOOK.learningInfo
   return result
+}
+
+function unlockUnitsForOwnedBook(apiUnits, book) {
+  if (!Array.isArray(apiUnits) || isBookLocked(book)) {
+    return apiUnits
+  }
+  return apiUnits.map(unit => Object.assign({}, unit, { needVip: 0 }))
 }
 
 function getLearnedWordCount(book) {
@@ -337,6 +353,7 @@ const FALLBACK_LIST_UNITS = markTodayTasks(
 Page({
   data: {
     imageBaseUrl: IMAGE_BASE_URL,
+    ...buildCharacterImageUrls(IMAGE_BASE_URL),
     loading: true,
     nickName: '',
     canUseUserProfile: false,
@@ -368,12 +385,17 @@ Page({
     pickerBooks: [],
     hasTodayTasks: hasTodayTaskGroup(FALLBACK_LIST_UNITS),
     showTodayLocateFab: false,
+    monsterHint: {
+      visible: false,
+      text: ''
+    },
     ...getHeroLayout()
   },
 
   onLoad() {
     this.setData({
-      canUseUserProfile: canUseUserProfile()
+      canUseUserProfile: canUseUserProfile(),
+      ...buildCharacterImageUrls(IMAGE_BASE_URL)
     })
     this.resetVisibleUnits()
     this.loadHomeData()
@@ -386,11 +408,16 @@ Page({
         hidden: !!this.data.bookPickerVisible
       })
     }
+    this.applyCharacterAssets()
     if (this.refresh) {
       this.refresh = false
       this.loadHomeData()
     }
     this.refreshCheckin()
+  },
+
+  applyCharacterAssets() {
+    this.setData(buildCharacterImageUrls(this.data.imageBaseUrl))
   },
 
   // 「今日任务」依赖本地进度（完成关卡、保存计划后会变化），每次返回首页都刷新。
@@ -425,6 +452,11 @@ Page({
       }
       getUserInfo().then(userInfo => {
         const info = userInfo || {}
+        const savedGender = pickGenderFromUserInfo(info)
+        if (savedGender) {
+          setCharacterGender(savedGender)
+          this.applyCharacterAssets()
+        }
         const continuousDays = positiveNumber(info.continuousDays, info.checkInDays, info.signDays)
         const totalDays = countCheckinDates(info) || continuousDays
         this.setData(Object.assign(
@@ -441,7 +473,7 @@ Page({
         return
       }
 
-      books = withMockTextbooks(withTestBook(books))
+      books = applyDevPurchaseToBooks(withMockTextbooks(withTestBook(books)))
       let selectedBook = books.find(item => item.defaultBook) || books[0]
       let otherBook = books.find(item => item.resBookId !== selectedBook.resBookId) || {}
       selectedBook = normalizeBook(selectedBook)
@@ -475,7 +507,10 @@ Page({
   },
 
   resetVisibleUnits(apiUnits) {
-    const allUnits = buildDisplayUnits(apiUnits, FALLBACK_UNITS)
+    const allUnits = buildDisplayUnits(
+      unlockUnitsForOwnedBook(apiUnits, this.data.book),
+      FALLBACK_UNITS
+    )
     const visibleCount = getNextVisibleCount(allUnits.length, 0)
 
     this.allUnits = allUnits
@@ -581,7 +616,8 @@ Page({
     this.setTabBarHidden(false)
   },
 
-  selectBook(event) {
+  // 封面区（卡片上部）：点击进入商品详情页，不区分是否购买
+  goBookDetail(event) {
     const resBookId = event.currentTarget.dataset.resBookId
     const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
 
@@ -589,10 +625,60 @@ Page({
       return
     }
 
-    // 点击任意教材都进入商品详情页，由详情页决定购买/使用，不在弹窗里立即切换
+    this.goBuyBook(target, () => {
+      this.setData({ bookPickerVisible: false })
+      this.setTabBarHidden(false)
+    })
+  },
+
+  // 底部「去购买」：始终按未购买状态打开详情页
+  goBuyFromPicker(event) {
+    const resBookId = event.currentTarget.dataset.resBookId
+    const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
+
+    if (!target) {
+      return
+    }
+
+    this.goBuyBook(Object.assign({}, target, { locked: true }), () => {
+      this.setData({ bookPickerVisible: false })
+      this.setTabBarHidden(false)
+    })
+  },
+
+  // 切换横条（卡片底部）：把该教材设为当前。未购买/演示教材切换后由首页据数据上锁提示购买
+  switchBookUse(event) {
+    const resBookId = event.currentTarget.dataset.resBookId
+    const currentBook = this.data.book
+    const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
+
+    if (!target) {
+      return
+    }
+
     this.setData({ bookPickerVisible: false })
     this.setTabBarHidden(false)
-    this.goBuyBook(target)
+
+    if (!resBookId || resBookId === currentBook.resBookId) {
+      return
+    }
+
+    const applySwitch = () => {
+      const otherBook = (this.data.allBooks || []).find(item => item.resBookId !== resBookId) || {}
+      const selectedBook = normalizeBook(target)
+      this.updateBook(selectedBook, otherBook)
+      this.resetVisibleUnits()
+      getApp().globalData.book = selectedBook
+      this.loadUnits(selectedBook.resBookId)
+    }
+
+    // 演示教材没有真实服务端记录，直接前端切换预览
+    if (target.demo) {
+      applySwitch()
+      return
+    }
+
+    toggleBook(resBookId).then(applySwitch)
   },
 
   noop() {},
@@ -700,10 +786,7 @@ Page({
       task.mapState !== 'active' &&
       task.mapState !== 'completed'
     ) {
-      wx.showToast({
-        title: '请先完成上一项任务',
-        icon: 'none'
-      })
+      this.showMonsterHint('请先完成上一项任务')
       return
     }
 
@@ -717,10 +800,7 @@ Page({
 
   handleReviewTaskTap(unit, taskType) {
     if (unit.locked) {
-      wx.showToast({
-        title: '完成前面的关卡后解锁复习',
-        icon: 'none'
-      })
+      this.showMonsterHint('完成前面的关卡后解锁复习')
       return
     }
 
@@ -912,21 +992,18 @@ Page({
 
     const query = wx.createSelectorQuery()
     query.select('.home-scroll').scrollOffset()
-    query.select('#today-scroll-target').boundingClientRect()
     query.select('#today-group').boundingClientRect()
     query.select('.home-scroll').boundingClientRect()
     query.select('.home-scroll').node()
     query.exec(results => {
       const scrollOffset = results && results[0]
-      const activeRect = results && results[1]
-      const groupRect = results && results[2]
-      const scrollRect = results && results[3]
-      const scrollNode = results && results[4] && results[4].node
-      const targetRect = activeRect && activeRect.height ? activeRect : groupRect
+      const groupRect = results && results[1]
+      const scrollRect = results && results[2]
+      const scrollNode = results && results[3] && results[3].node
 
-      const targetTop = computeScrollTopToCenterTarget(
+      const targetTop = computeScrollTopToAlignTarget(
         scrollOffset && scrollOffset.scrollTop,
-        targetRect,
+        groupRect,
         scrollRect
       )
       if (targetTop === null || !scrollNode) {
@@ -970,7 +1047,7 @@ Page({
     })
   },
 
-  goBuyBook(book) {
+  goBuyBook(book, onNavigated) {
     const learningUnits = book.learningInfo && book.learningInfo.book
       ? book.learningInfo.book.learningUnits
       : 0
@@ -988,7 +1065,12 @@ Page({
     ].join('&')
 
     wx.navigateTo({
-      url: '../advertisement/advertisement?' + query
+      url: '../advertisement/advertisement?' + query,
+      success: () => {
+        if (typeof onNavigated === 'function') {
+          onNavigated()
+        }
+      }
     })
   },
 
@@ -1012,17 +1094,27 @@ Page({
     })
   },
 
-  showLocked() {
-    wx.showToast({
-      title: '开通会员后解锁',
-      icon: 'none'
+  showMonsterHint(text) {
+    if (this._monsterHintTimer) {
+      clearTimeout(this._monsterHintTimer)
+    }
+    this.setData({
+      monsterHint: {
+        visible: true,
+        text: text || ''
+      }
     })
+    this._monsterHintTimer = setTimeout(() => {
+      this.setData({ 'monsterHint.visible': false })
+      this._monsterHintTimer = null
+    }, 2000)
+  },
+
+  showLocked() {
+    this.showMonsterHint('开通会员后解锁')
   },
 
   showPending() {
-    wx.showToast({
-      title: '内容待补充',
-      icon: 'none'
-    })
+    this.showMonsterHint('内容待补充')
   }
 })

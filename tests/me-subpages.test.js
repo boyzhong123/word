@@ -60,6 +60,7 @@ test('me secondary pages provide real page content', () => {
   assert.match(notifyPage, /订阅消息/)
   assert.match(notifyPage, /公众号提醒/)
   assert.match(notifyPage, /bindtap="requestSubscribe"/)
+  assert.match(notifyPage, /bindtap="openOfficialAccount"/)
 
   assert.match(contactPage, /联系客服/)
   assert.match(contactPage, /open-type="contact"/)

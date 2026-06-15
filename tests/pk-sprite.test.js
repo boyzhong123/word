@@ -28,8 +28,13 @@ test('pk source frames and sprite sheet exist for seven-frame playback', () => {
     assert.equal(fs.existsSync(framePath), true, framePath + ' should exist')
   })
   assert.equal(fs.existsSync(spritePath), true)
+  assert.equal(fs.existsSync(path.join(projectRoot, 'images/home/student-monster-pk-sprite-girl.png')), true)
   // 2x assets displayed at 148x84 rpx via the frame-animation background-size
   assert.deepEqual(readPngSize(spritePath), {
+    width: 296 * 7,
+    height: 168
+  })
+  assert.deepEqual(readPngSize(path.join(projectRoot, 'images/home/student-monster-pk-sprite-girl.png')), {
     width: 296 * 7,
     height: 168
   })
@@ -37,7 +42,7 @@ test('pk source frames and sprite sheet exist for seven-frame playback', () => {
 
 test('home page references the seven-frame pk sprite timing', () => {
   const homeTemplate = fs.readFileSync(path.join(projectRoot, 'pages/home/home.wxml'), 'utf8')
-  assert.match(homeTemplate, /student-monster-pk-sprite\.png/)
+  assert.match(homeTemplate, /pkSpriteUrl/)
   assert.match(homeTemplate, /count="7"/)
-  assert.match(homeTemplate, /duration="1\.75"/)
+  assert.match(homeTemplate, /duration="{{pkSpriteDuration}}"/)
 })

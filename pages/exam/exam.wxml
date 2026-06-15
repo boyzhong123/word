@@ -1,0 +1,108 @@
+<!--pages/exam/exam.wxml-->
+<view class="exam-page">
+  <navigation background="transparent" backInner="{{false}}" bind:back="confirmQuit">
+    <view class="exam-nav-title">{{stage === 'intro' ? '测评' : sectionName + '测评'}}</view>
+  </navigation>
+
+  <!-- 开始页 -->
+  <view wx:if="{{stage === 'intro'}}" class="intro">
+    <view class="intro-card">
+      <image class="intro-mascot" src="../../images/home/mascot-report-jelly.png" mode="aspectFit" />
+      <view class="intro-title">{{title}}</view>
+      <view class="intro-subtitle">{{subtitle}}</view>
+      <view class="intro-total">共 {{total}} 题</view>
+
+      <view class="intro-sections">
+        <view class="intro-section" wx:for="{{sections}}" wx:key="key">
+          <view class="intro-section-head">
+            <text class="intro-section-name">{{item.name}}</text>
+            <text class="intro-section-count">{{item.count}} 题</text>
+          </view>
+          <text class="intro-section-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="intro-tip">认真作答，结束后会生成专属测评报告</view>
+    <view class="intro-btn" bindtap="startExam">开始测评</view>
+  </view>
+
+  <!-- 答题页 -->
+  <block wx:if="{{stage === 'quiz'}}">
+    <view class="quiz-head">
+      <view class="progress-row">
+        <view class="progress-track">
+          <view class="progress-fill" style="width: {{progress}}%;"></view>
+        </view>
+        <text class="progress-counter">{{counter}}</text>
+      </view>
+      <view class="quiz-tags">
+        <text class="tag tag-section">{{sectionName}}</text>
+        <text class="tag tag-type">{{question.typeLabel}}</text>
+      </view>
+    </view>
+
+    <scroll-view class="quiz-body" scroll-y enhanced show-scrollbar="{{false}}">
+      <!-- 题干 -->
+      <view class="stem-wrap">
+        <!-- 听音辨词：喇叭 -->
+        <view wx:if="{{question.type === 'word-audio'}}" class="audio-stem" bindtap="playAudio">
+          <view class="audio-btn">🔊</view>
+          <text class="audio-hint">{{question.stemSub}}</text>
+        </view>
+
+        <!-- 其它题型 -->
+        <block wx:else>
+          <view wx:if="{{question.stem}}" class="stem-main">{{question.stem}}</view>
+          <view wx:if="{{question.stemSub}}" class="stem-sub">{{question.stemSub}}</view>
+        </block>
+      </view>
+
+      <!-- 选择题 -->
+      <view wx:if="{{question.interaction === 'choice'}}" class="options">
+        <view
+          class="option {{selected === index ? 'option-active' : ''}}"
+          wx:for="{{question.options}}"
+          wx:key="index"
+          data-idx="{{index}}"
+          bindtap="selectOption"
+        >
+          <text class="option-key">{{['A','B','C','D'][index]}}</text>
+          <text class="option-text">{{item}}</text>
+        </view>
+      </view>
+
+      <!-- 连词成句 -->
+      <view wx:if="{{question.interaction === 'order'}}" class="order">
+        <view class="order-answer {{ordered.length ? '' : 'order-answer-empty'}}">
+          <block wx:if="{{ordered.length}}">
+            <text
+              class="chip chip-answer"
+              wx:for="{{ordered}}"
+              wx:key="key"
+              data-key="{{item.key}}"
+              bindtap="removeToken"
+            >{{item.text}}</text>
+          </block>
+          <text wx:else class="order-placeholder">点击下方词块组句，点已选词可撤回</text>
+        </view>
+        <view class="order-bank">
+          <text
+            wx:for="{{bank}}"
+            wx:key="key"
+            class="chip chip-bank {{item.used ? 'chip-used' : ''}}"
+            data-key="{{item.key}}"
+            bindtap="pickToken"
+          >{{item.text}}</text>
+        </view>
+      </view>
+
+      <view class="quiz-body-space"></view>
+    </scroll-view>
+
+    <!-- 底部操作 -->
+    <view class="quiz-foot">
+      <view class="foot-btn foot-btn-ghost {{index === 0 ? 'foot-btn-disabled' : ''}}" bindtap="prevQuestion">上一题</view>
+      <view class="foot-btn foot-btn-primary {{canNext ? '' : 'foot-btn-mute'}}" bindtap="nextQuestion">{{isLast ? '交卷' : '下一题'}}</view>
+    </view>
+  </block>
+</view>

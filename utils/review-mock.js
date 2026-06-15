@@ -25,6 +25,7 @@ const MOCK_REVIEW_WORDS = [
     synonyms: [
       { pos: 'n.', en: 'fruit', cn: '水果（泛指所有水果）' }
     ],
+    enDefinition: 'A round fruit with firm white flesh and a red, green, or yellow skin.',
     mnemonic: 'a（一个）+ pple（像苹果的形状）→ 一个苹果',
     etymology: 'apple 源自古英语 \'æppel\'，与古高地德语 \'apful\' 同源，词根无特定拆分，同源词有 pineapple（菠萝，字面 “松果”）',
     pronunciationTips: [
@@ -104,6 +105,7 @@ function buildMockReviewResource(reviewUnitIds) {
       phrases: item.phrases || null,
       examTexts: item.examTexts || null,
       synonyms: item.synonyms || null,
+      enDefinition: item.enDefinition || '',
       mnemonic: item.mnemonic || '',
       etymology: item.etymology || '',
       pronunciationTips: item.pronunciationTips || null

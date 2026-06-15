@@ -14,6 +14,16 @@
 }
 .icon-present { width: 180rpx; height: 180rpx; }
 .icon-present2 { width: 240rpx; height: 240rpx; }
+.icon-exam { width: 220rpx; height: 220rpx; }
+/* 测评节点：在节点下方挂一个胶囊标签，和普通关卡区分 */
+.phases.exam-node .content {
+  bottom: -8rpx;
+  padding: 4rpx 22rpx;
+  border-radius: 999rpx;
+  background: #16a34a;
+  font-size: 30rpx;
+  box-shadow: 0 6rpx 16rpx rgba(22, 163, 74, 0.35);
+}
 .content {
   position: absolute;
   font-size: 36rpx;

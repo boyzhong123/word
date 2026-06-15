@@ -94,21 +94,50 @@
 
     <view class="section">
       <view class="section-head">
-        <text class="section-title">选择套餐</text>
+        <text class="section-title">选择规格</text>
         <text class="section-note">下单前还可以再次确认</text>
       </view>
-      <view class="package-list">
-        <view class="package-card {{item.id === selectedPackage ? 'package-card-active' : ''}}" wx:for="{{packages}}" wx:key="id">
-          <view class="package-top">
-            <text class="package-name">{{item.name}}</text>
-            <text wx:if="{{item.tag}}" class="package-tag">{{item.tag}}</text>
+
+      <view class="sku-group">
+        <text class="sku-group-label">词典有效期</text>
+        <view class="sku-chip-row">
+          <view
+            wx:for="{{validityOptions}}"
+            wx:key="id"
+            class="sku-chip {{item.id === selectedValidity ? 'sku-chip-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectValidity"
+          >
+            <text class="sku-chip-name">{{item.name}}</text>
           </view>
-          <view class="package-price">
-            <text class="package-currency">¥</text>
-            <text class="package-amount">{{item.price}}</text>
-          </view>
-          <text class="package-summary">{{item.summary}}</text>
         </view>
+      </view>
+
+      <view class="sku-group">
+        <text class="sku-group-label">套餐</text>
+        <view class="sku-chip-row">
+          <view
+            wx:for="{{packages}}"
+            wx:key="id"
+            class="sku-chip {{item.id === selectedPackage ? 'sku-chip-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectPackage"
+          >
+            <text class="sku-chip-name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="package-summary-card">
+        <view class="package-top">
+          <text class="package-name">{{currentSku.skuLabel}}</text>
+          <text wx:if="{{currentPackage.tag}}" class="package-tag">{{currentPackage.tag}}</text>
+        </view>
+        <view class="package-price">
+          <text class="package-currency">¥</text>
+          <text class="package-amount">{{currentSku.price}}</text>
+        </view>
+        <text class="package-summary">{{currentPackage.summary}}</text>
       </view>
     </view>
 
@@ -131,7 +160,7 @@
           <text class="purchase-amount">{{minPrice}}</text>
           <text class="purchase-from">起</text>
         </view>
-        <text class="purchase-price-note">{{packages.length}} 种套餐可选</text>
+        <text class="purchase-price-note">{{skuCount}} 种规格可选</text>
       </view>
       <view class="purchase-button purchase-button-buy" bindtap="openSkuSheet">立即购买</view>
     </block>
@@ -150,22 +179,42 @@
         </view>
       </view>
 
-      <view class="sku-title">选择套餐</view>
+      <view class="sku-title">词典有效期</view>
+      <view class="sku-options">
+        <view
+          wx:for="{{validityOptions}}"
+          wx:key="id"
+          class="sku-option sku-option-compact {{selectedValidity === item.id ? 'sku-option-active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectValidity"
+        >
+          <view wx:if="{{item.tag}}" class="sku-badge">{{item.tag}}</view>
+          <text class="sku-option-name">{{item.name}}</text>
+          <text class="sku-option-desc">{{item.summary}}</text>
+        </view>
+      </view>
+
+      <view class="sku-title">套餐</view>
       <view class="sku-options">
         <view
           wx:for="{{packages}}"
           wx:key="id"
-          class="sku-option {{selectedPackage === item.id ? 'sku-option-active' : ''}}"
+          class="sku-option sku-option-compact {{selectedPackage === item.id ? 'sku-option-active' : ''}}"
           data-id="{{item.id}}"
           bindtap="selectPackage"
         >
           <view wx:if="{{item.tag}}" class="sku-badge">{{item.tag}}</view>
           <text class="sku-option-name">{{item.name}}</text>
-          <view class="sku-option-price-row">
-            <text class="sku-option-currency">¥</text>
-            <text class="sku-option-price">{{item.price}}</text>
-          </view>
           <text class="sku-option-desc">{{item.summary}}</text>
+        </view>
+      </view>
+
+      <view class="sku-selected-price">
+        <text class="sku-selected-label">已选规格</text>
+        <text class="sku-selected-value">{{currentSku.skuLabel}}</text>
+        <view class="sku-selected-amount-row">
+          <text class="sku-option-currency">¥</text>
+          <text class="sku-option-price">{{currentSku.price}}</text>
         </view>
       </view>
 
@@ -178,7 +227,7 @@
       </view>
 
       <view class="sku-actions">
-        <view class="sku-confirm" bindtap="confirmPurchase">¥{{currentPackage.price}} 确认购买</view>
+        <view class="sku-confirm" bindtap="confirmPurchase">¥{{currentSku.price}} 确认购买</view>
       </view>
     </view>
   </view>

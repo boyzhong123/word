@@ -7,6 +7,10 @@
 
 const { getUnits, getUnitResource } = require('./api')
 const { getFallbackBookCover, normalizeBookCover } = require('./book-cover')
+const {
+  resolveProverbDisplayText,
+  resolveProverbRefText
+} = require('./proverb-text')
 
 // 循环模式：列表循环 / 单曲循环 / 随机播放
 const LOOP_MODES = [
@@ -44,6 +48,9 @@ function buildTracks(source) {
       tracks.push({
         type: 'word',
         content: item.word.content || '',
+        refText: item.word.content || '',
+        exchange: item.word.exchange || '',
+        wordContent: item.word.content || '',
         symbol: item.word.symbol ? '[' + item.word.symbol + ']' : '',
         translation: (item.word.attribute || '') + (item.word.translation || ''),
         page,
@@ -55,7 +62,10 @@ function buildTracks(source) {
         if (p && p.audio) {
           tracks.push({
             type: 'sentence',
-            content: p.content || p.label || '',
+            content: resolveProverbDisplayText(p),
+            refText: resolveProverbRefText(p),
+            exchange: (item.word && item.word.exchange) || '',
+            wordContent: (item.word && item.word.content) || '',
             symbol: '',
             translation: p.translation || '',
             page: p.page || page,
@@ -194,14 +204,18 @@ const player = {
     return this.active && !!resBookId && String(this.resBookId) === String(resBookId)
   },
 
-  // 进入随身听：若已是同一本书的活跃会话则不重载（resume），否则拉取期列表并播放。
+  // 进入随身听：若已是同一本书的活跃会话则恢复展示并继续播放，否则拉取期列表并播放。
   // 返回 Promise，便于调用方在加载完成后处理。
   start({ resBookId, bookCover, targetUnitId } = {}) {
     if (bookCover) {
       this.bookCover = normalizeBookCover(bookCover)
     }
     if (this.isActiveFor(resBookId)) {
-      this.emit()
+      if (this.tracks.length && !this.playing) {
+        this.play()
+      } else {
+        this.emit()
+      }
       return Promise.resolve(true)
     }
     this.resBookId = resBookId || ''
@@ -238,7 +252,7 @@ const player = {
       const source = Array.isArray(list) ? list : []
       const tracks = buildTracks(source)
       const unitName = (source[0] && source[0].unit && source[0].unit.unitName) ||
-        unit.unitName || ('第' + (unit.sort || index + 1) + '期')
+        unit.unitName || ('关卡' + (unit.sort || index + 1))
 
       this.unitIndex = index
       this.unitName = unitName

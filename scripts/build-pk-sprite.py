@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Compose the 7-frame home-page PK battle sprite from extracted character parts.
 
-Parts live in images/home/map/monsters/pk-parts/ (clean chroma-keyed cutouts of
-the boy, the jelly monster, the VS bolt and two full clash/victory scenes).
-Frames are composed at 2x (296x168) with fixed anchors so the loop never wobbles.
+Parts live in assets/pk-build/pk-parts/ (clean chroma-keyed cutouts of the
+student, the jelly monster, and the VS badge). Frames are composed at 2x
+(296x168) with fixed anchors so the loop never wobbles.
 """
 
+import argparse
 from pathlib import Path
 
 from PIL import Image
@@ -65,19 +66,24 @@ def new_frame():
     return Image.new("RGBA", (PK_FRAME_W, PK_FRAME_H), (0, 0, 0, 0))
 
 
-def compose_frames():
-    boy_idle = load_part("boy-idle.png")
-    boy_attack = load_part("boy-attack.png")
-    boy_cheer = load_part("boy-cheer.png")
+def student_prefix(gender):
+    return "girl" if gender == "girl" else "boy"
+
+
+def compose_frames(gender="boy"):
+    prefix = student_prefix(gender)
+    student_idle = load_part(f"{prefix}-idle.png")
+    student_attack = load_part(f"{prefix}-attack.png")
+    student_cheer = load_part(f"{prefix}-cheer.png")
     monster_idle = load_part("monster-idle.png")
     monster_angry = load_part("monster-angry.png")
     monster_dizzy = load_part("monster-dizzy.png")
     vs_badge = load_part("vs-badge.png")
 
-    boy_h = 150
+    student_h = 150
     monster_h = 118
     vs_h = 88
-    boy_x = 40
+    student_x = 40
     monster_x = PK_FRAME_W - 40
     vs_x = PK_FRAME_W // 2
     vs_y = 8
@@ -86,49 +92,49 @@ def compose_frames():
 
     # 1. face-off
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_idle, boy_h), boy_x, "left")
+    paste_bottom(frame, scaled(student_idle, student_h), student_x, "left")
     paste_bottom(frame, scaled(monster_idle, monster_h), monster_x, "right")
     paste_top(frame, scaled(vs_badge, vs_h), vs_x, vs_y)
     frames.append(frame)
 
-    # 2. boy lunges in, monster flinches, badge glows
+    # 2. student lunges in, monster flinches, badge glows
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_attack, boy_h - 10), boy_x + 12, "left")
+    paste_bottom(frame, scaled(student_attack, student_h - 10), student_x + 12, "left")
     paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.05, squash_y=0.93), monster_x + 4, "right")
     paste_top(frame, scaled(vs_badge, round(vs_h * 1.12)), vs_x + 6, vs_y - 2)
     frames.append(frame)
 
     # 3. clash: both close in, badge flares
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_attack, boy_h - 8), boy_x + 24, "left")
+    paste_bottom(frame, scaled(student_attack, student_h - 8), student_x + 24, "left")
     paste_bottom(frame, scaled(monster_angry, monster_h + 10), monster_x - 4, "right")
     paste_top(frame, scaled(vs_badge, round(vs_h * 1.32)), vs_x + 2, vs_y - 6, )
     frames.append(frame)
 
-    # 4. boy cheers, monster squashed dizzy
+    # 4. student cheers, monster squashed dizzy
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_cheer, boy_h), boy_x + 2, "left")
+    paste_bottom(frame, scaled(student_cheer, student_h), student_x + 2, "left")
     paste_bottom(frame, scaled(monster_dizzy, round(monster_h * 0.82)), monster_x + 2, "right")
     paste_top(frame, scaled(vs_badge, vs_h - 8), vs_x, vs_y + 8)
     frames.append(frame)
 
-    # 5. monster puffs back up angrily, boy eases off
+    # 5. monster puffs back up angrily, student eases off
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_idle, boy_h - 4), boy_x - 4, "left")
+    paste_bottom(frame, scaled(student_idle, student_h - 4), student_x - 4, "left")
     paste_bottom(frame, scaled(monster_angry, monster_h + 14), monster_x - 8, "right")
     paste_top(frame, scaled(vs_badge, vs_h), vs_x - 4, vs_y)
     frames.append(frame)
 
     # 6. second clash
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_attack, boy_h - 8), boy_x + 20, "left")
+    paste_bottom(frame, scaled(student_attack, student_h - 8), student_x + 20, "left")
     paste_bottom(frame, scaled(monster_angry, monster_h + 8, squash_x=1.04, squash_y=0.95), monster_x - 2, "right")
     paste_top(frame, scaled(vs_badge, round(vs_h * 1.26)), vs_x, vs_y - 4)
     frames.append(frame)
 
     # 7. back to face-off (tiny bounce) for a seamless loop
     frame = new_frame()
-    paste_bottom(frame, scaled(boy_idle, boy_h), boy_x, "left")
+    paste_bottom(frame, scaled(student_idle, student_h), student_x, "left")
     paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.03, squash_y=0.96), monster_x, "right")
     paste_top(frame, scaled(vs_badge, vs_h), vs_x, vs_y + 2)
     frames.append(frame)
@@ -144,14 +150,34 @@ def build_sprite(frames, output_path):
     sprite.save(output_path, optimize=True)
 
 
+def output_paths(gender):
+    if gender == "girl":
+        return {
+            "frames_dir": FRAMES_DIR / "girl",
+            "sprite": HOME_DIR / "student-monster-pk-sprite-girl.png",
+        }
+    return {
+        "frames_dir": FRAMES_DIR,
+        "sprite": HOME_DIR / "student-monster-pk-sprite.png",
+    }
+
+
 def main():
-    frames = compose_frames()
-    FRAMES_DIR.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--gender", choices=("boy", "girl"), default="boy")
+    args = parser.parse_args()
+
+    paths = output_paths(args.gender)
+    frames = compose_frames(args.gender)
+    paths["frames_dir"].mkdir(parents=True, exist_ok=True)
     PARTS_DIR.mkdir(parents=True, exist_ok=True)
     for output_name, frame in zip(FRAME_OUTPUT_NAMES, frames):
-        frame.save(FRAMES_DIR / output_name, optimize=True)
-    build_sprite(frames, HOME_DIR / "student-monster-pk-sprite.png")
-    print(f"Composed {FRAME_COUNT} PK frames ({PK_FRAME_W}x{PK_FRAME_H}) and sprite in {HOME_DIR}")
+        frame.save(paths["frames_dir"] / output_name, optimize=True)
+    build_sprite(frames, paths["sprite"])
+    print(
+        f"Composed {FRAME_COUNT} {args.gender} PK frames "
+        f"({PK_FRAME_W}x{PK_FRAME_H}) and sprite at {paths['sprite']}"
+    )
 
 
 if __name__ == "__main__":

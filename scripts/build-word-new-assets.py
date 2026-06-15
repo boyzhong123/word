@@ -9,11 +9,14 @@ from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 WORD_NEW_DIR = PROJECT_ROOT / "images" / "word-new"
+HOME_DIR = PROJECT_ROOT / "images" / "home"
 ASSETS_DIR = PROJECT_ROOT / "assets"
 CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
 
 THUMB_SIZE = 72
 TOAST_SIZE = 128
+# Home toast icon renders at 64rpx; keep a 3x asset to stay sharp on retina screens.
+HOME_TOAST_HINT_SIZE = 192
 
 SOURCE_FILES = {
     "thumb-up.png": ("thumb-up-source.png", THUMB_SIZE, THUMB_SIZE, 4, False),
@@ -21,6 +24,10 @@ SOURCE_FILES = {
     "toast-known.png": ("toast-known-source.png", TOAST_SIZE, TOAST_SIZE, 6, True),
     "toast-unknown.png": ("toast-unknown-source.png", TOAST_SIZE, TOAST_SIZE, 6, True),
     "toast-mistaken.png": ("toast-mistaken-source.png", TOAST_SIZE, TOAST_SIZE, 6, True),
+}
+
+HOME_SOURCE_FILES = {
+    "toast-hint.png": ("toast-hint-source.png", HOME_TOAST_HINT_SIZE, HOME_TOAST_HINT_SIZE, 12, True),
 }
 
 
@@ -103,6 +110,16 @@ def main():
         icon = fit_asset(image, width, height, padding)
         icon.save(WORD_NEW_DIR / output_name, optimize=True)
         print(f"built {WORD_NEW_DIR / output_name}")
+
+    home_work_dir = HOME_DIR / ".build"
+    home_work_dir.mkdir(parents=True, exist_ok=True)
+    HOME_DIR.mkdir(parents=True, exist_ok=True)
+    for output_name, (source_name, width, height, padding, keyed) in HOME_SOURCE_FILES.items():
+        source_path = resolve_source(source_name)
+        image = remove_checkerboard(source_path, home_work_dir) if keyed else Image.open(source_path).convert("RGBA")
+        icon = fit_asset(image, width, height, padding)
+        icon.save(HOME_DIR / output_name, optimize=True)
+        print(f"built {HOME_DIR / output_name}")
 
 
 if __name__ == "__main__":

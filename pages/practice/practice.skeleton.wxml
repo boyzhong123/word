@@ -4,7 +4,10 @@
       <view class="practice-bg sk-image"></view>
       <view class="practice-nav">
         <view class="nav-title-wrap">
-          <view class="nav-title sk-transparent sk-text-14-0000-100 sk-text">第1期 1/10</view>
+          <view class="nav-title-block">
+            <view class="nav-title sk-transparent sk-text-14-0000-100 sk-text">关卡1</view>
+            <view class="nav-subtitle sk-transparent sk-text-14-0000-101 sk-text">1/10</view>
+          </view>
         </view>
         <view class="practice-top-progress sk-image"></view>
       </view>

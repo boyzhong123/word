@@ -48,6 +48,20 @@ function markDevPurchased(resBookId) {
   wx.setStorageSync(STORAGE_KEY, getDevPurchasedIds().concat(resBookId))
 }
 
+function applyDevPurchaseToBook(book) {
+  if (!book || !book.resBookId || !isDevPurchased(book.resBookId)) {
+    return book
+  }
+  return Object.assign({}, book, {
+    unlocked: 1,
+    needVip: 0
+  })
+}
+
+function applyDevPurchaseToBooks(books) {
+  return (Array.isArray(books) ? books : []).map(applyDevPurchaseToBook)
+}
+
 function clearDevPurchased() {
   wx.removeStorageSync(STORAGE_KEY)
 }
@@ -61,11 +75,7 @@ function withTestBook(books) {
   if (list.some(book => book && book.resBookId === TEST_BOOK_ID)) {
     return list
   }
-  const testBook = Object.assign({}, TEST_BOOK)
-  if (isDevPurchased(TEST_BOOK_ID)) {
-    testBook.unlocked = 1
-    testBook.needVip = 0
-  }
+  const testBook = applyDevPurchaseToBook(Object.assign({}, TEST_BOOK))
   return list.concat(testBook)
 }
 
@@ -75,6 +85,8 @@ module.exports = {
   isDevTestBook,
   isDevPurchased,
   markDevPurchased,
+  applyDevPurchaseToBook,
+  applyDevPurchaseToBooks,
   clearDevPurchased,
   withTestBook
 }

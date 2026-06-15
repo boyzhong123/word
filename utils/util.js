@@ -198,12 +198,13 @@ const canUseUserProfile = () => {
 }
 
 const refreshHomePage = () => {
-    var pages = getCurrentPages() //获取加载的页面
-    for (let i = 0; i < pages.length; i++) {
-        pages[i].route == 'pages/home/home'
-        pages[i].refresh = true
-        break
+  const pages = getCurrentPages()
+  for (let i = 0; i < pages.length; i++) {
+    if (pages[i].route === 'pages/home/home') {
+      pages[i].refresh = true
+      break
     }
+  }
 }
 
 module.exports = {

@@ -25,7 +25,7 @@ module.exports = {
   containsTone: function (text) {
     return text && text.search(getRegExp('t:1', 'g')) != -1
   },
-  splitText: function (text, detail, exchange, word) {
+  splitText: function (text, detail, exchange, word, overallScore) {
     var array = []
     var count = 0
     var spaces = ""
@@ -33,6 +33,15 @@ module.exports = {
     var reg = getRegExp('(\(|s:1,t:1,g:1|s:1,t:1|g:1,s:1|s:1|t:1|g:1|\))', 'g') // wxs 正则表达式两边不用定界符 /
     var reg2 = getRegExp('s:1', 'g')
     var reg3 = getRegExp('[^a-z]', 'g')
+    var resolveColor = function (detailItem) {
+      if (detailItem && detailItem.score != undefined) {
+        return getStyle(detailItem.score)
+      }
+      if (overallScore != undefined && overallScore !== '') {
+        return getStyle(overallScore)
+      }
+      return '#696969'
+    }
     if (text) {
       var exchanges = exchange ? (exchange + ";" + word).split(';') : [word]
       text.split(" ").map(function (item, index) {
@@ -45,10 +54,11 @@ module.exports = {
             spaces = ''
           }
           var w = item.replace(reg, '')
+          var detailItem = detail ? detail[index - spacesCount] : null
           array[count] = {
             value: w + " ",
             class: (item.search(reg2) != -1 ? "anchor-stress stress" : ""),
-            style: "color:" + (detail ? getStyle(detail[index - spacesCount].score) : "#696969") + (exchanges.indexOf(w.toLowerCase().replace(reg3, '')) != -1 ? ";font-style: italic;" : "")
+            style: "color:" + resolveColor(detailItem) + (exchanges.indexOf(w.toLowerCase().replace(reg3, '')) != -1 ? ";font-style: italic;" : "")
           }
           count++
         } else {

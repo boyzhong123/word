@@ -26,6 +26,8 @@ Page({
     press: '',
     packageId: 'full',
     packageName: '',
+    validityId: 'forever',
+    validityName: '永久有效',
     price: 0,
     paid: false,
     safeAreaBottom
@@ -38,7 +40,9 @@ Page({
       bookCover: decodeQueryValue(options.bookCover),
       press: decodeQueryValue(options.press),
       packageId: decodeQueryValue(options.packageId) || 'full',
-      packageName: decodeQueryValue(options.packageName) || '学习卡套餐',
+      packageName: decodeQueryValue(options.packageName) || '词典+智能学习卡',
+      validityId: decodeQueryValue(options.validityId) || 'forever',
+      validityName: decodeQueryValue(options.validityName) || '永久有效',
       price: Number(options.price) || 0
     })
   },

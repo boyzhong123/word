@@ -29,7 +29,7 @@
     <!-- 第一页：封面 -->
     <swiper-item>
       <view class="cover-page">
-        <view class="player-card">
+        <view class="player-card" bindtap="togglePlay">
           <view class="turntable">
             <image class="disc-tray" src="/images/listen/disc-tray.png" />
             <view class="disc-stack {{playing ? 'spinning' : ''}}">
@@ -39,7 +39,7 @@
             </view>
             <view class="disc-spindle"></view>
           </view>
-          <view class="tonearm {{playing ? 'tonearm-on-disc' : ''}}">
+          <view class="tonearm {{playing ? 'tonearm-on-disc' : ''}} {{tonearmInstant ? 'tonearm-instant' : ''}}">
             <image class="tonearm-img" src="/images/listen/tonearm-arm.png" />
           </view>
         </view>
@@ -50,6 +50,7 @@
     <!-- 第二页：课文（单词列表） -->
     <swiper-item>
       <scroll-view class="lyrics" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
+        <wxs src='/pages/paint.wxs' module="paintHandler"></wxs>
         <view class="lyrics-pad"></view>
         <view
           wx:for="{{tracks}}"
@@ -65,7 +66,18 @@
               src="{{item.type == 'word' ? listenWordTagImage : listenSentenceTagImage}}"
               mode="aspectFit"
             />
-            <view class="lyric-en">{{item.content}}</view>
+            <view class="lyric-en">
+              <block wx:if="{{trackScores[index] && trackScores[index].score != undefined && trackScores[index].score !== ''}}">
+                <block wx:if="{{item.type == 'word'}}">
+                  <text style="color: {{paintHandler.paintColor(trackScores[index])}}">{{item.content}}</text>
+                </block>
+                <block wx:else>
+                  <text wx:for="{{paintHandler.splitText(item.content, trackScores[index].detail, item.exchange, item.wordContent, trackScores[index].score)}}" wx:for-index="tIndex" wx:for-item="text" wx:key="tIndex" class="{{text.class}}" style="{{text.style}}">{{text.value}}</text>
+                  <image wx:if="{{paintHandler.containsTone(item.content)}}" src="https://17ks.chivoxapp.com/proverbs/rising_tone.png" class="lyric-tone" mode="aspectFit"></image>
+                </block>
+              </block>
+              <block wx:else>{{item.content}}</block>
+            </view>
             <text wx:if="{{item.page}}" class="lyric-page">P{{item.page}}</text>
           </view>
           <view wx:if="{{item.translation}}" class="lyric-cn">{{item.translation}}</view>
@@ -79,9 +91,9 @@
                   _index="{{index}}"
                   _autoplay="{{true}}"
                   _audio="{{item.audio}}"
-                  _refText="{{item.content}}"
+                  _refText="{{item.refText || item.content}}"
                   _coreType="{{item.type == 'word' ? 'en.word.score' : 'en.sent.score'}}"
-                  score="{{trackScores[index] ? trackScores[index] : ''}}"
+                  score="{{trackScores[index] && trackScores[index].score != undefined ? trackScores[index].score : ''}}"
                   bindresult="onMediaResult"
                   bindmediaStateChange="onMediaStateChange"
                   bindunauthorized="onMediaUnauthorized"
@@ -165,7 +177,7 @@
           bindtap="onUnitTap"
         >
           <view class="sheet-item-main">
-            <text class="sheet-item-name">{{item.unitName || ('第' + (item.sort || index + 1) + '期')}}</text>
+            <text class="sheet-item-name">{{item.unitName || ('关卡' + (item.sort || index + 1))}}</text>
             <text wx:if="{{item.wordTotal}}" class="sheet-item-sub">{{item.wordTotal}} 词</text>
           </view>
           <view wx:if="{{item.needVip}}" class="sheet-vip">会员</view>

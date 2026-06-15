@@ -16,8 +16,11 @@
     "pages/me/notify",
     "pages/me/contact",
     "pages/me/privacy",
+    "pages/me/web-src",
     "pages/plan/plan",
-    "pages/report/report"
+    "pages/report/report",
+    "pages/exam/exam",
+    "pages/exam/exam-report"
   ],
   "window": {
     "backgroundTextStyle": "light",

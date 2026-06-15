@@ -152,6 +152,9 @@
   box-shadow: 0 18rpx 40rpx rgba(96, 114, 140, 0.16), 0 4rpx 12rpx rgba(96, 114, 140, 0.08);
   overflow: visible;
 }
+.player-card:active {
+  opacity: 0.92;
+}
 .turntable {
   position: absolute;
   left: 70rpx;
@@ -249,6 +252,9 @@
 .tonearm.tonearm-on-disc {
   transform: rotate(4deg);
 }
+.tonearm.tonearm-instant {
+  transition: none !important;
+}
 .tonearm-img {
   display: block;
   width: 100%;
@@ -303,6 +309,12 @@
   color: #41514a;
   line-height: 1.35;
   font-weight: 400;
+}
+.lyric-tone {
+  width: 16rpx;
+  height: 22rpx;
+  margin-left: 10rpx;
+  vertical-align: middle;
 }
 /* 课本页码标记（P1=第1页），右侧浅灰 chip */
 .lyric-page {

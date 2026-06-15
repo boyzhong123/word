@@ -3,6 +3,8 @@ function getSubscribeTemplateIds() {
   return (app.globalData && app.globalData.subscribeTmplIds) || []
 }
 
+const { getOfficialAccountWebSrcPath } = require('../../utils/official-account')
+
 function formatSubscribeStatus(value) {
   if (value === 'accept') {
     return '已允许'
@@ -84,11 +86,9 @@ Page({
     }
   },
 
-  onOfficialAccountLoad() {
-    console.log('[me/notify] official account loaded')
-  },
-
-  onOfficialAccountError(event) {
-    console.log('[me/notify] official account error', event.detail)
+  openOfficialAccount() {
+    wx.navigateTo({
+      url: getOfficialAccountWebSrcPath()
+    })
   }
 })

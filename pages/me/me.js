@@ -1,5 +1,5 @@
 const { getUserInfo, getUserBooks, saveUserInfo, bindPhoneNumber } = require('../../utils/api')
-const { login } = require('../../utils/login')
+const { login, fetchLoginCode } = require('../../utils/login')
 const { upload } = require('../../utils/util')
 const { IMAGE_BASE_URL } = require('../../utils/image-host')
 const {
@@ -7,6 +7,14 @@ const {
   getPetState,
   getWallet
 } = require('../../utils/pet-system')
+const {
+  GENDER_BOY,
+  GENDER_GIRL,
+  getCharacterGender,
+  setCharacterGender,
+  pickGenderFromUserInfo
+} = require('../../utils/character-gender')
+const { getOfficialAccountWebSrcPath } = require('../../utils/official-account')
 
 function getSafeArea() {
   const systemInfo = wx.getSystemInfoSync()
@@ -61,18 +69,30 @@ function maskPhoneNumber(phoneNumber) {
   return value.slice(0, 3) + '****' + value.slice(-4)
 }
 
-function buildSettings(phoneNumber, phoneVerified) {
+function buildSettings(phoneNumber, phoneVerified, logined, characterGender) {
+  const verified = !!phoneVerified
+  const canVerifyPhone = !!logined && !verified
+  const gender = characterGender || getCharacterGender()
   return [
+    {
+      id: 'gender',
+      label: '学习形象',
+      desc: gender === GENDER_GIRL ? '当前为女生形象' : '当前为男生形象',
+      action: 'gender',
+      statusText: '',
+      statusType: 'neutral',
+      characterGender: gender
+    },
     {
       id: 'phone',
       label: '手机号验证',
       desc: phoneNumber
         ? '已绑定 ' + maskPhoneNumber(phoneNumber)
-        : (phoneVerified ? '已完成微信手机号验证' : '用于账号安全与找回进度'),
+        : (verified ? '已完成微信手机号验证' : '用于账号安全与找回进度'),
       action: 'phone',
-      openType: 'getPhoneNumber',
-      statusText: phoneVerified ? '已验证' : '去验证',
-      statusType: phoneVerified ? 'verified' : 'pending'
+      openType: canVerifyPhone ? 'getPhoneNumber' : '',
+      statusText: verified ? '已验证' : '去验证',
+      statusType: verified ? 'verified' : 'pending'
     },
     {
       id: 'privacy',
@@ -82,6 +102,35 @@ function buildSettings(phoneNumber, phoneVerified) {
       action: 'privacy'
     }
   ]
+}
+
+function isPhoneVerifiedResponse(data) {
+  data = data || {}
+  return !!(pickPhoneNumber(data) || data.phoneVerified || data.mobileVerified)
+}
+
+function pickRequestErrorMessage(error, fallback) {
+  if (!error) {
+    return fallback
+  }
+  if (typeof error === 'string') {
+    return error
+  }
+  return error.message || fallback
+}
+
+function describePhoneAuthError(errMsg) {
+  const value = String(errMsg || '')
+  if (!value || value.indexOf(':ok') !== -1) {
+    return ''
+  }
+  if (value.indexOf('deny') !== -1 || value.indexOf('cancel') !== -1) {
+    return '已取消手机号授权'
+  }
+  if (value.indexOf('privacy') !== -1 || value.indexOf('scope') !== -1) {
+    return '请先同意隐私协议后再验证'
+  }
+  return '手机号授权失败，请重试'
 }
 
 function parseUploadAvatarUrl(response) {
@@ -115,6 +164,7 @@ Page({
     userInfo: {},
     phoneNumber: '',
     phoneVerified: false,
+    characterGender: GENDER_BOY,
     stats: {
       checkInDays: 0,
       learnedWords: 0,
@@ -150,11 +200,15 @@ Page({
         action: 'contact'
       }
     ],
-    settings: buildSettings('', false)
+    settings: buildSettings('', false, false, GENDER_BOY)
   },
 
   onLoad() {
     this.setData(getSafeArea())
+    this.setData({
+      characterGender: getCharacterGender(),
+      settings: buildSettings('', false, false, getCharacterGender())
+    })
     this.loadPetEntry()
     this.loadProfile()
   },
@@ -187,10 +241,16 @@ Page({
   loadProfile() {
     login().then(result => {
       if (!result || !result.logined) {
-        this.setData({ logined: false })
+        this.setData({
+          logined: false,
+          settings: buildSettings(this.data.phoneNumber, this.data.phoneVerified, false, this.data.characterGender)
+        })
         return
       }
-      this.setData({ logined: true })
+      this.setData({
+        logined: true,
+        settings: buildSettings(this.data.phoneNumber, this.data.phoneVerified, true, this.data.characterGender)
+      })
       this.loadUserInfo()
       this.loadStats()
     }).catch(error => {
@@ -222,11 +282,17 @@ Page({
       }
       const phoneNumber = pickPhoneNumber(data)
       const phoneVerified = !!(phoneNumber || data.phoneVerified || data.mobileVerified)
+      const savedGender = pickGenderFromUserInfo(data)
+      const characterGender = savedGender || this.data.characterGender
+      if (savedGender) {
+        setCharacterGender(savedGender)
+      }
       this.setData({
         userInfo,
         phoneNumber,
         phoneVerified,
-        settings: buildSettings(phoneNumber, phoneVerified)
+        characterGender,
+        settings: buildSettings(phoneNumber, phoneVerified, this.data.logined, characterGender)
       })
     }).catch(() => {})
   },
@@ -253,7 +319,10 @@ Page({
     }
     login().then(result => {
       if (result && result.logined) {
-        this.setData({ logined: true })
+        this.setData({
+          logined: true,
+          settings: buildSettings(this.data.phoneNumber, this.data.phoneVerified, true, this.data.characterGender)
+        })
         this.loadUserInfo()
         this.loadStats()
       }
@@ -350,9 +419,19 @@ Page({
 
   handleGetPhoneNumber(event) {
     const detail = (event && event.detail) || {}
-    if (detail.errMsg && detail.errMsg.indexOf(':ok') === -1) {
+    const errMsg = detail.errMsg || ''
+    const authError = describePhoneAuthError(errMsg)
+    if (authError) {
       wx.showToast({
-        title: '未完成手机号验证',
+        title: authError,
+        icon: 'none'
+      })
+      console.log('[me] getPhoneNumber failed', errMsg)
+      return
+    }
+    if (!this.data.logined) {
+      wx.showToast({
+        title: '请先登录',
         icon: 'none'
       })
       return
@@ -372,37 +451,36 @@ Page({
       })
       return
     }
-    this.ensureLoggedIn().then(logined => {
-      if (!logined) {
-        wx.showToast({
-          title: '请先登录',
-          icon: 'none'
-        })
-        return
+    wx.showLoading({
+      title: '验证中',
+      mask: true
+    })
+    fetchLoginCode().then(loginCode => {
+      if (loginCode) {
+        phonePayload.loginCode = loginCode
       }
-      wx.showLoading({
-        title: '验证中',
-        mask: true
+      return bindPhoneNumber(phonePayload)
+    }).then(data => {
+      if (!isPhoneVerifiedResponse(data)) {
+        return Promise.reject({ message: '服务端暂未保存手机号，请联系客服' })
+      }
+      const phoneNumber = pickPhoneNumber(data)
+      this.setData({
+        phoneNumber,
+        phoneVerified: true,
+        settings: buildSettings(phoneNumber, true, this.data.logined, this.data.characterGender)
       })
-      bindPhoneNumber(phonePayload).then(data => {
-        const phoneNumber = pickPhoneNumber(data) || this.data.phoneNumber
-        this.setData({
-          phoneNumber,
-          phoneVerified: true,
-          settings: buildSettings(phoneNumber, true)
-        })
-        wx.showToast({
-          title: '手机号已验证',
-          icon: 'success'
-        })
-        wx.hideLoading()
-      }).catch(error => {
-        wx.hideLoading()
-        console.log('[me] bind phone failed', error)
-        wx.showToast({
-          title: (error && error.message) || '手机号验证失败',
-          icon: 'none'
-        })
+      wx.showToast({
+        title: '手机号已验证',
+        icon: 'success'
+      })
+      wx.hideLoading()
+    }).catch(error => {
+      wx.hideLoading()
+      console.log('[me] bind phone failed', error)
+      wx.showToast({
+        title: pickRequestErrorMessage(error, '手机号验证失败'),
+        icon: 'none'
       })
     })
   },
@@ -433,12 +511,39 @@ Page({
     })
   },
 
-  onOfficialAccountLoad() {
-    console.log('[me] official account component loaded')
+  openOfficialAccount() {
+    wx.navigateTo({
+      url: getOfficialAccountWebSrcPath()
+    })
   },
 
-  onOfficialAccountError(event) {
-    console.log('[me] official account component error', event.detail)
+  handleGenderSelect(event) {
+    const gender = event && event.currentTarget && event.currentTarget.dataset.gender
+    if (!gender || gender === this.data.characterGender) {
+      return
+    }
+    const nextGender = setCharacterGender(gender)
+    this.setData({
+      characterGender: nextGender,
+      settings: buildSettings(
+        this.data.phoneNumber,
+        this.data.phoneVerified,
+        this.data.logined,
+        nextGender
+      )
+    })
+    this.ensureLoggedIn().then(logined => {
+      if (!logined) {
+        return
+      }
+      saveUserInfo({ characterGender: nextGender }).catch(error => {
+        console.log('[me] save character gender failed', error)
+      })
+    })
+    wx.showToast({
+      title: nextGender === GENDER_GIRL ? '已切换为女生形象' : '已切换为男生形象',
+      icon: 'none'
+    })
   },
 
   handleMenuTap(event) {
@@ -446,6 +551,25 @@ Page({
     const url = event.currentTarget.dataset.url
     if (url) {
       this.navTo(url)
+      return
+    }
+    if (action === 'phone') {
+      this.ensureLoggedIn().then(logined => {
+        if (!logined) {
+          wx.showToast({
+            title: '请先登录',
+            icon: 'none'
+          })
+          return
+        }
+        this.setData({
+          settings: buildSettings(this.data.phoneNumber, this.data.phoneVerified, true, this.data.characterGender)
+        })
+        wx.showToast({
+          title: '请再次点击去验证',
+          icon: 'none'
+        })
+      })
       return
     }
     if (action === 'notify') {

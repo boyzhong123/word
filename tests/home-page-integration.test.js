@@ -33,7 +33,12 @@ function loadHomePage() {
     }),
     getStorageSync: key => storage[key],
     setStorageSync: (key, value) => { storage[key] = value },
-    navigateTo: options => calls.navigateTo.push(options),
+    navigateTo: options => {
+      calls.navigateTo.push(options)
+      if (options && typeof options.success === 'function') {
+        options.success()
+      }
+    },
     showToast: options => calls.showToast.push(options),
     hideTabBar: () => {},
     showTabBar: () => {},
@@ -76,11 +81,26 @@ function loadHomePage() {
 
 test('home hero uses the jelly campus header with safe-zone positioning', () => {
   const heroPath = path.join(projectRoot, 'images/home/hero-campus-jelly-v5.png')
+  const heroGirlPath = path.join(projectRoot, 'images/home/hero-campus-jelly-v5-girl.png')
   assert.ok(fs.existsSync(heroPath))
-  assert.match(homeTemplate, /hero-campus-jelly-v5\.png/)
+  assert.ok(fs.existsSync(heroGirlPath))
+  assert.match(homeTemplate, /heroImageUrl/)
+  assert.match(homeScript, /buildCharacterImageUrls/)
   assert.match(homeTemplate, /class="hero-image"[^>]*mode="widthFix"/)
   assert.match(homeStyle, /\.hero-image\s*{[^}]*width:\s*100%/s)
   assert.match(homeStyle, /\.hero-image\s*{[^}]*max-width:\s*100%/s)
+})
+
+test('home monster hint toast uses the jelly icon plus text layout', () => {
+  assert.match(homeTemplate, /class="home-monster-hint"/)
+  assert.match(homeTemplate, /home-monster-hint-icon/)
+  assert.match(homeTemplate, /\/images\/home\/toast-hint\.png/)
+  assert.match(homeScript, /showMonsterHint\(/)
+  assert.match(homeStyle, /\.home-monster-hint-icon\s*{[^}]*width:\s*64rpx/s)
+  assert.match(homeStyle, /\.home-monster-hint-box\s*{[^}]*flex-direction:\s*row/s)
+  assert.match(homeStyle, /@keyframes home-monster-hint-life/)
+  const hintIconPath = path.join(projectRoot, 'images/home/toast-hint.png')
+  assert.ok(fs.existsSync(hintIconPath))
 })
 
 test('home scroll view fills the full screen height with a tab-bar spacer', () => {
@@ -208,7 +228,7 @@ test('unit monster state maps to defeated, fighting pk, or sleeping locked sprit
     'fighting',
     'locked'
   ])
-  assert.match(homeTemplate, /cardMonsterState === 'fighting'[\s\S]*student-monster-pk-sprite\.png/)
+  assert.match(homeTemplate, /cardMonsterState === 'fighting'[\s\S]*pkSpriteUrl/)
 })
 
 test('fighting PK sprite fits inside the unit card header without overflowing', () => {
@@ -249,7 +269,7 @@ test('frame animation advances sprite frames with js timing for mini program pla
 
 test('home page blocks recitation navigation for locked units', () => {
   assert.match(homeScript, /if \(unit\.locked\)/)
-  assert.match(homeScript, /title: '开通会员后解锁'/)
+  assert.match(homeScript, /showMonsterHint\('开通会员后解锁'\)/)
 })
 
 test('home page renders 20 units initially and appends the remaining batches', () => {
@@ -364,7 +384,8 @@ test('a locked review level prompts the learner to finish earlier levels first',
   })
 
   assert.equal(calls.navigateTo.length, 0)
-  assert.equal(calls.showToast[0].title, '完成前面的关卡后解锁复习')
+  assert.equal(page.data.monsterHint.visible, true)
+  assert.equal(page.data.monsterHint.text, '完成前面的关卡后解锁复习')
 })
 
 test('locked recitation shows an unlock toast instead of navigating', () => {
@@ -382,7 +403,36 @@ test('locked recitation shows an unlock toast instead of navigating', () => {
   })
 
   assert.equal(calls.navigateTo.length, 0)
-  assert.equal(calls.showToast[0].title, '开通会员后解锁')
+  assert.equal(page.data.monsterHint.visible, true)
+  assert.equal(page.data.monsterHint.text, '开通会员后解锁')
+})
+
+test('purchased demo books unlock vip-gated units on the home page', () => {
+  const { page, calls } = loadHomePage()
+  wx.setStorageSync('devPurchasedBooks', ['demo-rj-7a'])
+  page.data.book = {
+    resBookId: 'demo-rj-7a',
+    name: '(新)七年级上册',
+    unlocked: 1,
+    needVip: 0
+  }
+  page.resetVisibleUnits([
+    { unitId: 'unit-1', sort: 1, wordTotal: 12, needVip: 1 }
+  ])
+
+  assert.equal(page.data.units[0].locked, false)
+  page.handleListTaskTap({
+    currentTarget: {
+      dataset: {
+        taskType: 'word',
+        unitIndex: 0
+      }
+    }
+  })
+
+  assert.equal(calls.showToast.length, 0)
+  assert.equal(page.data.monsterHint.visible, false)
+  assert.equal(calls.navigateTo.length, 1)
 })
 
 test('unlocked recitation navigates with the selected unit id', () => {
@@ -454,7 +504,8 @@ test('locked map levels show an unlock toast instead of navigating', () => {
   })
 
   assert.equal(calls.navigateTo.length, 0)
-  assert.equal(calls.showToast[0].title, '开通会员后解锁')
+  assert.equal(page.data.monsterHint.visible, true)
+  assert.equal(page.data.monsterHint.text, '开通会员后解锁')
 })
 
 test('word tasks navigate to the word new detail mode', () => {
@@ -477,16 +528,49 @@ test('word tasks navigate to the word new detail mode', () => {
   assert.match(calls.navigateTo[0].url, /taskType=word/)
 })
 
-test('book picker shows an owned badge on covers and a buy action for locked books', () => {
+test('book picker uses lock overlay for unpurchased books without extra badges', () => {
   assert.match(homeTemplate, /点击教材查看详情/)
   assert.doesNotMatch(homeTemplate, /切换后立即生效/)
-  assert.match(homeTemplate, /class="book-picker-status-owned">已购买/)
-  assert.match(homeTemplate, /class="book-picker-buy">购买/)
+  assert.match(homeTemplate, /icon-picker-lock\.svg/)
+  assert.doesNotMatch(homeTemplate, /icon-picker-owned\.svg/)
+  assert.doesNotMatch(homeTemplate, /icon-picker-buy\.svg/)
+  assert.doesNotMatch(homeTemplate, /已购买/)
+  assert.match(homeTemplate, /book-picker-switch-buy/)
   assert.match(homeScript, /isBookLocked/)
   assert.match(homeScript, /enrichPickerBooks/)
 })
 
-test('selectBook on a locked book opens the product detail page', () => {
+test('book picker cell splits into a cover (detail) zone and a switch bar', () => {
+  assert.match(homeTemplate, /class="book-picker-cover-wrap"[^>]*catchtap="goBookDetail"/)
+  assert.match(homeTemplate, /book-picker-switch-buy[^>]*catchtap="goBuyFromPicker"/)
+  assert.match(homeTemplate, /class="book-picker-switch"[^>]*catchtap="switchBookUse"/)
+  assert.match(homeTemplate, /book-picker-switch-current/)
+  assert.doesNotMatch(homeTemplate, /bindtap="selectBook"/)
+  assert.match(homeStyle, /\.book-picker-switch\s*{/)
+})
+
+test('book picker buy button always opens detail as unpurchased', () => {
+  const { page, calls } = loadHomePage()
+  page.data.book = { resBookId: 'book-1', name: 'Book Name' }
+  page.data.allBooks = [{
+    resBookId: 'book-2',
+    name: 'Owned Book',
+    wordCount: 1200,
+    locked: false
+  }]
+  page.data.bookPickerVisible = true
+
+  page.goBuyFromPicker({
+    currentTarget: { dataset: { resBookId: 'book-2' } }
+  })
+
+  assert.equal(page.data.bookPickerVisible, false)
+  assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
+  assert.match(calls.navigateTo[0].url, /resBookId=book-2/)
+  assert.match(calls.navigateTo[0].url, /unlocked=0/)
+})
+
+test('book picker cover tap opens the product detail page for a locked book', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
@@ -497,20 +581,17 @@ test('selectBook on a locked book opens the product detail page', () => {
   }]
   page.data.bookPickerVisible = true
 
-  page.selectBook({
-    currentTarget: {
-      dataset: {
-        resBookId: 'book-2'
-      }
-    }
+  page.goBookDetail({
+    currentTarget: { dataset: { resBookId: 'book-2' } }
   })
 
   assert.equal(page.data.bookPickerVisible, false)
   assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
   assert.match(calls.navigateTo[0].url, /resBookId=book-2/)
+  assert.match(calls.navigateTo[0].url, /unlocked=0/)
 })
 
-test('selectBook on an owned book opens the product detail page instead of switching immediately', () => {
+test('book picker cover tap opens the product detail page for an owned book', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
@@ -524,12 +605,8 @@ test('selectBook on an owned book opens the product detail page instead of switc
   }]
   page.data.bookPickerVisible = true
 
-  page.selectBook({
-    currentTarget: {
-      dataset: {
-        resBookId: 'book-2'
-      }
-    }
+  page.goBookDetail({
+    currentTarget: { dataset: { resBookId: 'book-2' } }
   })
 
   assert.equal(page.data.bookPickerVisible, false)
@@ -540,7 +617,7 @@ test('selectBook on an owned book opens the product detail page instead of switc
   assert.match(calls.navigateTo[0].url, /unlocked=1/)
 })
 
-test('selectBook on a demo textbook opens the product detail page', () => {
+test('book picker cover tap opens the product detail page for a demo book', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
@@ -549,16 +626,13 @@ test('selectBook on a demo textbook opens the product detail page', () => {
     bookCover: '/mock.png',
     wordCount: 486,
     press: '人教版',
-    demo: true
+    demo: true,
+    locked: true
   }]
   page.data.bookPickerVisible = true
 
-  page.selectBook({
-    currentTarget: {
-      dataset: {
-        resBookId: 'demo-rj-7a'
-      }
-    }
+  page.goBookDetail({
+    currentTarget: { dataset: { resBookId: 'demo-rj-7a' } }
   })
 
   assert.equal(page.data.bookPickerVisible, false)
@@ -566,4 +640,41 @@ test('selectBook on a demo textbook opens the product detail page', () => {
   assert.equal(calls.navigateTo.length, 1)
   assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
   assert.match(calls.navigateTo[0].url, /resBookId=demo-rj-7a/)
+  assert.match(calls.navigateTo[0].url, /unlocked=0/)
+})
+
+test('book picker switch bar switches the active book without opening detail', () => {
+  const { page, calls } = loadHomePage()
+  page.data.book = { resBookId: 'book-1', name: 'Book Name' }
+  page.data.allBooks = [{
+    resBookId: 'demo-rj-7a',
+    name: '(新)七年级上册',
+    bookCover: '/mock.png',
+    wordCount: 486,
+    demo: true
+  }]
+  page.data.bookPickerVisible = true
+
+  // 隔离切换后的网络/渲染副作用，只验证走了切换分支、且没有跳详情页
+  let switched = null
+  page.updateBook = (selected) => { switched = selected }
+  page.resetVisibleUnits = () => {}
+  page.loadUnits = () => {}
+
+  page.switchBookUse({
+    currentTarget: { dataset: { resBookId: 'demo-rj-7a' } }
+  })
+
+  assert.equal(page.data.bookPickerVisible, false)
+  assert.equal(calls.navigateTo.length, 0)
+  assert.ok(switched && switched.resBookId === 'demo-rj-7a')
+})
+
+test('today locate fab scrolls the today group to the top of the list', () => {
+  assert.match(homeScript, /computeScrollTopToAlignTarget/)
+  assert.doesNotMatch(homeScript, /computeScrollTopToCenterTarget/)
+  assert.match(homeScript, /scrollToTodayTasks\(\)[\s\S]*#today-group/)
+  assert.doesNotMatch(homeScript, /#today-scroll-target/)
+  assert.match(homeTemplate, /id="today-group"/)
+  assert.match(homeTemplate, /bindtap="scrollToTodayTasks"/)
 })

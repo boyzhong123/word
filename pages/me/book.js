@@ -1,6 +1,6 @@
 const { getUserBooks, toggleBook } = require('../../utils/api')
 const { login } = require('../../utils/login')
-const { withTestBook, isDevTestBook } = require('../../utils/dev-books')
+const { withTestBook, isDevTestBook, isDevPurchased } = require('../../utils/dev-books')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 
 const FALLBACK_COVER = getFallbackBookCover()
@@ -21,6 +21,9 @@ function isTruthy(value) {
 
 function isLocked(book) {
   if (!book) {
+    return false
+  }
+  if (book.resBookId && isDevPurchased(book.resBookId)) {
     return false
   }
   if (book.unlocked !== undefined && book.unlocked !== null && book.unlocked !== '') {

@@ -4,7 +4,17 @@
     <view class="menu-label">{{label}}</view>
     <view wx:if="{{desc}}" class="menu-desc">{{desc}}</view>
   </view>
-  <view wx:if="{{statusText}}" class="menu-status menu-status-{{statusType}}">{{statusText}}</view>
+  <view wx:if="{{openType}}" class="menu-status menu-status-{{statusType}} menu-status-action">
+    <text class="menu-status-text">{{statusText}}</text>
+    <button
+      plain
+      hover-class="none"
+      class="menu-status-hit"
+      open-type="{{openType}}"
+      bindgetphonenumber="handleGetPhoneNumber"
+    ></button>
+  </view>
+  <view wx:elif="{{statusText}}" class="menu-status menu-status-{{statusType}}">{{statusText}}</view>
   <view class="menu-arrow">›</view>
 </template>
 
@@ -84,15 +94,13 @@
           <view class="message-row-action">去开启</view>
         </view>
         <view class="message-divider"></view>
-        <view class="message-row message-row-official">
+        <view class="message-row message-row-official" bindtap="openOfficialAccount">
           <view class="message-row-icon message-row-icon-official">号</view>
           <view class="message-row-copy">
             <view class="message-row-title">关注公众号，领取学习资料</view>
             <view class="message-row-desc">资料领取与学习内容更新</view>
           </view>
-        </view>
-        <view class="official-account-wrap">
-          <official-account bindload="onOfficialAccountLoad" binderror="onOfficialAccountError"></official-account>
+          <view class="message-row-action">去关注</view>
         </view>
       </view>
     </view>
@@ -122,24 +130,39 @@
     <view class="menu-section">
       <view class="section-title">账号设置</view>
       <view class="menu-group">
-        <view
-          class="menu-item"
-          wx:for="{{settings}}"
-          wx:key="id"
-          data-action="{{item.action}}"
-          data-url="{{item.url}}"
-          bindtap="handleMenuTap"
-        >
-          <template is="menuInner" data="{{...item}}" />
-          <button
-            wx:if="{{item.openType}}"
-            class="menu-hit-button"
-            open-type="{{item.openType}}"
+        <block wx:for="{{settings}}" wx:key="id">
+          <view wx:if="{{item.id === 'gender'}}" class="menu-item menu-item-gender">
+            <view class="menu-icon menu-ic-gender"></view>
+            <view class="menu-copy">
+              <view class="menu-label">{{item.label}}</view>
+              <view wx:if="{{item.desc}}" class="menu-desc">{{item.desc}}</view>
+            </view>
+            <view class="gender-switch">
+              <view
+                class="gender-option {{characterGender === 'boy' ? 'gender-option-active' : ''}}"
+                data-gender="boy"
+                bindtap="handleGenderSelect"
+              >男孩</view>
+              <view
+                class="gender-option {{characterGender === 'girl' ? 'gender-option-active' : ''}}"
+                data-gender="girl"
+                bindtap="handleGenderSelect"
+              >女孩</view>
+            </view>
+          </view>
+          <view wx:elif="{{item.openType}}" class="menu-item">
+            <template is="menuInner" data="{{...item}}" />
+          </view>
+          <view
+            wx:else
+            class="menu-item"
             data-action="{{item.action}}"
-            catchtap="noop"
-            bindgetphonenumber="handleGetPhoneNumber"
-          ></button>
-        </view>
+            data-url="{{item.url}}"
+            bindtap="handleMenuTap"
+          >
+            <template is="menuInner" data="{{...item}}" />
+          </view>
+        </block>
       </view>
     </view>
 

@@ -21,3 +21,19 @@ test('mini player returns to the real listen page instead of mounting a tab-bar 
   assert.doesNotMatch(tabBarTemplate, /<listen-player/)
   assert.equal(tabBarConfig.usingComponents && tabBarConfig.usingComponents['listen-player'], undefined)
 })
+
+test('player resumes playback when re-entering an active listen session', () => {
+  const playerScript = fs.readFileSync(path.join(projectRoot, 'utils/player.js'), 'utf8')
+  assert.match(playerScript, /if \(this\.isActiveFor\(resBookId\)\)\s*{[\s\S]*!this\.playing\)[\s\S]*this\.play\(\)/)
+})
+
+test('listen turntable tonearm snaps to disc when entering while playing', () => {
+  const listenScript = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.js'), 'utf8')
+  const listenTemplate = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.wxml'), 'utf8')
+  const listenStyle = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.wxss'), 'utf8')
+
+  assert.match(listenScript, /tonearmInstant:\s*false/)
+  assert.match(listenScript, /patch\.tonearmInstant\s*=\s*true/)
+  assert.match(listenTemplate, /tonearm-instant/)
+  assert.match(listenStyle, /\.tonearm\.tonearm-instant/)
+})

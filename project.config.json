@@ -241,6 +241,26 @@
       {
         "type": "glob",
         "value": "images/pet/primary-star-bunny.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/hero-campus-jelly-sprite.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/hero-campus-jelly-overlay-sprite.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/hero-campus-jelly-v5-girl.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/.build/toast-hint-source-keyed.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/student-monster-pk-sprite-girl.png"
       }
     ],
     "include": []

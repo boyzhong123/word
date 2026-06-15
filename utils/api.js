@@ -8,13 +8,42 @@ function saveUserInfo(userInfo) {
   })
 }
 
+function normalizePhonePayload(phoneInfo) {
+  const payload = Object.assign({}, phoneInfo || {})
+  if (payload.code && !payload.phoneCode) {
+    payload.phoneCode = payload.code
+  }
+  return payload
+}
+
+function buildPhoneBindError(status, data, message) {
+  if (status === 404) {
+    return { status, message: '手机号绑定服务暂未开通，请联系客服' }
+  }
+  if (typeof message === 'string' && message) {
+    return { status, data, message }
+  }
+  if (status === 401 || (data && data.code === 401)) {
+    return { status, message: '登录已过期，请重新登录后再试' }
+  }
+  return { status, data, message: message || '手机号验证失败' }
+}
+
 function bindPhoneNumber(phoneInfo) {
+  const payload = normalizePhonePayload(phoneInfo)
   return new Promise((resolve, reject) => {
-    util.request('POST', '/mini-app/user/phone-number', { data: phoneInfo }, (data) => {
-      resolve(data)
-    }, (status, data, message) => {
-      reject({ status, data, message })
-    })
+    const requestBind = (url, allowFallback) => {
+      util.request('POST', url, { data: payload }, (data) => {
+        resolve(data)
+      }, (status, data, message) => {
+        if (allowFallback && status === 404) {
+          requestBind('/mini-app/user/info-update', false)
+          return
+        }
+        reject(buildPhoneBindError(status, data, message))
+      })
+    }
+    requestBind('/mini-app/user/phone-number', true)
   })
 }
 

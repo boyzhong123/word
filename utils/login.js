@@ -75,6 +75,20 @@ async function login(userInfo) {
   })
 }
 
+function fetchLoginCode() {
+  return new Promise(resolve => {
+    wx.login({
+      success(res) {
+        resolve((res && res.code) || '')
+      },
+      fail() {
+        resolve('')
+      }
+    })
+  })
+}
+
 module.exports = {
-  login
+  login,
+  fetchLoginCode
 }

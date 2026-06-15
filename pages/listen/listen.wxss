@@ -48,8 +48,8 @@ page {
 
 /* 关卡小测：普通页面推入/返回，不用随身听的底部滑入滑出 */
 .listen-quiz-shell {
-  position: relative;
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
   will-change: auto;
   transform: none;
   background: linear-gradient(180deg, #dfd8ee 0%, #ddd9f1 22%, #ddddf7 38%, #bdd0fb 56%, #a5c5fe 76%, #8bb6fa 100%);
@@ -67,7 +67,7 @@ page {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -6rpx;
+  bottom: -12rpx;
   height: 8rpx;
   z-index: 2;
   overflow: hidden;
@@ -97,6 +97,23 @@ page {
 .listen-nav-title-wrap .listen-nav-title {
   margin: 0;
   flex: none;
+  max-width: 100%;
+}
+
+.listen-nav-title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  max-width: 52%;
+}
+
+.listen-nav-subtitle {
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgba(30, 53, 60, 0.72);
+  text-align: center;
 }
 
 /* ---------------- 随身听导航 ---------------- */
@@ -122,12 +139,24 @@ page {
 /* ---------------- 听力填空 ---------------- */
 .quiz-page {
   flex: 1;
+  min-height: 0;
   padding: 30rpx 29rpx 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  /* 背景由 .listen-quiz-shell 整屏渐变提供，这里透明避免断层 */
+  /* 背景由 .listen-quiz-shell 整屏渐变提供，这里必须透明避免真机叠色成遮罩 */
   background: transparent;
+  background-color: transparent;
+}
+
+.quiz-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: transparent;
+  background-color: transparent;
 }
 
 .quiz-step-row {
@@ -197,17 +226,11 @@ page {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.quiz-head-right {
-  flex: none;
-  display: flex;
-  align-items: center;
-  margin-left: 16rpx;
+  gap: 16rpx;
 }
 
 /* 课本页码标记（P1=第1页） */
-.quiz-page {
+.quiz-page-tag {
   flex: none;
   padding: 2rpx 14rpx;
   border-radius: 18rpx;
@@ -216,14 +239,6 @@ page {
   color: #4e6a70;
   line-height: 1.5;
   white-space: nowrap;
-}
-
-/* 标记说明入口 */
-.quiz-help-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-left: 12rpx;
-  padding: 6rpx;
 }
 
 .quiz-tip,
@@ -640,6 +655,9 @@ page {
   box-shadow: 0 18rpx 40rpx rgba(96, 114, 140, 0.16), 0 4rpx 12rpx rgba(96, 114, 140, 0.08);
   overflow: visible;
 }
+.player-card:active {
+  opacity: 0.92;
+}
 .turntable {
   position: absolute;
   left: 70rpx;
@@ -737,6 +755,9 @@ page {
 .tonearm.tonearm-on-disc {
   transform: rotate(4deg);
 }
+.tonearm.tonearm-instant {
+  transition: none !important;
+}
 .tonearm-img {
   display: block;
   width: 100%;
@@ -791,6 +812,12 @@ page {
   color: #41514a;
   line-height: 1.35;
   font-weight: 400;
+}
+.lyric-tone {
+  width: 16rpx;
+  height: 22rpx;
+  margin-left: 10rpx;
+  vertical-align: middle;
 }
 .lyric-cn {
   margin-top: 6rpx;

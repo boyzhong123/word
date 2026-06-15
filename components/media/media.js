@@ -2,6 +2,7 @@
 const aiengine = require('../../lib/ChivoxAiEngine.js')
 const scoringSession = require('./scoring-session.js')
 const { imageUrl } = require('../../utils/image-host')
+const waveDebug = require('../../utils/recording-wave-debug')
 
 function createWsEngineSafe() {
   if (typeof aiengine.createWsEngine !== 'function') {
@@ -247,14 +248,22 @@ Component({
     audioSprite: imageUrl('/images/audio.png'),
     _sig: {},
     media_state: IDLE,
-    innerAudioContext: null
+    innerAudioContext: null,
+    waveSession: 0
   },
   observers: {
     media_state: function (value) {
       this.triggerEvent('mediaStateChange', { state: value })
       if (value === RECORDING) {
-        this.restartRecordingWave()
+        const waveSession = this.data.waveSession + 1
+        waveDebug.log('media.recording.start', { waveSession, index: this.data._index })
+        this.setData({ waveSession: waveSession }, () => {
+          this.restartRecordingWave()
+        })
+        return
       }
+      waveDebug.log('media.recording.stop', { state: value, index: this.data._index })
+      this.stopRecordingWave()
     }
   },
   pageLifetimes: {
@@ -715,12 +724,32 @@ Component({
     restartRecordingWave(attempt) {
       const retry = attempt || 0
       const wave = this.selectComponent('#recording-wave') || this.selectComponent('.recording-wave')
-      if (wave && typeof wave.restart === 'function') {
-        wave.restart()
+      if (!wave) {
+        waveDebug.log('media.wave.wait', { retry })
+        if (retry < 30) {
+          setTimeout(() => this.restartRecordingWave(retry + 1), 64)
+        } else {
+          waveDebug.log('media.wave.missing', { retry })
+        }
         return
       }
-      if (retry < 12) {
-        setTimeout(() => this.restartRecordingWave(retry + 1), 64)
+      if (wave.running) {
+        waveDebug.log('media.wave.running', { retry })
+        return
+      }
+      if (retry >= 8) {
+        waveDebug.log('media.wave.fallbackRestart', { retry })
+        if (typeof wave.restart === 'function') {
+          wave.restart()
+        }
+        return
+      }
+      setTimeout(() => this.restartRecordingWave(retry + 1), 64)
+    },
+    stopRecordingWave() {
+      const wave = this.selectComponent('#recording-wave') || this.selectComponent('.recording-wave')
+      if (wave && typeof wave.stop === 'function') {
+        wave.stop()
       }
     }
   }

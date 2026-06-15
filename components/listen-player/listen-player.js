@@ -61,7 +61,9 @@ Component({
     expandedIndex: -1,
     trackScores: {},
     // 课文滚动位置（受控 scroll-top）。激活/展开时只在必要时滚动，不再贴顶
-    scrollTop: 0
+    scrollTop: 0,
+    // 进入页/加载完成且已在播放时，唱臂直接落盘，不做 0.9s 抬起动画
+    tonearmInstant: false
   },
 
   lifetimes: {
@@ -134,7 +136,8 @@ Component({
     onPlayerState(s) {
       const prevCurrent = this.data.current
       const prevUnitIndex = this.data.unitIndex
-      this.setData({
+      const wasLoading = this.data.loading
+      const patch = {
         loading: !s.active,
         unitName: s.unitName,
         bookCover: normalizeBookCover(s.bookCover),
@@ -149,6 +152,14 @@ Component({
         speedLabel: s.speedLabel,
         loopIndex: s.loopIndex,
         loopLabel: s.loopLabel
+      }
+      if (wasLoading && s.active && s.playing) {
+        patch.tonearmInstant = true
+      }
+      this.setData(patch, () => {
+        if (patch.tonearmInstant) {
+          setTimeout(() => this.setData({ tonearmInstant: false }), 32)
+        }
       })
       // 切换期：清空展开面板与该期的得分缓存
       if (s.unitIndex !== prevUnitIndex) {
@@ -199,14 +210,17 @@ Component({
       }
     },
 
-    // 评测返回：缓存该句得分，重新展开时回显
+    // 评测返回：缓存该句得分与逐词 detail，重新展开时回显
     onMediaResult(e) {
-      const { index, score } = e.detail
+      const { index, score, detail } = e.detail
       if (index == null) {
         return
       }
       this.setData({
-        ['trackScores[' + index + ']']: score
+        ['trackScores[' + index + ']']: {
+          score: score,
+          detail: detail
+        }
       })
     },
 

@@ -6,6 +6,9 @@ const path = require('node:path')
 const projectRoot = path.resolve(__dirname, '..')
 const listenScript = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.js'), 'utf8')
 const listenTemplate = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.wxml'), 'utf8')
+const listenPlayerTemplate = fs.readFileSync(path.join(projectRoot, 'components/listen-player/listen-player.wxml'), 'utf8')
+const listenPlayerScript = fs.readFileSync(path.join(projectRoot, 'components/listen-player/listen-player.js'), 'utf8')
+const playerScript = fs.readFileSync(path.join(projectRoot, 'utils/player.js'), 'utf8')
 const listenStyle = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.wxss'), 'utf8')
 const listenConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.json'), 'utf8'))
 
@@ -29,13 +32,19 @@ test('expanded panel auto-plays the standard audio on open', () => {
 test('follow-read panel embeds media wired with the track audio / refText / coreType', () => {
   assert.match(listenTemplate, /<view wx:if="{{expandedIndex == index}}" class="follow-panel" catchtap="noop">/)
   assert.match(listenTemplate, /_audio="{{item\.audio}}"/)
-  assert.match(listenTemplate, /_refText="{{item\.content}}"/)
+  assert.match(listenTemplate, /_refText="{{item\.refText \|\| item\.content}}"/)
   assert.match(listenTemplate, /_coreType="{{item\.type == 'word' \? 'en\.word\.score' : 'en\.sent\.score'}}"/)
   assert.match(listenTemplate, /bindresult="onMediaResult"/)
   assert.match(listenTemplate, /bindmediaStateChange="onMediaStateChange"/)
   assert.match(listenTemplate, /bindunauthorized="onMediaUnauthorized"/)
-  // 未评分时传空串，避免 media 组件误显示哭脸
-  assert.match(listenTemplate, /score="{{trackScores\[index\] \? trackScores\[index\] : ''}}"/)
+  assert.match(listenTemplate, /score="{{trackScores\[index\] && trackScores\[index\]\.score != undefined \? trackScores\[index\]\.score : ''}}"/)
+})
+
+test('follow-read lyrics paint scored words with the shared practice color helper', () => {
+  assert.match(listenTemplate, /paintHandler\.splitText/)
+  assert.match(listenTemplate, /paintHandler\.paintColor/)
+  assert.match(listenPlayerTemplate, /paintHandler\.splitText/)
+  assert.match(listenPlayerTemplate, /paintHandler\.paintColor/)
 })
 
 test('follow-read panel uses full-bleed white mask without action labels', () => {
@@ -71,7 +80,15 @@ test('expanded lyric uses the same font size and blue highlight', () => {
 
 test('media result is cached per track and replayed when re-expanded', () => {
   assert.match(listenScript, /onMediaResult\(e\)\s*{/)
-  assert.match(listenScript, /\['trackScores\[' \+ index \+ '\]'\]:\s*score/)
+  assert.match(listenScript, /score:\s*score/)
+  assert.match(listenScript, /detail:\s*detail/)
+  assert.match(listenPlayerScript, /detail:\s*detail/)
+})
+
+test('listen tracks use proverb label for display and English refText for scoring', () => {
+  assert.match(playerScript, /resolveProverbDisplayText\(p\)/)
+  assert.match(playerScript, /resolveProverbRefText\(p\)/)
+  assert.match(playerScript, /wordContent:\s*\(item\.word && item\.word\.content\)/)
 })
 
 test('follow-read playback pauses the global player to avoid overlapping audio', () => {

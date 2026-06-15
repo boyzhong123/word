@@ -12,6 +12,12 @@ const {
     computePracticeScoreRate,
     computeWordNewScoreRate
 } = require('../../utils/finish-stars')
+const {
+    buildLevelNav
+} = require('../../utils/level-nav')
+const {
+    normalizeProverb
+} = require('../../utils/proverb-text')
 
 const PRONUNCIATION_TIPS = [
   '先发 /æ/ 音，嘴巴张大，舌尖抵下齿背',
@@ -20,6 +26,7 @@ const PRONUNCIATION_TIPS = [
 ]
 
 const DETAIL_TAB_DEFS = [
+  { key: 'enEn', label: '英译英' },
   { key: 'synonyms', label: '近义词' },
   { key: 'mnemonic', label: '联想记忆' },
   { key: 'root', label: '词根' },
@@ -63,6 +70,7 @@ function normalizeWordPronunciations(word) {
 
 function normalizeWordDetail(word) {
   word.synonyms = word.synonyms || word.nearSynonyms || word.similarWords || null
+  word.enEnDetail = word.enEnDetail || word.enEn || word.enDefinition || word.englishDefinition || word.definitionEn || word.enExplain || ''
   word.mnemonic = word.mnemonic || word.associationMemory || ''
   word.rootDetail = word.rootDetail || word.etymology || word.root || ''
   word.recitationTips = word.recitationTips || word.pronunciationTips || PRONUNCIATION_TIPS.slice()
@@ -73,6 +81,9 @@ function normalizeWordDetail(word) {
       en: word.content || '',
       cn: word.translation || ''
     }]
+  }
+  if (!word.enEnDetail) {
+    word.enEnDetail = '暂无英译英释义，可先通过例句理解用法。'
   }
   if (!word.mnemonic) {
     word.mnemonic = '可从词形、发音或例句场景联想记忆「' + (word.content || '') + '」。'
@@ -90,6 +101,83 @@ function normalizeWordDetail(word) {
   word.activeDetailTab = word.activeDetailTab || word.detailNavItems[0].key
 }
 
+function getWordChoiceSense(word) {
+  const senses = Array.isArray(word && word.senses) ? word.senses : []
+  if (senses.length) {
+    const first = senses[0] || {}
+    const terms = Array.isArray(first.terms) ? first.terms : []
+    return {
+      pos: first.pos || word.attribute || '',
+      terms: terms.length ? terms : [word.translation || '']
+    }
+  }
+  const translation = (word && word.translation) || ''
+  const terms = translation
+    .split(/[;；,，]/)
+    .map(function (term) {
+      return term.trim()
+    })
+    .filter(Boolean)
+  return {
+    pos: (word && word.attribute) || '',
+    terms: terms.length ? terms : [translation]
+  }
+}
+
+function buildChoiceOption(item, answer) {
+  const word = (item && item.word) || {}
+  const sense = getWordChoiceSense(word)
+  return {
+    content: word.content || '',
+    pos: sense.pos,
+    terms: sense.terms,
+    termText: sense.terms.join('；'),
+    audio: word.audio || word.ukAudio || word.enAudio || '',
+    isAnswer: !!answer
+  }
+}
+
+function buildWordChoiceOptions(contents, currentIndex) {
+  const list = Array.isArray(contents) ? contents : []
+  const current = list[currentIndex]
+  if (!current || !current.word) {
+    return []
+  }
+
+  const seen = {}
+  const answer = buildChoiceOption(current, true)
+  seen[answer.content] = true
+  const options = [answer]
+
+  list.forEach(function (item, index) {
+    if (index === currentIndex || !item || !item.word) {
+      return
+    }
+    const content = item.word.content || ''
+    if (!content || seen[content] || options.length >= 4) {
+      return
+    }
+    seen[content] = true
+    options.push(buildChoiceOption(item, false))
+  })
+
+  while (options.length < 4) {
+    options.push({
+      content: '',
+      pos: 'n.',
+      terms: ['再想一想'],
+      termText: '再想一想',
+      audio: '',
+      isAnswer: false
+    })
+  }
+
+  const answerIndex = Math.min(options.length - 1, currentIndex % 4)
+  const answerOption = options.shift()
+  options.splice(answerIndex, 0, answerOption)
+  return options
+}
+
 Page({
   data: {
     loading: true,
@@ -99,6 +187,7 @@ Page({
     review: false,
     pronunciationTips: PRONUNCIATION_TIPS,
     navTitle: '',
+    navSubtitle: '',
     playingSrc: '',
     marking: false,
     scrollHeight: wx.getStorageSync('safeArea').height - wx.getStorageSync('navigationBarHeight'),
@@ -141,6 +230,7 @@ Page({
         this.resBookName = data.book.name
         let dialogObject = this.getDialogObject(data.needVip)
         const contents = [data]
+        this.prepareWordChoiceOptions(contents)
         const wordTotal = 1
         this.setData({
           loading: false,
@@ -149,7 +239,7 @@ Page({
           wordTotal: wordTotal,
           dialog: dialogObject,
           contents: contents,
-          navTitle: this.data.isWordNewMode ? this.buildNavTitle(data, 0, wordTotal) : ''
+          ...this.getNavMeta(data, 0, wordTotal)
         })
         this.last = 0
         this.dx = 0
@@ -181,6 +271,7 @@ Page({
   fetchReviewData() {
     const data = buildMockReviewResource(this.reviewUnitIds)
     data.forEach(item => this.initResult(item))
+    this.prepareWordChoiceOptions(data)
     const wordTotal = data.length
     this.setData({
       loading: false,
@@ -189,7 +280,7 @@ Page({
       wordTotal: wordTotal,
       dialog: this.getDialogObject(false),
       contents: data,
-      navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, wordTotal) : ''
+      ...this.getNavMeta(data[0], 0, wordTotal)
     })
     this.last = 0
     this.dx = 0
@@ -206,6 +297,7 @@ Page({
           data.forEach(item => {
               this.initResult(item)
           })
+          this.prepareWordChoiceOptions(data)
           vip = !data.some(item => item.needVip)
       }
       const wordTotal = data.length
@@ -216,7 +308,7 @@ Page({
         wordTotal: wordTotal,
         dialog: this.getDialogObject(!vip),
         contents: data,
-        navTitle: this.data.isWordNewMode ? this.buildNavTitle(data[0], 0, wordTotal) : ''
+        ...this.getNavMeta(data[0], 0, wordTotal)
       })
       this.last = 0
       this.dx = 0
@@ -249,6 +341,11 @@ Page({
   initResult(item) {
     item.selectedIndex = 0
     item.revealed = false
+    item.wordNewStage = 'recognition'
+    item.wordChoiceOrigin = ''
+    item.wordChoiceOptions = []
+    item.wordChoiceSelectedIndex = null
+    item.wordChoiceCorrect = false
     item.hinted = false
     item.mistaken = false
     item.known = false
@@ -263,10 +360,19 @@ Page({
       normalizeWordDetail(item.word)
     }
     if (Array.isArray(item.proverb)) {
-      item.proverb.forEach(function (item) {
-        item.result = {}
+      item.proverb.forEach(function (proverb) {
+        proverb.result = {}
+        normalizeProverb(proverb)
       })
     }
+  },
+  prepareWordChoiceOptions(contents) {
+    if (!Array.isArray(contents)) {
+      return
+    }
+    contents.forEach((item, index) => {
+      item.wordChoiceOptions = buildWordChoiceOptions(contents, index)
+    })
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -591,10 +697,12 @@ Page({
   swiperChanged(e) {
     this.hideTip()
     this.stopAutoNextCountdown()
-    this.setData({
-      current: e.detail.current,
+    const current = e.detail.current
+    const item = this.data.contents[current]
+    this.setData(Object.assign({
+      current: current,
       autoNextPaused: false
-    })
+    }, this.getNavMeta(item, current)))
   },
   touchMove(e) {
     this.dx = e.detail.dx
@@ -657,10 +765,11 @@ Page({
     }
     this.hideTip()
     this.stopAutoNextCountdown()
-    this.setData({
+    const item = this.data.contents[next]
+    this.setData(Object.assign({
       current: next,
       autoNextPaused: false
-    })
+    }, this.getNavMeta(item, next)))
     this.last = next
     this.dx = 0
   },
@@ -677,10 +786,12 @@ Page({
         '&scoreRate=' + scoreRate
     })
   },
-  buildNavTitle(item, index, total) {
-    const wordTotal = total || this.data.wordTotal || this.data.contents.length || 0
-    const sort = (item && item.unit && item.unit.sort) || this.unitSort || (index + 1)
-    return '第' + sort + '期 ' + (index + 1) + '/' + wordTotal
+  getNavMeta(item, index, total) {
+    const wordTotal = total || this.getPracticeWordTotal()
+    return buildLevelNav(item, index, wordTotal, {
+      review: this.data.review,
+      unitSort: this.unitSort
+    })
   },
   getPracticeWordTotal() {
     return Number(this.data.wordTotal) || this.data.contents.length || 0
@@ -842,17 +953,106 @@ Page({
   revealWord(index, known) {
     this.setData({
       ['contents[' + index + '].revealed']: true,
+      ['contents[' + index + '].wordNewStage']: 'detail',
       ['contents[' + index + '].known']: known
     })
     this.playDetailIntro(index)
   },
+  enterWordDetail(index, origin) {
+    const updates = {
+      ['contents[' + index + '].revealed']: true,
+      ['contents[' + index + '].wordNewStage']: 'detail',
+      ['contents[' + index + '].wordChoiceOrigin']: origin || ''
+    }
+    if (origin === 'unknown') {
+      updates['contents[' + index + '].known'] = false
+    }
+    this.setData(updates)
+    this.playDetailIntro(index)
+  },
+  enterWordChoice(index, origin) {
+    this.setData({
+      ['contents[' + index + '].wordNewStage']: 'choice',
+      ['contents[' + index + '].wordChoiceOrigin']: origin || 'known',
+      ['contents[' + index + '].wordChoiceSelectedIndex']: null,
+      ['contents[' + index + '].wordChoiceCorrect']: false
+    })
+  },
   answerKnow() {
     const index = this.data.current
-    this.showWordHint(index, 'known', () => this.revealWord(index, true))
+    this.enterWordChoice(index, 'known')
   },
   answerUnknown() {
     const index = this.data.current
-    this.showWordHint(index, 'unknown', () => this.revealWord(index, false))
+    this.enterWordDetail(index, 'unknown')
+  },
+  continueFromWordDetail() {
+    const index = this.data.current
+    this.enterWordChoice(index, 'unknown')
+  },
+  getWordChoiceCorrectIndex(item) {
+    const options = Array.isArray(item && item.wordChoiceOptions) ? item.wordChoiceOptions : []
+    const index = options.findIndex(function (option) {
+      return option && option.isAnswer
+    })
+    return index < 0 ? 0 : index
+  },
+  selectWordChoice(e) {
+    const index = this.data.current
+    const item = this.data.contents[index]
+    const optionIndex = Number(e.currentTarget.dataset.index)
+    const options = Array.isArray(item && item.wordChoiceOptions) ? item.wordChoiceOptions : []
+    const option = options[optionIndex]
+    if (!item || !option) {
+      return
+    }
+
+    if (item.wordChoiceSelectedIndex !== null && item.wordChoiceSelectedIndex !== undefined) {
+      if (option.audio) {
+        this.playWordNewAudio(option.audio)
+      }
+      return
+    }
+
+    const correct = !!option.isAnswer
+    const updates = {
+      ['contents[' + index + '].revealed']: true,
+      ['contents[' + index + '].wordChoiceSelectedIndex']: optionIndex,
+      ['contents[' + index + '].wordChoiceCorrect']: correct
+    }
+    if (item.wordChoiceOrigin === 'known') {
+      updates['contents[' + index + '].known'] = correct
+      updates['contents[' + index + '].mistaken'] = !correct
+    } else if (!correct) {
+      updates['contents[' + index + '].mistaken'] = true
+    }
+    this.setData(updates)
+    if (option.audio) {
+      this.playWordNewAudio(option.audio)
+    }
+  },
+  revealWordChoiceAnswer() {
+    const index = this.data.current
+    const item = this.data.contents[index]
+    const correctIndex = this.getWordChoiceCorrectIndex(item)
+    const option = item.wordChoiceOptions && item.wordChoiceOptions[correctIndex]
+    const updates = {
+      ['contents[' + index + '].revealed']: true,
+      ['contents[' + index + '].wordChoiceSelectedIndex']: correctIndex,
+      ['contents[' + index + '].wordChoiceCorrect']: false
+    }
+    if (item.wordChoiceOrigin === 'known') {
+      updates['contents[' + index + '].known'] = false
+      updates['contents[' + index + '].mistaken'] = true
+    }
+    this.setData(updates)
+    if (option && option.audio) {
+      this.playWordNewAudio(option.audio)
+    }
+  },
+  continueUnderstandWord() {
+    const index = this.data.current
+    this.enterWordDetail(index, 'choice')
   },
   markWordMistaken() {
     const index = this.data.current
@@ -877,10 +1077,10 @@ Page({
     if (this.data.current < this.data.contents.length - 1) {
       const next = this.data.current + 1
       const nextItem = this.data.contents[next]
-      this.setData({
+      this.setData(Object.assign({
         current: next,
-        navTitle: this.buildNavTitle(nextItem, next, this.getPracticeWordTotal())
-      })
+        playingSrc: ''
+      }, this.getNavMeta(nextItem, next)))
       if (this.data.isWordNewMode) {
         wx.nextTick(() => this.startWordReading(next))
       }

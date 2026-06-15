@@ -15,7 +15,7 @@ function demoBook(id, name, stage, press, coverIndex, wordCount, newStandard) {
     bookCover: cover(coverIndex),
     wordCount,
     newStandard: newStandard ? 1 : 0,
-    needVip: 0,
+    needVip: 1,
     demo: true
   }
 }

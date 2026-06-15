@@ -1,5 +1,5 @@
 /* components/wave/wave.wxss */
-canvas {
+.wave-canvas {
   display: block;
   width: 100%;
   min-width: 480rpx;

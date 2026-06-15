@@ -135,6 +135,15 @@ page {
   box-shadow: 0 7rpx 8rpx rgba(169, 118, 14, 0.18);
 }
 
+.book-cover-column:active .switch-book-cover {
+  background: linear-gradient(
+    180deg,
+    rgba(18, 38, 63, 0) 0%,
+    rgba(18, 38, 63, 0.68) 52%,
+    rgba(18, 38, 63, 0.88) 100%
+  );
+}
+
 .book-cover {
   flex: none;
   width: 154rpx;
@@ -195,15 +204,7 @@ page {
   left: 0;
   right: 0;
   bottom: 0;
-}
-
-.switch-book:active {
-  background: linear-gradient(
-    180deg,
-    rgba(18, 38, 63, 0) 0%,
-    rgba(18, 38, 63, 0.68) 52%,
-    rgba(18, 38, 63, 0.88) 100%
-  );
+  pointer-events: none;
 }
 
 .switch-icon {
@@ -1334,7 +1335,7 @@ page {
   width: 48rpx;
   height: 8rpx;
   border-radius: 999rpx;
-  background: linear-gradient(90deg, #ffa11c 0%, #ff8200 100%);
+  background: #111318;
 }
 
 .book-picker-body {
@@ -1385,10 +1386,10 @@ page {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 8rpx;
-  height: 40rpx;
+  width: 6rpx;
+  height: 36rpx;
   border-radius: 0 999rpx 999rpx 0;
-  background: linear-gradient(180deg, #ffa11c 0%, #ff8200 100%);
+  background: #111318;
 }
 
 /* 右侧封面网格 */
@@ -1497,42 +1498,6 @@ page {
   box-shadow: 0 4rpx 10rpx rgba(240, 59, 48, 0.28);
 }
 
-.book-picker-current {
-  position: absolute;
-  top: 8rpx;
-  right: 8rpx;
-  height: 32rpx;
-  padding: 0 12rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999rpx;
-  background: #111318;
-  color: #ffffff;
-  font-size: 18rpx;
-  line-height: 1;
-  font-weight: 700;
-  box-shadow: 0 4rpx 10rpx rgba(17, 19, 24, 0.24);
-}
-
-.book-picker-buy {
-  position: absolute;
-  right: 8rpx;
-  bottom: 8rpx;
-  height: 40rpx;
-  padding: 0 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999rpx;
-  background: linear-gradient(180deg, #ffa11c 0%, #ff8200 100%);
-  color: #ffffff;
-  font-size: 22rpx;
-  line-height: 1;
-  font-weight: 700;
-  box-shadow: 0 6rpx 14rpx rgba(255, 130, 0, 0.32);
-}
-
 .book-picker-name {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -1564,21 +1529,97 @@ page {
   color: #7a8798;
 }
 
-/* 已购买徽标：盖在封面右下角 */
-.book-picker-status-owned {
+/* 切换/当前 条：贴满封面底边 */
+.book-picker-switch {
   position: absolute;
-  right: 8rpx;
-  bottom: 8rpx;
-  height: 36rpx;
-  padding: 0 14rpx;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999rpx;
-  background: rgba(31, 148, 69, 0.92);
-  color: #ffffff;
-  font-size: 18rpx;
-  line-height: 1;
+  box-sizing: border-box;
+  border-radius: 0;
+  font-size: 20rpx;
   font-weight: 600;
-  box-shadow: 0 4rpx 10rpx rgba(31, 148, 69, 0.28);
+  color: #111318;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(4px);
+  border-top: 1rpx solid rgba(17, 19, 24, 0.08);
+}
+
+.book-picker-switch:active {
+  background: rgba(255, 255, 255, 1);
+}
+
+.book-picker-switch-current {
+  color: #ffffff;
+  background: rgba(17, 19, 24, 0.92);
+  font-weight: 700;
+}
+
+.book-picker-switch-buy {
+  color: #e86f00;
+  font-weight: 700;
+}
+
+.home-monster-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 58%;
+  z-index: 1200;
+  display: flex;
+  justify-content: center;
+  padding: 0 48rpx;
+  box-sizing: border-box;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.home-monster-hint-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10rpx;
+  max-width: 100%;
+  padding: 16rpx 26rpx 16rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(17, 17, 17, 0.85);
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.1);
+  animation: home-monster-hint-life 2s ease forwards;
+}
+
+.home-monster-hint-icon {
+  width: 64rpx;
+  height: 64rpx;
+  display: block;
+  flex: none;
+}
+
+.home-monster-hint-text {
+  font-size: 28rpx;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+@keyframes home-monster-hint-life {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  82% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }

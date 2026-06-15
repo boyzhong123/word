@@ -5,6 +5,9 @@ const {
 const {
     refreshHomePage
 } = require('../../utils/util')
+const {
+    hasResult
+} = require('../../utils/exam-data')
 Page({
 
   /**
@@ -31,6 +34,10 @@ Page({
   fetchData() {
       getUnits(this.resBookId).then(data => {
           if (Array.isArray(data.list)) {
+              // 在关卡首尾注入入门测 / 结业测两个测评节点。
+              const entryNode = { unitId: 'exam-entry', unitName: '入门测', isExam: 'entry', needVip: 0, completed: hasResult(this.resBookId, 'entry') }
+              const exitNode = { unitId: 'exam-exit', unitName: '结业测', isExam: 'exit', needVip: 0, completed: hasResult(this.resBookId, 'exit') }
+              data.list = [entryNode].concat(data.list, [exitNode])
               data.list.forEach((item, index) => {
                   switch (index % 5) {
                       case 4:
@@ -49,7 +56,14 @@ Page({
                           item.style = "top:2340rpx;left:372rpx;bottom:200rpx;"
                           break
                   }
-                  if (item.needVip) {
+                  if (item.isExam) {
+                      // 测评节点：完成态显示通关图，未完成显示高亮图，始终可点。
+                      item.src = item.completed
+                          ? "https://17ks.chivoxapp.com/proverbs/catalogue_complete.png"
+                          : "https://17ks.chivoxapp.com/proverbs/catalogue_present.png"
+                      item.class = "icon-exam"
+                      item.color = '#FFFFFF'
+                  } else if (item.needVip) {
                       item.src = "https://17ks.chivoxapp.com/proverbs/catalogue_lock.png"
                       item.class = "icon-present"
                       item.color = '#00000000'
@@ -106,6 +120,9 @@ Page({
   longPress(e) {
     let index = e.currentTarget.dataset.index
     let unit = this.data.pages[Math.floor(index / 5)].units[index % 5]
+    if (unit.isExam) {
+      return
+    }
     if (unit.needVip == 0) {
       this.selectUnitId = unit.unitId
       getUnitWords(unit.unitId).then(data => {
@@ -128,6 +145,14 @@ Page({
   onItemClick(e) {
     let index = e.currentTarget.dataset.index
     let unit = this.data.pages[Math.floor(index / 5)].units[index % 5]
+    if (unit.isExam) {
+      wx.navigateTo({
+        url: '/pages/exam/exam?resBookId=' + encodeURIComponent(this.resBookId || '') +
+          '&type=' + unit.isExam +
+          '&name=' + encodeURIComponent(this.resBookName || '')
+      })
+      return
+    }
     if (unit.needVip == 1) {
       this.showVipPopup()
     } else {
