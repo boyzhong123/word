@@ -540,7 +540,7 @@ page {
 }
 
 .unit-card {
-  height: 246rpx;
+  height: 244rpx;
   margin-top: 14rpx;
   padding: 20rpx 19rpx;
   box-sizing: border-box;

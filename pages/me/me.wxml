@@ -4,6 +4,7 @@
     <view class="menu-label">{{label}}</view>
     <view wx:if="{{desc}}" class="menu-desc">{{desc}}</view>
   </view>
+  <view wx:if="{{statusText}}" class="menu-status menu-status-{{statusType}}">{{statusText}}</view>
   <view class="menu-arrow">›</view>
 </template>
 

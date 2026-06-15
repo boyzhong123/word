@@ -2,8 +2,7 @@ const {
   saveUserInfo,
   getUserInfo,
   getUserBooks,
-  getUnits,
-  toggleBook
+  getUnits
 } = require('../../utils/api')
 const { login } = require('../../utils/login')
 const {
@@ -21,7 +20,7 @@ const {
 const { normalizeCheckedDates, buildDemoCheckedDates, DEMO_CONTINUOUS_DAYS } = require('../checkin/calendar-data')
 const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
 const { computeScrollTopToCenterTarget } = require('./home-scroll')
-const { withTestBook, isDevTestBook } = require('../../utils/dev-books')
+const { withTestBook } = require('../../utils/dev-books')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { IMAGE_BASE_URL } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
@@ -584,52 +583,16 @@ Page({
 
   selectBook(event) {
     const resBookId = event.currentTarget.dataset.resBookId
-    const currentBook = this.data.book
     const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
 
     if (!target) {
       return
     }
 
-    // 演示教材只用于预览分类效果，不进入切换/购买流程
-    if (target.demo) {
-      wx.showToast({
-        title: '演示教材，仅供预览',
-        icon: 'none'
-      })
-      return
-    }
-
-    if (target.locked) {
-      this.setData({ bookPickerVisible: false })
-      this.setTabBarHidden(false)
-      this.goBuyBook(target)
-      return
-    }
-
+    // 点击任意教材都进入商品详情页，由详情页决定购买/使用，不在弹窗里立即切换
     this.setData({ bookPickerVisible: false })
     this.setTabBarHidden(false)
-
-    if (!resBookId || resBookId === currentBook.resBookId) {
-      return
-    }
-
-    if (isDevTestBook(resBookId)) {
-      wx.showToast({
-        title: '测试词书仅用于演示购买流程',
-        icon: 'none'
-      })
-      return
-    }
-
-    toggleBook(resBookId).then(() => {
-      const otherBook = (this.data.allBooks || []).find(item => item.resBookId !== resBookId) || {}
-      const selectedBook = normalizeBook(target)
-      this.updateBook(selectedBook, otherBook)
-      this.resetVisibleUnits()
-      getApp().globalData.book = selectedBook
-      this.loadUnits(selectedBook.resBookId)
-    })
+    this.goBuyBook(target)
   },
 
   noop() {},

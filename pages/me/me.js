@@ -70,7 +70,9 @@ function buildSettings(phoneNumber, phoneVerified) {
         ? '已绑定 ' + maskPhoneNumber(phoneNumber)
         : (phoneVerified ? '已完成微信手机号验证' : '用于账号安全与找回进度'),
       action: 'phone',
-      openType: 'getPhoneNumber'
+      openType: 'getPhoneNumber',
+      statusText: phoneVerified ? '已验证' : '去验证',
+      statusType: phoneVerified ? 'verified' : 'pending'
     },
     {
       id: 'privacy',
