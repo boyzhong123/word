@@ -93,6 +93,22 @@ function stripPunctuation(text) {
   return String(text || '').replace(/[.,!?;:]+$/, '')
 }
 
+function normalizePracticeSeconds(value) {
+  var seconds = Math.round(Number(value) || 0)
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return 0
+  }
+  return seconds
+}
+
+function formatPracticeTime(seconds) {
+  seconds = normalizePracticeSeconds(seconds)
+  if (!seconds) {
+    return ''
+  }
+  return Math.max(1, Math.ceil(seconds / 60)) + '分'
+}
+
 // 单词发音地址。当前用有道词典 TTS（InnerAudioContext 播放媒体不受小程序域名白名单限制），
 // 后期对接后端音频时，把这里换成接口返回的 audioUrl 即可，其余逻辑不变。
 // type=1 英式，type=2 美式。
@@ -302,8 +318,9 @@ function isCorrect(question, response) {
 }
 
 // 汇总成绩。responses 为 questionId -> 作答。
-function scoreExam(exam, responses) {
+function scoreExam(exam, responses, options) {
   responses = responses || {}
+  options = options || {}
   var sectionAgg = { word: { correct: 0, total: 0 }, sentence: { correct: 0, total: 0 } }
   var typeAgg = {}
   var wrong = []
@@ -334,6 +351,7 @@ function scoreExam(exam, responses) {
     var t = typeAgg[k]
     return { type: t.type, label: t.label, correct: t.correct, total: t.total, accuracy: Math.round((t.correct / t.total) * 100) }
   })
+  var practiceSeconds = normalizePracticeSeconds(options.durationSeconds)
 
   return {
     type: exam.type,
@@ -349,6 +367,8 @@ function scoreExam(exam, responses) {
     sentenceTotal: sectionAgg.sentence.total,
     byType: byType,
     wrong: wrong,
+    practiceSeconds: practiceSeconds,
+    practiceTimeText: formatPracticeTime(practiceSeconds),
     ts: Date.now()
   }
 }

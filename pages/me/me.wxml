@@ -56,15 +56,14 @@
       </view>
     </view>
 
-    <view
-      class="stats-card stats-card-clickable"
-      data-url="/pages/study-record/record"
-      bindtap="handleMenuTap"
-    >
-      <view class="stats-head">
-        <view class="stats-head-title">学习记录</view>
-      </view>
-      <view class="stats-row">
+    <view class="stats-section">
+      <view class="section-title">学习记录</view>
+      <view
+        class="stats-card stats-card-clickable"
+        data-url="/pages/study-record/record"
+        bindtap="handleMenuTap"
+      >
+        <view class="stats-row">
         <view class="stat-item">
           <view class="stat-number">{{stats.checkInDays}}</view>
           <view class="stat-label">连续打卡</view>
@@ -79,6 +78,7 @@
           <view class="stat-number">{{stats.studyMinutes}}</view>
           <view class="stat-label">学习分钟</view>
         </view>
+      </view>
       </view>
     </view>
 
@@ -168,11 +168,4 @@
 
     <view class="scroll-spacer"></view>
   </scroll-view>
-  <view wx:if="{{petFeatureEnabled}}" class="pet-fab" bindtap="goPetHome">
-    <image class="pet-fab-img" src="{{petEntry.image}}" mode="aspectFit" />
-    <view class="pet-fab-copy">
-      <view class="pet-fab-title">{{petEntry.name}}</view>
-      <view class="pet-fab-sub">{{petEntry.coins}} 金币</view>
-    </view>
-  </view>
 </view>

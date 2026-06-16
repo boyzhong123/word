@@ -3,36 +3,40 @@
 // 结业测额外展示与入门测的对比（提升幅度）。
 const { getResult } = require('../../utils/exam-data')
 const { imageUrl } = require('../../utils/image-host')
+const { gradeText, tierText, toneColor, encourageText } = require('../../utils/exam-report-copy')
 
-function gradeText(accuracy) {
-  if (accuracy >= 90) return '优秀'
-  if (accuracy >= 75) return '良好'
-  if (accuracy >= 60) return '及格'
-  return '待加强'
-}
-
-// 正确率分档：用于上色与状态文案
-function toneColor(accuracy) {
-  if (accuracy >= 80) return '#22c55e'
-  if (accuracy >= 50) return '#f59e0b'
-  return '#ef4444'
-}
-
-function tierText(accuracy) {
-  if (accuracy >= 80) return '掌握'
-  if (accuracy >= 50) return '较好'
-  return '待练'
-}
-
-function encourageText(type, accuracy, delta) {
-  if (type === 'exit') {
-    if (delta > 0) return '相比入门测进步明显，继续保持！'
-    if (delta === 0) return '水平保持稳定，挑战更高目标吧！'
-    return '状态有波动，把错题再巩固一遍就好。'
+function formatPracticeTime(seconds, estimated) {
+  seconds = Math.round(Number(seconds) || 0)
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return ''
   }
-  if (accuracy >= 85) return '基础很扎实，按计划学习会更稳。'
-  if (accuracy >= 60) return '已有不错的基础，正是提升的好时机。'
-  return '别担心，这正是开始的地方，一起加油！'
+  return (estimated ? '约' : '') + Math.max(1, Math.ceil(seconds / 60)) + '分'
+}
+
+function formatPracticeDateTime(ts) {
+  ts = Number(ts)
+  if (!Number.isFinite(ts) || ts <= 0) {
+    return ''
+  }
+  var d = new Date(ts)
+  var month = d.getMonth() + 1
+  var day = d.getDate()
+  var hour = d.getHours()
+  var minute = d.getMinutes()
+  return month + '月' + day + '日 ' + hour + ':' + (minute < 10 ? '0' : '') + minute
+}
+
+function fallbackPracticeTimeText(result) {
+  if (!result) {
+    return ''
+  }
+  if (result.practiceTimeText) {
+    return result.practiceTimeText
+  }
+  if (result.practiceSeconds) {
+    return formatPracticeTime(result.practiceSeconds, false)
+  }
+  return formatPracticeTime((result.total || 0) * 12, true)
 }
 
 function buildDelta(label, exitVal, entryVal) {
@@ -53,13 +57,15 @@ Page({
     typeName: '',
     bookName: '',
     result: null,
-    reportHeroSrc: imageUrl('/images/home/exam-report-header-v2.jpg'),
+    reportHeroSrc: imageUrl('/images/home/exam-report-header-v3.jpg'),
     grade: '',
     encourage: '',
     sections: [],
     byType: [],
     wrong: [],
     hasWrong: false,
+    practiceTimeText: '',
+    practiceDateTimeText: '',
     showCompare: false,
     compareReady: false,
     compares: []
@@ -108,6 +114,7 @@ Page({
         ]
       }
     }
+    const practiceTimeText = result.practiceTimeText || fallbackPracticeTimeText(result)
 
     this.setData({
       type: type,
@@ -115,11 +122,13 @@ Page({
       bookName: bookName,
       result: result,
       grade: gradeText(result.accuracy),
-      encourage: encourageText(type, result.accuracy, delta),
+      encourage: encourageText(type, result.accuracy, compareReady ? delta : null),
       sections: sections,
       byType: byType,
       wrong: result.wrong,
       hasWrong: result.wrong.length > 0,
+      practiceTimeText: practiceTimeText,
+      practiceDateTimeText: formatPracticeDateTime(result.ts),
       showCompare: showCompare,
       compareReady: compareReady,
       compares: compares

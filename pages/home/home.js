@@ -362,6 +362,9 @@ const FALLBACK_LIST_UNITS = markTodayTasks(
   2
 )
 
+// 「再次练习确认」用户勾选「不再提醒」后写入此 key；与报告页共用同一偏好。
+const REPRACTICE_SKIP_KEY = 'reprac_skip_confirm'
+
 Page({
   data: {
     imageBaseUrl: IMAGE_BASE_URL,
@@ -410,6 +413,9 @@ Page({
       visible: false,
       text: ''
     },
+    showRepracticePopup: false,
+    repracticeLabel: '',
+    dontRemindReprac: false,
     ...getHeroLayout()
   },
 
@@ -851,12 +857,53 @@ Page({
       return
     }
 
+    // 该环节已完成（已有成绩）→ 先确认再练，除非用户勾过「不再提醒」。
+    if (task && task.mapState === 'completed' && !wx.getStorageSync(REPRACTICE_SKIP_KEY)) {
+      this._pendingReprac = { unit, taskType }
+      this.setData({
+        showRepracticePopup: true,
+        repracticeLabel: task.label || '这个环节',
+        dontRemindReprac: false
+      })
+      return
+    }
+
+    this.runTaskNav(unit, taskType)
+  },
+
+  // 实际进入环节练习（听力小测走 listen 页，其余走 practice 页）。
+  runTaskNav(unit, taskType) {
     if (taskType === 'listening') {
       this.navigateToListeningUnit(unit)
       return
     }
-
     this.navigateToPracticeUnit(unit, taskType)
+  },
+
+  toggleDontRemind() {
+    this.setData({ dontRemindReprac: !this.data.dontRemindReprac })
+  },
+
+  // 关闭确认弹窗；勾了「不再提醒」就持久化，无论确认或取消。
+  _closeReprac() {
+    if (this.data.dontRemindReprac) {
+      wx.setStorageSync(REPRACTICE_SKIP_KEY, true)
+    }
+    this.setData({ showRepracticePopup: false })
+  },
+
+  confirmReprac() {
+    const pending = this._pendingReprac
+    this._closeReprac()
+    if (pending) {
+      this.runTaskNav(pending.unit, pending.taskType)
+    }
+    this._pendingReprac = null
+  },
+
+  cancelReprac() {
+    this._closeReprac()
+    this._pendingReprac = null
   },
 
   handleReviewTaskTap(unit, taskType) {

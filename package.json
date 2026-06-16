@@ -1,6 +1,6 @@
 {
   "name": "word",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "谚语词典微信小程序",
   "scripts": {
@@ -10,7 +10,8 @@
     "dev:local-images": "node scripts/toggle-image-mode.mjs local",
     "dev:remote-images": "node scripts/toggle-image-mode.mjs remote",
     "doc:screenshots": "node scripts/capture-mini-app-screenshots.mjs",
-    "doc:share": "node scripts/build-mini-app-tech-doc-share.mjs"
+    "doc:share": "node scripts/build-mini-app-tech-doc-share.mjs",
+    "doc:competitive-share": "node scripts/build-competitive-comparison-share.mjs"
   },
   "devDependencies": {
     "cos-nodejs-sdk-v5": "^2.15.4",

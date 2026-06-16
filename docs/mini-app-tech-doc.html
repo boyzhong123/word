@@ -217,7 +217,7 @@
         <aside class="hero-side">
           <div>
             <div class="eyebrow">Quick Count</div>
-            <p class="side-note" style="margin-top:12px">含测评/学习记录等待接 API；搜索（search / word-info）已下线。</p>
+            <p class="side-note" style="margin-top:12px">含测评/学习记录等待接 API；全局 search 不做；单词分析（word-info）后续见跟读背诵页。</p>
           </div>
           <div class="stats" id="stats"></div>
         </aside>
@@ -255,8 +255,11 @@
             <p><code>getUnitResource()</code> 实际请求 <code>/mini-app/unit-words</code>；<code>getUnitWords()</code> 请求 <code>/mini-app/unit-resources</code>（后者当前未被页面使用）。对接时以 HTTP 路径为准。</p>
           </article>
           <article class="api-box wide">
-            <h3>已下线</h3>
-            <p>首页搜索栏（<code>search</code> / <code>word-info</code>）已移除，不再对接。</p>
+            <h3>已下线 / 不做 / 后续</h3>
+            <p>首页搜索栏（<code>search</code>）已移除，<strong>不做全局搜词</strong>。</p>
+            <p style="margin-top:8px"><strong>分析单个词</strong>（<code>word-info</code> 或等价接口）：<strong>后续要做</strong>，入口页面<strong>未定</strong>，产品倾向放在 <code>practice</code> <strong>跟读背诵</strong>环节（非首页搜索）。当前 <code>practice?id=</code> + <code>getWordInfo</code> 为遗留/占位，分享路径仍带 <code>id</code>，联调前需与最终入口统一。</p>
+            <p style="margin-top:8px"><strong>删除学习记录</strong>（<code>delete-learning-record</code>）：<strong>产品确认不做</strong>，小程序无入口；<code>utils/api.js</code> 中 <code>deleteRecord</code> 为历史封装，联调时可删。</p>
+            <p style="margin-top:8px"><strong>宠物 / 金币</strong>（<code>pages/me/pet</code>、<code>utils/pet-system.js</code>）：<strong>纯本地 Storage，不上后端</strong>，换机不同步；finish 页金币奖励亦仅本地。</p>
           </article>
         </div>
       </section>
@@ -322,7 +325,9 @@
           练习、小测、测评、随身听播放<strong>全过程都要记时</strong>，不能只记结果不记耗时。前端在环节/题目/播放结束时上报 <code>durationSeconds</code>（建议同时带 <code>startedAt</code>/<code>finishedAt</code>），后端汇总为：<br/>
           · 单关报告 <code>unit-report.minutes</code> + <code>taskDurations{word,recitation,listening}</code><br/>
           · 每日学习记录 <code>study-records.records[].minutes</code>、<code>audioMinutes</code><br/>
-          · 我的页 / user/info <code>studyMinutes</code> · 测评报告 <code>exam-result.durationSeconds</code>
+          · 我的页 / user/info <code>studyMinutes</code><br/>
+          · 测评报告 <code>exam-result.durationSeconds</code> + <code>reportGeneratedAt</code><br/>
+          · 关卡报告 <code>unit-report</code> 各环节 <code>sectionScores.*.submittedAt</code> + 报告 <code>reportGeneratedAt</code>
         </div>
         <div class="api-detail-grid" id="durationSchema"></div>
         <div class="api-detail-grid" id="coreFlowSchema"></div>
@@ -355,13 +360,13 @@
 
       <section class="section" id="module-listen">
         <div class="section-head"><div><h2>③ 随身听</h2><p class="section-desc">路由 <code>pages/listen/listen</code>，底栏中间 Tab + 迷你播放条</p></div></div>
-        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>按单元播放单词+例句混排列表；支持倍速/循环/playlist；课文页可展开跟读（Chivox 评测）；<code>mode=quiz</code> 时进入关卡小测（听音填空 + 背诵评测），结果上报 <code>listening-quiz-result</code>。</div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>按单元播放单词+例句混排列表；支持倍速/循环/playlist；课文页可展开跟读（Chivox 评测，<strong>仅本地练、不上报分数</strong>）；<code>mode=quiz</code> 时进入关卡小测（听音填空 + 背诵评测），结果上报 <code>listening-quiz-result</code>。</div>
         <div class="cards" id="listenPages"></div>
       </section>
 
       <section class="section" id="module-me">
         <div class="section-head"><div><h2>④ 我的</h2><p class="section-desc">Tab「我的」· 路由 <code>pages/me/me</code> 及子页</p></div></div>
-        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计；子页含<strong>我的教材</strong>、学习记录、消息授权、联系客服、隐私协议、学习形象、手机号验证；可选宠物入口。</div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计；子页含<strong>我的教材</strong>、学习记录、消息授权、联系客服、隐私协议、学习形象、手机号验证。<strong>宠物（me/pet）</strong>为本地演示，不同步后端。</div>
         <div class="cards" id="mePages"></div>
       </section>
 
@@ -369,31 +374,62 @@
         <div class="section-head"><div><h2>⑥ 入门测 · 结业测 · 各类报告</h2><p class="section-desc">词书级测评 + 单关/小测报告 + 学习记录汇总</p></div></div>
         <div class="callout" style="margin-bottom:14px">
           <strong>两类测评（词书维度）</strong><br/>
-          · <strong>入门测 entry</strong>：首页关卡列表<strong>最前</strong> Banner 进入 · 摸底 · <strong>每词书仅可完成一次</strong> · 做完生成入门测报告<br/>
+          · <strong>入门测 entry</strong>：首页关卡列表<strong>最前</strong> Banner 进入（Banner 不区分已做/未做）· intro 页由 <code>exam-paper.entryCompleted</code> 决定「开始测评 / 查看上次报告」· <strong>每词书仅可完成一次</strong><br/>
           · <strong>结业测 exit</strong>：关卡列表<strong>最后</strong> Banner 进入 · 通关检验 · 须<strong>全关通关且每关≥2星</strong>（<code>book-units</code> + <code>getExitLockState</code>）· 可多次（建议后端限制次数）
         </div>
         <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
-          <strong style="color:var(--amber)">报告用时 · 全程上报</strong><br/>
-          所有报告展示的「学习 X 分钟」均来自后端汇总，<strong>不是</strong>前端按词数估算（当前 <code>report.js</code> 的 <code>minutes=词数×0.7</code> 为 Mock）。练习过程中须上报：<br/>
-          · 三环节：<code>word-mark</code> / <code>recitation-score</code> / <code>listening-quiz-result</code> + 环节结束 <code>save-learning-record.durationSeconds</code><br/>
-          · 测评：<code>exam-submit.durationSeconds</code>（intro→交卷整卷计时）<br/>
+          <strong style="color:var(--amber)">报告时间 · 练习用时 vs 报告生成</strong><br/>
+          所有报告须区分<strong>练习用时</strong>与<strong>报告生成时间</strong>，均来自后端，<strong>不是</strong>前端估算（当前 <code>report.js</code> 的 <code>minutes=词数×0.7</code> 为 Mock）。练习过程中须上报：<br/>
+          · 三环节：<code>word-mark</code> / <code>recitation-score</code> / <code>listening-quiz-result</code> + 环节结束 <code>save-learning-record.durationSeconds</code>（写入 <code>sectionScores.*.submittedAt</code>）<br/>
+          · 测评：<code>exam-submit.durationSeconds</code>（intro→交卷）→ <code>exam-result.reportGeneratedAt</code>（计分完成后）<br/>
           · 随身听：<code>listen-duration</code>（播放有效时长 → <code>audioMinutes</code>）
         </div>
         <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
           <strong style="color:var(--blue)">报告一览</strong><br/>
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
-            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">报告</th><th style="text-align:left;padding:6px 8px">页面</th><th style="text-align:left;padding:6px 8px">入口</th><th style="text-align:left;padding:6px 8px">接口</th><th style="text-align:left;padding:6px 8px">用时字段</th></tr>
-            <tr><td style="padding:6px 8px">入门测报告</td><td><code>exam-report</code></td><td>入门测交卷 / 再次进入 intro「查看上次报告」/ 学习记录</td><td><code>GET exam-result?type=entry</code></td><td><code>durationSeconds</code> / <code>minutes</code></td></tr>
-            <tr><td style="padding:6px 8px">结业测报告</td><td><code>exam-report</code></td><td>结业测交卷；对比入门测进步</td><td><code>GET exam-result?type=exit</code>（含 entry 基准）</td><td><code>durationSeconds</code>；<code>entryCompare.durationSeconds</code></td></tr>
-            <tr><td style="padding:6px 8px">关卡学习报告</td><td><code>report</code></td><td>首页关卡卡片报告 pill（三环节完成）</td><td><code>GET unit-report?unitId=</code></td><td><code>minutes</code> + <code>taskDurations{word,recitation,listening}</code></td></tr>
-            <tr><td style="padding:6px 8px">听力小测报告</td><td><code>report</code></td><td>随身听 quiz 模式完成后「生成听力报告」</td><td><code>GET unit-report?unitId=</code>（含小测 fill/recite 成绩）</td><td><code>quiz.durationSeconds</code> + 同上</td></tr>
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">报告</th><th style="text-align:left;padding:6px 8px">页面</th><th style="text-align:left;padding:6px 8px">入口</th><th style="text-align:left;padding:6px 8px">接口</th><th style="text-align:left;padding:6px 8px">时间字段</th></tr>
+            <tr><td style="padding:6px 8px">入门测报告</td><td><code>exam-report</code></td><td>交卷 / intro 查看报告 / 学习记录</td><td><code>GET exam-result?type=entry</code></td><td><code>durationSeconds</code>（练习用时）、<code>reportGeneratedAt</code>（报告生成）</td></tr>
+            <tr><td style="padding:6px 8px">结业测报告</td><td><code>exam-report</code></td><td>结业测交卷；对比入门</td><td><code>GET exam-result?type=exit</code></td><td>同上 + <code>entryCompare.durationSeconds/reportGeneratedAt</code></td></tr>
+            <tr><td style="padding:6px 8px">关卡学习报告</td><td><code>report</code></td><td>首页关卡 pill</td><td><code>GET unit-report</code>（resBookId+unitId+userId）</td><td><code>minutes</code>、<code>sectionScores.*.submittedAt</code>、<code>refreshedAt</code>、<code>reportGeneratedAt</code></td></tr>
+            <tr><td style="padding:6px 8px">听力小测报告</td><td><code>report</code></td><td>listen quiz「生成听力报告」</td><td>同上</td><td>同上 + 小测环节分</td></tr>
             <tr><td style="padding:6px 8px">学习记录</td><td><code>study-record</code></td><td>我的 → 学习记录</td><td><code>GET study-records</code></td><td><code>records[].minutes</code>、<code>audioMinutes</code></td></tr>
           </table>
         </div>
         <div class="callout" style="margin-bottom:14px">
+          <strong>报告评语 / 等级 · 分档规则</strong><br/>
+          文案集中在 <code>utils/exam-report-copy.js</code>（测评）、<code>utils/report-copy.js</code>（关卡）；后端 <code>exam-result</code> / <code>unit-report</code> 可直返 <code>grade</code>、<code>encourage</code>，或前端按正确率计算。
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">场景</th><th style="text-align:left;padding:6px 8px">字段</th><th style="text-align:left;padding:6px 8px">条件</th><th style="text-align:left;padding:6px 8px">文案</th></tr>
+            <tr><td rowspan="4" style="padding:6px 8px;vertical-align:top">测评报告<br/>总正确率徽章</td><td rowspan="4"><code>grade</code></td><td style="padding:6px 8px">≥ 90%</td><td>优秀</td></tr>
+            <tr><td style="padding:6px 8px">75–89%</td><td>良好（如截图 86%）</td></tr>
+            <tr><td style="padding:6px 8px">60–74%</td><td>及格</td></tr>
+            <tr><td style="padding:6px 8px">&lt; 60%</td><td>待加强</td></tr>
+            <tr><td rowspan="3" style="padding:6px 8px;vertical-align:top">测评 · 单词/句子模块<br/>各题型条</td><td rowspan="3"><code>statusText</code></td><td style="padding:6px 8px">≥ 80%</td><td>掌握 · 绿条</td></tr>
+            <tr><td style="padding:6px 8px">50–79%</td><td>较好 · 橙条</td></tr>
+            <tr><td style="padding:6px 8px">&lt; 50%</td><td>待练 · 红条</td></tr>
+            <tr><td rowspan="3" style="padding:6px 8px;vertical-align:top">入门测评语<br/><code>encourage</code></td><td colspan="2" style="padding:6px 8px">≥ 85%</td><td>基础很扎实，按计划学习会更稳。</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">60–84%</td><td>已有不错的基础，正是提升的好时机。</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">&lt; 60%</td><td>别担心，这正是开始的地方，一起加油！</td></tr>
+            <tr><td rowspan="5" style="padding:6px 8px;vertical-align:top">结业测评语<br/>（有入门对比时）</td><td colspan="2" style="padding:6px 8px">总正确率 &gt; 入门</td><td>相比入门测进步明显，继续保持！</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">总正确率 &lt; 入门</td><td>状态有波动，把错题再巩固一遍就好。</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">与入门相同且 ≥ 85%</td><td>水平保持稳定，挑战更高目标吧！</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">与入门相同且 60–84%</td><td>整体表现平稳，把错题练熟还能再上分。</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">与入门相同且 &lt; 60%</td><td>基础还需打牢，从错题入手一步步提升。</td></tr>
+            <tr><td rowspan="4" style="padding:6px 8px;vertical-align:top">关卡学习报告<br/><code>encourage</code></td><td colspan="2" style="padding:6px 8px">≥ 95%</td><td>近乎满分，太棒啦！</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">85–94%</td><td>表现很棒，再巩固一下错词就更稳了。</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">&lt; 85% 且有待复习词</td><td>把 N 个错词再练一练，正确率还能往上冲。</td></tr>
+            <tr><td colspan="2" style="padding:6px 8px">其余</td><td>稳扎稳打，继续加油！</td></tr>
+          </table>
+        </div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+          <strong style="color:var(--blue)">关卡报告 · 计分与复习规则</strong><br/>
+          单关报告由后端按 <code>resBookId + unitId（levelId）+ userId</code> 查询；userId 走登录态，不入 query。<strong>词×环节矩阵、掌握度加权、首次复习种子、历史最高分</strong>等完整规则见
+          <code>docs/level-score-review-spec.md</code>（与 <code>pages/report/report</code> UI 已对齐：环节 <code>refreshedAt</code>、掌握度「?」弹窗、环节卡再练确认）。
+        </div>
+        <div class="callout" style="margin-bottom:14px">
           <strong>测评链路</strong><br/>
-          <code>GET exam-paper</code> → <code>pages/exam/exam</code> 答题 → <code>POST exam-submit</code> → <code>pages/exam/exam-report</code>（<code>GET exam-result</code>）<br/>
-          <strong>现状</strong>：题库/计分/存成绩在 <code>utils/exam-data.js</code> + Storage；关卡/听力报告在 <code>report.js</code> Mock（<code>minutes</code> 为假数据）；学习记录在 <code>study-record</code> 演示数据。<strong>真实联调后报告用时须来自后端汇总，不能前端估算。</strong>
+          <code>GET exam-paper</code> → <code>pages/exam/exam</code> → <code>POST exam-submit</code> → <code>exam-report</code>（<code>GET exam-result</code>）<br/>
+          <strong>现状</strong>：测评在 <code>exam-data.js</code> + Storage；关卡报告 <code>report.js</code> 仍为 Mock，联调后必传 <code>resBookId</code>+<code>unitId</code> 调 <code>unit-report</code>。
         </div>
         <div class="api-detail-grid" id="examRecordSchema"></div>
         <div class="cards" id="examRecordPages"></div>
@@ -423,8 +459,13 @@
         <div class="cards" id="commercePages"></div>
       </section>
 
+      <section class="section" id="roadmap">
+        <div class="section-head"><div><h2>开发计划 · 三期</h2><p class="section-desc">按依赖捆绑交付；含产品已确认口径（见上文 callout / level-score-review-spec）</p></div></div>
+        <div class="cards" id="roadmapCards"></div>
+      </section>
+
       <section class="section">
-        <div class="section-head"><div><h2>待补齐 / Mock 能力</h2><p class="section-desc">影响真实数据闭环，需产品+后端+前端对齐</p></div></div>
+        <div class="section-head"><div><h2>待补齐 · 细项</h2><p class="section-desc">三期内的具体 Mock / 未接接口（随联调勾选关闭）</p></div></div>
         <div class="cards" id="pendingCards"></div>
       </section>
 
@@ -568,7 +609,7 @@
             request: "当前仅 unitId；【建议补】unitId, taskType, scoreRate, resBookId, durationSeconds, startedAt?, finishedAt?",
             response: "建议 data: { nextUnitId?, tasksUpdated: true }；后端更新 book-units 对应 task 的 current/total/percent",
             callers: "pages/finish/today.js onLoad（word/recitation/listening 各完成一次各调一次）",
-            fields: "每关三环节各完成调一次。【时长】durationSeconds=该环节总用时（practice/listen 页 onLoad→finish 或逐词累计之和）。后端写入当日 study-records.minutes 增量、unit 级 taskDurations，供 unit-report 展示。",
+            fields: "每关三环节各完成调一次。【时长】durationSeconds + finishedAt；后端写入 sectionScores.submittedAt、study-records.minutes 增量。",
             render: "完成页步骤条 1/3·2/3·3/3；继续按钮链式跳转下一环节"
           }
         },
@@ -592,7 +633,7 @@
             request: '{ …, "score", "durationSeconds"?, "recordDurationMs"? }',
             response: "ack；低分词进错词池 + 累加跟读用时",
             callers: "components/media/media.js 评分回调 → practice contents[].word.result / proverb[].result（当前未上报 API）",
-            fields: "【时长】durationSeconds=该词/句录音+等待评分耗时；Chivox 录音可另报 recordDurationMs。汇总进 taskDurations.recitation。",
+            fields: "【时长】durationSeconds=该词/句录音+等待评分耗时；Chivox 录音可另报 recordDurationMs。汇总进 taskDurations.recitation。【范围】仅 practice?taskType=recitation；listen 课文跟读不走本接口。",
             render: "跟读录音→Chivox 评分→彩带反馈；读完自动倒计时下一词"
           }
         },
@@ -645,6 +686,18 @@
           }
         },
         {
+          id: "word-info", module: "学习流", moduleId: "core", page: "practice · 单词分析（后续）", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/word-info", note: "后续" }],
+          summary: "按词 id 拉单词详情/分析（入口待定）",
+          detail: {
+            request: "id（词 ID）",
+            response: "单词 content、释义、音标、例句、所属 book…（与现 practice?id= 分支一致，字段待产品定稿）",
+            callers: "pages/practice/practice.js options.id（遗留）；未来大概率跟读背诵页「分析这个词」",
+            fields: "【产品方向】后续做「分析单个词」，非首页搜索。入口页面未定，倾向 taskType=recitation 的 practice 页。search 接口不做。",
+            render: "待定 — 可能为跟读页内展开/弹层，非独立路由"
+          }
+        },
+        {
           id: "unit-resources", module: "—", moduleId: "common", page: "（未接入）", status: "missing",
           endpoints: [{ method: "GET", path: "/mini-app/unit-resources" }],
           summary: "getUnitWords() 已封装，页面未调用",
@@ -664,7 +717,7 @@
             request: "{ nickName?, avatarUrl?, …userInfo }",
             response: "更新后的用户信息",
             callers: "home.js nickNameChange/getUserProfile, me.js saveUserInfo",
-            fields: "头像需先 upload-avatar 拿 URL",
+            fields: "头像需先 upload-avatar 拿 URL。【形象】characterGender（boy/girl）经 me.js 学习形象切换写入。",
             render: "首页 Hero 昵称；我的页头像"
           }
         },
@@ -702,20 +755,20 @@
           detail: {
             request: "无",
             response: "sig 相关字段 + userId",
-            callers: "components/media/media.js refreshSig",
-            fields: "缓存 sigPromise 避免重复请求",
+            callers: "components/media/media.js — practice 跟读背诵 + listen 课文跟读（后者评分不上报后端）",
+            fields: "缓存 sigPromise 避免重复请求。【已确认】listen 展开跟读：Chivox 分数仅本地展示，不进 recitation-score / 报告 / 错词池",
             render: "录音评分前 ensureSigReady"
           }
         },
         {
-          id: "listen-duration", module: "随身听", moduleId: "listen", page: "player · 播放时长", status: "partial",
+          id: "listen-duration", module: "随身听", moduleId: "listen", page: "player · 播放/跟读练习", status: "partial",
           endpoints: [{ method: "POST", path: "/mini-app/listen-duration", note: "待实现" }],
-          summary: "上报随身听有效播放时长（非 quiz）",
+          summary: "上报随身听播放时长 + 跟读练习次数（不含成绩）",
           detail: {
-            request: '{ "resBookId", "unitId"?, "durationSeconds", "date"?, "source": "player" }',
-            response: "ack；累加 study-records.audioMinutes、daily minutes",
-            callers: "utils/player.js — 当前未上报，仅本地播放",
-            fields: "切后台/锁屏仍计 BackgroundAudioManager 播放时长；暂停不计。可与 study-records 合并为统一 learning-event 流。",
+            request: '{ "resBookId", "unitId"?, "durationSeconds", "date"?, "source": "player"|"follow-read" }',
+            response: "ack；player → audioMinutes + daily minutes；follow-read → listenPracticeCount + 用时（无 score）",
+            callers: "utils/player.js 播放时长；listen.js track 跟读结束（计次+计时，不上报分数）",
+            fields: "【已确认】随身听课文跟读不计入 recitation-score、unit-report、错词池；只汇总 audioMinutes + listenPracticeCount。切后台播放仍计 player 时长；暂停不计。",
             render: "listen 页 + 迷你播放条跨页播放"
           }
         },
@@ -786,8 +839,8 @@
           detail: {
             request: "resBookId, type=entry|exit",
             response: "{ type, title, subtitle, total, sections[], questions[], entryCompleted?, exitUnlocked? }",
-            callers: "pages/exam/exam.js onLoad；home.js goExamEntry/goExamExit → openExam(type)",
-            fields: "【入门测 entry】entryCompleted=true 时禁止重考，intro 改「查看上次报告」。【结业测 exit】exitUnlocked=false 时 home 弹窗拦截；后端也可在 exam-paper 返回 403。【题型】choice 选择 / order 连词成句；section=word|sentence。",
+            callers: "pages/exam/exam.js onLoad（entryCompleted 仅 intro 用）；home.js goExamEntry 只跳转，不读完成态",
+            fields: "【入门测 entry】【已确认】entryCompleted 只在 exam intro 展示，首页 Banner 不变。true 时禁止重考，intro 改「查看上次报告」。【结业测 exit】exitUnlocked=false 时 home 弹窗拦截；后端也可在 exam-paper 返回 403。【题型】choice 选择 / order 连词成句；section=word|sentence。",
             render: "首页 Banner → exam intro → 逐题作答"
           }
         },
@@ -799,7 +852,7 @@
             request: '{ "resBookId", "type", "responses", "durationSeconds", "startedAt"?, "finishedAt"? }',
             response: "result + durationSeconds（入库供 exam-result / study-records.entryExamCount 所在日 minutes）",
             callers: "pages/exam/exam.js finishExam",
-            fields: "entry 重复提交拒绝。【时长】整卷用时 durationSeconds，exam-report 与 study-record 展示。",
+            fields: "entry 重复提交拒绝。【时间】submit 写入 durationSeconds；result 返回 reportGeneratedAt。",
             render: "最后一题提交 → redirectTo exam-report"
           }
         },
@@ -809,9 +862,9 @@
           summary: "入门测成绩报告",
           detail: {
             request: "resBookId, type=entry",
-            response: "result + durationSeconds + sections/byType/wrong",
+            response: "result + durationSeconds + reportGeneratedAt + sections/byType/wrong",
             callers: "exam-report.js, exam.js goReport, study-record 点「入门测」明细",
-            fields: "展示总正确率、等级、错题。【时长】durationSeconds / minutes 由 submit 入库，报告只读。",
+            fields: "【时间】durationSeconds/minutes=测评练习用时；startedAt/finishedAt 可选；reportGeneratedAt=报告生成时间（交卷计分后）。",
             render: "pages/exam/exam-report?type=entry"
           }
         },
@@ -823,20 +876,20 @@
             request: "resBookId, type=exit",
             response: "同 entry + entryCompare；【时长】durationSeconds 为结业测用时",
             callers: "exam-report.js buildDelta — 结业测页展示「相比入门测 ±N%」",
-            fields: "无 entry 基准时 compareReady=false。入门/结业用时分别存储，报告可展示两次测评耗时对比。",
+            fields: "同 entry + entryCompare。【时间】entryCompare 含 durationSeconds、reportGeneratedAt。",
             render: "pages/exam/exam-report?type=exit"
           }
         },
         {
-          id: "unit-report", module: "报告", moduleId: "exam", page: "report · 关卡/听力报告", status: "partial",
+          id: "unit-report", module: "报告", moduleId: "exam", page: "report · 关卡学习报告", status: "partial",
           endpoints: [{ method: "GET", path: "/mini-app/unit-report", note: "待实现" }],
-          summary: "单关学习报告或听力小测报告（同一页 report）",
+          summary: "单关学习报告（resBookId + unitId + userId）",
           detail: {
-            request: "unitId（推荐）, resBookId?；或 sort+words 兼容旧 query",
-            response: "{ unitId, stars, accuracy, minutes, taskDurations:{word,recitation,listening}, mastered[], wrong[], proverb?, quiz? }",
-            callers: "home.js goUnitReport；listen.js openQuizReport",
-            fields: "【时长·核心】minutes=本关总学习分钟（三环节+小测之和，后端汇总，非 report.js 本地估算）。taskDurations 各环节秒/分钟。quiz 模式额外 fill/recite 用时。",
-            render: "pages/report/report — 星级、掌握词、错词、谚语"
+            request: "GET ?resBookId=xxx&unitId=u_001（userId 由 token 识别，不入参）",
+            response: "见 level-score-review-spec §7.2：scoreRate, sectionScores{score,submittedAt,refreshedAt}, reportGeneratedAt, minutes, durationSeconds, words[]…",
+            callers: "home.js goUnitReport（联调须改传 resBookId+unitId）；listen.js openQuizReport",
+            fields: "【已确认】resBookId+unitId+userId。【时间】minutes/durationSeconds=本关总练习用时；sectionScores.*.submittedAt=环节成绩提交时间；refreshedAt=展示分刷新时间；reportGeneratedAt=报告生成时间。计分见 level-score-review-spec。",
+            render: "pages/report/report — 四指标、环节表现+刷新时间、待复习/已掌握词表、掌握度?弹窗、再练确认"
           }
         },
         {
@@ -847,7 +900,7 @@
             request: "resBookId?, startDate, endDate（YYYY-MM-DD）",
             response: "data.records[] — 每日一条，字段见 utils/study-records.js buildRecord",
             callers: "pages/study-record/record.js onLoad（当前 buildDemoStudyRecords）",
-            fields: "单日 record：date, minutes（总）, newWords, …, audioMinutes（随身听播放）, entryExamCount, exitExamCount。【汇总规则】minutes = 各 practice/listen/exam 上报 durationSeconds 之和 / 60，按 resBookId+date 聚合；user/info.studyMinutes 可读同日累计。",
+            fields: "单日 record：date, minutes（总）, newWords, …, audioMinutes（随身听播放）, listenPracticeCount（随身听跟读练习次数，无成绩）, entryExamCount, exitExamCount。【汇总规则】minutes = 各 practice/listen/exam 上报 durationSeconds 之和 / 60，按 resBookId+date 聚合；user/info.studyMinutes 可读同日累计。",
             render: "近7天/本月/自定义 · 汇总 · 趋势 · 日历 · 每日明细（含测评次数跳转 exam-report）"
           }
         }
@@ -856,7 +909,7 @@
       const PAGE_CARDS = {
         coreFlow: [
           { title: "环节1 · 单词新学", desc: "practice?taskType=word。标记认识/不认识/记错 → POST word-mark（含 timeSpentSeconds/durationSeconds）。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark"] },
-          { title: "环节2 · 跟读背诵", desc: "practice?taskType=recitation。Chivox 逐词/逐句评分 → POST recitation-score（含 durationSeconds/recordDurationMs）。", paths: ["pages/practice/practice", "components/media"], apis: ["unit-words", "recitation-score", "Chivox sig"] },
+          { title: "环节2 · 跟读背诵", desc: "practice?taskType=recitation。Chivox 评分 → recitation-score。【后续】「分析这个词」可能在本页，调 word-info。", paths: ["pages/practice/practice", "components/media"], apis: ["unit-words", "recitation-score", "word-info 后续", "Chivox sig"] },
           { title: "环节3 · 关卡小测", desc: "listen?mode=quiz。听音填空+背诵 → POST listening-quiz-result（每题 durationSeconds）。", paths: ["pages/listen/listen"], apis: ["unit-words", "listening-quiz-result"] },
           { title: "环节完成", desc: "finish/today → save-learning-record（带 taskType、scoreRate、durationSeconds 环节总用时）→ 链式跳转下一环节。", paths: ["pages/finish/today"], apis: ["save-learning-record"] },
           { title: "复习关", desc: "每3关插入。GET review-words 拉错词；三任务同样上报各环节 durationSeconds。", paths: ["home-units", "practice?review=1", "listen?review=1"], apis: ["review-words", "book-units.wrongWords"] }
@@ -878,8 +931,8 @@
           { title: "本地今日进度", desc: "首页「今日完成 x/y 关」：utils/checkin-progress.js 按 resBookId 存 Storage，与月历打卡记录（后端）是两套数据。", paths: ["utils/checkin-progress.js"], apis: ["—"] }
         ],
         listen: [
-          { title: "listen 播放器", desc: "全局 player；有效播放时长待报 listen-duration → audioMinutes。", paths: ["pages/listen/listen", "utils/player.js", "custom-tab-bar"], apis: ["book-units", "unit-words", "listen-duration"] },
-          { title: "跟读评测", desc: "课文 track 展开 media 组件；逐句评分缓存 trackScores。", paths: ["components/media"], apis: ["Chivox sig"] },
+          { title: "listen 播放器", desc: "全局 player → listen-duration(source=player) → audioMinutes。课文跟读 Chivox 仅本地练，结束报 listen-duration(source=follow-read) 计次+用时，不上报分数。", paths: ["pages/listen/listen", "utils/player.js", "custom-tab-bar"], apis: ["book-units", "unit-words", "listen-duration"] },
+          { title: "跟读评测", desc: "课文 track 展开 media；评分本地展示 trackScores，不进 recitation-score / 报告。", paths: ["components/media"], apis: ["Chivox sig"] },
           { title: "关卡小测", desc: "核心流程环节3：fill 听音填空 → recite 背诵；POST listening-quiz-result。", paths: ["listen?mode=quiz"], apis: ["unit-words", "listening-quiz-result"] }
         ],
         me: [
@@ -888,30 +941,55 @@
           { title: "notify 消息授权", desc: "展示订阅消息模板授权状态；引导用户开启 wx.requestSubscribeMessage。", paths: ["pages/me/notify"], apis: ["无（读 wx.getSetting）"] },
           { title: "contact 联系客服", desc: "FAQ + 微信客服入口；教材切换/页码标识等说明。", paths: ["pages/me/contact"], apis: ["无"] },
           { title: "privacy 隐私协议", desc: "账号安全与数据使用说明。", paths: ["pages/me/privacy"], apis: ["无"] },
+          { title: "pet 我的宠物", desc: "认领/喂食/金币 — 全本地 pet-system.js，【已确认】无后端接口，换机不同步。", paths: ["pages/me/pet", "utils/pet-system.js"], apis: ["无"] },
           { title: "study-record 学习记录", desc: "从 me 或首页进入；按日/区间统计；待接 study-records。", paths: ["pages/study-record/record"], apis: ["study-records"] }
         ],
         examRecord: [
-          { title: "入门测 entry", desc: "首页列表最前 Banner → exam?type=entry。仅一次；paper 返回 entryCompleted。答题全程计时，交卷带 durationSeconds。", paths: ["home.goExamEntry", "pages/exam/exam"], apis: ["exam-paper", "exam-submit", "exam-result"] },
+          { title: "入门测 entry", desc: "首页 Banner 固定样式 → exam?type=entry。是否已做仅在 exam intro 读 exam-paper.entryCompleted。", paths: ["home.goExamEntry", "pages/exam/exam"], apis: ["exam-paper", "exam-submit", "exam-result"] },
           { title: "结业测 exit", desc: "列表最后 Banner；全关≥2星解锁 → exam?type=exit。交卷上报 durationSeconds。", paths: ["home.goExamExit", "pages/exam/exam"], apis: ["exam-paper", "book-units", "exam-submit"] },
-          { title: "入门测报告", desc: "总正确率、单词/句子模块、题型分布、错题、用时（durationSeconds/minutes）。type=entry。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=entry"] },
-          { title: "结业测报告", desc: "同上 + 与入门测对比 Δ（含用时对比 entryCompare.durationSeconds）。type=exit。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=exit"] },
-          { title: "关卡学习报告", desc: "三环节完成后首页 report pill → unit-report。展示 minutes + taskDurations 各环节用时。", paths: ["pages/report/report", "home.goUnitReport"], apis: ["unit-report"] },
-          { title: "听力小测报告", desc: "listen quiz 完成「生成听力报告」→ 同一 report 页，带 fill/recite 成绩与 quiz.durationSeconds。", paths: ["listen.openQuizReport", "pages/report/report"], apis: ["unit-report"] },
+          { title: "入门测报告", desc: "总正确率、单词/句子模块、题型分布、错题；<strong>durationSeconds/minutes</strong>=测评练习用时；<strong>reportGeneratedAt</strong>=报告生成时间。type=entry。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=entry"] },
+          { title: "结业测报告", desc: "同上 + 与入门测对比 Δ（含用时对比 entryCompare.durationSeconds / reportGeneratedAt）。type=exit。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=exit"] },
+          { title: "关卡学习报告", desc: "GET unit-report(resBookId, unitId, userId)。环节卡展示 submittedAt（提交）+ refreshedAt（展示分刷新）；报告头/底展示 reportGeneratedAt、minutes。", paths: ["pages/report/report", "home.goUnitReport"], apis: ["unit-report"] },
+          { title: "听力小测报告", desc: "listen quiz「生成听力报告」→ 同一 report 页，同样 unit-report，后端带 quiz 环节分。", paths: ["listen.openQuizReport", "pages/report/report"], apis: ["unit-report"] },
           { title: "study-record 学习记录", desc: "按日聚合 minutes、audioMinutes；入门/结业测次数可跳转 exam-report。", paths: ["pages/study-record/record"], apis: ["study-records"] }
         ]
       };
 
+      const ROADMAP = [
+        {
+          phase: "第一期",
+          title: "核心学习闭环",
+          goal: "三环节练习 → 成绩/时长上报 → 错词复习 → 教材目录",
+          apis: ["word-mark", "recitation-score", "listening-quiz-result", "save-learning-record（+durationSeconds/submittedAt）", "review-words", "user-books 目录字段"],
+          notes: "随身听课文跟读：不上报分数，仅 listen-duration(source=follow-read) 计次+用时。【不做】delete-learning-record；宠物/金币纯本地。",
+          status: "进行中"
+        },
+        {
+          phase: "第二期",
+          title: "购买 + 打卡 + 计划",
+          goal: "词书解锁、月历打卡、学习计划同步",
+          apis: ["book-product-list", "order", "pay-notify", "order/status", "study-plan", "check-in", "gift-claim"],
+          notes: "advertisement/vip 替换本地 SKU 常量；打卡写入闭环（finish 达标 → 后端 check-in 或 save-learning-record 触发）。",
+          status: "待启动"
+        },
+        {
+          phase: "第三期",
+          title: "时长汇总 + 报告 + 测评",
+          goal: "各类报告真接口 + 入门/结业测 + 学习记录",
+          apis: ["listen-duration 汇总", "unit-report（level-score-review-spec + 时间字段）", "exam-paper / exam-submit / exam-result（+reportGeneratedAt）", "study-records", "word-info（后续）"],
+          notes: "报告时间：测评 durationSeconds + reportGeneratedAt；关卡 sectionScores.*.submittedAt/refreshedAt + reportGeneratedAt。report.js / exam-data.js 仍 Mock，联调必改。",
+          status: "待启动"
+        }
+      ];
+
       const PENDING = [
-        { title: "三环节成绩+时长", desc: "word-mark / recitation-score / listening-quiz / save-learning-record 均须带 durationSeconds；后端汇总 minutes 供报告与学习记录。" },
-        { title: "随身听播放时长", desc: "listen-duration 待实现，累加 audioMinutes。" },
-        { title: "打卡写入闭环", desc: "月历只读 user/info.checkInDates；finish 达标后仅写本地 checkin-progress。需后端提供 check-in 或由 save-learning-record 触发写打卡。" },
-        { title: "学习计划同步", desc: "plan 页 groupsPerDay 存 localStorage，影响「今日 x/y 关」与打卡判定，换机不同步，待 study-plan 接口。" },
-        { title: "教材目录字段", desc: "user-books 须返回全量可售词书（含未购），并带 stage/press/newStandard/wordCount，供选择教材弹窗分类筛选；me/book 只展示已购。" },
-        { title: "商品详情 + SKU + 支付", desc: "book-product-list 须返回 book{}+products[]；弹窗/详情页统一走接口，替换 URL 传参与 advertisement.js 本地 SKU 常量。" },
-        { title: "礼品领取", desc: "兑换码由 user/info 后端下发；gift-claim 待实现用于领取落库（当前仅 copyRewardCode 复制，不算领取）。" },
-        { title: "入门/结业测", desc: "exam-paper / exam-submit / exam-result（entry 仅一次；exit 须全关≥2星；结业报告对比入门）。" },
-        { title: "各类报告+用时", desc: "exam-report / report / study-record 展示的 minutes、durationSeconds、taskDurations 均须来自后端汇总；前端练习过程全程上报 durationSeconds，禁止 report.js 本地估算。" },
-        { title: "学习记录", desc: "study-records 按日聚合，含 entryExamCount/exitExamCount。" }
+        { title: "report.js → unit-report", desc: "home.goUnitReport 改传 resBookId+unitId；展示 submittedAt / refreshedAt / reportGeneratedAt / minutes。" },
+        { title: "exam-data.js → exam APIs", desc: "exam-paper / exam-submit / exam-result 替换 Storage；exam-report 展示 durationSeconds + reportGeneratedAt。" },
+        { title: "三环节逐词上报", desc: "word-mark / recitation-score / listening-quiz-result 当前未调；save-learning-record 须带 taskType + durationSeconds。" },
+        { title: "listen-duration 双源", desc: "player→audioMinutes；follow-read→listenPracticeCount+用时；study-record 演示仍用 listenAssessCount，须对齐字段名。" },
+        { title: "打卡/计划/礼品", desc: "check-in 写入、study-plan 同步、gift-claim 领取落库；plan 页 groupsPerDay 仍 localStorage。" },
+        { title: "商品/支付", desc: "book-product-list + order 替换 advertisement/vip 本地 SKU 与 markDevPurchased。" },
+        { title: "单词分析 word-info", desc: "后续做；入口未定，倾向跟读背诵页；不做首页 search。" }
       ];
 
       const statusLabel = { ok: "已接入", partial: "部分/Mock", missing: "未使用", external: "外部" };
@@ -1009,7 +1087,8 @@
   listen quiz 每题                  → listening-quiz-result.durationSeconds
   finish/today 环节结束             → save-learning-record.durationSeconds
   exam 整卷 intro→交卷              → exam-submit.durationSeconds
-  player 有效播放                   → listen-duration.durationSeconds
+  player 有效播放                   → listen-duration(source=player)
+  listen 课文跟读（无分数）         → listen-duration(source=follow-read) → listenPracticeCount
 
 【后端汇总】
   按 userId + resBookId + date 累加 → study-records.records[].minutes
@@ -1017,20 +1096,45 @@
   全站累计                          → user/info.studyMinutes
 
 【报告只读】report.js 当前 minutes=词数×0.7 为 Mock，须改为接口字段`;
-        const unitReportTime = `GET /mini-app/unit-report  →  时长字段
+        const unitReportTime = `GET /mini-app/unit-report  →  时长 + 环节提交时间
 
 {
   "minutes": 18,
-  "taskDurations": {
-    "word": 320,
-    "recitation": 410,
-    "listening": 280
-  },
-  "taskDurationsUnit": "seconds"
-}`;
+  "durationSeconds": 1080,
+  "reportGeneratedAt": "2026-06-16T14:35:00+08:00",
+  "taskDurations": { "word": 320, "recitation": 410, "listening": 280 },
+  "taskDurationsUnit": "seconds",
+  "sectionScores": {
+    "wordNew": {
+      "score": 95,
+      "submittedAt": "2026-06-16T14:20:00+08:00",
+      "refreshedAt": "2026-06-16T14:30:00+08:00"
+    },
+    "recite": { "score": 89, "submittedAt": "…", "refreshedAt": "…" },
+    "quiz":   { "score": 92, "submittedAt": "…", "refreshedAt": "…" }
+  }
+}
+
+// submittedAt = 该环节最近一次成绩提交时间（save-learning-record 写入）
+// refreshedAt = 展示分（历史最高）刷新时间
+// reportGeneratedAt = 本关报告快照生成时间`;
+        const examReportTime = `GET /mini-app/exam-result  →  测评练习用时 + 报告生成时间
+
+{
+  "durationSeconds": 892,
+  "minutes": 15,
+  "startedAt": "2026-06-16T10:01:00+08:00",
+  "finishedAt": "2026-06-16T10:15:52+08:00",
+  "reportGeneratedAt": "2026-06-16T10:15:53+08:00"
+}
+
+// durationSeconds = intro→交卷练习用时（exam-submit 入库）
+// reportGeneratedAt = 交卷计分完成后生成报告的时间（通常略晚于 finishedAt）
+// type=exit 时 entryCompare 同样含 durationSeconds / reportGeneratedAt`;
         $("#durationSchema").innerHTML = [
           ["计时与汇总规则", durationFlow],
-          ["unit-report 时长返回", unitReportTime]
+          ["unit-report · 关卡报告时间", unitReportTime],
+          ["exam-result · 测评报告时间", examReportTime]
         ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
       }
 
@@ -1257,19 +1361,41 @@ GET /mini-app/order/status?orderId=ord_20260616_001
 }
 
 // type=exit 时 exitUnlocked 须 true（全关≥2星，见 book-units + getExitLockState）`;
-        const examSubmit = `POST /mini-app/exam-submit  →  交卷 + 用时
+        const examSubmit = `POST /mini-app/exam-submit  →  交卷 + 练习用时
 
-{ "resBookId": "xxx", "type": "entry", "responses": {…}, "durationSeconds": 892 }
+{ "resBookId": "xxx", "type": "entry", "responses": {…}, "durationSeconds": 892,
+  "startedAt": "2026-06-16T10:01:00+08:00", "finishedAt": "2026-06-16T10:15:52+08:00" }
 
-→ result: { accuracy, …, durationSeconds: 892, minutes: 15 }`;
+→ result: { accuracy, …, durationSeconds: 892, minutes: 15,
+  reportGeneratedAt: "2026-06-16T10:15:53+08:00" }`;
         const examResultEntry = `GET /mini-app/exam-result?type=entry
 
-{ "accuracy": 82, "durationSeconds": 892, "minutes": 15, "byType": […], "wrong": […] }`;
+{
+  "accuracy": 82,
+  "grade": "良好",
+  "encourage": "已有不错的基础，正是提升的好时机。",
+  "durationSeconds": 892,
+  "minutes": 15,
+  "startedAt": "2026-06-16T10:01:00+08:00",
+  "finishedAt": "2026-06-16T10:15:52+08:00",
+  "reportGeneratedAt": "2026-06-16T10:15:53+08:00",
+  "byType": […],
+  "wrong": […]
+}`;
         const examResultExit = `GET /mini-app/exam-result?type=exit
 
 {
-  "accuracy": 91, "durationSeconds": 1045,
-  "entryCompare": { "accuracy": 82, "durationSeconds": 892 }
+  "accuracy": 91,
+  "grade": "优秀",
+  "encourage": "相比入门测进步明显，继续保持！",
+  "durationSeconds": 1045,
+  "minutes": 17,
+  "reportGeneratedAt": "2026-06-16T16:20:01+08:00",
+  "entryCompare": {
+    "accuracy": 82,
+    "durationSeconds": 892,
+    "reportGeneratedAt": "2026-06-16T10:15:53+08:00"
+  }
 }`;
         const studyRecords = `GET /mini-app/study-records?resBookId=xxx&startDate=2026-06-01&endDate=2026-06-16
 
@@ -1289,20 +1415,53 @@ GET /mini-app/order/status?orderId=ord_20260616_001
         "reciteWords": 8,
         "reviewWords": 2,
         "audioMinutes": 7,
-        "listenAssessCount": 5,
+        "listenPracticeCount": 5,
         "entryExamCount": 1,
         "exitExamCount": 0
       }
     ]
   }
 }`;
-        const unitReport = `GET /mini-app/unit-report?unitId=u_001
+        const unitReport = `GET /mini-app/unit-report?resBookId=rb_xxx&unitId=u_001
+// userId 由登录 token 识别（不入 query）
+// 计分/复习规则 → docs/level-score-review-spec.md §7.2
 
 {
+  "levelId": "u_001",
+  "resBookId": "rb_xxx",
+  "scoreRate": 92,
+  "encourage": "表现很棒，再巩固一下错词就更稳了。",
+  "maxScoreRate": 92,
+  "latestScoreRate": 88,
+  "stars": 3,
+  "unlockNext": true,
   "minutes": 18,
-  "taskDurations": { "word": 320, "recitation": 410, "listening": 280 },
-  "mastered": […], "wrong": […],
-  "quiz": { "fillAccuracy": 80, "reciteAvg": 76, "durationSeconds": 280 }
+  "durationSeconds": 1080,
+  "reportGeneratedAt": "2026-06-16T14:35:00+08:00",
+  "sectionScores": {
+    "wordNew": {
+      "score": 95,
+      "submittedAt": "2026-06-16T14:20:00+08:00",
+      "refreshedAt": "2026-06-16T14:30:00+08:00"
+    },
+    "recite": {
+      "score": 89,
+      "submittedAt": "2026-06-16T14:25:00+08:00",
+      "refreshedAt": "2026-06-15T20:10:00+08:00"
+    },
+    "quiz": {
+      "score": 92,
+      "submittedAt": "2026-06-16T14:32:00+08:00",
+      "refreshedAt": "2026-06-16T14:32:00+08:00"
+    }
+  },
+  "masteredCount": 11,
+  "reviewCount": 1,
+  "words": [
+    { "content": "pencil", "mastery": 64, "status": "review",
+      "sections": { "wordNew": 100, "recite": 70, "quiz": 40 } }
+  ],
+  "proverb": { "en": "…", "cn": "…" }
 }`;
         $("#examRecordSchema").innerHTML = [
           ["exam-paper · 入门/结业测试卷", examPaper],
@@ -1342,6 +1501,16 @@ GET /mini-app/order/status?orderId=ord_20260616_001
             <td>${r.summary}</td>
             <td><button class="detail-btn" data-id="${r.id}">查看详情</button></td>
           </tr>`).join("");
+      }
+
+      function renderRoadmapCards() {
+        $("#roadmapCards").innerHTML = ROADMAP.map(r => `
+          <article class="card">
+            <h3>${r.phase} · ${r.title} <span class="badge ${r.status === "进行中" ? "partial" : "missing"}" style="margin-left:8px;font-size:11px">${r.status}</span></h3>
+            <p><strong>目标</strong>：${r.goal}</p>
+            <div class="chips">${r.apis.map(a => `<span class="chip">${a}</span>`).join("")}</div>
+            <p style="margin-top:10px;font-size:12px;color:var(--muted)">${r.notes}</p>
+          </article>`).join("");
       }
 
       function renderPageCards(id, target) {
@@ -1384,6 +1553,7 @@ GET /mini-app/order/status?orderId=ord_20260616_001
       renderCheckinGiftSchema();
       renderExamRecordSchema();
       renderCommerceSchema();
+      renderRoadmapCards();
       $("#pendingCards").innerHTML = PENDING.map(p => `<article class="card"><h3>${p.title}</h3><p>${p.desc}</p></article>`).join("");
 
       document.querySelectorAll(".filter").forEach(btn => btn.addEventListener("click", () => {

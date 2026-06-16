@@ -72,6 +72,7 @@
           <view class="task-copy">
             <view class="task-name">{{task.label}}</view>
             <view class="task-count" style="color: {{task.color}};">{{task.score}}分</view>
+            <view class="task-refresh" wx:if="{{task.refreshedAt}}">{{task.refreshedAt}}</view>
           </view>
           <view class="task-track">
             <view class="task-fill" style="width: {{task.score}}%; background: {{task.color}};"></view>
@@ -84,6 +85,7 @@
     <view class="section" wx:if="{{report.hasReviewWords}}">
       <view class="section-title">
         <text class="section-title-main">待复习的词</text>
+        <view class="section-help" bindtap="openRule" hover-class="section-help-hover">?</view>
         <text class="section-title-tag tag-warn">{{report.wrongCount}} 个</text>
       </view>
       <view class="word-list">
@@ -104,6 +106,7 @@
     <view class="section">
       <view class="section-title">
         <text class="section-title-main">已掌握的词</text>
+        <view class="section-help" bindtap="openRule" hover-class="section-help-hover">?</view>
         <text class="section-title-tag tag-ok">{{report.masteredCount}} 个</text>
       </view>
       <view class="word-list">
@@ -123,13 +126,39 @@
     <view class="footer-space"></view>
   </scroll-view>
 
-  <!-- 底部操作条 -->
+  <!-- 底部操作条：只保留「返回学习」 -->
   <view class="action-bar" wx:if="{{report}}">
-    <view
-      wx:if="{{report.hasReviewWords}}"
-      class="action-btn action-btn-primary"
-      bindtap="reviewWrongWords"
-    >再练错词</view>
-    <view class="action-btn {{report.hasReviewWords ? 'action-btn-ghost' : 'action-btn-primary'}}" bindtap="back">返回学习</view>
+    <view class="action-btn action-btn-primary" bindtap="back">返回学习</view>
+  </view>
+
+  <!-- 掌握度规则说明弹窗 -->
+  <view class="rule-mask" wx:if="{{showRulePopup}}" bindtap="closeRule" catchtouchmove="noop">
+    <view class="rule-card" catchtap="noop">
+      <view class="rule-title">掌握度是怎么算的？</view>
+      <view class="rule-desc">每个词的「掌握度」由 4 个环节按重要程度加权算出，越靠后的环节越能体现“真的会”，占比更高。</view>
+
+      <view class="rule-bars">
+        <view class="rule-bar-row" wx:for="{{report.masteryRule.items}}" wx:for-item="item" wx:key="label">
+          <text class="rule-bar-label">{{item.label}}</text>
+          <view class="rule-bar-track">
+            <view class="rule-bar-fill" style="width: {{item.weight * 2}}%;"></view>
+          </view>
+          <text class="rule-bar-weight">{{item.weight}}%</text>
+        </view>
+      </view>
+
+      <view class="rule-judge">
+        <view class="rule-judge-row">
+          <text class="rule-judge-dot dot-ok"></text>
+          <text class="rule-judge-text">掌握度 ≥ {{report.masteryRule.threshold}} 分 → <text class="rule-strong ok">已掌握</text></text>
+        </view>
+        <view class="rule-judge-row">
+          <text class="rule-judge-dot dot-warn"></text>
+          <text class="rule-judge-text">不到 {{report.masteryRule.threshold}} 分 → <text class="rule-strong warn">进复习计划</text></text>
+        </view>
+      </view>
+
+      <view class="rule-close" bindtap="closeRule" hover-class="rule-close-hover">知道啦</view>
+    </view>
   </view>
 </view>

@@ -103,7 +103,7 @@ test('pet system supports adoption, away state, restore cost, and local feature 
   assert.equal(getPetFeatureEnabled(), false)
 })
 
-test('pet pages are registered and the me page exposes only a floating pet entry', () => {
+test('pet page is registered but the me page no longer exposes pet or coin entry', () => {
   const appConfig = JSON.parse(read('app.json'))
   const meScript = read('pages/me/me.js')
   const meTemplate = read('pages/me/me.wxml')
@@ -116,10 +116,12 @@ test('pet pages are registered and the me page exposes only a floating pet entry
     assert.ok(fs.existsSync(path.join(projectRoot, `pages/me/pet.${ext}`)))
   }
 
-  assert.match(meScript, /loadPetEntry/)
-  assert.match(meScript, /goPetHome/)
-  assert.match(meTemplate, /class="pet-fab/)
-  assert.match(meStyle, /\.pet-fab\s*{/)
+  assert.doesNotMatch(meScript, /loadPetEntry/)
+  assert.doesNotMatch(meScript, /goPetHome/)
+  assert.doesNotMatch(meScript, /pet-system/)
+  assert.doesNotMatch(meTemplate, /class="pet-fab/)
+  assert.doesNotMatch(meStyle, /\.pet-fab\s*{/)
+  assert.doesNotMatch(meTemplate, /金币/)
   assert.match(petTemplate, /金币明细/)
   assert.match(petTemplate, /wx:for="{{petGroups}}"/)
   assert.match(petTemplate, /class="pet-character .*{{pet.sceneClass}}/)
@@ -127,7 +129,6 @@ test('pet pages are registered and the me page exposes only a floating pet entry
   assert.match(petStyle, /@keyframes petSleep/)
   assert.match(petStyle, /@keyframes petAway/)
   assert.doesNotMatch(meScript, /label: '我的宠物'/)
-  assert.doesNotMatch(meTemplate, /金币明细/)
 })
 
 test('pet images are remote candidates and excluded from the mini program package', () => {

@@ -1,7 +1,7 @@
 const GENDER_BOY = 'boy'
 const GENDER_GIRL = 'girl'
 const STORAGE_KEY = 'characterGender'
-const PK_SPRITE_DURATION = 2.4
+const PK_SPRITE_DURATION = 3
 
 const CHARACTER_ASSETS = {
   [GENDER_BOY]: {

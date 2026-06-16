@@ -13,6 +13,9 @@
   <scroll-view class="report-scroll" scroll-y enhanced show-scrollbar="{{false}}" wx:if="{{result}}">
     <!-- 顶部总览 -->
     <view class="hero">
+      <view class="hero-art">
+        <image class="hero-image" src="{{reportHeroSrc}}" mode="aspectFill" />
+      </view>
       <view class="hero-content">
         <view class="hero-head">
           <text class="hero-kicker">{{typeName}}</text>
@@ -29,13 +32,20 @@
             <text class="hero-meta-value">答对 {{result.correct}}/{{result.total}} 题</text>
           </view>
         </view>
+        <view class="hero-facts">
+          <view wx:if="{{practiceTimeText}}" class="hero-fact">
+            <text class="hero-fact-label">练习用时</text>
+            <text class="hero-fact-value">{{practiceTimeText}}</text>
+          </view>
+          <view wx:if="{{practiceDateTimeText}}" class="hero-fact">
+            <text class="hero-fact-label">练习时间</text>
+            <text class="hero-fact-value">{{practiceDateTimeText}}</text>
+          </view>
+        </view>
         <view class="hero-encourage">
           <view class="hero-encourage-dot"></view>
-          <text>{{encourage}}</text>
+          <text class="hero-encourage-text">{{encourage}}</text>
         </view>
-      </view>
-      <view class="hero-art">
-        <image class="hero-image" src="{{reportHeroSrc}}" mode="heightFix" />
       </view>
     </view>
 

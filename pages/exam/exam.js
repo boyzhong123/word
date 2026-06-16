@@ -47,6 +47,7 @@ Page({
 
     this.responses = {}      // questionId -> 选项下标 / 词序数组
     this.orderStates = {}    // questionId -> 连词成句的 UI 状态，便于回看还原
+    this.examStartedAt = 0
 
     let safeAreaBottom = 0
     try {
@@ -55,7 +56,10 @@ Page({
     } catch (e) {}
 
     const exam = getExam(this.resBookId, this.examType)
-    const lastResult = this.examType === 'entry' ? getResult(this.resBookId, 'entry') : null
+    // 入门测 / 结业测均只可完成一次：测过则读取上次成绩，禁止二测
+    const typeName = this.examType === 'exit' ? '结业测' : '入门测'
+    const lastResult = getResult(this.resBookId, this.examType)
+    this.examTypeName = typeName
     this.exam = exam
     this.setData({
       title: exam.title,
@@ -65,7 +69,7 @@ Page({
       safeAreaBottom: safeAreaBottom,
       entryCompleted: !!lastResult,
       lastResult: lastResult,
-      introTip: lastResult ? '入门测仅可完成一次，已为你保留上次成绩' : '认真作答，结束后会生成专属测评报告',
+      introTip: lastResult ? (typeName + '仅可完成一次，已为你保留上次成绩') : '认真作答，结束后会生成专属测评报告',
       introBtnText: lastResult ? '查看上次报告' : '开始测评'
     })
   },
@@ -75,28 +79,14 @@ Page({
   },
 
   startExam() {
-    if (this.examType === 'entry' && this.data.entryCompleted) {
-      this.showEntryCompletedDialog()
+    // 已测过：禁止二测，直接进上次报告（按钮此时为「查看上次报告」）
+    if (this.data.entryCompleted) {
+      this.goReport()
       return
     }
+    this.examStartedAt = Date.now()
     this.setData({ stage: 'quiz' })
     this.loadQuestion(0)
-  },
-
-  showEntryCompletedDialog() {
-    const result = this.data.lastResult || {}
-    const that = this
-    this.setData({
-      dialog: {
-        type: 'general',
-        title: '入门测只能进行一次',
-        content: '你已完成入门测，本次不再重复测评。',
-        subtitle: result.total ? '上次成绩：' + result.accuracy + '%，答对 ' + result.correct + '/' + result.total + ' 题。' : '',
-        cancelText: '我知道了',
-        confirmText: '查看报告',
-        confirm: function () { that.goReport() }
-      }
-    })
   },
 
   goReport() {
@@ -276,7 +266,10 @@ Page({
   },
 
   doSubmit() {
-    const result = scoreExam(this.exam, this.responses)
+    const startedAt = this.examStartedAt || Date.now()
+    const result = scoreExam(this.exam, this.responses, {
+      durationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000))
+    })
     saveResult(this.resBookId, this.examType, result)
     const query = 'resBookId=' + encodeURIComponent(this.resBookId) +
       '&type=' + this.examType +

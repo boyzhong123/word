@@ -225,11 +225,36 @@ page {
 
 .section-title-tag {
   flex: none;
+  margin-left: auto;
   padding: 2rpx 14rpx;
   border-radius: 16rpx;
   font-size: 20rpx;
   font-weight: 700;
   line-height: 30rpx;
+}
+
+/* 「?」掌握度规则说明入口 */
+.section-help {
+  flex: none;
+  width: 34rpx;
+  height: 34rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 2rpx solid #b8c4d4;
+  color: #4a5668;
+  font-size: 22rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.section-help-hover {
+  background: #eef3f8;
+  border-color: #8fa0b8;
+  color: #2f3d50;
 }
 
 .tag-ok {
@@ -244,7 +269,7 @@ page {
 
 /* ===== 三个环节得分（对齐首页 active task-card 视觉） ===== */
 .task-grid {
-  height: 108rpx;
+  height: 132rpx;
   display: flex;
   gap: 16rpx;
 }
@@ -253,7 +278,7 @@ page {
   position: relative;
   flex: 1;
   min-width: 0;
-  height: 108rpx;
+  height: 132rpx;
   padding: 14rpx 13rpx 13rpx 16rpx;
   box-sizing: border-box;
   display: flex;
@@ -305,6 +330,16 @@ page {
   font-size: 22rpx;
   line-height: 28rpx;
   font-weight: 800;
+}
+
+.task-refresh {
+  margin-top: 3rpx;
+  font-size: 15rpx;
+  line-height: 22rpx;
+  color: #aab2bd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .task-track {
@@ -440,5 +475,149 @@ page {
 }
 
 .action-btn:active {
+  opacity: 0.88;
+}
+
+/* ===== 掌握度规则说明弹窗 ===== */
+.rule-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 56rpx;
+  background: rgba(20, 28, 38, 0.45);
+}
+
+.rule-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 40rpx 36rpx 32rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  box-shadow: 0 18rpx 48rpx rgba(20, 28, 38, 0.22);
+}
+
+.rule-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #1a2430;
+}
+
+.rule-desc {
+  margin-top: 14rpx;
+  font-size: 23rpx;
+  line-height: 36rpx;
+  color: #6a7686;
+}
+
+.rule-bars {
+  margin-top: 26rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.rule-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.rule-bar-label {
+  flex: none;
+  width: 132rpx;
+  font-size: 22rpx;
+  color: #4a5564;
+}
+
+.rule-bar-track {
+  flex: 1;
+  height: 16rpx;
+  border-radius: 8rpx;
+  background: #eef1f5;
+  overflow: hidden;
+}
+
+.rule-bar-fill {
+  height: 100%;
+  border-radius: 8rpx;
+  background: linear-gradient(90deg, #34c759 0%, #2bb14e 100%);
+}
+
+.rule-bar-weight {
+  flex: none;
+  width: 56rpx;
+  text-align: right;
+  font-size: 21rpx;
+  font-weight: 700;
+  color: #1a2430;
+}
+
+.rule-judge {
+  margin-top: 26rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid #f1f4f8;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.rule-judge-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.rule-judge-dot {
+  flex: none;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+}
+
+.dot-ok {
+  background: #0f9b4e;
+}
+
+.dot-warn {
+  background: #e0483b;
+}
+
+.rule-judge-text {
+  font-size: 23rpx;
+  color: #4a5564;
+}
+
+.rule-strong {
+  font-weight: 800;
+}
+
+.rule-strong.ok {
+  color: #0f9b4e;
+}
+
+.rule-strong.warn {
+  color: #e0483b;
+}
+
+.rule-close {
+  margin-top: 32rpx;
+  height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  background: #111318;
+  color: #ffffff;
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.rule-close-hover {
   opacity: 0.88;
 }

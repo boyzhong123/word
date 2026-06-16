@@ -3,6 +3,8 @@
 // 目前后端尚无逐词成绩，先按关卡参数（sort / 词数 / 谚语）生成可预览的演示数据，
 // 待真实接口接入后，把 buildReport 换成接口返回即可，页面结构保持不变。
 
+const { unitEncourageText } = require('../../utils/report-copy')
+
 // 演示用词库（校园 / 日常主题），带音标与释义。
 const WORD_POOL = [
   { spell: 'apple', phonetic: '/ˈæp.l/', meaning: '苹果' },
@@ -112,7 +114,8 @@ function buildReport(sort, total, enSaying, zhSaying) {
       iconBg: taskPalette.word.iconBg,
       color: taskPalette.word.color,
       score: clamp(accuracy + 3, 60, 100),
-      caption: masteredCount + '/' + safeTotal + ' 词掌握'
+      caption: masteredCount + '/' + safeTotal + ' 词掌握',
+      refreshedAt: '6/16 14:30刷新'
     },
     {
       type: 'recitation',
@@ -121,7 +124,8 @@ function buildReport(sort, total, enSaying, zhSaying) {
       iconBg: taskPalette.recitation.iconBg,
       color: taskPalette.recitation.color,
       score: clamp(accuracy - 4 + (sort % 3), 60, 99),
-      caption: '发音流利度'
+      caption: '发音流利度',
+      refreshedAt: '6/15 20:10刷新'
     },
     {
       type: 'listening',
@@ -130,19 +134,12 @@ function buildReport(sort, total, enSaying, zhSaying) {
       iconBg: taskPalette.listening.iconBg,
       color: taskPalette.listening.color,
       score: clamp(accuracy + 1 - (sort % 2), 60, 100),
-      caption: '听音辨义'
+      caption: '听音辨义',
+      refreshedAt: '6/16 14:30刷新'
     }
   ]
 
-  // 鼓励语随正确率变化。
-  let encourage = '稳扎稳打，继续加油！'
-  if (accuracy >= 95) {
-    encourage = '近乎满分，太棒啦！'
-  } else if (accuracy >= 85) {
-    encourage = '表现很棒，再巩固一下错词就更稳了。'
-  } else if (review.length > 0) {
-    encourage = '把 ' + review.length + ' 个错词再练一练，正确率还能往上冲。'
-  }
+  const encourage = unitEncourageText(accuracy, review.length)
 
   return {
     title: '关卡 ' + sort + ' · ' + safeTotal + '词',
@@ -158,13 +155,24 @@ function buildReport(sort, total, enSaying, zhSaying) {
     masteredWords: mastered,
     reviewWords: review,
     hasReviewWords: review.length > 0,
-    encourage
+    encourage,
+    // 掌握度规则（供「?」弹窗示意）：4 个环节按重要程度加权，越靠后占比越高。
+    masteryRule: {
+      threshold: 70,
+      items: [
+        { label: '单词新学', weight: 20 },
+        { label: '跟读', weight: 30 },
+        { label: '听音填空', weight: 25 },
+        { label: '背诵评测', weight: 25 }
+      ]
+    }
   }
 }
 
 Page({
   data: {
-    report: null
+    report: null,
+    showRulePopup: false
   },
 
   onLoad(options) {
@@ -186,12 +194,13 @@ Page({
     }
   },
 
-  // 复习错词：跳回练习页对应关卡（暂未接入，先提示）。
-  reviewWrongWords() {
-    if (!this.data.report || !this.data.report.hasReviewWords) {
-      return
-    }
-    wx.showToast({ title: '错词复习马上上线', icon: 'none' })
+  // 掌握度规则说明弹窗
+  openRule() {
+    this.setData({ showRulePopup: true })
+  },
+
+  closeRule() {
+    this.setData({ showRulePopup: false })
   },
 
   noop() {}

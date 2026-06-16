@@ -577,4 +577,24 @@
       <text class="home-monster-hint-text">{{monsterHint.text}}</text>
     </view>
   </view>
+
+  <!-- 再次练习确认弹窗 -->
+  <view class="reprac-mask" wx:if="{{showRepracticePopup}}" bindtap="cancelReprac" catchtouchmove="noop">
+    <view class="reprac-card" catchtap="noop">
+      <view class="reprac-title">再练一次「{{repracticeLabel}}」？</view>
+      <view class="reprac-desc">这个环节已经练过啦。再次练习<text class="reprac-strong">只有刷出更好的成绩才会更新</text>，原成绩不会被拉低，放心练。</view>
+
+      <view class="reprac-remind" bindtap="toggleDontRemind" hover-class="reprac-remind-hover">
+        <view class="reprac-check {{dontRemindReprac ? 'reprac-check-on' : ''}}">
+          <text wx:if="{{dontRemindReprac}}" class="reprac-check-mark">✓</text>
+        </view>
+        <text class="reprac-remind-text">不再提醒</text>
+      </view>
+
+      <view class="reprac-actions">
+        <view class="reprac-btn reprac-btn-ghost" bindtap="cancelReprac" hover-class="reprac-btn-hover">取消</view>
+        <view class="reprac-btn reprac-btn-primary" bindtap="confirmReprac" hover-class="reprac-btn-hover">去练习</view>
+      </view>
+    </view>
+  </view>
 </view>

@@ -3,11 +3,6 @@ const { login, fetchLoginCode } = require('../../utils/login')
 const { upload } = require('../../utils/util')
 const { IMAGE_BASE_URL } = require('../../utils/image-host')
 const {
-  getPetFeatureEnabled,
-  getPetState,
-  getWallet
-} = require('../../utils/pet-system')
-const {
   GENDER_BOY,
   GENDER_GIRL,
   getCharacterGender,
@@ -170,13 +165,6 @@ Page({
       learnedWords: 0,
       studyMinutes: 0
     },
-    petFeatureEnabled: true,
-    petEntry: {
-      image: '../../images/home/nav-study-jelly.png',
-      name: '认领宠物',
-      coins: 0,
-      adopted: false
-    },
     menus: [
       {
         id: 'book',
@@ -209,7 +197,6 @@ Page({
       characterGender: getCharacterGender(),
       settings: buildSettings('', false, false, getCharacterGender())
     })
-    this.loadPetEntry()
     this.loadProfile()
   },
 
@@ -221,21 +208,6 @@ Page({
       this.refresh = false
       this.loadProfile()
     }
-    this.loadPetEntry()
-  },
-
-  loadPetEntry() {
-    const pet = getPetState()
-    const wallet = getWallet()
-    this.setData({
-      petFeatureEnabled: getPetFeatureEnabled(),
-      petEntry: {
-        image: pet.adopted && pet.image ? pet.image : '../../images/home/nav-study-jelly.png',
-        name: pet.adopted ? pet.name : '认领宠物',
-        coins: wallet.coins,
-        adopted: pet.adopted
-      }
-    })
   },
 
   loadProfile() {
@@ -589,10 +561,6 @@ Page({
 
   navToStudy() {
     wx.switchTab({ url: '/pages/home/home' })
-  },
-
-  goPetHome() {
-    this.navTo('/pages/me/pet')
   },
 
   navTo(url) {

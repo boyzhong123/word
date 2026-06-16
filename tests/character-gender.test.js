@@ -37,7 +37,7 @@ test('character gender utility normalizes values and maps assets', () => {
     characterGender: GENDER_BOY,
     heroImageUrl: 'https://cdn.test/images/home/hero-campus-jelly-v5.png',
     pkSpriteUrl: 'https://cdn.test/images/home/student-monster-pk-sprite.png',
-    pkSpriteDuration: 2.4
+    pkSpriteDuration: 3
   })
 })
 
