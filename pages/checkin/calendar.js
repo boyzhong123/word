@@ -12,6 +12,9 @@ const {
 const { drawPoster, getDailyQuote, POSTER_THEMES } = require('./share-poster')
 const { LEVEL_SIZE, getTodayDone } = require('../../utils/checkin-progress')
 const { APP_LOGO_SRC } = require('../../utils/app-brand')
+const {
+  saveImageWithAlbumPermission
+} = require('../../utils/photos-album-permission')
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 const DEFAULT_AVATAR = '../../images/home/mascot-report-jelly.png'
@@ -20,15 +23,6 @@ const DEFAULT_SHARE_NICKNAME = '爱学习的小词友'
 // canvas.createImage 需要绝对路径，页面相对路径转为根路径
 function toCanvasImageSrc(src) {
   return src ? src.replace(/^\.\.\/\.\.\//, '/') : src
-}
-
-function isPhotosAlbumPermissionError(error) {
-  const message = String((error && error.errMsg) || error || '').toLowerCase()
-  return message.indexOf('auth') >= 0 ||
-    message.indexOf('authorize') >= 0 ||
-    message.indexOf('deny') >= 0 ||
-    message.indexOf('denied') >= 0 ||
-    message.indexOf('permission') >= 0
 }
 
 // 累计掌握词数（与首页 getLearnedWordCount 同口径，书目信息缺失时取演示值）
@@ -413,61 +407,6 @@ Page({
     })
   },
 
-  showPhotosAlbumSettingDialog() {
-    return new Promise(resolve => {
-      wx.showModal({
-        title: '需要相册权限',
-        content: '请在设置中允许保存图片到相册',
-        confirmText: '去设置',
-        success: res => {
-          if (!res.confirm) {
-            resolve(false)
-            return
-          }
-          wx.openSetting({
-            success: setting => {
-              const authSetting = (setting && setting.authSetting) || {}
-              resolve(authSetting['scope.writePhotosAlbum'] === true)
-            },
-            fail: () => resolve(false)
-          })
-        },
-        fail: () => resolve(false)
-      })
-    })
-  },
-
-  ensurePhotosAlbumPermission() {
-    return new Promise(resolve => {
-      wx.getSetting({
-        success: setting => {
-          const authSetting = (setting && setting.authSetting) || {}
-          const status = authSetting['scope.writePhotosAlbum']
-          if (status === true) {
-            resolve(true)
-            return
-          }
-          if (status === false) {
-            this.showPhotosAlbumSettingDialog().then(resolve)
-            return
-          }
-          wx.authorize({
-            scope: 'scope.writePhotosAlbum',
-            success: () => resolve(true),
-            fail: () => this.showPhotosAlbumSettingDialog().then(resolve)
-          })
-        },
-        fail: () => {
-          wx.authorize({
-            scope: 'scope.writePhotosAlbum',
-            success: () => resolve(true),
-            fail: () => this.showPhotosAlbumSettingDialog().then(resolve)
-          })
-        }
-      })
-    })
-  },
-
   openShareDialog() {
     this.posterCache = {}
     this.setData({
@@ -628,25 +567,7 @@ Page({
       wx.showToast({ title: '海报生成中…', icon: 'none' })
       return
     }
-    this.ensurePhotosAlbumPermission().then(allowed => {
-      if (!allowed) {
-        return
-      }
-      wx.saveImageToPhotosAlbum({
-        filePath: path,
-        success: () => {
-          wx.showToast({ title: '已保存到相册', icon: 'success' })
-        },
-        fail: error => {
-          const message = (error && error.errMsg) || ''
-          if (isPhotosAlbumPermissionError(error)) {
-            this.showPhotosAlbumSettingDialog()
-          } else if (message.indexOf('cancel') < 0) {
-            wx.showToast({ title: '保存失败，请重试', icon: 'none' })
-          }
-        }
-      })
-    })
+    saveImageWithAlbumPermission(path)
   },
 
   sendShareImage() {
@@ -656,9 +577,7 @@ Page({
       return
     }
     if (typeof wx.showShareImageMenu === 'function') {
-      this.ensurePhotosAlbumPermission().then(() => {
-        wx.showShareImageMenu({ path })
-      })
+      wx.showShareImageMenu({ path })
     } else {
       // 低版本基础库兜底：预览后长按可转发
       wx.previewImage({ urls: [path] })

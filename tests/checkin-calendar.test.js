@@ -245,14 +245,18 @@ test('check-in calendar shares today and streak posters', () => {
 
   // 导出 / 保存 / 分享走对应的小程序 API
   assert.match(calendarScript, /wx\.canvasToTempFilePath\(\{\s*canvas/)
-  assert.match(calendarScript, /ensurePhotosAlbumPermission/)
-  assert.match(calendarScript, /wx\.getSetting/)
-  assert.match(calendarScript, /wx\.authorize\(\{\s*scope:\s*'scope\.writePhotosAlbum'/)
-  assert.match(calendarScript, /wx\.openSetting/)
-  assert.match(calendarScript, /wx\.saveImageToPhotosAlbum/)
+  assert.match(calendarScript, /saveImageWithAlbumPermission/)
   assert.match(calendarScript, /wx\.showShareImageMenu/)
   assert.match(calendarScript, /APP_LOGO_SRC/)
   assert.match(calendarScript, /logoSrc: APP_LOGO_SRC/)
+
+  const permissionScript = fs.readFileSync(
+    path.join(projectRoot, 'utils/photos-album-permission.js'),
+    'utf8'
+  )
+  assert.match(permissionScript, /wx\.saveImageToPhotosAlbum/)
+  assert.match(permissionScript, /wx\.requirePrivacyAuthorize/)
+  assert.match(permissionScript, /saveImageWithAlbumPermission/)
 
   // 海报文案：两种模式共用数据列，标题不同
   assert.equal(APP_NAME, '词句刷刷刷')

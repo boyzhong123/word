@@ -277,6 +277,14 @@
       {
         "type": "glob",
         "value": "images/home/exam-entry-banner-exit-locked.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/exam-intro-hero-v2.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/exam-report-header-v2.jpg"
       }
     ],
     "include": []

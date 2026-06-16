@@ -4,6 +4,7 @@ const { getDailyGoal, getTodayDone, recordLevelDone } = require('../../utils/che
 const { refreshHomePage } = require('../../utils/util')
 const {
   getStageInfo,
+  buildStageProgress,
   buildContinueUrl,
   hasContinueAction,
   normalizeTaskType
@@ -33,6 +34,9 @@ Page({
     rewardRemainingDays: STREAK_REWARD_DAYS,
     stageTitle: '完成今日学习!',
     continueLabel: '继续学习',
+    subSteps: [],
+    summaryTitle: '',
+    summarySub: '',
     showContinue: true,
     headerImage: headerImageForScoreRate(0),
     scoreRate: 0,
@@ -59,6 +63,11 @@ Page({
     const checkinComplete = todayDoneAfter >= todayGoal
     const justCheckedIn = todayDoneBefore < todayGoal && checkinComplete
     const stage = getStageInfo(this.taskType)
+    const stageProgress = buildStageProgress({
+      taskType: this.taskType,
+      unitSort: options.unitSort,
+      unitCount: this.book.unitCount
+    })
     const scoreRate = normalizeScoreRate(options.scoreRate)
     const petReward = getPetFeatureEnabled()
       ? awardStudyCoins({
@@ -81,10 +90,14 @@ Page({
       rewardRemainingDays: STREAK_REWARD_DAYS,
       stageTitle: stage.title,
       continueLabel: stage.continueLabel,
+      subSteps: stageProgress.subSteps,
+      summaryTitle: stageProgress.summaryTitle,
+      summarySub: stageProgress.summarySub,
       scoreRate,
       headerImage: headerImageForScoreRate(scoreRate),
       petReward: {
-        show: petReward.awarded > 0,
+        // 金币卡片暂不展示（产品需求：先不要）。奖励仍照常发放，仅隐藏入口卡片。
+        show: false && petReward.awarded > 0,
         amount: petReward.awarded || 0
       }
     })

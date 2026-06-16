@@ -16,7 +16,7 @@
   <view wx:if="{{stage === 'intro'}}" class="intro">
     <view class="intro-card">
       <view class="intro-hero">
-        <image class="intro-hero-img" src="../../images/home/exam-intro-hero-v2.jpg" mode="aspectFill" />
+        <image class="intro-hero-img" src="{{introHeroSrc}}" mode="aspectFill" />
       </view>
       <view class="intro-title">{{title}}</view>
       <view class="intro-subtitle">{{subtitle}}</view>
@@ -46,9 +46,19 @@
         <text>生成报告</text>
       </view>
     </view>
+    <view wx:if="{{entryCompleted && lastResult}}" class="intro-result">
+      <view class="intro-result-main">
+        <text class="intro-result-label">上次成绩</text>
+        <view class="intro-result-score">
+          <text class="intro-result-num">{{lastResult.accuracy}}</text>
+          <text class="intro-result-unit">%</text>
+        </view>
+      </view>
+      <view class="intro-result-meta">答对 {{lastResult.correct}}/{{lastResult.total}} 题 · 已生成测评报告</view>
+    </view>
     <view class="intro-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
-      <view class="intro-tip">认真作答，结束后会生成专属测评报告</view>
-      <view class="intro-btn" bindtap="startExam">开始测评</view>
+      <view class="intro-tip">{{introTip}}</view>
+      <view class="intro-btn" bindtap="startExam">{{introBtnText}}</view>
     </view>
   </view>
 
@@ -138,7 +148,7 @@
     </view>
 
     <!-- 底部操作 -->
-    <view class="quiz-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+    <view class="quiz-foot {{index > 0 ? 'quiz-foot-two' : ''}}" style="padding-bottom: {{safeAreaBottom + 24}}px;">
       <view wx:if="{{index > 0}}" class="foot-prev" bindtap="prevQuestion">上一题</view>
       <view class="foot-col {{canNext ? '' : 'foot-col-disabled'}}" bindtap="nextQuestion">
         <text class="foot-text">{{isLast ? '交卷' : '继续'}}</text>

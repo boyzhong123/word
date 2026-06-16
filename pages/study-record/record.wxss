@@ -56,20 +56,18 @@ page {
 
 .range-hero-art {
   flex: none;
-  width: 136rpx;
-  height: 136rpx;
-  padding: 8rpx 10rpx 10rpx;
-  border-radius: 32rpx;
-  border: 2rpx solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.09);
-  box-sizing: border-box;
+  width: 166rpx;
+  height: 150rpx;
+  margin-right: 8rpx;
   overflow: visible;
 }
 
 .range-hero-mascot {
-  width: 100%;
-  height: 100%;
+  width: 176rpx;
+  height: 176rpx;
   display: block;
+  transform: translate(-8rpx, -12rpx);
+  filter: drop-shadow(0 14rpx 18rpx rgba(0, 0, 0, 0.22));
 }
 
 .range-main,
@@ -606,7 +604,7 @@ page {
 
 .trend-row {
   display: grid;
-  grid-template-columns: 48rpx 116rpx 1fr 76rpx;
+  grid-template-columns: 48rpx 128rpx 1fr 82rpx;
   gap: 10rpx;
   align-items: center;
   padding: 12rpx 14rpx;
@@ -659,6 +657,22 @@ page {
   background: #2f80ed;
 }
 
+.trend-fill-listen {
+  background: #13b7a8;
+}
+
+.trend-fill-assess {
+  background: #6d7cf6;
+}
+
+.trend-fill-entry {
+  background: #54b66a;
+}
+
+.trend-fill-exit {
+  background: #7c6cf2;
+}
+
 .trend-value {
   text-align: right;
   font-weight: 800;
@@ -684,27 +698,66 @@ page {
 }
 
 .record-date {
+  position: relative;
   flex: none;
   width: 86rpx;
   height: 86rpx;
-  border-radius: 24rpx;
+  border-radius: 22rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   color: #ffffff;
-  background: linear-gradient(150deg, #263f45 0%, #111318 100%);
+  background: linear-gradient(160deg, #2f4d54 0%, #17272d 54%, #0f1519 100%);
   border: 2rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, 0.18), 0 8rpx 16rpx rgba(17, 19, 24, 0.16);
   font-weight: 900;
 }
 
+.record-date::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+}
+
+.record-date::after {
+  content: '';
+  position: absolute;
+  left: 16rpx;
+  right: 16rpx;
+  bottom: 10rpx;
+  height: 2rpx;
+  border-radius: 2rpx;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.record-date-leaf {
+  position: absolute;
+  top: 8rpx;
+  left: 18rpx;
+  right: 18rpx;
+  height: 6rpx;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, rgba(77, 217, 160, 0.1), rgba(77, 217, 160, 0.75), rgba(77, 217, 160, 0.1));
+}
+
 .record-month {
-  color: rgba(255, 255, 255, 0.7);
+  position: relative;
+  z-index: 1;
+  margin-top: 4rpx;
+  color: rgba(255, 255, 255, 0.68);
   font-size: 18rpx;
   line-height: 22rpx;
 }
 
 .record-day-num {
+  position: relative;
+  z-index: 1;
   font-size: 34rpx;
   line-height: 36rpx;
 }
@@ -716,16 +769,33 @@ page {
 
 .record-title {
   color: #111318;
-  font-size: 28rpx;
-  line-height: 36rpx;
+  font-size: 27rpx;
+  line-height: 34rpx;
   font-weight: 900;
+  overflow-wrap: anywhere;
 }
 
 .record-sub {
   margin-top: 6rpx;
-  color: #7a8798;
+  display: flex;
+  align-items: center;
+  min-height: 34rpx;
+}
+
+.record-sub-rank {
+  display: inline-block;
+  max-width: 100%;
+  padding: 4rpx 14rpx;
+  border-radius: 18rpx;
+  color: #168f3a;
+  background: #f1fbf3;
+  border: 1rpx solid rgba(22, 143, 58, 0.12);
   font-size: 22rpx;
-  line-height: 30rpx;
+  line-height: 28rpx;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .record-arrow {
@@ -763,9 +833,33 @@ page {
 }
 
 .detail-item {
+  position: relative;
   min-height: 120rpx;
   padding: 16rpx 14rpx;
   background: #fafbfc;
+}
+
+.detail-item-link {
+  background: #f7fbf8;
+  border-color: #d9f0df;
+}
+
+.detail-report-arrow {
+  position: absolute;
+  top: 18rpx;
+  right: 18rpx;
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 17rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #168f3a;
+  background: #e9f8ee;
+  border: 1rpx solid rgba(22, 143, 58, 0.14);
+  font-size: 28rpx;
+  line-height: 28rpx;
+  font-weight: 900;
 }
 
 .detail-value {

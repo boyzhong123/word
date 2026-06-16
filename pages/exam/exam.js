@@ -3,8 +3,10 @@
 const {
   getExam,
   scoreExam,
-  saveResult
+  saveResult,
+  getResult
 } = require('../../utils/exam-data')
+const { imageUrl } = require('../../utils/image-host')
 const { player } = require('../../utils/player')
 
 Page({
@@ -29,6 +31,11 @@ Page({
     isLast: false,
     audioPlaying: false,     // 听音题：发音播放中
     safeAreaBottom: 0,
+    introHeroSrc: imageUrl('/images/home/exam-intro-hero-v2.jpg'),
+    entryCompleted: false,
+    lastResult: null,
+    introTip: '认真作答，结束后会生成专属测评报告',
+    introBtnText: '开始测评',
     dialog: { type: '' }     // 复用全局 dialog 组件，统一弹窗风格
   },
 
@@ -48,13 +55,18 @@ Page({
     } catch (e) {}
 
     const exam = getExam(this.resBookId, this.examType)
+    const lastResult = this.examType === 'entry' ? getResult(this.resBookId, 'entry') : null
     this.exam = exam
     this.setData({
       title: exam.title,
       subtitle: exam.subtitle,
       total: exam.total,
       sections: exam.sections,
-      safeAreaBottom: safeAreaBottom
+      safeAreaBottom: safeAreaBottom,
+      entryCompleted: !!lastResult,
+      lastResult: lastResult,
+      introTip: lastResult ? '入门测仅可完成一次，已为你保留上次成绩' : '认真作答，结束后会生成专属测评报告',
+      introBtnText: lastResult ? '查看上次报告' : '开始测评'
     })
   },
 
@@ -63,8 +75,35 @@ Page({
   },
 
   startExam() {
+    if (this.examType === 'entry' && this.data.entryCompleted) {
+      this.showEntryCompletedDialog()
+      return
+    }
     this.setData({ stage: 'quiz' })
     this.loadQuestion(0)
+  },
+
+  showEntryCompletedDialog() {
+    const result = this.data.lastResult || {}
+    const that = this
+    this.setData({
+      dialog: {
+        type: 'general',
+        title: '入门测只能进行一次',
+        content: '你已完成入门测，本次不再重复测评。',
+        subtitle: result.total ? '上次成绩：' + result.accuracy + '%，答对 ' + result.correct + '/' + result.total + ' 题。' : '',
+        cancelText: '我知道了',
+        confirmText: '查看报告',
+        confirm: function () { that.goReport() }
+      }
+    })
+  },
+
+  goReport() {
+    const query = 'resBookId=' + encodeURIComponent(this.resBookId) +
+      '&type=' + this.examType +
+      '&name=' + encodeURIComponent(this.bookName)
+    wx.navigateTo({ url: '/pages/exam/exam-report?' + query })
   },
 
   loadQuestion(index) {
@@ -245,8 +284,13 @@ Page({
     wx.redirectTo({ url: '/pages/exam/exam-report?' + query })
   },
 
-  // 答题中退出确认
+  // 返回：还没开始答题（intro 页）直接返回，不二次确认；答题中才确认
   confirmQuit() {
+    if (this.data.stage !== 'quiz') {
+      this.exitPage()
+      return
+    }
+    const that = this
     this.setData({
       dialog: {
         type: 'general',
@@ -255,8 +299,16 @@ Page({
         subtitle: '退出后本次作答不会保存。',
         cancelText: '继续答题',
         confirmText: '退出',
-        confirm: function () { wx.navigateBack() }
+        confirm: function () { that.exitPage() }
       }
     })
+  },
+
+  exitPage() {
+    if (getCurrentPages().length > 1) {
+      wx.navigateBack()
+    } else {
+      wx.switchTab({ url: '/pages/home/home' })
+    }
   }
 })

@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>词句刷刷刷 · 接口与功能说明</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #06090d;
+        --panel: rgba(15, 23, 32, 0.84);
+        --line: rgba(148, 163, 184, 0.18);
+        --line-strong: rgba(148, 163, 184, 0.32);
+        --text: #eef5f7;
+        --muted: #95a7b4;
+        --faint: #6e8190;
+        --brand: #64e4bd;
+        --brand-soft: rgba(52, 211, 153, 0.14);
+        --blue: #7cc5ff;
+        --blue-soft: rgba(59, 130, 246, 0.14);
+        --amber: #ffd166;
+        --amber-soft: rgba(245, 158, 11, 0.14);
+        --red: #ff8989;
+        --red-soft: rgba(239, 68, 68, 0.15);
+        --purple: #c4a7ff;
+        --purple-soft: rgba(139, 92, 246, 0.15);
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 12% -10%, rgba(45, 212, 191, 0.16), transparent 28rem),
+          radial-gradient(circle at 90% 8%, rgba(59, 130, 246, 0.13), transparent 30rem),
+          var(--bg);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+        line-height: 1.55;
+      }
+      button, input { font: inherit; }
+      button { cursor: pointer; }
+      code {
+        color: #c7f9eb;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.9em;
+      }
+      .shell { width: min(1500px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 70px; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 30px; }
+      .brand { display: flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -0.04em; }
+      .brand-mark {
+        display: grid; width: 38px; height: 38px; place-items: center;
+        border: 1px solid rgba(100, 228, 189, 0.46); border-radius: 13px;
+        background: rgba(100, 228, 189, 0.1); color: var(--brand); font-size: 18px;
+      }
+      .brand em { color: var(--brand); font-style: normal; }
+      .date { color: var(--faint); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr); gap: 22px; margin-bottom: 26px; }
+      .hero-main, .hero-side, .section {
+        border: 1px solid var(--line); border-radius: 22px;
+        background: linear-gradient(145deg, rgba(16, 25, 35, 0.94), rgba(10, 16, 23, 0.82));
+        box-shadow: var(--shadow);
+      }
+      .hero-main { padding: 30px; }
+      .hero-side { display: flex; flex-direction: column; justify-content: space-between; gap: 20px; padding: 24px; }
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 8px; color: var(--brand);
+        font-size: 11px; font-weight: 760; letter-spacing: 0.14em; text-transform: uppercase;
+      }
+      .eyebrow::before { width: 22px; height: 1px; background: var(--brand); content: ""; }
+      h1, h2, h3, p { margin: 0; }
+      h1 { max-width: 760px; margin-top: 17px; font-size: clamp(30px, 4vw, 46px); line-height: 1.07; letter-spacing: -0.055em; }
+      .hero-copy { max-width: 760px; margin-top: 17px; color: var(--muted); font-size: 15px; }
+      .scope-note {
+        display: flex; align-items: flex-start; gap: 10px; margin-top: 21px; padding: 12px 14px;
+        border: 1px solid rgba(124, 197, 255, 0.22); border-radius: 13px; background: var(--blue-soft); color: #cae9ff; font-size: 13px;
+      }
+      .scope-note strong { color: var(--blue); }
+      .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .stat { padding: 14px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,0.025); }
+      .stat-value { font-size: 29px; font-weight: 760; letter-spacing: -0.05em; }
+      .stat-label { color: var(--muted); font-size: 12px; }
+      .side-note { color: var(--muted); font-size: 13px; }
+      .section { margin-top: 22px; padding: 22px; }
+      .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+      h2 { font-size: 21px; letter-spacing: -0.035em; }
+      .section-desc { margin-top: 4px; color: var(--muted); font-size: 13px; }
+      .nav-modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 4px; }
+      .nav-module {
+        padding: 16px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,0.022);
+        color: inherit; text-align: left; transition: 160ms ease;
+      }
+      .nav-module:hover, .nav-module.active { border-color: rgba(100,228,189,0.55); background: var(--brand-soft); }
+      .nav-module strong { display: block; font-size: 15px; }
+      .nav-module span { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+      .gallery { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+      .shot {
+        overflow: hidden; padding: 0; border: 1px solid var(--line); border-radius: 15px;
+        background: #080d12; color: inherit; text-align: left; transition: 160ms ease;
+      }
+      .shot:hover { border-color: rgba(100,228,189,0.6); transform: translateY(-3px); }
+      .shot-image {
+        width: 100%; aspect-ratio: 860 / 1864; height: auto;
+        object-fit: contain; object-position: top center;
+        border-bottom: 1px solid var(--line); display: block; background: #0a1017;
+      }
+      .shot.missing-shot .shot-image { object-fit: contain; padding: 24px; color: var(--faint); font-size: 12px; }
+      .shot-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 12px; font-size: 13px; font-weight: 680; }
+      .shot-label span:last-child { color: var(--brand); font-size: 11px; }
+      .matrix-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; }
+      .page-nav { position: sticky; top: 16px; align-self: start; padding: 14px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,0.02); }
+      .page-nav-title { color: var(--faint); font-size: 11px; font-weight: 760; letter-spacing: 0.08em; text-transform: uppercase; }
+      .page-nav-list { display: grid; gap: 6px; margin-top: 10px; }
+      .page-nav-item {
+        padding: 8px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent;
+        color: var(--muted); font-size: 12px; text-align: left;
+      }
+      .page-nav-item:hover, .page-nav-item.active { border-color: rgba(100,228,189,0.45); background: var(--brand-soft); color: #d8fff4; }
+      .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+      .filter {
+        padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px;
+        background: rgba(255,255,255,0.025); color: var(--muted); font-size: 12px;
+      }
+      .filter:hover, .filter.active { border-color: rgba(100,228,189,0.55); background: var(--brand-soft); color: #d8fff4; }
+      .search {
+        min-width: 230px; flex: 1; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px;
+        outline: none; background: rgba(255,255,255,0.025); color: var(--text); font-size: 12px;
+      }
+      .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 15px; }
+      table { width: 100%; min-width: 1100px; border-collapse: collapse; background: rgba(2,6,10,0.24); }
+      th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+      th { position: sticky; top: 0; z-index: 1; background: #111b25; color: #b9c7d1; font-size: 11px; font-weight: 760; letter-spacing: 0.08em; text-transform: uppercase; }
+      td { color: #cfdae1; font-size: 13px; }
+      tr:last-child td { border-bottom: 0; }
+      tr:hover td { background: rgba(255,255,255,0.018); }
+      .module { color: #fff; font-weight: 720; }
+      .page { color: var(--muted); }
+      .endpoint { display: block; margin-bottom: 3px; }
+      .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid currentColor; border-radius: 999px; font-size: 11px; font-weight: 760; white-space: nowrap; }
+      .badge::before { width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ""; }
+      .ok { color: var(--brand); background: var(--brand-soft); }
+      .partial { color: var(--amber); background: var(--amber-soft); }
+      .missing { color: var(--red); background: var(--red-soft); }
+      .optional { color: var(--purple); background: var(--purple-soft); }
+      .detail-btn { padding: 6px 9px; border: 1px solid rgba(124,197,255,0.32); border-radius: 9px; background: var(--blue-soft); color: #cceaff; font-size: 12px; white-space: nowrap; }
+      .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+      .card { padding: 16px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,0.022); }
+      .card h3 { font-size: 15px; }
+      .card p { margin-top: 7px; color: var(--muted); font-size: 12px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+      .chip { display: inline-block; padding: 4px 7px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,0.16); color: #c9f7ea; font-family: monospace; font-size: 10px; }
+      .callout { padding: 16px; border: 1px solid rgba(100,228,189,0.25); border-radius: 15px; background: var(--brand-soft); color: #d6fff4; font-size: 13px; }
+      .callout strong { color: var(--brand); }
+      .api-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .api-box { padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,0.02); }
+      .api-box h3 { font-size: 13px; color: #fff; }
+      .api-box p, .api-box pre { margin-top: 8px; color: var(--muted); font-size: 12px; }
+      .api-box pre { overflow: auto; padding: 10px; border-radius: 10px; background: rgba(0,0,0,0.28); color: #c7f9eb; white-space: pre-wrap; word-break: break-word; }
+      .modal { position: fixed; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(0,0,0,0.72); backdrop-filter: blur(8px); }
+      .modal.open { display: flex; }
+      .modal-card { width: min(860px, 100%); max-height: min(760px, calc(100vh - 36px)); overflow: auto; border: 1px solid var(--line-strong); border-radius: 18px; background: #0c141d; box-shadow: var(--shadow); }
+      .modal-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px; border-bottom: 1px solid var(--line); background: rgba(12,20,29,0.96); }
+      .modal-title { margin-top: 8px; font-size: 21px; }
+      .close { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,0.03); color: var(--text); }
+      .modal-body { padding: 18px; }
+      .modal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .modal-box { padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,0.022); }
+      .modal-box h3 { color: #fff; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .modal-box p { margin-top: 6px; color: var(--muted); font-size: 13px; }
+      .wide { grid-column: 1 / -1; }
+      .lightbox-card { width: min(420px, calc(100vw - 36px)); max-height: calc(100vh - 36px); overflow: auto; border: 1px solid var(--line-strong); border-radius: 18px; background: #0a1017; }
+      .lightbox-img { display: block; width: 100%; height: auto; }
+      footer { padding: 24px 4px 0; color: var(--faint); font-size: 12px; text-align: center; }
+      @media (max-width: 1050px) {
+        .hero, .matrix-layout { grid-template-columns: 1fr; }
+        .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .cards, .nav-modules, .api-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .page-nav { position: static; }
+      }
+      @media (max-width: 720px) {
+        .shell { width: min(100% - 20px, 1500px); padding-top: 16px; }
+        .gallery, .cards, .nav-modules, .modal-grid, .api-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 480px) {
+        .gallery { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">词</span>
+          <span>词句刷刷刷 · 技术文档</span>
+        </div>
+        <div class="date">MINI APP API · 2026-06-16</div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-main">
+          <div class="eyebrow">WeChat Mini Program</div>
+          <h1>接口文档、页面说明与截图索引</h1>
+          <p class="hero-copy">
+            面向后端与联调同学：按「首页闯关列表 → 打卡 → 随身听 → 我的」四大模块梳理页面职责、
+            已接后端接口、请求/响应字段约定。搜索查词等已下线能力不再收录。
+          </p>
+          <div class="scope-note">
+            <strong>代码来源</strong>
+            <span>
+              接口封装见 <code>utils/api.js</code>、<code>utils/login.js</code>、<code>utils/util.js</code>；
+              Base URL 见 <code>app.js</code>（当前均为 <code>https://pb10.91tszx.com</code>）。
+              截图由 <code>npm run doc:screenshots</code>（微信开发者工具 CLI + automator）自动生成，目录 <code>docs/images/mini-app/</code>。
+              微信发给同事请先生成单文件版：<code>npm run doc:share</code>，再发送 <code>docs/mini-app-tech-doc.share.html</code>。
+            </span>
+          </div>
+        </div>
+        <aside class="hero-side">
+          <div>
+            <div class="eyebrow">Quick Count</div>
+            <p class="side-note" style="margin-top:12px">含测评/学习记录等待接 API；搜索（search / word-info）已下线。</p>
+          </div>
+          <div class="stats" id="stats"></div>
+        </aside>
+      </section>
+
+      <section class="section">
+        <div class="section-head"><div><h2>模块导航</h2><p class="section-desc">点击跳转到对应分区</p></div></div>
+        <div class="nav-modules" id="moduleNav"></div>
+      </section>
+
+      <section class="section" id="conventions">
+        <div class="section-head"><div><h2>通用约定</h2><p class="section-desc">所有 <code>/mini-app/*</code> 接口共享</p></div></div>
+        <div class="api-detail-grid">
+          <article class="api-box">
+            <h3>鉴权</h3>
+            <p>Header 携带 <code>token</code>（登录后写入 <code>globalData.token</code> 与本地 Storage）。<code>Content-Type: application/json</code>。</p>
+          </article>
+          <article class="api-box">
+            <h3>响应 Envelope</h3>
+            <pre>{ "status": "success", "message": "...", "data": { ... } }
+// 失败时 code === 401 会触发 wx.login 重新换 token 并重试</pre>
+          </article>
+          <article class="api-box">
+            <h3>登录链路</h3>
+            <pre>wx.login → POST /mini-app/login { code }
+→ data.token 存本地
+→ 首次登录 message 可能为「首次登陆，缺少参数」</pre>
+          </article>
+          <article class="api-box">
+            <h3>needVip 字段（历史命名）</h3>
+            <p>接口与代码里仍叫 <code>needVip</code>，<strong>业务含义不是会员 VIP，而是「是否已购买该词书 / 内容是否解锁」</strong>。优先用 <code>unlocked</code>（已购=1）表达词书态；<code>needVip=1</code> 表示未购锁定。详见 book-units / unit-words 各行说明。</p>
+          </article>
+          <article class="api-box">
+            <h3>封装函数 vs 路径</h3>
+            <p><code>getUnitResource()</code> 实际请求 <code>/mini-app/unit-words</code>；<code>getUnitWords()</code> 请求 <code>/mini-app/unit-resources</code>（后者当前未被页面使用）。对接时以 HTTP 路径为准。</p>
+          </article>
+          <article class="api-box wide">
+            <h3>已下线</h3>
+            <p>首页搜索栏（<code>search</code> / <code>word-info</code>）已移除，不再对接。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="gallery-section">
+        <div class="section-head"><div><h2>页面截图</h2><p class="section-desc">点击图片查看大图。缺失截图会显示占位提示。</p></div></div>
+        <div class="gallery" id="gallery"></div>
+      </section>
+
+      <section class="section" id="matrix">
+        <div class="section-head"><div><h2>接口 ↔ 页面对照表</h2><p class="section-desc">可按模块、状态筛选；点击「详情」查看字段与渲染说明。</p></div></div>
+        <div class="matrix-layout">
+          <aside class="page-nav"><div class="page-nav-title">模块</div><div class="page-nav-list" id="pageNav"></div></aside>
+          <div class="matrix-main">
+            <div class="toolbar">
+              <button class="filter active" data-filter="all">全部</button>
+              <button class="filter" data-filter="ok">已接入</button>
+              <button class="filter" data-filter="partial">部分/Mock</button>
+              <button class="filter" data-filter="missing">未使用</button>
+              <button class="filter" data-filter="external">外部服务</button>
+              <input class="search" id="search" placeholder="搜索接口、页面，例如 book-units / 打卡" />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>模块</th>
+                    <th>页面 / 功能</th>
+                    <th>接口</th>
+                    <th>状态</th>
+                    <th>说明</th>
+                    <th>详情</th>
+                  </tr>
+                </thead>
+                <tbody id="apiRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="module-core-flow">
+        <div class="section-head">
+          <div>
+            <h2>★ 核心学习流程 · 每关三环节</h2>
+            <p class="section-desc">单词新学 → 跟读背诵 → 关卡小测；错词由<strong>前端上报、后端汇总</strong>，决定复习关内容</p>
+          </div>
+        </div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>流程</strong><br/>
+          首页点关卡任务 → <code>unit-words</code> 拉内容 → 环节 1/2 在 <code>practice</code>、环节 3 在 <code>listen?mode=quiz</code>
+          → 每环节结束进 <code>finish/today</code> → <code>save-learning-record</code> 更新该关 <code>tasks[]</code>
+          → 刷新 <code>book-units</code>。每 3 关插入复习关，复习词表由后端根据历史错词返回（<code>review-words</code>），不是前端 Mock。
+        </div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+          <strong style="color:var(--blue)">数据分工</strong><br/>
+          · <strong>前端提交</strong>：单词认选结果、跟读/背诵分数、小测对错、<strong>各环节/各题耗时（durationSeconds）</strong><br/>
+          · <strong>后端存储&决策</strong>：掌握态、任务进度、错词池、<strong>按日汇总学习时长</strong>（供报告/学习记录/user/info）<br/>
+          · <strong>前端只读</strong>：<code>book-units.tasks[]</code>；复习词表 <code>review-words</code>；报告里的 <code>minutes</code> / 三环节用时均由后端返回
+        </div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+          <strong style="color:var(--amber)">学习时长 · 全程记录</strong><br/>
+          练习、小测、测评、随身听播放<strong>全过程都要记时</strong>，不能只记结果不记耗时。前端在环节/题目/播放结束时上报 <code>durationSeconds</code>（建议同时带 <code>startedAt</code>/<code>finishedAt</code>），后端汇总为：<br/>
+          · 单关报告 <code>unit-report.minutes</code> + <code>taskDurations{word,recitation,listening}</code><br/>
+          · 每日学习记录 <code>study-records.records[].minutes</code>、<code>audioMinutes</code><br/>
+          · 我的页 / user/info <code>studyMinutes</code> · 测评报告 <code>exam-result.durationSeconds</code>
+        </div>
+        <div class="api-detail-grid" id="durationSchema"></div>
+        <div class="api-detail-grid" id="coreFlowSchema"></div>
+        <div class="cards" id="coreFlowPages"></div>
+      </section>
+
+      <section class="section" id="module-home">
+        <div class="section-head"><div><h2>① 首页闯关列表</h2><p class="section-desc">Tab「学习」· 路由 <code>pages/home/home</code></p></div></div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>展示当前词书、学习进度、打卡摘要；提供地图/分类两种关卡视图；每关含「单词新学 → 跟读背诵 → 关卡小测」三任务；支持<strong>切换教材弹窗</strong>、错词复习关、入门测/结业测 Banner、单关报告入口、学习计划。</div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+          <strong style="color:var(--blue)">教材选择 · 三处入口</strong><br/>
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">界面</th><th style="text-align:left;padding:6px 8px">路由/组件</th><th style="text-align:left;padding:6px 8px">范围</th><th style="text-align:left;padding:6px 8px">主要动作</th></tr>
+            <tr><td style="padding:6px 8px"><strong>选择教材弹窗</strong></td><td><code>home</code> 内嵌 bottom-sheet</td><td>全量目录（含未购）</td><td>学段/版本筛选 · 封面进详情 · 切换/去购买</td></tr>
+            <tr><td style="padding:6px 8px">我的教材</td><td><code>pages/me/book</code></td><td>仅已购</td><td>列表切换当前 · 继续学习回首页</td></tr>
+            <tr><td style="padding:6px 8px">商品详情</td><td><code>pages/advertisement/advertisement</code></td><td>单本详情+SKU</td><td>选套餐 → vip 支付</td></tr>
+          </table>
+          弹窗数据来自 <code>GET user-books</code>（须含未购词书）；非 release 环境前端追加 <code>mock-textbooks.js</code> 演示目录。切换已购词书调 <code>switch-default-book</code> 并刷新 <code>book-units</code>。
+        </div>
+        <div class="api-detail-grid" id="bookPickerSchema"></div>
+        <div class="cards" id="homePages"></div>
+      </section>
+
+      <section class="section" id="module-checkin">
+        <div class="section-head"><div><h2>② 打卡</h2><p class="section-desc">路由 <code>pages/checkin/calendar</code>，从首页日历按钮进入</p></div></div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>月历展示每日打卡状态、连续天数、礼品/奖励进度（30 天 VIP 等）。<strong>打卡记录、连续天数、礼品活动、达标状态、兑换码、是否已领取均由后端存储并在 user/info 返回</strong>；前端只读展示。点击「复制兑换码」仅把后端下发的码写入剪贴板，<strong>不自行生成兑换码</strong>；领取落库需 claim 接口。</div>
+        <div class="api-detail-grid" id="checkinGiftSchema"></div>
+        <div class="cards" id="checkinPages"></div>
+      </section>
+
+      <section class="section" id="module-listen">
+        <div class="section-head"><div><h2>③ 随身听</h2><p class="section-desc">路由 <code>pages/listen/listen</code>，底栏中间 Tab + 迷你播放条</p></div></div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>按单元播放单词+例句混排列表；支持倍速/循环/playlist；课文页可展开跟读（Chivox 评测）；<code>mode=quiz</code> 时进入关卡小测（听音填空 + 背诵评测），结果上报 <code>listening-quiz-result</code>。</div>
+        <div class="cards" id="listenPages"></div>
+      </section>
+
+      <section class="section" id="module-me">
+        <div class="section-head"><div><h2>④ 我的</h2><p class="section-desc">Tab「我的」· 路由 <code>pages/me/me</code> 及子页</p></div></div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计；子页含<strong>我的教材</strong>、学习记录、消息授权、联系客服、隐私协议、学习形象、手机号验证；可选宠物入口。</div>
+        <div class="cards" id="mePages"></div>
+      </section>
+
+      <section class="section" id="module-exam-record">
+        <div class="section-head"><div><h2>⑥ 入门测 · 结业测 · 各类报告</h2><p class="section-desc">词书级测评 + 单关/小测报告 + 学习记录汇总</p></div></div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>两类测评（词书维度）</strong><br/>
+          · <strong>入门测 entry</strong>：首页关卡列表<strong>最前</strong> Banner 进入 · 摸底 · <strong>每词书仅可完成一次</strong> · 做完生成入门测报告<br/>
+          · <strong>结业测 exit</strong>：关卡列表<strong>最后</strong> Banner 进入 · 通关检验 · 须<strong>全关通关且每关≥2星</strong>（<code>book-units</code> + <code>getExitLockState</code>）· 可多次（建议后端限制次数）
+        </div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+          <strong style="color:var(--amber)">报告用时 · 全程上报</strong><br/>
+          所有报告展示的「学习 X 分钟」均来自后端汇总，<strong>不是</strong>前端按词数估算（当前 <code>report.js</code> 的 <code>minutes=词数×0.7</code> 为 Mock）。练习过程中须上报：<br/>
+          · 三环节：<code>word-mark</code> / <code>recitation-score</code> / <code>listening-quiz-result</code> + 环节结束 <code>save-learning-record.durationSeconds</code><br/>
+          · 测评：<code>exam-submit.durationSeconds</code>（intro→交卷整卷计时）<br/>
+          · 随身听：<code>listen-duration</code>（播放有效时长 → <code>audioMinutes</code>）
+        </div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+          <strong style="color:var(--blue)">报告一览</strong><br/>
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">报告</th><th style="text-align:left;padding:6px 8px">页面</th><th style="text-align:left;padding:6px 8px">入口</th><th style="text-align:left;padding:6px 8px">接口</th><th style="text-align:left;padding:6px 8px">用时字段</th></tr>
+            <tr><td style="padding:6px 8px">入门测报告</td><td><code>exam-report</code></td><td>入门测交卷 / 再次进入 intro「查看上次报告」/ 学习记录</td><td><code>GET exam-result?type=entry</code></td><td><code>durationSeconds</code> / <code>minutes</code></td></tr>
+            <tr><td style="padding:6px 8px">结业测报告</td><td><code>exam-report</code></td><td>结业测交卷；对比入门测进步</td><td><code>GET exam-result?type=exit</code>（含 entry 基准）</td><td><code>durationSeconds</code>；<code>entryCompare.durationSeconds</code></td></tr>
+            <tr><td style="padding:6px 8px">关卡学习报告</td><td><code>report</code></td><td>首页关卡卡片报告 pill（三环节完成）</td><td><code>GET unit-report?unitId=</code></td><td><code>minutes</code> + <code>taskDurations{word,recitation,listening}</code></td></tr>
+            <tr><td style="padding:6px 8px">听力小测报告</td><td><code>report</code></td><td>随身听 quiz 模式完成后「生成听力报告」</td><td><code>GET unit-report?unitId=</code>（含小测 fill/recite 成绩）</td><td><code>quiz.durationSeconds</code> + 同上</td></tr>
+            <tr><td style="padding:6px 8px">学习记录</td><td><code>study-record</code></td><td>我的 → 学习记录</td><td><code>GET study-records</code></td><td><code>records[].minutes</code>、<code>audioMinutes</code></td></tr>
+          </table>
+        </div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>测评链路</strong><br/>
+          <code>GET exam-paper</code> → <code>pages/exam/exam</code> 答题 → <code>POST exam-submit</code> → <code>pages/exam/exam-report</code>（<code>GET exam-result</code>）<br/>
+          <strong>现状</strong>：题库/计分/存成绩在 <code>utils/exam-data.js</code> + Storage；关卡/听力报告在 <code>report.js</code> Mock（<code>minutes</code> 为假数据）；学习记录在 <code>study-record</code> 演示数据。<strong>真实联调后报告用时须来自后端汇总，不能前端估算。</strong>
+        </div>
+        <div class="api-detail-grid" id="examRecordSchema"></div>
+        <div class="cards" id="examRecordPages"></div>
+      </section>
+
+      <section class="section" id="module-commerce">
+        <div class="section-head"><div><h2>⑤ 商品购买（待对接）</h2><p class="section-desc"><code>pages/advertisement/advertisement</code> → <code>pages/vip/vip</code></p></div></div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+          <strong style="color:var(--blue)">购买入口</strong><br/>
+          首页「选择教材」弹窗 · 封面点击 / 「去购买」→ <code>advertisement</code>（当前 URL query 传参，联调后改 <code>book-product-list</code>）→ <code>vip</code> 确认订单 → 支付成功后 <code>user-books.unlocked=1</code>，弹窗与关卡 needVip 解锁。
+        </div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>现状</strong><br/>
+          <code>utils/api.js</code> 已封装 <code>getBookProucts</code> / <code>getOrder</code>，但页面<strong>未调用</strong>。
+          商品详情页套餐、有效期、价格来自前端常量 <code>PACKAGE_OPTIONS</code>、<code>VALIDITY_OPTIONS</code>、<code>SKU_PRICES</code>；
+          支付页为模拟微信支付 + 本地 <code>markDevPurchased</code>。<strong>必须和后端对齐 SKU 结构，用接口字段替换本地常量。</strong>
+        </div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+          <strong style="color:var(--blue)">购买链路（前端 + 后端）</strong><br/>
+          ① advertisement onLoad → <code>GET book-product-list?resBookId=</code> 拉词书详情 + SKU 列表<br/>
+          ② 用户选套餐/有效期 → vip 页 → <code>GET order?orderProductId=</code> 拿 payParams<br/>
+          ③ <code>wx.requestPayment(payParams)</code><br/>
+          ④ 微信异步通知后端（<code>POST /mini-app/pay-notify</code> 或等价回调，服务端实现）→ 更新订单 paid + user-books.unlocked=1<br/>
+          ⑤ 前端支付成功后可轮询 <code>GET order/status</code>（待实现）或重新拉 user-books 确认解锁
+        </div>
+        <div class="api-detail-grid" id="commerceSchema"></div>
+        <div class="cards" id="commercePages"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head"><div><h2>待补齐 / Mock 能力</h2><p class="section-desc">影响真实数据闭环，需产品+后端+前端对齐</p></div></div>
+        <div class="cards" id="pendingCards"></div>
+      </section>
+
+      <footer>文档由仓库源码自动梳理 · 截图请替换 docs/images/mini-app/ 下文件 · 微信分享请运行 npm run doc:share</footer>
+    </div>
+
+    <div class="modal" id="detailModal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div><div class="eyebrow">API Detail</div><h3 class="modal-title" id="modalTitle"></h3></div>
+          <button class="close" id="closeModal" aria-label="关闭">✕</button>
+        </div>
+        <div class="modal-body"><div class="modal-grid" id="modalBody"></div></div>
+      </div>
+    </div>
+
+    <div class="modal" id="lightbox" aria-hidden="true">
+      <div class="lightbox-card">
+        <img class="lightbox-img" id="lightboxImg" alt="" />
+      </div>
+    </div>
+
+    <script>
+      const MODULES = [
+        { id: "core", label: "★ 核心三环节", anchor: "module-core-flow", pages: "practice → listen → finish" },
+        { id: "home", label: "① 首页闯关列表", anchor: "module-home", pages: "home · 选择教材 · plan" },
+        { id: "checkin", label: "② 打卡", anchor: "module-checkin", pages: "pages/checkin/calendar" },
+        { id: "listen", label: "③ 随身听", anchor: "module-listen", pages: "pages/listen/listen" },
+        { id: "me", label: "④ 我的", anchor: "module-me", pages: "me · book · notify · contact" },
+        { id: "exam", label: "⑥ 测评/报告", anchor: "module-exam-record", pages: "入门测 · 结业测 · 报告" }
+      ];
+
+      const SCREENSHOTS = [
+        { id: "home-list", module: "home", title: "闯关列表", file: "images/mini-app/01-home-level-list.png", apis: ["book-units", "user-books", "user/info"] },
+        { id: "home-map", module: "home", title: "地图闯关", file: "images/mini-app/01-home-map.png", apis: ["book-units"] },
+        { id: "home-book-picker", module: "home", title: "选择教材", file: "images/mini-app/01-home-book-picker.png", apis: ["user-books", "switch-default-book", "book-product-list"] },
+        { id: "practice-word", module: "core", title: "环节1 · 单词新学", file: "images/mini-app/05-practice-word.png", apis: ["unit-words", "word-mark"] },
+        { id: "practice-recite", module: "core", title: "环节2 · 跟读背诵", file: "images/mini-app/05-practice-recite.png", apis: ["unit-words", "recitation-score"] },
+        { id: "listen-quiz", module: "core", title: "环节3 · 关卡小测", file: "images/mini-app/03-listen-quiz.png", apis: ["listening-quiz-result"] },
+        { id: "finish", module: "core", title: "环节完成", file: "images/mini-app/06-finish-today.png", apis: ["save-learning-record"] },
+        { id: "finish-word", module: "core", title: "单词新学完成", file: "images/mini-app/06-finish-word.png", apis: ["save-learning-record"] },
+        { id: "checkin", module: "checkin", title: "打卡日历", file: "images/mini-app/02-checkin-calendar.png", apis: ["user/info"] },
+        { id: "listen", module: "listen", title: "随身听播放", file: "images/mini-app/03-listen-player.png", apis: ["book-units", "unit-words"] },
+        { id: "me", module: "me", title: "我的", file: "images/mini-app/04-me-profile.png", apis: ["user/info", "user-books"] },
+        { id: "me-book", module: "me", title: "我的教材", file: "images/mini-app/04-me-book.png", apis: ["user-books", "switch-default-book"] },
+        { id: "advertisement", module: "home", title: "商品详情", file: "images/mini-app/06-advertisement.png", apis: ["book-product-list", "order"] },
+        { id: "vip", module: "home", title: "确认订单", file: "images/mini-app/06-vip.png", apis: ["order", "order/status"] },
+        { id: "plan", module: "home", title: "学习计划", file: "images/mini-app/06-plan.png", apis: ["study-plan 待实现"] }
+      ];
+
+      const ROWS = [
+        {
+          id: "login", module: "公共", moduleId: "common", page: "全局登录", status: "ok",
+          endpoints: [{ method: "POST", path: "/mini-app/login" }],
+          summary: "wx.login code 换 token，401 自动重登",
+          detail: {
+            request: '{ "code": "<wx.login 返回>" }',
+            response: '{ "status":"success", "data": { "token": "..." } }',
+            callers: "utils/login.js → 所有需登录页面 onLoad",
+            fields: "首次登录可能返回 message=首次登陆，缺少参数，此时无 token",
+            render: "无独立 UI；失败时 toast"
+          }
+        },
+        {
+          id: "user-info", module: "首页/打卡/我的", moduleId: "home", page: "首页 Hero · 打卡日历 · 我的统计", status: "ok",
+          endpoints: [{ method: "POST", path: "/mini-app/user/info" }],
+          summary: "用户资料 + 打卡日历 + 礼品奖励 + 学习时长",
+          detail: {
+            request: "{}",
+            response: "data 含用户基础字段 + 打卡/礼品字段（均由后端存储返回）",
+            callers: "pages/home/home.js, pages/checkin/calendar.js, pages/me/me.js",
+            fields: "【打卡·后端存储】① 每日状态：checkInDates / signDates / calendar / records[]。② 连续天数：continuousDays / checkInDays / signDays。③ 礼品/奖励（全部由后端给）：gifts[] 或 streakReward 对象，含 giftId、title、门槛 rewardDay/thresholdDays、是否达标 giftUnlocked/rewardEligible、是否已领取 giftClaimed/rewardStatus、<strong>兑换码 streakRewardCode / vipRedeemCode / rewardCode（后端生成并下发，前端只展示/复制）</strong>。无码时前端演示兜底 STREAK_REWARD_CODE，联调后必须删掉。④ 学习时长：studyMinutes / learnMinutes。",
+            render: "首页连续打卡摘要；打卡页月历+礼品进度条+领取弹窗；我的页统计"
+          }
+        },
+        {
+          id: "user-books", module: "首页/我的", moduleId: "home", page: "词书目录 · 选择教材弹窗 · 我的教材", status: "ok",
+          endpoints: [{ method: "GET", path: "/mini-app/user-books" }],
+          summary: "全量教材目录 + 购买态 + 学习进度",
+          detail: {
+            request: "无 query",
+            response: "data: Book[] — resBookId, name, bookCover, defaultBook, wordCount, proverbCount, needVip/unlocked, learningInfo, press, stage/grades, newStandard…",
+            callers: "home.js loadHomeData（allBooks+弹窗）, me/book.js（仅已购子集）, me.js loadStats",
+            fields: "【目录·弹窗】须返回<strong>全部可售词书</strong>（含未购 needVip=1），供首页「选择教材」弹窗展示；me/book 前端 filter !locked 只显示已购。【分类字段】stage/grades（小学/初中/高中）、press（出版社/版本，如人教版/牛津译林版）、newStandard（新课标角标）、wordCount。【购买态】locked=unlocked=0 或 needVip=1；defaultBook=true 为当前教材。【演示】非 release 注入 mock-textbooks.js 占位目录。",
+            render: "首页 Hero 封面+进度；选择教材弹窗网格；我的教材已购列表"
+          }
+        },
+        {
+          id: "book-units", module: "首页/随身听", moduleId: "home", page: "关卡列表 · 随身听期列表", status: "ok",
+          endpoints: [{ method: "GET", path: "/mini-app/book-units" }],
+          summary: "某词书下全部关卡元数据（含三任务进度，后端存储）",
+          detail: {
+            request: "resBookId, page=1, rows=2000",
+            response: "data: { list: Unit[], pageInfo: { total } }。Unit 核心字段：unitId, sort, wordTotal, unitName, needVip, completed, tasks[]",
+            callers: "home.js loadUnits, listen.js loadUnits, utils/player.js",
+            fields: "【进度·后端存储】completed / 星级 / tasks[]（type/current/total/percent）均由后端返回。unit.wrongWords=该关错词数（供复习关卡片展示）。列表读 completed；地图读 tasks[].percent。【购买态】unit.needVip=1 未购锁定。",
+            render: "首页地图/分类卡片上的任务进度、星级、解锁态；随身听顶部期切换"
+          }
+        },
+        {
+          id: "checkin-data", module: "打卡", moduleId: "checkin", page: "打卡日历 · 礼品奖励", status: "ok",
+          endpoints: [{ method: "POST", path: "/mini-app/user/info" }],
+          summary: "每日打卡态 + 礼品/达标/领取（后端存储，同 user/info）",
+          detail: {
+            request: "{}",
+            response: "见 user/info 打卡字段；后端按天返回 checkInDates[] 等，并携带礼品活动、达标门槛、可领取/已领取、兑换码",
+            callers: "pages/checkin/calendar.js loadCheckin",
+            fields: "月历：checkInDates/signDates/calendar/records。连续天：continuousDays。礼品达标：giftUnlocked / rewardEligible（后端判定，前端不自行算 30 天）。<strong>兑换码：streakRewardCode / vipRedeemCode / rewardCode 必须由 user/info 返回</strong>，calendar.js pickRewardCode 读取；无则演示码兜底。已领取：giftClaimed / rewardStatus=claimed。点击复制走 copyRewardCode，不调后端；<strong>领取/核销须 POST gift-claim</strong>（待实现）。",
+            render: "月历打点、进度环、礼品弹窗、分享海报"
+          }
+        },
+        {
+          id: "switch-book", module: "首页/我的", moduleId: "home", page: "选择教材弹窗 · 切换当前", status: "ok",
+          endpoints: [{ method: "GET", path: "/mini-app/switch-default-book" }],
+          summary: "设置默认学习词书",
+          detail: {
+            request: "resBookId",
+            response: "更新后的用户词书状态",
+            callers: "home.js switchBookUse（弹窗底部「切换使用」）, pages/me/book.js switchBook",
+            fields: "演示词书 demo=true 时前端本地切换不调接口。弹窗交互：封面点击 goBookDetail→advertisement；未购「去购买」goBuyFromPicker；已购「切换使用」调本接口后 reload book-units。",
+            render: "切换后 reload book-units + 刷新 globalData.book + 关闭弹窗"
+          }
+        },
+        {
+          id: "unit-words", module: "学习流", moduleId: "home", page: "单词新学/跟读 · 随身听内容", status: "ok",
+          endpoints: [{ method: "GET", path: "/mini-app/unit-words" }],
+          summary: "单关卡学习资源；needVip 表示未购词书锁定",
+          detail: {
+            request: "unitId",
+            response: "data: Item[] — 每项 { word, proverb?, unit, needVip, isReview? }；word 含 content, translation, audio, senses…",
+            callers: "practice.js fetchUnitData, listen.js loadUnit, player.js",
+            fields: "【needVip 用在哪】① practice：若数组中任一条 item.needVip 为真 → 整页弹「去购买」dialog（getDialogObject），跳转 advertisement/vip，不是按「单条词」分别锁 UI。② listen/player：实际在 loadUnit 前读的是 book-units 的 unit.needVip，不逐条读 unit-words。③ 业务语义：历史字段名 needVip，含义=未购买该词书（同 book.unlocked/needVip），不是会员 VIP。建议后端与 book-units 保持一致：未购时 unit-words 条目 needVip=1 或已购全为 0。",
+            render: "practice 滑动学词；listen 生成 tracks + quizQuestions"
+          }
+        },
+        {
+          id: "save-record", module: "核心·三环节", moduleId: "core", page: "finish/today · 每环节完成", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/save-learning-record" }],
+          summary: "单环节完成上报（须扩展 taskType / scoreRate）",
+          detail: {
+            request: "当前仅 unitId；【建议补】unitId, taskType, scoreRate, resBookId, durationSeconds, startedAt?, finishedAt?",
+            response: "建议 data: { nextUnitId?, tasksUpdated: true }；后端更新 book-units 对应 task 的 current/total/percent",
+            callers: "pages/finish/today.js onLoad（word/recitation/listening 各完成一次各调一次）",
+            fields: "每关三环节各完成调一次。【时长】durationSeconds=该环节总用时（practice/listen 页 onLoad→finish 或逐词累计之和）。后端写入当日 study-records.minutes 增量、unit 级 taskDurations，供 unit-report 展示。",
+            render: "完成页步骤条 1/3·2/3·3/3；继续按钮链式跳转下一环节"
+          }
+        },
+        {
+          id: "word-mark", module: "核心·三环节", moduleId: "core", page: "practice · 单词新学", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/word-mark", note: "待实现" }],
+          summary: "逐词上报认选结果（认识/不认识/记错）→ 后端记入错词池",
+          detail: {
+            request: '{ …, "durationSeconds"?, "startedAt"?, "finishedAt"? } — 见 durationSchema',
+            response: "ack；后端更新掌握态 + 累加该词/题耗时",
+            callers: "pages/practice/practice.js — answerKnow/answerUnknown/submitWordChoice/markWordMistaken（当前仅写 contents[].known/mistaken，未调 API）",
+            fields: "【时长】建议每词上报 timeSpentSeconds（卡片停留+选择题耗时），或环节末 batch 上报。后端汇总进 taskDurations.word 与 daily minutes。",
+            render: "单词新学：认识/不认识/选择题/记错了 toast"
+          }
+        },
+        {
+          id: "recitation-score", module: "核心·三环节", moduleId: "core", page: "practice · 跟读背诵", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/recitation-score", note: "待实现" }],
+          summary: "逐词/逐句上报 Chivox 跟读分数",
+          detail: {
+            request: '{ …, "score", "durationSeconds"?, "recordDurationMs"? }',
+            response: "ack；低分词进错词池 + 累加跟读用时",
+            callers: "components/media/media.js 评分回调 → practice contents[].word.result / proverb[].result（当前未上报 API）",
+            fields: "【时长】durationSeconds=该词/句录音+等待评分耗时；Chivox 录音可另报 recordDurationMs。汇总进 taskDurations.recitation。",
+            render: "跟读录音→Chivox 评分→彩带反馈；读完自动倒计时下一词"
+          }
+        },
+        {
+          id: "listening-quiz", module: "核心·三环节", moduleId: "core", page: "listen · 关卡小测（环节3）", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/listening-quiz-result" }],
+          summary: "小测逐词对错上报（已封装，须与错词池对齐）",
+          detail: {
+            request: '{ …, "correct", "phase", "durationSeconds"? }',
+            response: "成功/失败（失败静默）",
+            callers: "pages/listen/listen.js rememberQuizWordResult → postListeningQuizResult",
+            fields: "听音填空 fill + 背诵 recite。【时长】每题 durationSeconds；环节总用时亦可在 save-learning-record(listening) 再报一次。汇总进 taskDurations.listening。",
+            render: "listen?mode=quiz；错词进入复习关词表"
+          }
+        },
+        {
+          id: "review-words", module: "核心·三环节", moduleId: "core", page: "复习关 · 错词巩固", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/review-words", note: "待实现" }],
+          summary: "按 reviewUnitIds 返回应复习的错词（后端决定词表）",
+          detail: {
+            request: "resBookId, reviewUnitIds（逗号分隔，覆盖的前几关 unitId）",
+            response: "data: Item[]，结构同 unit-words；仅含后端判定需复习的词",
+            callers: "practice/listen review=1&reviewUnitIds=… — 当前 buildMockReviewResource 占位",
+            fields: "首页每 3 关插复习关（home-units REVIEW_INTERVAL=3），reviewUnitIds 为前 3 关 id。book-units 的 unit.wrongWords 为错词数展示。复习关三任务标签：错词重学/错词跟读/错词听力。【核心】词表必须由后端根据 word-mark + recitation-score + listening-quiz-result 汇总，前端不自行算错词。",
+            render: "首页「复习·错词巩固」卡片 → practice 或 listen quiz"
+          }
+        },
+        {
+          id: "checkin-write", module: "打卡", moduleId: "checkin", page: "finish/today · 今日达标打卡", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/check-in", note: "待实现/待确认" }],
+          summary: "今日完成目标关数后写入打卡（当前仅本地 Storage）",
+          detail: {
+            request: "建议 { resBookId, date?, unitIds[]?, groupsDone?, source?: \"finish\" }",
+            response: "更新后的 checkInDates / continuousDays",
+            callers: "pages/finish/today.js recordLevelDone（utils/checkin-progress.js 写 dailyProgress_*，未调后端）",
+            fields: "finish 页「打卡成功」由本地 todayDone≥todayGoal 判定；月历 checkInDates 只从 user/info 读。后端需明确：由 save-learning-record 顺带写打卡，还是独立 check-in 接口。",
+            render: "finish/today 打卡成功卡片 → 跳转打卡日历"
+          }
+        },
+        {
+          id: "study-plan", module: "首页", moduleId: "home", page: "plan · 学习计划", status: "partial",
+          endpoints: [{ method: "—", path: "本地 Storage studyPlan_<resBookId>", note: "待后端化" }],
+          summary: "每日目标关数 groupsPerDay（默认 2），影响打卡判定",
+          detail: {
+            request: "—",
+            response: "—",
+            callers: "pages/plan/plan.js 读写 Storage；pages/home/home.js goStudyPlan；utils/checkin-progress.js getDailyGoal",
+            fields: "首页「今日 x/y 关」的 y 来自 studyPlan。无后端接口，换机不同步。",
+            render: "首页 study-plan 入口 → plan 页设置每日组数"
+          }
+        },
+        {
+          id: "unit-resources", module: "—", moduleId: "common", page: "（未接入）", status: "missing",
+          endpoints: [{ method: "GET", path: "/mini-app/unit-resources" }],
+          summary: "getUnitWords() 已封装，页面未调用",
+          detail: {
+            request: "unitId",
+            response: "与 unit-words 类似（路径不同）",
+            callers: "utils/api.js getUnitWords — 无页面引用",
+            fields: "与 getUnitResource→unit-words 命名易混，对接以 unit-words 为准",
+            render: "—"
+          }
+        },
+        {
+          id: "info-update", module: "我的/首页", moduleId: "me", page: "昵称 · 头像 · 形象", status: "ok",
+          endpoints: [{ method: "POST", path: "/mini-app/user/info-update" }],
+          summary: "更新用户资料",
+          detail: {
+            request: "{ nickName?, avatarUrl?, …userInfo }",
+            response: "更新后的用户信息",
+            callers: "home.js nickNameChange/getUserProfile, me.js saveUserInfo",
+            fields: "头像需先 upload-avatar 拿 URL",
+            render: "首页 Hero 昵称；我的页头像"
+          }
+        },
+        {
+          id: "phone", module: "我的", moduleId: "me", page: "手机号验证", status: "partial",
+          endpoints: [
+            { method: "POST", path: "/mini-app/user/phone-number" },
+            { method: "POST", path: "/mini-app/user/info-update", note: "404 回退" }
+          ],
+          summary: "微信 getPhoneNumber 绑定",
+          detail: {
+            request: "{ phoneCode / code, … }",
+            response: "phoneNumber, phoneVerified",
+            callers: "pages/me/me.js bindPhoneNumber",
+            fields: "phone-number 404 时回退 info-update",
+            render: "设置项「手机号验证」状态文案"
+          }
+        },
+        {
+          id: "upload-avatar", module: "我的", moduleId: "me", page: "换头像", status: "ok",
+          endpoints: [{ method: "POST", path: "/mini-app/upload-avatar", note: "multipart" }],
+          summary: "上传头像文件",
+          detail: {
+            request: "wx.uploadFile field=avatar",
+            response: "avatarUrl / url / path（多格式兼容 parseUploadAvatarUrl）",
+            callers: "pages/me/me.js handleChooseAvatar",
+            fields: "Header token",
+            render: "chooseAvatar → upload → info-update"
+          }
+        },
+        {
+          id: "chivox-sig", module: "语音评测", moduleId: "listen", page: "跟读/背诵 media 组件", status: "external",
+          endpoints: [{ method: "GET", path: "https://wechat.kamienglish.com/api/Sig/getInfoWord", note: "外部" }],
+          summary: "驰声 SDK 签名",
+          detail: {
+            request: "无",
+            response: "sig 相关字段 + userId",
+            callers: "components/media/media.js refreshSig",
+            fields: "缓存 sigPromise 避免重复请求",
+            render: "录音评分前 ensureSigReady"
+          }
+        },
+        {
+          id: "listen-duration", module: "随身听", moduleId: "listen", page: "player · 播放时长", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/listen-duration", note: "待实现" }],
+          summary: "上报随身听有效播放时长（非 quiz）",
+          detail: {
+            request: '{ "resBookId", "unitId"?, "durationSeconds", "date"?, "source": "player" }',
+            response: "ack；累加 study-records.audioMinutes、daily minutes",
+            callers: "utils/player.js — 当前未上报，仅本地播放",
+            fields: "切后台/锁屏仍计 BackgroundAudioManager 播放时长；暂停不计。可与 study-records 合并为统一 learning-event 流。",
+            render: "listen 页 + 迷你播放条跨页播放"
+          }
+        },
+        {
+          id: "gift-claim", module: "打卡", moduleId: "checkin", page: "打卡日历 · 领取礼品", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/gift-claim", note: "待实现" }],
+          summary: "用户领取礼品并核销，返回/确认兑换码",
+          detail: {
+            request: '{ "giftId"?, "rewardType": "streak_30", "resBookId"? }',
+            response: '{ "giftClaimed": true, "rewardStatus": "claimed", "rewardCode": "XXXX-XXXX", "rewardTitle"?, "expireAt"? }',
+            callers: "pages/checkin/calendar.js — 当前无调用，仅 copyRewardCode 复制 user/info 已下发的码",
+            fields: "【分工】兑换码由后端在 user/info 预下发，或 claim 时生成并返回；claim 后 giftClaimed=1。前端「复制兑换码」≠ 领取，联调时应改为先 claim 再展示/复制。",
+            render: "礼品弹窗 · 复制兑换码"
+          }
+        },
+        {
+          id: "book-product", module: "商品购买", moduleId: "commerce", page: "advertisement 商品详情 · SKU 选择", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/book-product-list" }],
+          summary: "词书详情 + 可售 SKU 列表（替换 URL 传参和本地常量）",
+          detail: {
+            request: "resBookId",
+            response: "建议 data: { resBookId, book{}, products[] }。book=详情页上半区；products[]=套餐×有效期 SKU",
+            callers: "utils/api.js getBookProucts（待接 advertisement.js onLoad；当前从 URL query / pendingBookDetail / 本地 PACKAGE_OPTIONS 渲染）",
+            fields: "【book 详情】name, bookCover, press, grades[], intro, wordCount, proverbCount, unitCount/total, unlocked?。【products[] SKU】orderProductId, packageId, packageName, validityId, validityName, price, priceCents?, tag, summary, items[], enabled, sort。featureCards/methodSteps 可前端写死。",
+            render: "封面/简介/收录统计 + 底栏价格 + SKU 弹层"
+          }
+        },
+        {
+          id: "order", module: "商品购买", moduleId: "commerce", page: "vip 确认订单 · 微信支付", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/order" }],
+          summary: "创建预支付订单，返回 wx.requestPayment 参数",
+          detail: {
+            request: "orderProductId（book-product-list 选中 SKU）",
+            response: "data: { orderId, orderProductId, resBookId, packageName, validityName, price, priceCents, status: pending|paid|closed, payParams }",
+            callers: "utils/api.js getOrder（待接 vip.js pay；当前模拟弹窗 + markDevPurchased）",
+            fields: "payParams：timeStamp, nonceStr, package, signType, paySign，可直接 spread 进 wx.requestPayment。",
+            render: "vip 页品名/套餐/价格/支付按钮"
+          }
+        },
+        {
+          id: "pay-notify", module: "商品购买", moduleId: "commerce", page: "微信支付回调（服务端）", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/pay-notify", note: "服务端·微信回调" }],
+          summary: "微信异步通知 → 订单置 paid → 解锁词书",
+          detail: {
+            request: "微信 POST 加密报文（服务端验签解密）",
+            response: "按微信规范返回 SUCCESS",
+            callers: "无前端调用；notify 后更新 order.status=paid、user-books.unlocked=1",
+            fields: "须幂等。解锁范围与 orderProductId 对应 resBookId + 套餐权益。",
+            render: "—"
+          }
+        },
+        {
+          id: "order-status", module: "商品购买", moduleId: "commerce", page: "vip · 支付结果确认", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/order/status", note: "待实现" }],
+          summary: "支付完成后查询订单是否 paid（可选轮询）",
+          detail: {
+            request: "orderId",
+            response: '{ "status": "paid"|"pending"|"closed", "unlocked": true, "resBookId": "xxx" }',
+            callers: "vip.js onPaySuccess 待接（当前 markDevPurchased 本地解锁）",
+            fields: "requestPayment success 只代表用户完成支付动作，最终以 notify 或本接口为准。",
+            render: "支付成功 / navigateBack 前刷新解锁态"
+          }
+        },
+        {
+          id: "exam-paper", module: "入门/结业测", moduleId: "exam", page: "exam · 答题（entry / exit）", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/exam-paper", note: "待实现" }],
+          summary: "下发入门测或结业测试卷",
+          detail: {
+            request: "resBookId, type=entry|exit",
+            response: "{ type, title, subtitle, total, sections[], questions[], entryCompleted?, exitUnlocked? }",
+            callers: "pages/exam/exam.js onLoad；home.js goExamEntry/goExamExit → openExam(type)",
+            fields: "【入门测 entry】entryCompleted=true 时禁止重考，intro 改「查看上次报告」。【结业测 exit】exitUnlocked=false 时 home 弹窗拦截；后端也可在 exam-paper 返回 403。【题型】choice 选择 / order 连词成句；section=word|sentence。",
+            render: "首页 Banner → exam intro → 逐题作答"
+          }
+        },
+        {
+          id: "exam-submit", module: "入门/结业测", moduleId: "exam", page: "exam · 交卷", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/exam-submit", note: "待实现" }],
+          summary: "提交作答并计分入库",
+          detail: {
+            request: '{ "resBookId", "type", "responses", "durationSeconds", "startedAt"?, "finishedAt"? }',
+            response: "result + durationSeconds（入库供 exam-result / study-records.entryExamCount 所在日 minutes）",
+            callers: "pages/exam/exam.js finishExam",
+            fields: "entry 重复提交拒绝。【时长】整卷用时 durationSeconds，exam-report 与 study-record 展示。",
+            render: "最后一题提交 → redirectTo exam-report"
+          }
+        },
+        {
+          id: "exam-result-entry", module: "报告", moduleId: "exam", page: "exam-report · 入门测报告", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/exam-result", note: "type=entry" }],
+          summary: "入门测成绩报告",
+          detail: {
+            request: "resBookId, type=entry",
+            response: "result + durationSeconds + sections/byType/wrong",
+            callers: "exam-report.js, exam.js goReport, study-record 点「入门测」明细",
+            fields: "展示总正确率、等级、错题。【时长】durationSeconds / minutes 由 submit 入库，报告只读。",
+            render: "pages/exam/exam-report?type=entry"
+          }
+        },
+        {
+          id: "exam-result-exit", module: "报告", moduleId: "exam", page: "exam-report · 结业测报告", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/exam-result", note: "type=exit" }],
+          summary: "结业测报告 + 与入门测对比",
+          detail: {
+            request: "resBookId, type=exit",
+            response: "同 entry + entryCompare；【时长】durationSeconds 为结业测用时",
+            callers: "exam-report.js buildDelta — 结业测页展示「相比入门测 ±N%」",
+            fields: "无 entry 基准时 compareReady=false。入门/结业用时分别存储，报告可展示两次测评耗时对比。",
+            render: "pages/exam/exam-report?type=exit"
+          }
+        },
+        {
+          id: "unit-report", module: "报告", moduleId: "exam", page: "report · 关卡/听力报告", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/unit-report", note: "待实现" }],
+          summary: "单关学习报告或听力小测报告（同一页 report）",
+          detail: {
+            request: "unitId（推荐）, resBookId?；或 sort+words 兼容旧 query",
+            response: "{ unitId, stars, accuracy, minutes, taskDurations:{word,recitation,listening}, mastered[], wrong[], proverb?, quiz? }",
+            callers: "home.js goUnitReport；listen.js openQuizReport",
+            fields: "【时长·核心】minutes=本关总学习分钟（三环节+小测之和，后端汇总，非 report.js 本地估算）。taskDurations 各环节秒/分钟。quiz 模式额外 fill/recite 用时。",
+            render: "pages/report/report — 星级、掌握词、错词、谚语"
+          }
+        },
+        {
+          id: "study-records", module: "学习记录", moduleId: "exam", page: "study-record/record", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/study-records", note: "待实现" }],
+          summary: "按日期范围返回学习统计（替换 buildDemoStudyRecords）",
+          detail: {
+            request: "resBookId?, startDate, endDate（YYYY-MM-DD）",
+            response: "data.records[] — 每日一条，字段见 utils/study-records.js buildRecord",
+            callers: "pages/study-record/record.js onLoad（当前 buildDemoStudyRecords）",
+            fields: "单日 record：date, minutes（总）, newWords, …, audioMinutes（随身听播放）, entryExamCount, exitExamCount。【汇总规则】minutes = 各 practice/listen/exam 上报 durationSeconds 之和 / 60，按 resBookId+date 聚合；user/info.studyMinutes 可读同日累计。",
+            render: "近7天/本月/自定义 · 汇总 · 趋势 · 日历 · 每日明细（含测评次数跳转 exam-report）"
+          }
+        }
+      ];
+
+      const PAGE_CARDS = {
+        coreFlow: [
+          { title: "环节1 · 单词新学", desc: "practice?taskType=word。标记认识/不认识/记错 → POST word-mark（含 timeSpentSeconds/durationSeconds）。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark"] },
+          { title: "环节2 · 跟读背诵", desc: "practice?taskType=recitation。Chivox 逐词/逐句评分 → POST recitation-score（含 durationSeconds/recordDurationMs）。", paths: ["pages/practice/practice", "components/media"], apis: ["unit-words", "recitation-score", "Chivox sig"] },
+          { title: "环节3 · 关卡小测", desc: "listen?mode=quiz。听音填空+背诵 → POST listening-quiz-result（每题 durationSeconds）。", paths: ["pages/listen/listen"], apis: ["unit-words", "listening-quiz-result"] },
+          { title: "环节完成", desc: "finish/today → save-learning-record（带 taskType、scoreRate、durationSeconds 环节总用时）→ 链式跳转下一环节。", paths: ["pages/finish/today"], apis: ["save-learning-record"] },
+          { title: "复习关", desc: "每3关插入。GET review-words 拉错词；三任务同样上报各环节 durationSeconds。", paths: ["home-units", "practice?review=1", "listen?review=1"], apis: ["review-words", "book-units.wrongWords"] }
+        ],
+        home: [
+          { title: "home 首页", desc: "词书 Hero、打卡入口、地图/列表、切换教材弹窗、学习计划、入门/结业测 Banner、单关报告 pill。", paths: ["pages/home/home"], apis: ["user/info", "user-books", "book-units", "switch-default-book", "info-update", "exam-paper", "unit-report"] },
+          { title: "选择教材弹窗", desc: "home 内嵌 bottom-sheet：顶部学段（小学/初中/高中）+ 左侧版本栏（推荐/人教版/外研版…）+ 右侧封面网格。封面点击→商品详情；未购「去购买」；已购「切换使用」→ switch-default-book。", paths: ["home.wxml book-picker", "home.js switchBook/selectBookStage"], apis: ["user-books", "switch-default-book", "book-product-list"] },
+          { title: "practice 练习", desc: "三环节主战场：word 单词新学（word-mark）、recitation 跟读（recitation-score）；review 模式走 review-words。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark", "recitation-score", "review-words"] },
+          { title: "finish 完成", desc: "每环节结束页；save-learning-record 更新 tasks[]；今日达标触发本地打卡计数（待接 check-in）。", paths: ["pages/finish/today"], apis: ["save-learning-record", "check-in 待实现"] },
+          { title: "plan 学习计划", desc: "首页 study-plan 入口；设置每日目标关数 groupsPerDay（localStorage），展示预计完成天数；影响 finish 页打卡判定。", paths: ["pages/plan/plan", "home.goStudyPlan"], apis: ["study-plan 待实现"] }
+        ],
+        commerce: [
+          { title: "advertisement 商品详情", desc: "从弹窗封面/去购买进入。onLoad 应调 book-product-list 渲染 book{}+products[]（当前 URL query + PACKAGE/SKU 常量）。", paths: ["pages/advertisement/advertisement", "home.goBuyBook"], apis: ["book-product-list"] },
+          { title: "vip 确认订单", desc: "展示选中 SKU/有效期/价格；pay 调 order 拿 payParams → wx.requestPayment；测试环境 markDevPurchased 模拟解锁。", paths: ["pages/vip/vip"], apis: ["order", "order/status", "pay-notify(服务端)"] }
+        ],
+        checkin: [
+          { title: "calendar 打卡日历", desc: "礼品达标/兑换码/已领取均读 user/info（后端存储）；兑换码后端下发，前端只复制。", paths: ["pages/checkin/calendar"], apis: ["user/info", "gift-claim 待实现"] },
+          { title: "share-poster 海报", desc: "Canvas 绘制打卡海报，保存相册（需相册权限）。", paths: ["pages/checkin/share-poster.js"], apis: ["无"] },
+          { title: "本地今日进度", desc: "首页「今日完成 x/y 关」：utils/checkin-progress.js 按 resBookId 存 Storage，与月历打卡记录（后端）是两套数据。", paths: ["utils/checkin-progress.js"], apis: ["—"] }
+        ],
+        listen: [
+          { title: "listen 播放器", desc: "全局 player；有效播放时长待报 listen-duration → audioMinutes。", paths: ["pages/listen/listen", "utils/player.js", "custom-tab-bar"], apis: ["book-units", "unit-words", "listen-duration"] },
+          { title: "跟读评测", desc: "课文 track 展开 media 组件；逐句评分缓存 trackScores。", paths: ["components/media"], apis: ["Chivox sig"] },
+          { title: "关卡小测", desc: "核心流程环节3：fill 听音填空 → recite 背诵；POST listening-quiz-result。", paths: ["listen?mode=quiz"], apis: ["unit-words", "listening-quiz-result"] }
+        ],
+        me: [
+          { title: "me 个人中心", desc: "登录、头像昵称、studyMinutes 统计、学习形象/手机号/隐私设置；菜单：我的教材、消息授权、联系客服。", paths: ["pages/me/me"], apis: ["user/info", "user-books", "info-update", "phone-number", "upload-avatar"] },
+          { title: "book 我的教材", desc: "仅展示已购词书（filter !locked）；列表切换当前→switch-default-book；「继续学习」回首页 Tab。", paths: ["pages/me/book"], apis: ["user-books", "switch-default-book"] },
+          { title: "notify 消息授权", desc: "展示订阅消息模板授权状态；引导用户开启 wx.requestSubscribeMessage。", paths: ["pages/me/notify"], apis: ["无（读 wx.getSetting）"] },
+          { title: "contact 联系客服", desc: "FAQ + 微信客服入口；教材切换/页码标识等说明。", paths: ["pages/me/contact"], apis: ["无"] },
+          { title: "privacy 隐私协议", desc: "账号安全与数据使用说明。", paths: ["pages/me/privacy"], apis: ["无"] },
+          { title: "study-record 学习记录", desc: "从 me 或首页进入；按日/区间统计；待接 study-records。", paths: ["pages/study-record/record"], apis: ["study-records"] }
+        ],
+        examRecord: [
+          { title: "入门测 entry", desc: "首页列表最前 Banner → exam?type=entry。仅一次；paper 返回 entryCompleted。答题全程计时，交卷带 durationSeconds。", paths: ["home.goExamEntry", "pages/exam/exam"], apis: ["exam-paper", "exam-submit", "exam-result"] },
+          { title: "结业测 exit", desc: "列表最后 Banner；全关≥2星解锁 → exam?type=exit。交卷上报 durationSeconds。", paths: ["home.goExamExit", "pages/exam/exam"], apis: ["exam-paper", "book-units", "exam-submit"] },
+          { title: "入门测报告", desc: "总正确率、单词/句子模块、题型分布、错题、用时（durationSeconds/minutes）。type=entry。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=entry"] },
+          { title: "结业测报告", desc: "同上 + 与入门测对比 Δ（含用时对比 entryCompare.durationSeconds）。type=exit。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=exit"] },
+          { title: "关卡学习报告", desc: "三环节完成后首页 report pill → unit-report。展示 minutes + taskDurations 各环节用时。", paths: ["pages/report/report", "home.goUnitReport"], apis: ["unit-report"] },
+          { title: "听力小测报告", desc: "listen quiz 完成「生成听力报告」→ 同一 report 页，带 fill/recite 成绩与 quiz.durationSeconds。", paths: ["listen.openQuizReport", "pages/report/report"], apis: ["unit-report"] },
+          { title: "study-record 学习记录", desc: "按日聚合 minutes、audioMinutes；入门/结业测次数可跳转 exam-report。", paths: ["pages/study-record/record"], apis: ["study-records"] }
+        ]
+      };
+
+      const PENDING = [
+        { title: "三环节成绩+时长", desc: "word-mark / recitation-score / listening-quiz / save-learning-record 均须带 durationSeconds；后端汇总 minutes 供报告与学习记录。" },
+        { title: "随身听播放时长", desc: "listen-duration 待实现，累加 audioMinutes。" },
+        { title: "打卡写入闭环", desc: "月历只读 user/info.checkInDates；finish 达标后仅写本地 checkin-progress。需后端提供 check-in 或由 save-learning-record 触发写打卡。" },
+        { title: "学习计划同步", desc: "plan 页 groupsPerDay 存 localStorage，影响「今日 x/y 关」与打卡判定，换机不同步，待 study-plan 接口。" },
+        { title: "教材目录字段", desc: "user-books 须返回全量可售词书（含未购），并带 stage/press/newStandard/wordCount，供选择教材弹窗分类筛选；me/book 只展示已购。" },
+        { title: "商品详情 + SKU + 支付", desc: "book-product-list 须返回 book{}+products[]；弹窗/详情页统一走接口，替换 URL 传参与 advertisement.js 本地 SKU 常量。" },
+        { title: "礼品领取", desc: "兑换码由 user/info 后端下发；gift-claim 待实现用于领取落库（当前仅 copyRewardCode 复制，不算领取）。" },
+        { title: "入门/结业测", desc: "exam-paper / exam-submit / exam-result（entry 仅一次；exit 须全关≥2星；结业报告对比入门）。" },
+        { title: "各类报告+用时", desc: "exam-report / report / study-record 展示的 minutes、durationSeconds、taskDurations 均须来自后端汇总；前端练习过程全程上报 durationSeconds，禁止 report.js 本地估算。" },
+        { title: "学习记录", desc: "study-records 按日聚合，含 entryExamCount/exitExamCount。" }
+      ];
+
+      const statusLabel = { ok: "已接入", partial: "部分/Mock", missing: "未使用", external: "外部" };
+      const $ = (s) => document.querySelector(s);
+
+      function renderStats() {
+        const counts = { ok: 0, partial: 0, missing: 0, external: 0 };
+        ROWS.forEach(r => counts[r.status] = (counts[r.status] || 0) + 1);
+        $("#stats").innerHTML = [
+          ["已接入", counts.ok], ["部分/Mock", counts.partial], ["未使用", counts.missing], ["外部", counts.external]
+        ].map(([l, v]) => `<div class="stat"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`).join("");
+      }
+
+      function renderModuleNav() {
+        $("#moduleNav").innerHTML = MODULES.map(m =>
+          `<button class="nav-module" data-anchor="${m.anchor}"><strong>${m.label}</strong><span>${m.pages}</span></button>`
+        ).join("");
+        $("#moduleNav").addEventListener("click", e => {
+          const btn = e.target.closest(".nav-module");
+          if (!btn) return;
+          document.getElementById(btn.dataset.anchor).scrollIntoView({ behavior: "smooth" });
+        });
+      }
+
+      function renderPageNav(active = "all") {
+        const extra = [
+          { id: "core", label: "★ 核心三环节" },
+          { id: "commerce", label: "⑤ 商品购买" },
+          { id: "exam", label: "⑥ 测评/报告" }
+        ];
+        $("#pageNav").innerHTML = [`<button class="page-nav-item ${active === "all" ? "active" : ""}" data-module="all">全部模块</button>`]
+          .concat(MODULES.map(m => `<button class="page-nav-item ${active === m.id ? "active" : ""}" data-module="${m.id}">${m.label}</button>`))
+          .concat(extra.map(m => `<button class="page-nav-item ${active === m.id ? "active" : ""}" data-module="${m.id}">${m.label}</button>`)).join("");
+      }
+
+      function renderCoreFlowSchema() {
+        const wordMarkExample = `POST /mini-app/word-mark
+
+{
+  "unitId": "u_001",
+  "wordId": "w_123",
+  "status": "known",
+  "taskType": "word",
+  "timeSpentSeconds": 18,
+  "startedAt": "2026-06-16T10:01:02+08:00",
+  "finishedAt": "2026-06-16T10:01:20+08:00"
+}`;
+        const recitationExample = `POST /mini-app/recitation-score
+
+{
+  "unitId": "u_001",
+  "wordId": "w_123",
+  "contentType": "word",
+  "score": 87,
+  "durationSeconds": 12,
+  "recordDurationMs": 4200
+}`;
+        const quizExample = `POST /mini-app/listening-quiz-result
+
+{
+  "unitId": "u_001",
+  "wordId": "w_123",
+  "correct": false,
+  "phase": "fill",
+  "durationSeconds": 25
+}`;
+        const saveExample = `GET /mini-app/save-learning-record
+  ?unitId=u_001&taskType=word&scoreRate=85
+  &durationSeconds=320&resBookId=rb_xxx
+
+// 环节结束汇总上报（可与逐词用时二选一或并存）`;
+        const reviewExample = `GET /mini-app/review-words?resBookId=rb_xxx&reviewUnitIds=u_001,u_002,u_003
+
+{
+  "status": "success",
+  "data": [
+    { "word": { "id": "w_123", "content": "abandon", "translation": "…" }, "isReview": true }
+  ]
+}`;
+        $("#coreFlowSchema").innerHTML = [
+          ["word-mark · 单词认选（待实现）", wordMarkExample],
+          ["recitation-score · 跟读分数（待实现）", recitationExample],
+          ["listening-quiz-result · 小测对错（已封装）", quizExample],
+          ["save-learning-record · 环节完成（须补 taskType）", saveExample],
+          ["review-words · 复习词表（待实现）", reviewExample]
+        ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
+      }
+
+      function renderDurationSchema() {
+        const durationFlow = `学习时长 · 上报 → 汇总 → 展示
+
+【前端计时点】
+  practice 单词卡片 onShow→判题     → word-mark.timeSpentSeconds
+  practice/media 跟读录音           → recitation-score.durationSeconds
+  listen quiz 每题                  → listening-quiz-result.durationSeconds
+  finish/today 环节结束             → save-learning-record.durationSeconds
+  exam 整卷 intro→交卷              → exam-submit.durationSeconds
+  player 有效播放                   → listen-duration.durationSeconds
+
+【后端汇总】
+  按 userId + resBookId + date 累加 → study-records.records[].minutes
+  按 unitId 累加三环节              → unit-report.minutes + taskDurations
+  全站累计                          → user/info.studyMinutes
+
+【报告只读】report.js 当前 minutes=词数×0.7 为 Mock，须改为接口字段`;
+        const unitReportTime = `GET /mini-app/unit-report  →  时长字段
+
+{
+  "minutes": 18,
+  "taskDurations": {
+    "word": 320,
+    "recitation": 410,
+    "listening": 280
+  },
+  "taskDurationsUnit": "seconds"
+}`;
+        $("#durationSchema").innerHTML = [
+          ["计时与汇总规则", durationFlow],
+          ["unit-report 时长返回", unitReportTime]
+        ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
+      }
+
+      function renderBookPickerSchema() {
+        const pickerFlow = `首页 · 选择教材弹窗（home.wxml book-picker）
+
+【入口】Hero 区「切换教材」→ switchBook()
+【数据源】GET user-books → allBooks → enrichPickerBooks（locked/newStandard）
+         非 release 追加 mock-textbooks.js 演示目录
+
+【布局】
+  顶部 Tab：小学 / 初中 / 高中（pickerStageId）
+  左侧栏：推荐 + 版本出版社（pickerCategoryId，来自 book.press）
+  右侧网格：封面 + 新课标角标 + 词数 + 底部操作条
+
+【交互】
+  封面点击           → goBookDetail → advertisement?resBookId=…（已购/未购均进详情）
+  未购「去购买」     → goBuyFromPicker → advertisement（forced locked）
+  已购「切换使用」   → switchBookUse → switch-default-book → reload book-units
+  当前教材           → 显示「当前使用」不可再切
+  空分类             → 「该版本教材整理中，可先在推荐里选择」
+
+【与 me/book 区别】
+  弹窗 = 全量目录（含未购）；me/book = 仅已购子集，无购买入口`;
+        const userBooksPicker = `GET /mini-app/user-books  →  弹窗所需字段
+
+{
+  "data": [
+    {
+      "resBookId": "rb_001",
+      "name": "初中英语词汇格言谚语词典",
+      "bookCover": "https://…",
+      "wordCount": 1413,
+      "press": "人教版",
+      "stage": "初中",
+      "grades": "初中",
+      "newStandard": 0,
+      "defaultBook": 1,
+      "unlocked": 1,
+      "needVip": 0,
+      "learningInfo": { "book": { "learningWords": 320 } }
+    },
+    {
+      "resBookId": "rb_002",
+      "name": "(新)七年级上册",
+      "press": "人教版",
+      "stage": "初中",
+      "newStandard": 1,
+      "unlocked": 0,
+      "needVip": 1
+    }
+  ]
+}
+
+// stage/press/newStandard 供前端分类；后端应全量返回可售词书`;
+        const goBuyQuery = `home.goBuyBook → advertisement 当前传参（待 book-product-list 替换）
+
+resBookId, name, bookCover, wordCount, proverbCount,
+press, grades, intro, unlocked=0|1`;
+        $("#bookPickerSchema").innerHTML = [
+          ["选择教材 · 弹窗结构与交互", pickerFlow],
+          ["user-books · 目录字段", userBooksPicker],
+          ["跳转商品详情 · query", goBuyQuery]
+        ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
+      }
+
+      function renderCommerceSchema() {
+        const localMap = `前端常量（pages/advertisement/advertisement.js）→ 后端字段
+
+PACKAGE_OPTIONS[].id        → products[].packageId
+PACKAGE_OPTIONS[].name      → products[].packageName
+PACKAGE_OPTIONS[].tag         → products[].tag
+PACKAGE_OPTIONS[].summary   → products[].summary
+PACKAGE_OPTIONS[].items[]   → products[].items[]
+book.name / bookCover 等    → data.book{}（词书详情，非 SKU）
+VALIDITY_OPTIONS[].id       → products[].validityId
+VALIDITY_OPTIONS[].name     → products[].validityName
+SKU_PRICES["{pkg}-{valid}"] → products[].price（元）
+组合键 full-forever 等       → products[].orderProductId（下单主键）`;
+        const bookProductExample = `GET /mini-app/book-product-list?resBookId=xxx
+
+{
+  "status": "success",
+  "data": {
+    "resBookId": "xxx",
+    "book": {
+      "name": "人教版七年级上册",
+      "bookCover": "https://…/cover.jpg",
+      "press": "人民教育出版社",
+      "grades": ["初中", "七年级"],
+      "intro": "词书简介文案…",
+      "wordCount": 1200,
+      "proverbCount": 800,
+      "unitCount": 120,
+      "unlocked": false
+    },
+    "products": [
+      {
+        "orderProductId": "prod_full_forever_001",
+        "packageId": "full",
+        "packageName": "词典+智能学习卡",
+        "validityId": "forever",
+        "validityName": "永久有效",
+        "price": 98,
+        "priceCents": 9800,
+        "tag": "推荐",
+        "summary": "词典 + 智能学习卡，听说读写测完整闭环",
+        "items": ["电子词典全部词汇与谚语", "智能学习卡：单词新学/跟读/测验", "…"],
+        "enabled": true,
+        "sort": 1
+      }
+    ]
+  }
+}`;
+        const orderExample = `GET /mini-app/order?orderProductId=prod_full_forever_001
+
+{
+  "status": "success",
+  "data": {
+    "orderId": "ord_20260616_001",
+    "orderProductId": "prod_full_forever_001",
+    "resBookId": "xxx",
+    "packageName": "词典+智能学习卡",
+    "validityName": "永久有效",
+    "price": 98,
+    "priceCents": 9800,
+    "status": "pending",
+    "payParams": {
+      "timeStamp": "…",
+      "nonceStr": "…",
+      "package": "prepay_id=…",
+      "signType": "RSA",
+      "paySign": "…"
+    }
+  }
+}
+
+// 服务端（无前端调用）
+POST /mini-app/pay-notify  ← 微信异步通知，验签后 order.status=paid，解锁词书
+
+// 前端支付成功后（待实现）
+GET /mini-app/order/status?orderId=ord_20260616_001
+→ { "status": "paid", "unlocked": true, "resBookId": "xxx" }`;
+        $("#commerceSchema").innerHTML = [
+          ["book-product-list · 词书详情 + SKU", bookProductExample],
+          ["order / pay-notify / order-status", orderExample],
+          ["本地常量 → 后端字段", localMap]
+        ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
+      }
+
+      function renderCheckinGiftSchema() {
+        const userInfoGift = `POST /mini-app/user/info  →  data 礼品字段（后端存储并下发）
+
+{
+  "continuousDays": 34,
+  "giftUnlocked": true,
+  "giftClaimed": false,
+  "rewardDay": 30,
+  "rewardCode": "VIP-2026-ABCD-1234",
+  "streakRewardCode": "VIP-2026-ABCD-1234",
+  "rewardStatus": "claimable",
+  "gifts": [
+    {
+      "giftId": "streak_30_vip",
+      "title": "连续打卡30天 VIP",
+      "thresholdDays": 30,
+      "eligible": true,
+      "claimed": false,
+      "rewardCode": "VIP-2026-ABCD-1234"
+    }
+  ]
+}
+
+// 前端 calendar.js：pickRewardCode 读 rewardCode / streakRewardCode
+// 无接口数据时用 STREAK_REWARD_CODE 演示兜底（联调后删除）`;
+        const giftClaim = `POST /mini-app/gift-claim  （待实现）
+
+{ "giftId": "streak_30_vip", "rewardType": "streak_30", "resBookId": "xxx" }
+
+→ {
+  "giftClaimed": true,
+  "rewardStatus": "claimed",
+  "rewardCode": "VIP-2026-ABCD-1234"
+}
+
+// 当前：copyRewardCode 只复制 user/info 里的码，不调 claim`;
+        $("#checkinGiftSchema").innerHTML = [
+          ["user/info · 礼品与兑换码（后端下发）", userInfoGift],
+          ["gift-claim · 领取核销（待实现）", giftClaim]
+        ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
+      }
+
+      function renderExamRecordSchema() {
+        const examPaper = `GET /mini-app/exam-paper?resBookId=xxx&type=entry
+
+{
+  "status": "success",
+  "data": {
+    "type": "entry",
+    "title": "入门测 · 摸底测评",
+    "subtitle": "了解你的当前水平",
+    "total": 28,
+    "entryCompleted": false,
+    "exitUnlocked": false,
+    "sections": [
+      { "key": "word", "name": "单词", "desc": "词义·拼写·听辨·运用", "count": 16 },
+      { "key": "sentence", "name": "句子", "desc": "句意·翻译·完形·成句", "count": 12 }
+    ],
+    "questions": [
+      {
+        "id": "w0",
+        "section": "word",
+        "type": "word-cn",
+        "typeLabel": "词义理解",
+        "interaction": "choice",
+        "stem": "brave",
+        "stemSub": "/breɪv/",
+        "options": ["勇敢的", "诚实的", "努力的", "智慧的"],
+        "answer": 0,
+        "explain": "brave adj. 勇敢的"
+      }
+    ]
+  }
+}
+
+// type=exit 时 exitUnlocked 须 true（全关≥2星，见 book-units + getExitLockState）`;
+        const examSubmit = `POST /mini-app/exam-submit  →  交卷 + 用时
+
+{ "resBookId": "xxx", "type": "entry", "responses": {…}, "durationSeconds": 892 }
+
+→ result: { accuracy, …, durationSeconds: 892, minutes: 15 }`;
+        const examResultEntry = `GET /mini-app/exam-result?type=entry
+
+{ "accuracy": 82, "durationSeconds": 892, "minutes": 15, "byType": […], "wrong": […] }`;
+        const examResultExit = `GET /mini-app/exam-result?type=exit
+
+{
+  "accuracy": 91, "durationSeconds": 1045,
+  "entryCompare": { "accuracy": 82, "durationSeconds": 892 }
+}`;
+        const studyRecords = `GET /mini-app/study-records?resBookId=xxx&startDate=2026-06-01&endDate=2026-06-16
+
+{
+  "status": "success",
+  "data": {
+    "records": [
+      {
+        "date": "2026-06-16",
+        "minutes": 33,
+        "_minutes_note": "由当日各 durationSeconds 汇总，非前端估算",
+        "newWords": 14,
+        "readWords": 20,
+        "readSentences": 5,
+        "quizWords": 14,
+        "quizQuestions": 28,
+        "reciteWords": 8,
+        "reviewWords": 2,
+        "audioMinutes": 7,
+        "listenAssessCount": 5,
+        "entryExamCount": 1,
+        "exitExamCount": 0
+      }
+    ]
+  }
+}`;
+        const unitReport = `GET /mini-app/unit-report?unitId=u_001
+
+{
+  "minutes": 18,
+  "taskDurations": { "word": 320, "recitation": 410, "listening": 280 },
+  "mastered": […], "wrong": […],
+  "quiz": { "fillAccuracy": 80, "reciteAvg": 76, "durationSeconds": 280 }
+}`;
+        $("#examRecordSchema").innerHTML = [
+          ["exam-paper · 入门/结业测试卷", examPaper],
+          ["exam-submit · 交卷", examSubmit],
+          ["exam-result · 入门测报告 (type=entry)", examResultEntry],
+          ["exam-result · 结业测报告 (type=exit)", examResultExit],
+          ["unit-report · 关卡/听力报告", unitReport],
+          ["study-records · 学习记录汇总", studyRecords]
+        ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
+      }
+
+      function renderGallery(filterModule = "all") {
+        $("#gallery").innerHTML = SCREENSHOTS.filter(s => filterModule === "all" || s.module === filterModule).map(s => `
+          <button class="shot" data-src="${s.file}" data-title="${s.title}">
+            <img class="shot-image" src="${s.file}" alt="${s.title}" onerror="this.alt='请放置截图：${s.file}'; this.src=''; this.parentElement.classList.add('missing-shot');" />
+            <div class="shot-label"><span>${s.title}</span><span>${s.apis.join(" · ")}</span></div>
+          </button>`).join("");
+      }
+
+      function renderRows(filter = "all", module = "all", q = "") {
+        const query = q.trim().toLowerCase();
+        $("#apiRows").innerHTML = ROWS.filter(r => {
+          if (filter !== "all" && r.status !== filter) return false;
+          if (module !== "all" && r.moduleId !== module && !(module === "common" && r.moduleId === "common")) return false;
+          if (module !== "all" && r.moduleId === "common") return false;
+          if (query) {
+            const hay = [r.module, r.page, r.summary, ...(r.endpoints || []).map(e => e.method + " " + e.path)].join(" ").toLowerCase();
+            if (!hay.includes(query)) return false;
+          }
+          return true;
+        }).map(r => `
+          <tr data-id="${r.id}">
+            <td class="module">${r.module}</td>
+            <td class="page">${r.page}</td>
+            <td>${(r.endpoints || []).map(e => `<code class="endpoint">${e.method} ${e.path}${e.note ? " (" + e.note + ")" : ""}</code>`).join("")}</td>
+            <td><span class="badge ${r.status}">${statusLabel[r.status] || r.status}</span></td>
+            <td>${r.summary}</td>
+            <td><button class="detail-btn" data-id="${r.id}">查看详情</button></td>
+          </tr>`).join("");
+      }
+
+      function renderPageCards(id, target) {
+        $(target).innerHTML = (PAGE_CARDS[id] || []).map(c => `
+          <article class="card">
+            <h3>${c.title}</h3>
+            <p>${c.desc}</p>
+            <div class="chips">${c.paths.map(p => `<span class="chip">${p}</span>`).join("")}${c.apis.map(a => `<span class="chip">${a}</span>`).join("")}</div>
+          </article>`).join("");
+      }
+
+      function openDetail(id) {
+        const row = ROWS.find(r => r.id === id);
+        if (!row) return;
+        $("#modalTitle").textContent = (row.endpoints[0]?.method || "") + " " + (row.endpoints[0]?.path || row.page);
+        const d = row.detail || {};
+        $("#modalBody").innerHTML = [
+          ["调用方", d.callers], ["页面渲染", d.render], ["请求", d.request], ["响应/字段", d.response || d.fields]
+        ].map(([t, v]) => `<div class="modal-box ${t === "请求" || t === "响应/字段" ? "wide" : ""}"><h3>${t}</h3><p>${v || "—"}</p></div>`).join("");
+        $("#detailModal").classList.add("open");
+      }
+
+      let currentFilter = "all", currentModule = "all";
+
+      renderStats();
+      renderModuleNav();
+      renderPageNav();
+      renderGallery();
+      renderRows();
+      renderPageCards("coreFlow", "#coreFlowPages");
+      renderPageCards("home", "#homePages");
+      renderPageCards("checkin", "#checkinPages");
+      renderPageCards("listen", "#listenPages");
+      renderPageCards("me", "#mePages");
+      renderPageCards("commerce", "#commercePages");
+      renderPageCards("examRecord", "#examRecordPages");
+      renderCoreFlowSchema();
+      renderDurationSchema();
+      renderBookPickerSchema();
+      renderCheckinGiftSchema();
+      renderExamRecordSchema();
+      renderCommerceSchema();
+      $("#pendingCards").innerHTML = PENDING.map(p => `<article class="card"><h3>${p.title}</h3><p>${p.desc}</p></article>`).join("");
+
+      document.querySelectorAll(".filter").forEach(btn => btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        renderRows(currentFilter, currentModule, $("#search").value);
+      }));
+
+      $("#pageNav").addEventListener("click", e => {
+        const btn = e.target.closest(".page-nav-item");
+        if (!btn) return;
+        currentModule = btn.dataset.module;
+        renderPageNav(currentModule);
+        renderGallery(currentModule);
+        renderRows(currentFilter, currentModule, $("#search").value);
+      });
+
+      $("#search").addEventListener("input", e => renderRows(currentFilter, currentModule, e.target.value));
+      $("#apiRows").addEventListener("click", e => {
+        const btn = e.target.closest(".detail-btn");
+        if (btn) openDetail(btn.dataset.id);
+      });
+      $("#closeModal").addEventListener("click", () => $("#detailModal").classList.remove("open"));
+      $("#detailModal").addEventListener("click", e => { if (e.target === $("#detailModal")) $("#detailModal").classList.remove("open"); });
+
+      $("#gallery").addEventListener("click", e => {
+        const shot = e.target.closest(".shot");
+        if (!shot || !shot.dataset.src) return;
+        $("#lightboxImg").src = shot.dataset.src;
+        $("#lightboxImg").alt = shot.dataset.title;
+        $("#lightbox").classList.add("open");
+      });
+      $("#lightbox").addEventListener("click", () => $("#lightbox").classList.remove("open"));
+    </script>
+  </body>
+</html>

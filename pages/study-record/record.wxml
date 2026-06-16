@@ -126,21 +126,34 @@
         >
           <view class="record-head" data-date="{{item.date}}" bindtap="toggleRecordDay">
             <view class="record-date">
+              <view class="record-date-leaf"></view>
               <view class="record-month">{{item.monthLabel}}</view>
               <view class="record-day-num">{{item.dayLabel}}</view>
             </view>
             <view class="record-copy-box">
-              <view class="record-title">学习 {{item.minutes}} 分钟</view>
-              <view class="record-sub">新学 {{item.newWords}} 词 · 随身听 {{item.audioMinutes}} 分钟</view>
+              <view class="record-title">{{item.titleText}}</view>
+              <view class="record-sub">
+                <text class="record-sub-rank">{{item.subtitleText || '击败同期 80% 学员'}}</text>
+              </view>
             </view>
             <view class="record-arrow">›</view>
           </view>
           <view class="record-detail" wx:if="{{item.expanded}}">
             <view class="detail-grid">
-              <view class="detail-item" wx:for="{{item.detailItems}}" wx:for-item="detail" wx:key="key">
+              <view
+                class="detail-item {{detail.canOpenReport ? 'detail-item-link' : ''}}"
+                wx:for="{{item.detailItems}}"
+                wx:for-item="detail"
+                wx:key="key"
+                wx:if="{{detail.value > 0}}"
+                data-url="{{detail.reportUrl}}"
+                data-type="{{detail.reportType}}"
+                bindtap="openDetailReport"
+              >
                 <view class="detail-icon-box">
                   <image class="detail-icon" src="{{detail.icon}}" mode="aspectFit" />
                 </view>
+                <view class="detail-report-arrow" wx:if="{{detail.canOpenReport}}">›</view>
                 <view class="detail-value">{{detail.valueText}}</view>
                 <view class="detail-label">{{detail.label}}</view>
               </view>

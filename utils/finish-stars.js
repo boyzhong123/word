@@ -1,9 +1,16 @@
 const { imageUrl } = require('./image-host')
 
+// Bump when finish header art changes; COS objects are immutable for 1 year.
+const HEADER_IMAGE_VERSION = '20260616-jelly-v2'
+
+function finishHeaderUrl(path) {
+  return `${imageUrl(path)}?v=${HEADER_IMAGE_VERSION}`
+}
+
 const HEADER_IMAGES = {
-  1: imageUrl('/images/finish/finish-today-header-1star.png'),
-  2: imageUrl('/images/finish/finish-today-header-2star.png'),
-  3: imageUrl('/images/finish/finish-today-header-3star.png')
+  1: finishHeaderUrl('/images/finish/finish-today-header-1star.png'),
+  2: finishHeaderUrl('/images/finish/finish-today-header-2star.png'),
+  3: finishHeaderUrl('/images/finish/finish-today-header-3star.png')
 }
 
 function normalizeScoreRate(value) {

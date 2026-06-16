@@ -2,12 +2,26 @@
 // 测评报告：单词/句子正确率、题型分布、错题清单。
 // 结业测额外展示与入门测的对比（提升幅度）。
 const { getResult } = require('../../utils/exam-data')
+const { imageUrl } = require('../../utils/image-host')
 
 function gradeText(accuracy) {
   if (accuracy >= 90) return '优秀'
   if (accuracy >= 75) return '良好'
   if (accuracy >= 60) return '及格'
   return '待加强'
+}
+
+// 正确率分档：用于上色与状态文案
+function toneColor(accuracy) {
+  if (accuracy >= 80) return '#22c55e'
+  if (accuracy >= 50) return '#f59e0b'
+  return '#ef4444'
+}
+
+function tierText(accuracy) {
+  if (accuracy >= 80) return '掌握'
+  if (accuracy >= 50) return '较好'
+  return '待练'
 }
 
 function encourageText(type, accuracy, delta) {
@@ -39,6 +53,7 @@ Page({
     typeName: '',
     bookName: '',
     result: null,
+    reportHeroSrc: imageUrl('/images/home/exam-report-header-v2.jpg'),
     grade: '',
     encourage: '',
     sections: [],
@@ -63,9 +78,17 @@ Page({
     }
 
     const sections = [
-      { key: 'word', name: '单词', accuracy: result.wordAccuracy, correct: result.wordCorrect, total: result.wordTotal, color: '#16a34a' },
-      { key: 'sentence', name: '句子', accuracy: result.sentenceAccuracy, correct: result.sentenceCorrect, total: result.sentenceTotal, color: '#f97316' }
+      { key: 'word', name: '单词', icon: '../../images/home/exam-report/icon-badge-word.png', accuracy: result.wordAccuracy, correct: result.wordCorrect, total: result.wordTotal, color: '#16a34a', tintBg: '#e9f8ef', statusText: tierText(result.wordAccuracy) },
+      { key: 'sentence', name: '句子', icon: '../../images/home/exam-report/icon-badge-sentence.png', accuracy: result.sentenceAccuracy, correct: result.sentenceCorrect, total: result.sentenceTotal, color: '#f97316', tintBg: '#fff2e6', statusText: tierText(result.sentenceAccuracy) }
     ]
+
+    // 题型掌握度：按正确率上色（掌握/较好/待练），让条形和圆点会说话
+    const byType = (result.byType || []).map(function (t) {
+      return Object.assign({}, t, {
+        barColor: toneColor(t.accuracy),
+        statusText: tierText(t.accuracy)
+      })
+    })
 
     // 结业测：和入门测对比
     let showCompare = false
@@ -94,7 +117,7 @@ Page({
       grade: gradeText(result.accuracy),
       encourage: encourageText(type, result.accuracy, delta),
       sections: sections,
-      byType: result.byType,
+      byType: byType,
       wrong: result.wrong,
       hasWrong: result.wrong.length > 0,
       showCompare: showCompare,

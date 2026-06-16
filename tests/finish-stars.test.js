@@ -19,9 +19,9 @@ test('finish stars follow score thresholds 55 and 80', () => {
 })
 
 test('finish header image switches by score rate', () => {
-  assert.match(headerImageForScoreRate(40), /finish-today-header-1star\.png$/)
-  assert.match(headerImageForScoreRate(70), /finish-today-header-2star\.png$/)
-  assert.match(headerImageForScoreRate(95), /finish-today-header-3star\.png$/)
+  assert.match(headerImageForScoreRate(40), /finish-today-header-1star\.png\?v=/)
+  assert.match(headerImageForScoreRate(70), /finish-today-header-2star\.png\?v=/)
+  assert.match(headerImageForScoreRate(95), /finish-today-header-3star\.png\?v=/)
 })
 
 test('practice score rate averages pronunciation scores', () => {

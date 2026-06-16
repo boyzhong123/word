@@ -27,7 +27,14 @@ SOURCE_FILES = {
 }
 
 HOME_SOURCE_FILES = {
-    "toast-hint.png": ("toast-hint-source.png", HOME_TOAST_HINT_SIZE, HOME_TOAST_HINT_SIZE, 12, True),
+    # Magenta key + hard matte: gray soft-matte keying punches holes in translucent green jelly.
+    "toast-hint.png": (
+        "toast-hint-source.png",
+        HOME_TOAST_HINT_SIZE,
+        HOME_TOAST_HINT_SIZE,
+        12,
+        {"key_color": "#ff00ff", "tolerance": 40, "soft_matte": False},
+    ),
 }
 
 
@@ -57,7 +64,7 @@ def fit_asset(image, width, height, padding):
     return canvas
 
 
-def remove_checkerboard(source_path, work_dir):
+def remove_checkerboard(source_path, work_dir, *, key_color="#ededed", tolerance=24, soft_matte=True):
     keyed_path = work_dir / f"{source_path.stem}-keyed.png"
     if CHROMA_KEY_SCRIPT.exists():
         args = [
@@ -68,12 +75,13 @@ def remove_checkerboard(source_path, work_dir):
             "--out",
             str(keyed_path),
             "--key-color",
-            "#ededed",
+            key_color,
             "--tolerance",
-            "24",
-            "--soft-matte",
+            str(tolerance),
             "--force",
         ]
+        if soft_matte:
+            args.append("--soft-matte")
         subprocess.run(args, check=True)
         return Image.open(keyed_path).convert("RGBA")
 
@@ -85,6 +93,20 @@ def remove_checkerboard(source_path, work_dir):
             if max(r, g, b) - min(r, g, b) <= 8 and (r + g + b) / 3 >= 210:
                 pixels[x, y] = (r, g, b, 0)
     return image
+
+
+def keyed_options(keyed):
+    if keyed is True:
+        return {}
+    if isinstance(keyed, dict):
+        return keyed
+    return {}
+
+
+def load_source_image(source_path, work_dir, keyed):
+    if not keyed:
+        return Image.open(source_path).convert("RGBA")
+    return remove_checkerboard(source_path, work_dir, **keyed_options(keyed))
 
 
 def resolve_source(name):
@@ -106,7 +128,7 @@ def main():
 
     for output_name, (source_name, width, height, padding, keyed) in SOURCE_FILES.items():
         source_path = resolve_source(source_name)
-        image = remove_checkerboard(source_path, work_dir) if keyed else Image.open(source_path).convert("RGBA")
+        image = load_source_image(source_path, work_dir, keyed)
         icon = fit_asset(image, width, height, padding)
         icon.save(WORD_NEW_DIR / output_name, optimize=True)
         print(f"built {WORD_NEW_DIR / output_name}")
@@ -116,7 +138,7 @@ def main():
     HOME_DIR.mkdir(parents=True, exist_ok=True)
     for output_name, (source_name, width, height, padding, keyed) in HOME_SOURCE_FILES.items():
         source_path = resolve_source(source_name)
-        image = remove_checkerboard(source_path, home_work_dir) if keyed else Image.open(source_path).convert("RGBA")
+        image = load_source_image(source_path, home_work_dir, keyed)
         icon = fit_asset(image, width, height, padding)
         icon.save(HOME_DIR / output_name, optimize=True)
         print(f"built {HOME_DIR / output_name}")

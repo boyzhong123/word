@@ -22,6 +22,8 @@ const REMOTE_IMAGE_PATHS = {
   '/images/home/exam-entry-banner-entry.png': true,
   '/images/home/exam-entry-banner-exit-locked.png': true,
   '/images/home/exam-entry-banner-exit.png': true,
+  '/images/home/exam-intro-hero-v2.jpg': true,
+  '/images/home/exam-report-header-v2.jpg': true,
   '/images/home/fab-today-locate-jelly.png': true,
   '/images/home/hero-campus-jelly-overlay-sprite.png': true,
   '/images/home/hero-campus-jelly-sprite.png': true,

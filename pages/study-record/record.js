@@ -10,6 +10,12 @@ const {
   normalizeRange,
   summarizeStudyRecords
 } = require('../../utils/study-records')
+const {
+  getExam,
+  hasResult,
+  saveResult,
+  scoreExam
+} = require('../../utils/exam-data')
 
 const QUICK_RANGES = [
   { id: 'today', label: '今天' },
@@ -27,7 +33,8 @@ const RECORD_ICONS = {
   readSentence: '../../images/study-record/icon-detail-read-sentence-jelly.png',
   quiz: '../../images/study-record/icon-detail-quiz-jelly.png',
   recite: '../../images/study-record/icon-detail-recite-jelly.png',
-  review: '../../images/study-record/icon-detail-review-jelly.png',
+  entryExam: '../../images/home/icon-exam-diagnose.svg',
+  exitExam: '../../images/home/icon-exam-report.svg',
   trendNew: '../../images/study-record/icon-trend-new-jelly.png',
   trendRead: '../../images/study-record/icon-trend-read-jelly.png',
   trendQuiz: '../../images/study-record/icon-trend-quiz-jelly.png',
@@ -35,16 +42,28 @@ const RECORD_ICONS = {
 }
 const SUMMARY_ITEMS = [
   { key: 'newWords', label: '单词新学', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
-  { key: 'quizWords', label: '关卡小测', unit: '词', field: 'quizWords', icon: RECORD_ICONS.quiz },
+  { key: 'quizQuestions', label: '关卡小测', unit: '题', field: 'quizQuestions', icon: RECORD_ICONS.quiz },
   { key: 'listen', label: '随身听', unit: '分钟', field: 'audioMinutes', icon: RECORD_ICONS.listen }
 ]
 const DETAIL_ITEMS = [
   { key: 'newWords', label: '单词新学', unit: '词', field: 'newWords', icon: RECORD_ICONS.newWords },
   { key: 'recitationWords', label: '跟读背诵', unit: '词', field: 'recitationWords', icon: RECORD_ICONS.recite },
-  { key: 'quizWords', label: '关卡小测', unit: '词', field: 'quizWords', icon: RECORD_ICONS.quiz },
-  { key: 'reviewWords', label: '错词复习', unit: '词', field: 'reviewWords', icon: RECORD_ICONS.review },
+  { key: 'readSentences', label: '跟读背诵', unit: '句', field: 'readSentences', icon: RECORD_ICONS.readSentence },
+  { key: 'quizQuestions', label: '关卡小测', unit: '题', field: 'quizQuestions', icon: RECORD_ICONS.quiz },
   { key: 'audioMinutes', label: '随身听', unit: '分钟', field: 'audioMinutes', icon: RECORD_ICONS.listen },
-  { key: 'listenAssess', label: '随身听测评', unit: '次', field: 'listenAssessCount', icon: RECORD_ICONS.practice }
+  { key: 'listenAssess', label: '随身听测评', unit: '次', field: 'listenAssessCount', icon: RECORD_ICONS.practice },
+  { key: 'entryExam', label: '入门测', unit: '次', field: 'entryExamCount', icon: RECORD_ICONS.entryExam, reportType: 'entry' },
+  { key: 'exitExam', label: '结业测', unit: '次', field: 'exitExamCount', icon: RECORD_ICONS.exitExam, reportType: 'exit' }
+]
+const TREND_ITEMS = [
+  { label: '单词新学', unit: '词', field: 'newWords', icon: RECORD_ICONS.trendNew, fillClass: 'trend-fill-new' },
+  { label: '背诵词数', unit: '词', field: 'recitationWords', icon: RECORD_ICONS.trendRead, fillClass: 'trend-fill-read' },
+  { label: '背诵句数', unit: '句', field: 'readSentences', icon: RECORD_ICONS.trendRecite, fillClass: 'trend-fill-recite' },
+  { label: '关卡小测', unit: '题', field: 'quizQuestions', icon: RECORD_ICONS.trendQuiz, fillClass: 'trend-fill-quiz' },
+  { label: '随身听', unit: '分钟', field: 'audioMinutes', icon: RECORD_ICONS.listen, fillClass: 'trend-fill-listen' },
+  { label: '随身听测评', unit: '次', field: 'listenAssessCount', icon: RECORD_ICONS.practice, fillClass: 'trend-fill-assess' },
+  { label: '入门测', unit: '次', field: 'entryExamCount', icon: RECORD_ICONS.entryExam, fillClass: 'trend-fill-entry' },
+  { label: '结业测', unit: '次', field: 'exitExamCount', icon: RECORD_ICONS.exitExam, fillClass: 'trend-fill-exit' }
 ]
 
 function buildClass(base, flags) {
@@ -123,6 +142,38 @@ function getSafeAreaBottom() {
     : 0
 }
 
+function buildPeerBeatText(record, recitationWords, quizQuestions) {
+  const effortScore =
+    (Number(record.minutes) || 0) * 1.2 +
+    (Number(record.newWords) || 0) * 2 +
+    recitationWords * 1.4 +
+    (Number(record.readSentences) || 0) * 2.5 +
+    quizQuestions * 1.1 +
+    (Number(record.audioMinutes) || 0) * 0.8 +
+    (Number(record.listenAssessCount) || 0) * 3 +
+    (Number(record.entryExamCount) || 0) * 8 +
+    (Number(record.exitExamCount) || 0) * 8
+  const beatPercent = Math.max(55, Math.min(96, 52 + Math.round(Math.sqrt(effortScore) * 2.6)))
+  return `击败同期 ${beatPercent}% 学员`
+}
+
+function ensureDemoExamResult(type) {
+  const examType = type === 'exit' ? 'exit' : 'entry'
+  if (hasResult('', examType)) {
+    return
+  }
+  const exam = getExam('', examType)
+  const targetRate = examType === 'exit' ? 0.86 : 0.72
+  const correctLimit = Math.round(exam.questions.length * targetRate)
+  const responses = {}
+  exam.questions.forEach((question, index) => {
+    if (index < correctLimit) {
+      responses[question.id] = question.answer
+    }
+  })
+  saveResult('', examType, scoreExam(exam, responses))
+}
+
 Page({
   data: {
     safeAreaBottom: 0,
@@ -137,6 +188,7 @@ Page({
       studyDays: 0,
       minutes: 0,
       newWords: 0,
+      quizQuestions: 0,
       practiceCount: 0,
       audioMinutes: 0
     },
@@ -201,13 +253,7 @@ Page({
     const rangeRecords = getRecordsInRange(this.studyRecords, startDate, endDate)
     const summary = summarizeStudyRecords(rangeRecords)
     const rangeDays = getDateKeysInRange(startDate, endDate).length
-    const maxTrendValue = Math.max(
-      summary.newWords,
-      summary.recitationWords,
-      summary.quizWords,
-      summary.reviewWords,
-      1
-    )
+    const maxTrendValue = Math.max.apply(null, TREND_ITEMS.map(item => Number(summary[item.field]) || 0).concat(1))
 
     const rangeKey = `${startDate}~${endDate}`
     let rangePulse = this.data.rangePulse
@@ -232,12 +278,14 @@ Page({
         icon: item.icon,
         valueText: `${summary[item.field]}${item.unit}`
       })),
-      trendRows: [
-        this.buildTrendRow('单词新学', summary.newWords, '词', maxTrendValue, 'trend-fill-new', RECORD_ICONS.trendNew),
-        this.buildTrendRow('跟读背诵', summary.recitationWords, '词', maxTrendValue, 'trend-fill-read', RECORD_ICONS.trendRead),
-        this.buildTrendRow('关卡小测', summary.quizWords, '词', maxTrendValue, 'trend-fill-quiz', RECORD_ICONS.trendQuiz),
-        this.buildTrendRow('错词复习', summary.reviewWords, '词', maxTrendValue, 'trend-fill-recite', RECORD_ICONS.trendRecite)
-      ],
+      trendRows: TREND_ITEMS.map(item => this.buildTrendRow(
+        item.label,
+        Number(summary[item.field]) || 0,
+        item.unit,
+        maxTrendValue,
+        item.fillClass,
+        item.icon
+      )).filter(item => item.value > 0),
       rangeRecords: this.buildRangeRecords(rangeRecords),
       hasRangeRecords: rangeRecords.length > 0
     })
@@ -302,10 +350,11 @@ Page({
   },
 
   buildTrendRow(label, value, unit, maxValue, fillClass, icon) {
-    const percent = Math.max(6, Math.round((value / maxValue) * 100))
+    const percent = value > 0 ? Math.max(6, Math.round((value / maxValue) * 100)) : 0
     return {
       label,
       icon,
+      value,
       valueText: `${value}${unit}`,
       fillClass,
       fillStyle: `width: ${percent}%;`
@@ -317,18 +366,33 @@ Page({
       const date = new Date(record.date.replace(/-/g, '/'))
       const expanded = this.expandedRecordDates[record.date] !== false
       const recitationWords = (Number(record.readWords) || 0) + (Number(record.reciteWords) || 0)
-      const fields = Object.assign({}, record, { recitationWords })
+      const quizWords = Number(record.quizWords) || 0
+      const quizQuestions = Number(record.quizQuestions) || quizWords * 2
+      const fields = Object.assign({}, record, {
+        recitationWords,
+        quizQuestions,
+        entryExamCount: Number(record.entryExamCount) || 0,
+        exitExamCount: Number(record.exitExamCount) || 0
+      })
       return Object.assign({}, record, {
         monthLabel: `${date.getMonth() + 1}月`,
         dayLabel: date.getDate(),
         expanded,
         recitationWords,
+        quizQuestions,
+        stageCount: Math.floor(quizQuestions / 2),
+        titleText: `完成闯关 ${Math.floor(quizQuestions / 2)} 关 · 学习 ${record.minutes} 分钟`,
+        subtitleText: buildPeerBeatText(record, recitationWords, quizQuestions),
         detailItems: DETAIL_ITEMS.map(item => ({
           key: item.key,
           label: item.label,
           icon: item.icon,
-          valueText: `${fields[item.field]}${item.unit}`
-        })),
+          value: Number(fields[item.field]) || 0,
+          valueText: `${Number(fields[item.field]) || 0}${item.unit}`,
+          canOpenReport: Boolean(item.reportType),
+          reportType: item.reportType || '',
+          reportUrl: item.reportType ? `/pages/exam/exam-report?type=${item.reportType}` : ''
+        })).filter(detail => detail.value > 0),
         className: buildClass('record-day', {
           'record-day-open': expanded
         })
@@ -391,5 +455,15 @@ Page({
     const date = event.currentTarget.dataset.date
     this.expandedRecordDates[date] = !this.expandedRecordDates[date]
     this.render()
+  },
+
+  openDetailReport(event) {
+    const url = event.currentTarget.dataset.url
+    const type = event.currentTarget.dataset.type
+    if (!url || !type) {
+      return
+    }
+    ensureDemoExamResult(type)
+    wx.navigateTo({ url })
   }
 })

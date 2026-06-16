@@ -9,11 +9,17 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 IMAGE_GEN="$CODEX_HOME/skills/.system/imagegen/scripts/image_gen.py"
 OUT="$ROOT/assets/toast-hint-source.png"
+HERO_REF="$ROOT/images/home/hero-campus-jelly-v5.png"
 ALERT_REF="$ROOT/images/home/mascot-alert.png"
 LOCKED_REF="$ROOT/images/home/map/monsters/jelly-locked.png"
 
 if [[ ! -f "$IMAGE_GEN" ]]; then
   echo "missing imagegen CLI: $IMAGE_GEN" >&2
+  exit 1
+fi
+
+if [[ ! -f "$HERO_REF" ]]; then
+  echo "missing home hero reference: $HERO_REF" >&2
   exit 1
 fi
 
@@ -29,13 +35,15 @@ fi
 
 python3 "$IMAGE_GEN" edit \
   --model gpt-image-1.5 \
+  --image "$HERO_REF" \
   --image "$ALERT_REF" \
+  --image "$LOCKED_REF" \
   --input-fidelity high \
-  --background transparent \
+  --background opaque \
   --output-format png \
   --size 1024x1024 \
   --quality high \
-  --prompt "Faithfully keep the exact same home-page little monster: translucent lime-green jelly slime body with glossy wet highlights and tiny internal bubbles, yellow ridged horns, pear-shaped sitting pose, polished 3D mobile-game mascot rendering with soft studio lighting. NOT flat 2D cartoon, NOT bundt-cake shape. Change only the pose for a toast hint: alert friendly expression with big shiny eyes open, one small stubby arm raised with index finger pointing upward, and a small soft amber circular badge with white exclamation mark floating near the upper right of the head. Also match the map monster material from the locked jelly reference. Centered character only, no padlock, no text, no floor shadow, transparent background, square icon composition." \
+  --prompt "App UI toast hint icon. Match the exact green jelly monster from the homepage header hero reference: same translucent lime-green jelly slime material with tiny internal bubbles, glossy wet highlights, yellow ridged horns, premium toy-like 3D mobile-learning mascot rendering, soft sunny studio lighting, bright saturated but polished colors, rounded friendly shapes. Use the alert mascot reference for face proportions and the locked jelly reference for seated pear-shaped body material. Toast hint pose only: friendly alert expression with big shiny eyes open, one small stubby arm raised with ONLY the index finger pointing upward (other fingers curled), small soft amber circular badge with white exclamation mark floating near upper right of head. Softer and cleaner than a neon glow look; no harsh bloom, no outer glow halo. Centered character only, no boy, no VS, no campus, no padlock, no text, no floor shadow. Flat solid pure magenta background exactly #ff00ff with no gradient. Square icon composition, crisp edges for downscaling to 192px mobile UI icon." \
   --out "$OUT" \
   --force
 

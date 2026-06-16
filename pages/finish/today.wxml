@@ -2,8 +2,20 @@
 <view class='container' style="background-color: white;" wx:if="{{unitSort < unitCount}}">
   <image class="finish-header" src="{{headerImage}}" mode="widthFix" />
   <view class="content">{{stageTitle}}</view>
-  <view class="periodical" style="margin-top: 77rpx;">完成<text style="color:#111318;">第{{unitSort}}期</text>学习</view>
-  <view class="periodical" style="padding-top:15rpx; font-weight:normal;">再学{{unitCount - unitSort}}期就完成本书的学习</view>
+  <view class="sub-stepper">
+    <block wx:for="{{subSteps}}" wx:key="type">
+      <view wx:if="{{index > 0}}" class="sub-step-line {{item.lineState}}"></view>
+      <view class="sub-step {{item.state}}">
+        <view class="sub-step-dot">
+          <text wx:if="{{item.state != 'upcoming'}}" class="sub-step-check">✓</text>
+          <text wx:else>{{index + 1}}</text>
+        </view>
+        <view class="sub-step-label">{{item.label}}</view>
+      </view>
+    </block>
+  </view>
+  <view class="stage-summary-title">{{summaryTitle}}</view>
+  <view class="stage-summary-sub">{{summarySub}}</view>
   <view class="checkin-progress-line">今日已完成 {{todayDone}}/{{todayGoal}} 关</view>
   <view class="checkin-success-card {{justCheckedIn ? 'checkin-success-card-bright' : ''}}" wx:if="{{checkinComplete}}">
     <image class="checkin-success-icon" src="../../images/checkin/charge-jelly.png" mode="aspectFit" />

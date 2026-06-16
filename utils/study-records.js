@@ -39,7 +39,7 @@ function getDateKeysInRange(startDate, endDate) {
   return keys
 }
 
-function buildRecord(date, minutes, newWords, readWords, readSentences, quizWords, reciteWords, reviewWords, audioMinutes, listenAssessCount) {
+function buildRecord(date, minutes, newWords, readWords, readSentences, quizWords, reciteWords, reviewWords, audioMinutes, listenAssessCount, entryExamCount, exitExamCount) {
   return {
     date,
     minutes,
@@ -50,22 +50,24 @@ function buildRecord(date, minutes, newWords, readWords, readSentences, quizWord
     reciteWords,
     reviewWords,
     audioMinutes,
-    listenAssessCount
+    listenAssessCount,
+    entryExamCount,
+    exitExamCount
   }
 }
 
 function buildDemoStudyRecords(today) {
   const base = parseDate(today)
   const offsets = [
-    [-10, 31, 18, 22, 5, 18, 9, 2, 6, 5],
-    [-9, 45, 24, 30, 8, 20, 11, 3, 11, 9],
-    [-8, 12, 6, 8, 2, 8, 4, 1, 2, 3],
-    [-7, 38, 18, 22, 6, 20, 12, 3, 9, 7],
-    [-6, 29, 12, 18, 4, 16, 10, 1, 7, 6],
-    [-4, 40, 20, 28, 6, 18, 14, 2, 10, 8],
-    [-3, 36, 16, 24, 5, 16, 10, 2, 8, 6],
-    [-1, 42, 22, 26, 7, 22, 12, 4, 8, 7],
-    [0, 33, 14, 20, 5, 14, 8, 2, 7, 5]
+    [-10, 31, 18, 22, 5, 18, 9, 2, 6, 5, 1, 0],
+    [-9, 45, 24, 30, 8, 20, 11, 3, 11, 9, 0, 0],
+    [-8, 12, 6, 8, 2, 8, 4, 1, 2, 3, 0, 0],
+    [-7, 38, 18, 22, 6, 20, 12, 3, 9, 7, 0, 1],
+    [-6, 29, 12, 18, 4, 16, 10, 1, 7, 6, 0, 0],
+    [-4, 40, 20, 28, 6, 18, 14, 2, 10, 8, 0, 0],
+    [-3, 36, 16, 24, 5, 16, 10, 2, 8, 6, 0, 0],
+    [-1, 42, 22, 26, 7, 22, 12, 4, 8, 7, 0, 0],
+    [0, 33, 14, 20, 5, 14, 8, 2, 7, 5, 1, 1]
   ]
 
   return offsets.map(item => buildRecord(
@@ -78,7 +80,9 @@ function buildDemoStudyRecords(today) {
     item[6],
     item[7],
     item[8],
-    item[9]
+    item[9],
+    item[10],
+    item[11]
   ))
 }
 
@@ -102,11 +106,15 @@ function summarizeStudyRecords(records) {
     total.newWords += Number(record.newWords) || 0
     total.readWords += Number(record.readWords) || 0
     total.readSentences += Number(record.readSentences) || 0
-    total.quizWords += Number(record.quizWords) || 0
+    const quizWords = Number(record.quizWords) || 0
+    total.quizWords += quizWords
+    total.quizQuestions += Number(record.quizQuestions) || quizWords * 2
     total.reciteWords += Number(record.reciteWords) || 0
     total.reviewWords += Number(record.reviewWords) || 0
     total.audioMinutes += Number(record.audioMinutes) || 0
     total.listenAssessCount += Number(record.listenAssessCount) || 0
+    total.entryExamCount += Number(record.entryExamCount) || 0
+    total.exitExamCount += Number(record.exitExamCount) || 0
     return total
   }, {
     studyDays: (records || []).length,
@@ -115,15 +123,23 @@ function summarizeStudyRecords(records) {
     readWords: 0,
     readSentences: 0,
     quizWords: 0,
+    quizQuestions: 0,
     reciteWords: 0,
     reviewWords: 0,
     audioMinutes: 0,
     listenAssessCount: 0,
+    entryExamCount: 0,
+    exitExamCount: 0,
     practiceCount: 0
   })
 
-  summary.practiceCount = summary.readWords + summary.readSentences + summary.quizWords + summary.reciteWords
   summary.recitationWords = summary.readWords + summary.reciteWords
+  summary.practiceCount = summary.recitationWords +
+    summary.readSentences +
+    summary.quizQuestions +
+    summary.listenAssessCount +
+    summary.entryExamCount +
+    summary.exitExamCount
   return summary
 }
 
