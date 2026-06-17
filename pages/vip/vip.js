@@ -1,5 +1,6 @@
 // pages/vip/vip.js 确认订单页：测试环境使用模拟支付完成购买闭环
 const { markDevPurchased } = require('../../utils/dev-books')
+const { requestSubscribeForEvent } = require('../../utils/subscribe')
 
 const systemInfo = wx.getSystemInfoSync()
 const safeArea = wx.getStorageSync('safeArea') || systemInfo.safeArea || {
@@ -77,6 +78,7 @@ Page({
 
   onPaySuccess() {
     markDevPurchased(this.data.resBookId)
+    requestSubscribeForEvent('subscribePref_payment')
     this.setData({ paid: true })
     wx.showToast({ title: '购买成功', icon: 'success' })
 

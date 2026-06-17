@@ -178,6 +178,48 @@ page {
   font-weight: 600;
 }
 
+.power-remind-hint {
+  margin-top: 18rpx;
+  padding: 16rpx 20rpx;
+  color: #2f8f57;
+  font-size: 24rpx;
+  line-height: 34rpx;
+  font-weight: 600;
+  background: #eef9f1;
+  border-radius: 16rpx;
+}
+
+.power-remind-toggle {
+  min-height: 78rpx;
+  margin-top: 18rpx;
+  padding: 16rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  background: #f8faf9;
+  border-radius: 16rpx;
+}
+
+.power-remind-toggle-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.power-remind-toggle-title {
+  color: #111318;
+  font-size: 25rpx;
+  line-height: 34rpx;
+  font-weight: 700;
+}
+
+.power-remind-toggle-desc {
+  margin-top: 3rpx;
+  color: #8b9098;
+  font-size: 22rpx;
+  line-height: 30rpx;
+}
+
 .power-buttons {
   display: flex;
   gap: 22rpx;

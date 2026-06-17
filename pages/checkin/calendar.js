@@ -1,5 +1,10 @@
-const { getUserInfo } = require('../../utils/api')
+const { getUserInfo, reportSubscribeMessageQuota } = require('../../utils/api')
 const { login } = require('../../utils/login')
+const {
+  getCheckinRemindTmplId,
+  getSubscribePref,
+  setSubscribePref
+} = require('../../utils/subscribe')
 const {
   DEMO_CONTINUOUS_DAYS,
   buildCalendarDays,
@@ -38,6 +43,8 @@ function pickLearnedWords(book) {
 }
 const STREAK_REWARD_DAYS = 30
 const STREAK_REWARD_CODE = 'TSZXVIP5D'
+const CHECKIN_REMIND_COUNT_KEY = 'checkinRemindCount'
+const CHECKIN_REMIND_PREF_KEY = 'subscribePref_checkin'
 const DEFAULT_REWARD_SCENARIO_ID = 'claimable'
 const REWARD_SCENARIOS = [
   { id: 'locked', label: '未达标', continuousDays: 18, giftClaimed: false },
@@ -157,25 +164,6 @@ function getRewardScenario(id) {
   return REWARD_SCENARIOS[1]
 }
 
-function pickPracticeUnitId(book) {
-  const learningInfo = (book && book.learningInfo) || {}
-  const candidates = [
-    learningInfo.current && learningInfo.current.unitId,
-    learningInfo.next && learningInfo.next.unitId,
-    learningInfo.book && learningInfo.book.currentUnitId,
-    learningInfo.book && learningInfo.book.learningUnits
-  ]
-
-  for (let i = 0; i < candidates.length; i++) {
-    const value = Number(candidates[i])
-    if (Number.isFinite(value) && value > 0) {
-      return value
-    }
-  }
-
-  return 0
-}
-
 Page({
   data: {
     safeAreaTop: 0,
@@ -193,6 +181,8 @@ Page({
     continuousDays: 0,
     displayContinuousDays: 1,
     todayChecked: false,
+    checkinRemindCount: 0,
+    checkinRemindEnabled: true,
     bookName: '',
     avatarUrl: '',
     avatarSrc: DEFAULT_AVATAR,
@@ -239,7 +229,9 @@ Page({
     this.book = book
 
     this.setData(Object.assign(getSafeArea(), getNavLayout(), {
-      bookName: book.name || '当前教材'
+      bookName: book.name || '当前教材',
+      checkinRemindCount: Number(wx.getStorageSync(CHECKIN_REMIND_COUNT_KEY)) || 0,
+      checkinRemindEnabled: getSubscribePref(CHECKIN_REMIND_PREF_KEY)
     }))
     this.applyRewardScenario(DEFAULT_REWARD_SCENARIO_ID)
     this.loadCheckin()
@@ -335,20 +327,56 @@ Page({
     this.changeMonth(1)
   },
 
-  startLearning() {
-    const book = this.book || {}
-    const unitId = pickPracticeUnitId(book)
-
-    if (!book.resBookId || !unitId) {
-      wx.switchTab({ url: '/pages/home/home' })
+  // 「开启打卡提醒」：一次性订阅消息，用户每同意一次就累计一次推送额度。
+  subscribeCheckinRemind() {
+    const tmplId = getCheckinRemindTmplId()
+    if (!tmplId) {
+      wx.showToast({ title: '暂未配置打卡提醒模板', icon: 'none' })
       return
     }
+    if (typeof wx.requestSubscribeMessage !== 'function') {
+      wx.showToast({ title: '当前微信版本不支持', icon: 'none' })
+      return
+    }
+    wx.requestSubscribeMessage({
+      tmplIds: [tmplId],
+      success: (res) => {
+        if (res[tmplId] === 'accept') {
+          const count = (Number(this.data.checkinRemindCount) || 0) + 1
+          wx.setStorageSync(CHECKIN_REMIND_COUNT_KEY, count)
+          setSubscribePref(CHECKIN_REMIND_PREF_KEY, true)
+          this.setData({ checkinRemindCount: count, checkinRemindEnabled: true })
+          // 预留后端：上报本次订阅，后端据此累计推送额度（接口就绪前为空操作）
+          reportSubscribeMessageQuota({ tmplId, delta: 1, total: count })
+          wx.showToast({ title: '已累计 ' + count + ' 次提醒', icon: 'success' })
+        } else if (res[tmplId] === 'reject') {
+          wx.showToast({ title: '已拒绝打卡提醒', icon: 'none' })
+        }
+      },
+      fail: (error) => {
+        console.log('[checkin-calendar] subscribe remind failed', error)
+        // 多因用户曾勾选「总是保持以上选择」或关闭了订阅总开关，引导去设置重新允许
+        wx.showModal({
+          title: '打卡提醒未能开启',
+          content: '请在设置中允许「订阅消息」后再来累计提醒次数。',
+          confirmText: '去设置',
+          success: (modalRes) => {
+            if (modalRes.confirm && typeof wx.openSetting === 'function') {
+              wx.openSetting()
+            }
+          }
+        })
+      }
+    })
+  },
 
-    wx.navigateTo({
-      url: '/pages/practice/practice?resBookId=' + book.resBookId +
-        '&unitId=' + unitId +
-        '&name=' + encodeURIComponent(book.name || this.data.bookName) +
-        '&taskType=word'
+  toggleCheckinRemindPref(event) {
+    const enabled = !!(event && event.detail && event.detail.value)
+    setSubscribePref(CHECKIN_REMIND_PREF_KEY, enabled)
+    this.setData({ checkinRemindEnabled: enabled })
+    wx.showToast({
+      title: enabled ? '已开启打卡提醒' : '已关闭打卡提醒',
+      icon: 'none'
     })
   },
 

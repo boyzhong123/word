@@ -85,7 +85,7 @@
     <view class="message-section">
       <view class="section-title">消息与关注</view>
       <view class="message-card">
-        <view class="message-row" bindtap="requestSubscribe">
+        <view class="message-row" bindtap="openSubscribeCenter">
           <view class="message-row-icon message-row-icon-remind"></view>
           <view class="message-row-copy">
             <view class="message-row-title">开启学习提醒</view>
@@ -100,11 +100,7 @@
             <view class="message-row-title">关注公众号，领取学习资料</view>
             <view class="message-row-desc">资料领取与学习内容更新</view>
           </view>
-          <view class="message-row-action">去关注</view>
-        </view>
-        <view class="message-foot" bindtap="openSetting">
-          <text class="message-foot-text">未收到提醒？管理微信消息授权</text>
-          <text class="message-foot-arrow">›</text>
+          <view class="message-row-action message-row-action-{{officialAccountStatusType}}">{{officialAccountStatusText}}</view>
         </view>
       </view>
     </view>

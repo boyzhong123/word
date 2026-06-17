@@ -1,0 +1,807 @@
+<!doctype html>
+<!--
+  词句刷刷刷 · 产品介绍（销售版）
+  由路演 PPT 改写，结合 docs/images/mini-app 真实截图。
+  发给销售 / 其他 AI 合成 PPT 时：保留本 HTML 与 docs/images/ 相对路径即可。
+  导航：↑↓ / 空格 / 点击右侧圆点
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>词句刷刷刷 · 产品介绍（销售版）</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      /* === VIEWPORT BASE (frontend-slides) === */
+      html, body { height: 100%; overflow-x: hidden; margin: 0; }
+      html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+      .slide {
+        width: 100vw; height: 100vh; height: 100dvh;
+        overflow: hidden; scroll-snap-align: start;
+        display: flex; flex-direction: column; position: relative;
+      }
+      .slide-content {
+        flex: 1; display: flex; flex-direction: column; justify-content: center;
+        max-height: 100%; overflow: hidden; padding: var(--slide-padding);
+      }
+      :root {
+        --title-size: clamp(1.5rem, 5vw, 3.6rem);
+        --h2-size: clamp(1.15rem, 3.2vw, 2.2rem);
+        --h3-size: clamp(0.95rem, 2.2vw, 1.35rem);
+        --body-size: clamp(0.72rem, 1.35vw, 1.05rem);
+        --small-size: clamp(0.62rem, 0.95vw, 0.82rem);
+        --slide-padding: clamp(1rem, 3.5vw, 3.2rem);
+        --content-gap: clamp(0.45rem, 1.6vw, 1.4rem);
+        --element-gap: clamp(0.25rem, 0.9vw, 0.75rem);
+
+        color-scheme: dark;
+        --bg: #06090d;
+        --panel: rgba(15, 23, 32, 0.88);
+        --line: rgba(148, 163, 184, 0.2);
+        --text: #eef5f7;
+        --muted: #95a7b4;
+        --faint: #6e8190;
+        --brand: #64e4bd;
+        --brand-soft: rgba(52, 211, 153, 0.14);
+        --pink: #ff6ec7;
+        --pink-soft: rgba(255, 110, 199, 0.14);
+        --blue: #7cc5ff;
+        --blue-soft: rgba(59, 130, 246, 0.14);
+        --amber: #ffd166;
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+        --font-display: "Outfit", "Noto Sans SC", sans-serif;
+        --font-body: "Noto Sans SC", sans-serif;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      img, .phone-shot { max-width: 100%; max-height: min(52vh, 420px); object-fit: contain; }
+      @media (max-height: 700px) {
+        :root { --slide-padding: clamp(0.7rem, 2.8vw, 1.8rem); --title-size: clamp(1.2rem, 4.2vw, 2.4rem); }
+      }
+      @media (max-height: 600px) {
+        :root { --slide-padding: clamp(0.5rem, 2.2vw, 1.2rem); --body-size: clamp(0.65rem, 1.1vw, 0.88rem); }
+        .nav-dots, .keyboard-hint, .slide-no { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+        html { scroll-behavior: auto; }
+      }
+
+      /* === THEME === */
+      body {
+        color: var(--text);
+        font-family: var(--font-body);
+        background:
+          radial-gradient(circle at 12% -10%, rgba(45, 212, 191, 0.16), transparent 28rem),
+          radial-gradient(circle at 90% 8%, rgba(59, 130, 246, 0.12), transparent 30rem),
+          var(--bg);
+        line-height: 1.45;
+      }
+      h1, h2, h3, p { margin: 0; }
+      h1, h2 { font-family: var(--font-display); letter-spacing: -0.04em; }
+      h1 { font-size: var(--title-size); line-height: 1.06; font-weight: 800; }
+      h2 { font-size: var(--h2-size); font-weight: 700; }
+      h3 { font-size: var(--h3-size); font-weight: 650; }
+      p, li { font-size: var(--body-size); color: var(--muted); }
+      strong { color: var(--text); font-weight: 650; }
+      em { color: var(--brand); font-style: normal; }
+
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 8px;
+        color: var(--brand); font-size: var(--small-size); font-weight: 700;
+        letter-spacing: 0.12em; text-transform: uppercase;
+      }
+      .eyebrow::before { width: 20px; height: 1px; background: var(--brand); content: ""; }
+
+      .panel {
+        border: 1px solid var(--line); border-radius: clamp(14px, 2vw, 22px);
+        background: linear-gradient(145deg, rgba(16, 25, 35, 0.94), rgba(10, 16, 23, 0.82));
+        box-shadow: var(--shadow);
+      }
+
+      .brand-bar {
+        position: absolute; top: clamp(0.8rem, 2vh, 1.4rem); left: var(--slide-padding); right: var(--slide-padding);
+        display: flex; align-items: center; justify-content: space-between; z-index: 2;
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 750; font-size: var(--small-size); }
+      .brand-mark {
+        display: grid; width: clamp(28px, 4vw, 36px); height: clamp(28px, 4vw, 36px); place-items: center;
+        border: 1px solid rgba(100, 228, 189, 0.46); border-radius: 11px;
+        background: rgba(100, 228, 189, 0.1); color: var(--brand); font-size: clamp(12px, 1.8vw, 16px);
+      }
+      .slide-no { color: var(--faint); font-size: var(--small-size); letter-spacing: 0.08em; }
+
+      .subtitle { margin-top: var(--element-gap); max-width: 52rem; font-size: clamp(0.85rem, 1.8vw, 1.15rem); color: var(--muted); }
+
+      .pill-row { display: flex; flex-wrap: wrap; gap: clamp(6px, 1vw, 10px); margin-top: var(--content-gap); }
+      .pill {
+        padding: clamp(5px, 0.8vw, 8px) clamp(10px, 1.4vw, 14px);
+        border-radius: 999px; border: 1px solid var(--line);
+        background: rgba(255,255,255,0.03); color: var(--muted);
+        font-size: var(--small-size); font-weight: 600;
+      }
+      .pill.hot { border-color: rgba(255,110,199,0.45); background: var(--pink-soft); color: #ffc8ea; }
+      .pill.brand { border-color: rgba(100,228,189,0.45); background: var(--brand-soft); color: #d6fff4; }
+
+      .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--content-gap); align-items: center; }
+      .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--content-gap); }
+      .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 1.2vw, 14px); }
+
+      .card {
+        padding: clamp(12px, 1.8vw, 18px);
+        border: 1px solid var(--line); border-radius: clamp(12px, 1.6vw, 16px);
+        background: rgba(255,255,255,0.022);
+      }
+      .card h3 { margin-bottom: 6px; }
+      .card p { font-size: var(--small-size); }
+      .card.featured { border-color: rgba(255,110,199,0.42); background: linear-gradient(160deg, rgba(255,110,199,0.1), rgba(100,228,189,0.06)); }
+      .card-mark {
+        display: grid; width: clamp(28px, 4vw, 36px); height: clamp(28px, 4vw, 36px); place-items: center;
+        border-radius: 10px; background: var(--brand-soft); color: var(--brand);
+        font-weight: 800; font-size: var(--small-size); margin-bottom: 8px;
+      }
+
+      .bullets { margin: var(--content-gap) 0 0; padding-left: 1.1em; display: grid; gap: clamp(4px, 0.8vh, 8px); }
+      .bullets li { font-size: var(--body-size); }
+
+      .callout {
+        margin-top: var(--content-gap); padding: clamp(10px, 1.4vw, 14px) clamp(12px, 1.6vw, 16px);
+        border: 1px solid rgba(100,228,189,0.28); border-radius: 14px;
+        background: var(--brand-soft); color: #d6fff4; font-size: var(--body-size);
+      }
+      .callout strong { color: var(--brand); }
+
+      .phone-frame {
+        justify-self: center; width: min(100%, clamp(160px, 22vw, 240px));
+        border: 1px solid var(--line); border-radius: clamp(18px, 2.5vw, 26px);
+        overflow: hidden; background: #0a1017; box-shadow: var(--shadow);
+      }
+      .phone-frame img { display: block; width: 100%; height: auto; max-height: min(58vh, 460px); object-fit: cover; object-position: top center; }
+
+      .feature-split { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: clamp(12px, 2vw, 24px); align-items: center; }
+      .feature-copy { display: grid; gap: var(--element-gap); }
+      .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .tag { padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); font-size: var(--small-size); color: #c9f7ea; background: rgba(0,0,0,0.16); }
+
+      .steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(6px, 1vw, 10px); margin-top: var(--content-gap); }
+      .step {
+        padding: clamp(8px, 1.2vw, 12px); text-align: center;
+        border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,0.02);
+      }
+      .step-num { color: var(--pink); font-weight: 800; font-size: var(--small-size); }
+      .step-title { margin-top: 4px; font-size: var(--small-size); color: var(--text); font-weight: 650; }
+      .step-arrow { display: none; }
+
+      .compare-mini { width: 100%; border-collapse: collapse; font-size: var(--small-size); }
+      .compare-mini th, .compare-mini td { padding: clamp(6px, 1vh, 10px) clamp(8px, 1.2vw, 12px); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+      .compare-mini th { color: #b9c7d1; font-size: clamp(0.58rem, 0.85vw, 0.72rem); letter-spacing: 0.06em; text-transform: uppercase; background: #111b25; }
+      .compare-mini .ours { background: linear-gradient(180deg, rgba(255,110,199,0.1), rgba(100,228,189,0.06)); color: #86efac; font-weight: 650; }
+      .check { color: #86efac; font-weight: 800; }
+      .cross { color: #ff8989; font-weight: 800; }
+
+      .price-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--content-gap); margin-top: var(--content-gap); }
+      .price-card { padding: clamp(14px, 2vw, 20px); border-radius: 16px; border: 1px solid var(--line); background: rgba(255,255,255,0.02); }
+      .price-card.highlight { border-color: rgba(255,110,199,0.45); background: linear-gradient(160deg, rgba(255,110,199,0.12), rgba(100,228,189,0.08)); }
+      .price-value { margin-top: 8px; font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; letter-spacing: -0.04em; }
+      .price-value em { color: var(--pink); font-style: normal; }
+      .price-note { margin-top: 6px; font-size: var(--small-size); color: var(--faint); }
+
+      .talk-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--content-gap); }
+      .talk-item { padding: clamp(12px, 1.6vw, 16px); border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,0.02); }
+      .talk-item strong { display: block; color: var(--pink); margin-bottom: 6px; font-size: var(--body-size); }
+      .talk-item p { font-size: var(--small-size); }
+
+      /* === TITLE SLIDE === */
+      .slide-cover .slide-content { justify-content: center; }
+      .title-gradient {
+        background: linear-gradient(120deg, #7cc5ff 0%, #64e4bd 45%, #ff6ec7 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .cover-visual {
+        position: absolute; right: clamp(1rem, 4vw, 4rem); bottom: clamp(1rem, 6vh, 4rem);
+        width: min(42vw, 520px); opacity: 0.22; pointer-events: none;
+      }
+
+      /* === NAV === */
+      .progress-bar {
+        position: fixed; top: 0; left: 0; height: 3px; width: 0;
+        background: linear-gradient(90deg, var(--brand), var(--pink));
+        z-index: 20; transition: width 0.25s ease;
+      }
+      .nav-dots {
+        position: fixed; right: clamp(10px, 1.5vw, 18px); top: 50%;
+        transform: translateY(-50%); z-index: 20;
+        display: grid; gap: 8px;
+      }
+      .nav-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        border: 1px solid rgba(148,163,184,0.45); background: transparent;
+        cursor: pointer; padding: 0; transition: 180ms ease;
+      }
+      .nav-dot.active { background: var(--brand); border-color: var(--brand); transform: scale(1.25); }
+      .keyboard-hint {
+        position: fixed; left: var(--slide-padding); bottom: clamp(8px, 1.5vh, 14px);
+        color: var(--faint); font-size: var(--small-size); z-index: 20;
+      }
+
+      /* === ANIMATIONS === */
+      .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.55s var(--ease), transform 0.55s var(--ease); }
+      .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+      .reveal:nth-child(2) { transition-delay: 0.08s; }
+      .reveal:nth-child(3) { transition-delay: 0.14s; }
+      .reveal:nth-child(4) { transition-delay: 0.2s; }
+      .reveal:nth-child(5) { transition-delay: 0.26s; }
+
+      @media (max-width: 900px) {
+        .grid-2, .grid-3, .grid-4, .feature-split, .price-grid, .talk-grid { grid-template-columns: 1fr; }
+        .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cover-visual { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar" id="progress"></div>
+    <nav class="nav-dots" id="navDots" aria-label="幻灯片导航"></nav>
+    <div class="keyboard-hint">↑ ↓ 空格切换 · 共 18 页</div>
+
+    <!-- 01 封面 -->
+    <section class="slide slide-cover" data-title="封面">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>CHIVOX · 驰声听说</span></div>
+        <span class="slide-no">01 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Product Introduction · 销售版</div>
+        <h1 class="reveal"><span class="title-gradient">词句刷刷刷</span></h1>
+        <p class="subtitle reveal">暑期词汇预习复习解决方案 · 覆盖主流教材课本单词<br/>让孩子<strong>每天能学、持续能练、进步看得见</strong></p>
+        <div class="pill-row reveal">
+          <span class="pill brand">主流教材同步</span>
+          <span class="pill brand">微信小程序轻量</span>
+          <span class="pill brand">考试级语音评分</span>
+          <span class="pill hot">智能学习卡闭环</span>
+        </div>
+      </div>
+      <img class="cover-visual" src="images/competitive/hero-wechat-family.jpg" alt="" aria-hidden="true" />
+    </section>
+
+    <!-- 02 一句话定位 -->
+    <section class="slide" data-title="产品定位">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>词句刷刷刷</span></div>
+        <span class="slide-no">02 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Positioning</div>
+        <h2 class="reveal">不是「又一个背单词 App」</h2>
+        <p class="subtitle reveal" style="margin-top:12px">而是<strong>跟着教材走的词句学习小程序</strong> — 微信即用、单元同步、词句一起练、驰声纠音、测完有报告。</p>
+        <div class="callout reveal"><strong>销售一句话</strong>：比纸质单词卡多几十块，换完整「学词 → 跟读 → 小测 → 复习 → 报告」数字闭环。</div>
+        <div class="pill-row reveal">
+          <span class="pill hot">微信搜即用</span>
+          <span class="pill">K12 教材单元</span>
+          <span class="pill">词 + 句 + 谚语</span>
+          <span class="pill">驰声 Chivox 纠音</span>
+          <span class="pill">入门/结业报告</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 四大卖点 -->
+    <section class="slide" data-title="核心卖点">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>核心卖点</span></div>
+        <span class="slide-no">03 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Highlights</div>
+        <h2 class="reveal">四大差异化能力</h2>
+        <div class="grid-4 reveal" style="margin-top:var(--content-gap)">
+          <div class="card featured">
+            <div class="card-mark">词</div>
+            <h3>教材单元同步</h3>
+            <p>按校内单元拆分关卡，覆盖主流版本词表与谚语短句</p>
+          </div>
+          <div class="card featured">
+            <div class="card-mark">读</div>
+            <h3>驰声专业纠音</h3>
+            <p>跟读背诵逐词/逐句评分，考试级语音引擎，即时反馈</p>
+          </div>
+          <div class="card">
+            <div class="card-mark">练</div>
+            <h3>完整学练测闭环</h3>
+            <p>单词新学 → 跟读 → 关卡小测 → 错词复习 → 学习报告</p>
+          </div>
+          <div class="card">
+            <div class="card-mark">轻</div>
+            <h3>小程序零下载</h3>
+            <p>微信搜索打开即用，分享方便，暑期地推转化快</p>
+          </div>
+        </div>
+        <div class="callout reveal">孩子看到的是<strong>闯关体验</strong>，家长看到的是<strong>完成进度</strong> — 任务轻、路径清、反馈快。</div>
+      </div>
+    </section>
+
+    <!-- 04 目标用户 -->
+    <section class="slide" data-title="目标用户">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>谁在用</span></div>
+        <span class="slide-no">04 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Audience</div>
+        <h2 class="reveal">三方都听得懂的价值</h2>
+        <div class="grid-3 reveal" style="margin-top:var(--content-gap)">
+          <div class="card">
+            <h3>家长</h3>
+            <ul class="bullets">
+              <li>课本单词对齐，目标清楚</li>
+              <li>打卡、报告、进度可视化</li>
+              <li>每天 10–15 分钟，负担轻</li>
+            </ul>
+          </div>
+          <div class="card featured">
+            <h3>孩子</h3>
+            <ul class="bullets">
+              <li>地图闯关 + 星级激励</li>
+              <li>三环节任务明确，知道今天学什么</li>
+              <li>跟读打分即时成就感</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>销售</h3>
+            <ul class="bullets">
+              <li>轻价格带，卖点清晰好讲</li>
+              <li>微信即用，试学门槛低</li>
+              <li>暑期预习 / 开学复习均适用</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout reveal" style="margin-top:var(--content-gap)"><strong>适用场景</strong>：暑假预习、开学复习、日常跟读纠音、考前词汇巩固、亲子共学打卡。</p>
+      </div>
+    </section>
+
+    <!-- 05 学习路径 -->
+    <section class="slide" data-title="学习路径">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>学习路径</span></div>
+        <span class="slide-no">05 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Learning Path</div>
+        <h2 class="reveal">五步走完整学习路径</h2>
+        <div class="steps reveal">
+          <div class="step"><div class="step-num">01</div><div class="step-title">选教材</div></div>
+          <div class="step"><div class="step-num">02</div><div class="step-title">定计划</div></div>
+          <div class="step"><div class="step-num">03</div><div class="step-title">每日闯关</div></div>
+          <div class="step"><div class="step-num">04</div><div class="step-title">复习巩固</div></div>
+          <div class="step"><div class="step-num">05</div><div class="step-title">打卡成果</div></div>
+        </div>
+        <div class="grid-2 reveal" style="margin-top:var(--content-gap)">
+          <div>
+            <h3>每关三环节</h3>
+            <ul class="bullets">
+              <li><strong>单词新学</strong> — 认选 + 掌握度标记</li>
+              <li><strong>跟读背诵</strong> — 驰声逐词/逐句评分</li>
+              <li><strong>关卡小测</strong> — 听音填空 + 背诵评测</li>
+            </ul>
+            <p style="margin-top:10px;font-size:var(--small-size)">另有错词复习关、入门测/结业测、单关学习报告</p>
+          </div>
+          <figure class="phone-frame" style="margin:0">
+            <img src="images/competitive/illust-learning-loop.jpg" alt="跟读练习场景" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 首页闯关 -->
+    <section class="slide" data-title="首页闯关">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 首页</span></div>
+        <span class="slide-no">06 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <div class="feature-copy reveal">
+          <div class="eyebrow">Home</div>
+          <h2>教材同步 · 地图闯关</h2>
+          <p>首页展示当前词书进度、连续打卡与今日任务；支持<strong>地图视图</strong>与<strong>列表视图</strong>两种闯关方式。</p>
+          <ul class="bullets">
+            <li>切换教材：学段 / 版本 / 词书一键切换</li>
+            <li>入门测 Banner：学习前摸底，了解当前水平</li>
+            <li>每关显示词量、谚语、三任务进度与星级</li>
+          </ul>
+          <div class="tag-list">
+            <span class="tag">解锁单词</span>
+            <span class="tag">连续打卡</span>
+            <span class="tag">今日任务</span>
+            <span class="tag">学习计划</span>
+          </div>
+        </div>
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/01-home-map.png" alt="首页地图闯关" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 07 单词新学 -->
+    <section class="slide" data-title="单词新学">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 单词新学</span></div>
+        <span class="slide-no">07 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/05-practice-word.png" alt="单词新学" />
+        </figure>
+        <div class="feature-copy reveal">
+          <div class="eyebrow">New Words</div>
+          <h2>单词新学 · 认选掌握</h2>
+          <p>按单元词表逐词学习，展示音标、释义、例句与发音示范。</p>
+          <ul class="bullets">
+            <li>支持「认识 / 模糊 / 不认识」掌握度标记</li>
+            <li>详情 Tab 展示释义、例句、谚语关联</li>
+            <li>完成后进入跟读背诵环节</li>
+          </ul>
+          <div class="callout"><strong>销售点</strong>：不是单纯刷词，而是按教材单元推进，和课本进度一致。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 跟读背诵 -->
+    <section class="slide" data-title="跟读背诵">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 跟读背诵</span></div>
+        <span class="slide-no">08 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <div class="feature-copy reveal">
+          <div class="eyebrow">Chivox · Recite</div>
+          <h2>跟读背诵 · 驰声纠音</h2>
+          <p>核心壁垒：集成<strong>驰声 Chivox</strong> 专业语音评测，逐词/逐句打分，帮助孩子及时修正发音。</p>
+          <ul class="bullets">
+            <li>例句跟读 + 实时评分反馈</li>
+            <li>考试级评分体系，非简单录音回放</li>
+            <li>与单词新学、小测形成完整闭环</li>
+          </ul>
+          <div class="pill-row">
+            <span class="pill hot">专业口语评测</span>
+            <span class="pill brand">即时纠音</span>
+          </div>
+        </div>
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/05-practice-recite.png" alt="跟读背诵评分" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 09 关卡小测 -->
+    <section class="slide" data-title="关卡小测">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 关卡小测</span></div>
+        <span class="slide-no">09 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/03-listen-quiz.png" alt="关卡小测" />
+        </figure>
+        <div class="feature-copy reveal">
+          <div class="eyebrow">Quiz</div>
+          <h2>关卡小测 · 听音 + 背诵</h2>
+          <p>每关第三环节：听音填空与背诵评测，检验本关掌握情况。</p>
+          <ul class="bullets">
+            <li>听音选义 / 填空等多种题型</li>
+            <li>背诵环节同样接入语音评测</li>
+            <li>支持「立即跳过」倒计时，体验友好</li>
+            <li>结果上报后端，驱动错词复习</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 随身听 -->
+    <section class="slide" data-title="随身听">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 随身听</span></div>
+        <span class="slide-no">10 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <div class="feature-copy reveal">
+          <div class="eyebrow">Listen</div>
+          <h2>随身听 · 碎片时间复习</h2>
+          <p>按单元播放单词 + 例句混排列表，路上、睡前都能听。</p>
+          <ul class="bullets">
+            <li>倍速播放、单期循环 / 整本书循环</li>
+            <li>课文页可展开跟读（Chivox 评测）</li>
+            <li>mode=quiz 时进入关卡小测模式</li>
+          </ul>
+          <div class="callout"><strong>搭配智能单词卡</strong>：卡面二维码扫码即学，线下抽卡 + 线上听看练测。</div>
+        </div>
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/03-listen-player.png" alt="随身听播放" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 11 打卡 -->
+    <section class="slide" data-title="打卡激励">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 打卡</span></div>
+        <span class="slide-no">11 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/02-checkin-calendar.png" alt="打卡日历" />
+        </figure>
+        <div class="feature-copy reveal">
+          <div class="eyebrow">Check-in</div>
+          <h2>打卡日历 · 持续激励</h2>
+          <p>月历展示每日打卡状态、连续天数与礼品/奖励进度。</p>
+          <ul class="bullets">
+            <li>连续打卡天数可视化，培养习惯</li>
+            <li>30 天 VIP 等奖励活动可配置</li>
+            <li>首页同步展示打卡摘要，一键进入日历</li>
+          </ul>
+          <p style="margin-top:8px;font-size:var(--small-size)"><strong>反馈快</strong>：闯关、星级、打卡即时可见，孩子更容易坚持。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 报告 -->
+    <section class="slide" data-title="学习报告">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 报告</span></div>
+        <span class="slide-no">12 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <div class="feature-copy reveal">
+          <div class="eyebrow">Reports</div>
+          <h2>学习报告 · 成果可量化</h2>
+          <p>单关报告、入门测/结业测报告，让进步「看得见」。</p>
+          <ul class="bullets">
+            <li><strong>单关报告</strong>：本关掌握词数、跟读得分、小测结果</li>
+            <li><strong>入门测</strong>：学习前摸底，了解起点水平</li>
+            <li><strong>结业测</strong>：学完后复测，前后对比进步</li>
+            <li>家长可截图分享，销售更好跟进</li>
+          </ul>
+        </div>
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/06-finish-word.png" alt="关卡完成报告" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 13 学习计划 -->
+    <section class="slide" data-title="学习计划">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>功能 · 计划</span></div>
+        <span class="slide-no">13 / 18</span>
+      </div>
+      <div class="slide-content feature-split">
+        <figure class="phone-frame reveal">
+          <img src="images/mini-app/06-plan.png" alt="学习计划" />
+        </figure>
+        <div class="feature-copy reveal">
+          <div class="eyebrow">Study Plan</div>
+          <h2>学习计划 · 自动排期</h2>
+          <p>根据词书总量与每日组数，自动生成预计完成天数。</p>
+          <ul class="bullets">
+            <li>选教材后一键生成学习计划</li>
+            <li>每日任务清晰：今天学哪几关</li>
+            <li>任务轻：每天 10–15 分钟可完成</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 词句一体 -->
+    <section class="slide" data-title="词句一体">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>特色 · 词句一体</span></div>
+        <span class="slide-no">14 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Words + Sentences</div>
+        <h2 class="reveal">词 + 句 + 谚语，同一套练习里</h2>
+        <div class="grid-3 reveal" style="margin-top:var(--content-gap)">
+          <div class="card featured">
+            <h3>词汇同步</h3>
+            <p>围绕教材词表拆分学习任务，按单元推进</p>
+          </div>
+          <div class="card featured">
+            <h3>句子积累</h3>
+            <p>短句、谚语和表达放进同一套练习，不是孤立背词</p>
+          </div>
+          <div class="card">
+            <h3>复习追踪</h3>
+            <p>错题、跟读和小测合并回顾，记忆曲线安排复习</p>
+          </div>
+        </div>
+        <div class="callout reveal">竞品多为单一背词或例句记忆；我们按<strong>校内单元</strong>设计完整路径，谚语/格言与单词同关出现。</div>
+      </div>
+    </section>
+
+    <!-- 15 竞品对比 -->
+    <section class="slide" data-title="竞品对比">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>竞品对比</span></div>
+        <span class="slide-no">15 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Comparison</div>
+        <h2 class="reveal">为什么选词句刷刷刷？</h2>
+        <div class="panel reveal" style="margin-top:var(--content-gap);overflow:auto;max-height:min(58vh,480px)">
+          <table class="compare-mini">
+            <thead>
+              <tr>
+                <th>对比项</th>
+                <th>百词斩 / 不背单词</th>
+                <th>纸质单词卡</th>
+                <th class="ours">词句刷刷刷</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>进入方式</td><td>下载 App + 注册</td><td>拿来即用，无数字化</td><td class="ours">微信搜索即用</td></tr>
+              <tr><td>教材适配</td><td>词表级，非单元闯关</td><td>静态内容</td><td class="ours">主流教材 · 按单元推进</td></tr>
+              <tr><td>学习闭环</td><td>背词为主，缺完整测练</td><td>反馈弱，难追踪</td><td class="ours">学→读→测→复习→报告</td></tr>
+              <tr><td>口语评测</td><td>弱 / 无专业打分</td><td class="cross">无</td><td class="ours">驰声逐词/逐句专业打分</td></tr>
+              <tr><td>词句能力</td><td>以单词为主</td><td>词卡分离</td><td class="ours">词 + 谚语/短句一体</td></tr>
+              <tr><td>价格带</td><td>¥18/月起 · ¥298 终身</td><td>¥15–40 / 册</td><td class="ours">¥29 起 · 完整数字闭环</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 规格套餐 -->
+    <section class="slide" data-title="规格套餐">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>规格套餐</span></div>
+        <span class="slide-no">16 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Pricing & SKU</div>
+        <h2 class="reveal">两种套餐，看清区别再选</h2>
+        <div class="price-grid reveal">
+          <div class="price-card">
+            <h3>仅词典</h3>
+            <div class="price-value"><em>¥29</em> 起</div>
+            <p class="price-note">6 个月 ¥29 · 永久 ¥48</p>
+            <ul class="bullets">
+              <li>电子词典全部词汇与谚语</li>
+              <li>释义 · 例句 · 发音示范</li>
+              <li>不含智能学习卡与复习计划</li>
+            </ul>
+          </div>
+          <div class="price-card highlight">
+            <h3>词典 + 智能学习卡 ★ 推荐</h3>
+            <div class="price-value"><em>¥68</em> 起</div>
+            <p class="price-note">6 个月 ¥68 · 永久 ¥98</p>
+            <ul class="bullets">
+              <li>含词典全部内容</li>
+              <li>单词新学 / 跟读 / 测验完整闭环</li>
+              <li>记忆曲线复习 · 驰声纠音 · 学习报告</li>
+              <li>打卡激励与进度追踪</li>
+            </ul>
+          </div>
+        </div>
+        <figure class="phone-frame reveal" style="margin:var(--content-gap) auto 0;width:min(100%,clamp(180px,24vw,260px))">
+          <img src="images/mini-app/06-advertisement.png" alt="商品详情页" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 17 销售话术 -->
+    <section class="slide" data-title="销售话术">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>销售话术</span></div>
+        <span class="slide-no">17 / 18</span>
+      </div>
+      <div class="slide-content">
+        <div class="eyebrow reveal">Sales Playbook</div>
+        <h2 class="reveal">三句话讲清楚</h2>
+        <div class="talk-grid reveal" style="margin-top:var(--content-gap)">
+          <div class="talk-item">
+            <strong>对家长</strong>
+            <p>「这是跟着您孩子课本走的单词小程序，微信搜就能用。每天 10 分钟，跟读有专业打分，学完有报告，比买卡片多几十块但功能完整得多。」</p>
+          </div>
+          <div class="talk-item">
+            <strong>对孩子</strong>
+            <p>「像打游戏一样闯关，每关就三个小任务：认词、读一读、小测验。读了马上知道分数，连续打卡还有奖励。」</p>
+          </div>
+          <div class="talk-item">
+            <strong>对竞品</strong>
+            <p>「百词斩要下载 App，我们是微信打开；纸质卡没有纠音和报告；我们用的是驰声考试级评分，按教材单元走，不是随便刷词。」</p>
+          </div>
+        </div>
+        <div class="grid-3 reveal" style="margin-top:var(--content-gap)">
+          <div class="card"><h3>异议：太贵</h3><p>对比纸质卡 + 纠音机 + 复习 App，一套闭环更划算；永久版摊到每天几分钱</p></div>
+          <div class="card"><h3>异议：孩子坚持不了</h3><p>任务轻 10–15 分钟、地图闯关有即时反馈，打卡 30 天有礼</p></div>
+          <div class="card"><h3>异议：已有 App</h3><p>强调教材单元同步 + 驰声纠音 + 词句一体，补的是「跟课本走」的缺口</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 结尾 -->
+    <section class="slide slide-cover" data-title="谢谢">
+      <div class="brand-bar">
+        <div class="brand"><span class="brand-mark">词</span><span>CHIVOX · 驰声听说</span></div>
+        <span class="slide-no">18 / 18</span>
+      </div>
+      <div class="slide-content" style="text-align:center;align-items:center">
+        <div class="eyebrow reveal">Thank You</div>
+        <h1 class="reveal"><span class="title-gradient">词句刷刷刷</span></h1>
+        <p class="subtitle reveal" style="max-width:36rem;margin-inline:auto">跟着教材走的词句学习小程序<br/><strong>微信即用 · 单元同步 · 驰声纠音 · 测完有报告</strong></p>
+        <div class="pill-row reveal" style="justify-content:center">
+          <span class="pill brand">产品介绍 v1.0</span>
+          <span class="pill">2026 · 驰声听说</span>
+        </div>
+        <p class="callout reveal" style="max-width:32rem;margin-inline:auto;margin-top:var(--content-gap)">
+          本文件可整页截图或交给 AI 合成 PPT。<br/>截图素材目录：<code style="color:#c7f9eb">docs/images/mini-app/</code>
+        </p>
+      </div>
+    </section>
+
+    <script>
+      (function () {
+        const slides = Array.from(document.querySelectorAll(".slide"));
+        const progress = document.getElementById("progress");
+        const navDots = document.getElementById("navDots");
+        let current = 0;
+
+        slides.forEach((slide, i) => {
+          const dot = document.createElement("button");
+          dot.className = "nav-dot" + (i === 0 ? " active" : "");
+          dot.type = "button";
+          dot.title = slide.dataset.title || ("第 " + (i + 1) + " 页");
+          dot.addEventListener("click", () => go(i));
+          navDots.appendChild(dot);
+        });
+
+        const dots = Array.from(navDots.querySelectorAll(".nav-dot"));
+
+        function go(index) {
+          index = Math.max(0, Math.min(slides.length - 1, index));
+          current = index;
+          slides[index].scrollIntoView({ behavior: "smooth" });
+          dots.forEach((d, i) => d.classList.toggle("active", i === index));
+          progress.style.width = ((index + 1) / slides.length * 100) + "%";
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                const idx = slides.indexOf(entry.target);
+                if (idx >= 0) {
+                  current = idx;
+                  dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+                  progress.style.width = ((idx + 1) / slides.length * 100) + "%";
+                }
+              }
+            });
+          },
+          { threshold: 0.55 }
+        );
+        slides.forEach((s) => observer.observe(s));
+
+        window.addEventListener("keydown", (e) => {
+          if (["ArrowDown", "ArrowRight", "PageDown", " "].includes(e.key)) {
+            e.preventDefault();
+            go(current + 1);
+          } else if (["ArrowUp", "ArrowLeft", "PageUp"].includes(e.key)) {
+            e.preventDefault();
+            go(current - 1);
+          } else if (e.key === "Home") {
+            e.preventDefault();
+            go(0);
+          } else if (e.key === "End") {
+            e.preventDefault();
+            go(slides.length - 1);
+          }
+        });
+
+        go(0);
+      })();
+    </script>
+  </body>
+</html>

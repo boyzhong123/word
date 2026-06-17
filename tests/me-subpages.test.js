@@ -39,8 +39,8 @@ test('me page menu entries navigate to complete secondary pages', () => {
   assert.match(meScript, /url:\s*'\/pages\/me\/privacy'/)
   assert.doesNotMatch(meScript, /showPending\(\)/)
 
-  // 消息授权状态页改由隐私/客服页进入，不再从「我的」主菜单直达
-  assert.doesNotMatch(meScript, /url:\s*'\/pages\/me\/notify'/)
+  // 「开启学习提醒」进订阅详情页；隐私/客服页也可进入
+  assert.match(meScript, /url:\s*'\/pages\/me\/notify'/)
   const privacyScript = read('pages/me/privacy.js')
   const contactScript = read('pages/me/contact.js')
   assert.match(privacyScript, /url:\s*'\/pages\/me\/notify'/)
@@ -64,9 +64,21 @@ test('me secondary pages provide real page content', () => {
   assert.doesNotMatch(bookPage, /解锁/)
 
   assert.match(notifyPage, /订阅消息/)
-  assert.match(notifyPage, /公众号提醒/)
-  assert.match(notifyPage, /bindtap="requestSubscribe"/)
-  assert.match(notifyPage, /bindtap="openOfficialAccount"/)
+  assert.doesNotMatch(notifyPage, /公众号提醒/)
+  // 按模板分开订阅：打卡累计次数，事件型提醒只做偏好开关
+  assert.match(notifyPage, /bindtap="previewTemplate"/)
+  assert.match(notifyPage, /class="preview-mask"/)
+  assert.match(notifyPage, /消息样式预览/)
+  assert.match(notifyPage, /preview-hint-icon/)
+  assert.match(notifyPage, /preview-hint-arrow/)
+  assert.match(notifyPage, /catchtap="subscribeOne"/)
+  assert.match(notifyPage, /bindchange="toggleTemplatePref"/)
+  assert.match(notifyPage, /wx:for="{{templates}}"/)
+  assert.match(notifyPage, /已累计订阅/)
+  assert.match(notifyPage, /提醒开关/)
+  assert.match(notifyPage, /提醒时机/)
+  assert.doesNotMatch(notifyPage, /bindtap="openOfficialAccount"/)
+  assert.doesNotMatch(notifyPage, />未设置</)
 
   assert.match(contactPage, /联系客服/)
   assert.match(contactPage, /open-type="contact"/)
@@ -75,4 +87,47 @@ test('me secondary pages provide real page content', () => {
   assert.match(privacyPage, /隐私与协议/)
   assert.match(privacyPage, /用户协议/)
   assert.match(privacyPage, /隐私政策/)
+})
+
+test('subscribe templates distinguish accumulated checkin from event preferences', () => {
+  global.wx = {
+    getStorageSync() {
+      return ''
+    }
+  }
+  delete require.cache[require.resolve('../utils/subscribe')]
+  const { getSubscribeTemplates } = require('../utils/subscribe')
+  const templates = getSubscribeTemplates()
+
+  const checkin = templates.find(item => item.title === '打卡提醒')
+  assert.equal(checkin.mode, 'accumulate')
+  assert.equal(checkin.id, 'wIiz5RXzkJYLp0pw63mEUpYqS2zSRSet1P_afBV58k0')
+  assert.equal(checkin.countKey, 'checkinRemindCount')
+  assert.equal(checkin.prefKey, 'subscribePref_checkin')
+
+  const payment = templates.find(item => item.id === 'RpsH9zwTbY6f4zV6WhmuPZ096nfwJj95guxKOwy03nE')
+  assert.equal(payment.title, '支付成功通知')
+  assert.equal(payment.mode, 'event')
+  assert.equal(payment.prefKey, 'subscribePref_payment')
+
+  const report = templates.find(item => item.id === 'Bq5QCQ0Km8XTBapXuDavgzC0YrjUupVxJ_Hob0hmch4')
+  assert.equal(report.title, '学习报告通知')
+  assert.equal(report.mode, 'event')
+  assert.equal(report.prefKey, 'subscribePref_report')
+})
+
+test('event subscribe prompts are requested at payment and report completion points', () => {
+  const vipScript = read('pages/vip/vip.js')
+  const practiceScript = read('pages/practice/practice.js')
+  const listenScript = read('pages/listen/listen.js')
+  const examScript = read('pages/exam/exam.js')
+
+  assert.match(vipScript, /requestSubscribeForEvent/)
+  assert.match(vipScript, /subscribePref_payment/)
+  assert.match(practiceScript, /requestSubscribeForEvent/)
+  assert.match(practiceScript, /subscribePref_report/)
+  assert.match(listenScript, /requestSubscribeForEvent/)
+  assert.match(listenScript, /subscribePref_report/)
+  assert.match(examScript, /requestSubscribeForEvent/)
+  assert.match(examScript, /subscribePref_report/)
 })

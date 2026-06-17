@@ -51,8 +51,18 @@
       <view class="power-copy">
         {{todayChecked ? '今天的电力已经续上。继续学习，让你的战绩持续常亮。' : '噫，今天的电力还没续上。花3分钟，保持你的战绩常亮。'}}
       </view>
+      <view wx:if="{{checkinRemindCount > 0}}" class="power-remind-hint">
+        {{checkinRemindEnabled ? '已累计 ' + checkinRemindCount + ' 次打卡提醒，次数不够时会通过微信提醒你' : '提醒已关闭，已累计的 ' + checkinRemindCount + ' 次不会清空'}}
+      </view>
+      <view class="power-remind-toggle">
+        <view class="power-remind-toggle-copy">
+          <view class="power-remind-toggle-title">打卡提醒</view>
+          <view class="power-remind-toggle-desc">{{checkinRemindEnabled ? '已开启，到打卡时间可使用累计次数提醒' : '提醒已关闭，累计次数会保留'}}</view>
+        </view>
+        <switch checked="{{checkinRemindEnabled}}" bindchange="toggleCheckinRemindPref" color="#24aa66" />
+      </view>
       <view class="power-buttons">
-        <button class="power-button" hover-class="power-button-hover" bindtap="startLearning">开始背单词</button>
+        <button class="power-button" hover-class="power-button-hover" bindtap="subscribeCheckinRemind">{{checkinRemindCount > 0 ? '再订阅一次提醒' : '开启打卡提醒'}}</button>
         <button class="power-button power-button-share" hover-class="power-button-hover" bindtap="openShareDialog">
           <image class="power-button-share-icon" src="../../images/checkin/share-out.svg" mode="aspectFit" />
           分享打卡

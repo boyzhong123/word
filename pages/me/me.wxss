@@ -288,35 +288,20 @@ page {
   border-radius: 28rpx;
 }
 
+.message-row-action-followed {
+  color: #24aa66;
+  background: #f1fbf3;
+}
+
+.message-row-action-pending {
+  color: #ffffff;
+  background: #111318;
+}
+
 .message-divider {
   height: 1rpx;
   margin-left: 102rpx;
   background: #f2f2f2;
-}
-
-.message-foot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18rpx 26rpx 22rpx;
-  border-top: 1rpx solid #f6f6f6;
-}
-
-.message-foot-text {
-  color: #8b9098;
-  font-size: 22rpx;
-  line-height: 30rpx;
-}
-
-.message-foot-arrow {
-  margin-left: 4rpx;
-  color: #c4c4c4;
-  font-size: 26rpx;
-  line-height: 30rpx;
-}
-
-.message-foot:active {
-  opacity: 0.6;
 }
 
 .menu-item {

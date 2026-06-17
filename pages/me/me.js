@@ -9,7 +9,11 @@ const {
   setCharacterGender,
   pickGenderFromUserInfo
 } = require('../../utils/character-gender')
-const { getOfficialAccountWebSrcPath } = require('../../utils/official-account')
+const {
+  getOfficialAccountWebSrcPath,
+  getOfficialAccountFollowed,
+  markOfficialAccountFollowed
+} = require('../../utils/official-account')
 
 function getSafeArea() {
   const systemInfo = wx.getSystemInfoSync()
@@ -160,6 +164,8 @@ Page({
     phoneNumber: '',
     phoneVerified: false,
     characterGender: GENDER_BOY,
+    officialAccountStatusText: '待关注',
+    officialAccountStatusType: 'pending',
     stats: {
       checkInDays: 0,
       learnedWords: 0,
@@ -190,6 +196,7 @@ Page({
       characterGender: getCharacterGender(),
       settings: buildSettings('', false, false, getCharacterGender())
     })
+    this.refreshOfficialAccountStatus()
     this.loadProfile()
   },
 
@@ -201,6 +208,15 @@ Page({
       this.refresh = false
       this.loadProfile()
     }
+    this.refreshOfficialAccountStatus()
+  },
+
+  refreshOfficialAccountStatus() {
+    const followed = getOfficialAccountFollowed()
+    this.setData({
+      officialAccountStatusText: followed ? '已关注' : '待关注',
+      officialAccountStatusType: followed ? 'followed' : 'pending'
+    })
   },
 
   loadProfile() {
@@ -454,38 +470,18 @@ Page({
     this.navTo('/pages/study-record/record')
   },
 
-  requestSubscribe() {
-    const app = getApp()
-    const tmplIds = (app.globalData && app.globalData.subscribeTmplIds) || []
-    if (!tmplIds.length) {
-      wx.showToast({
-        title: '暂无可订阅的消息模板',
-        icon: 'none'
-      })
-      return
-    }
-    wx.requestSubscribeMessage({
-      tmplIds,
-      complete: (res) => {
-        const accepted = tmplIds.some(id => res[id] === 'accept')
-        wx.showToast({
-          title: accepted ? '已开启提醒' : '未开启提醒',
-          icon: accepted ? 'success' : 'none'
-        })
-      }
+  openSubscribeCenter() {
+    wx.navigateTo({
+      url: '/pages/me/notify'
     })
   },
 
   openOfficialAccount() {
+    markOfficialAccountFollowed()
+    this.refreshOfficialAccountStatus()
     wx.navigateTo({
       url: getOfficialAccountWebSrcPath()
     })
-  },
-
-  openSetting() {
-    if (typeof wx.openSetting === 'function') {
-      wx.openSetting({})
-    }
   },
 
   handleGenderSelect(event) {

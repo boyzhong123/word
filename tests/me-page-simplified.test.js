@@ -33,15 +33,17 @@ test('me page removes VIP entry points from the profile area', () => {
 })
 
 test('me page uses a message and official-account center instead of duplicated plans', () => {
-  assert.match(meScript, /requestSubscribe\(\)/)
   assert.match(meTemplate, /class="section-title">消息与关注/)
   assert.match(meTemplate, /bindtap="openOfficialAccount"/)
-  assert.match(meTemplate, /bindtap="requestSubscribe"/)
   assert.match(meTemplate, /关注公众号，领取学习资料/)
+  assert.match(meTemplate, /{{officialAccountStatusText}}/)
+  assert.match(meScript, /refreshOfficialAccountStatus\(\)/)
+  assert.match(meScript, /markOfficialAccountFollowed\(\)/)
   assert.match(meTemplate, /class="message-row"/)
-  // 「管理微信消息授权」折入卡片底部，不再单列菜单
-  assert.match(meTemplate, /bindtap="openSetting"/)
-  assert.match(meScript, /openSetting\(\)/)
+  // 「开启学习提醒」进订阅详情页（按模板分开订阅、各自累计次数）
+  assert.match(meTemplate, /bindtap="openSubscribeCenter"/)
+  assert.match(meScript, /openSubscribeCenter\(\)/)
+  assert.match(meScript, /\/pages\/me\/notify/)
   assert.doesNotMatch(meTemplate, /message-grid/)
   assert.doesNotMatch(meTemplate, /今日学习/)
   assert.doesNotMatch(meTemplate, /继续学/)

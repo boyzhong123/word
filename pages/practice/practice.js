@@ -19,6 +19,7 @@ const {
     normalizeProverb
 } = require('../../utils/proverb-text')
 const { player } = require('../../utils/player')
+const { requestSubscribeForEvent } = require('../../utils/subscribe')
 
 const PRONUNCIATION_TIPS = [
   '先发 /æ/ 音，嘴巴张大，舌尖抵下齿背',
@@ -780,6 +781,7 @@ Page({
     const scoreRate = this.data.isWordNewMode
       ? computeWordNewScoreRate(this.data.contents)
       : computePracticeScoreRate(this.data.contents)
+    requestSubscribeForEvent('subscribePref_report')
     wx.navigateTo({
       url: '../finish/today?unitId=' + this.unitId +
         '&unitSort=' + this.unitSort +
@@ -1092,6 +1094,7 @@ Page({
 
     if (!this.wordId) {
       const scoreRate = computeWordNewScoreRate(this.data.contents)
+      requestSubscribeForEvent('subscribePref_report')
       wx.navigateTo({
         url: '../finish/today?unitId=' + this.unitId +
           '&unitSort=' + this.unitSort +

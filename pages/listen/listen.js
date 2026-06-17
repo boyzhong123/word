@@ -21,6 +21,7 @@ const {
 const { player, buildTracks } = require('../../utils/player')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
+const { requestSubscribeForEvent } = require('../../utils/subscribe')
 const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
 const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
 const LOADING_MASCOT_SPRITE = imageUrl('/images/listen/loading-mascot-sprite.png')
@@ -772,6 +773,7 @@ Page({
     const unitSort = unit.sort || 1
     const total = this.data.quizQuestions.length || 0
     const scoreRate = computeQuizScoreRate(this.data.quizRecords, total)
+    requestSubscribeForEvent('subscribePref_report')
     wx.redirectTo({
       url: '/pages/finish/today?unitId=' + unitId +
         '&unitSort=' + unitSort +

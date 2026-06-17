@@ -4,41 +4,79 @@
   </navigation>
 
   <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="status-card">
-      <view class="status-icon status-icon-bell"></view>
-      <view class="status-copy">
-        <view class="status-title">订阅消息</view>
-        <view class="status-desc">复习提醒、错题回顾和练习结果通知</view>
-      </view>
-      <view class="status-pill">{{statusText}}</view>
+    <view class="intro-card">
+      <view class="intro-title">学习提醒订阅</view>
+      <view class="intro-desc">打卡提醒可累计订阅次数；支付成功和学习报告会在事件发生时询问订阅。</view>
     </view>
 
-    <view class="section-card">
-      <view class="section-head">
-        <view>
-          <view class="section-title">学习提醒</view>
-          <view class="section-desc">开启后，每次提醒仍会由微信确认授权。</view>
+    <block wx:if="{{hasTemplates}}">
+      <view class="section-card tmpl-card" wx:for="{{templates}}" wx:key="id" data-id="{{item.id}}" bindtap="previewTemplate">
+        <view class="section-head">
+          <view class="tmpl-copy">
+            <view class="section-title">{{item.title}}</view>
+            <view class="section-desc">{{item.desc}}</view>
+          </view>
+          <view class="status-pill {{item.statusType === 'on' ? '' : 'status-pill-off'}}">{{item.statusText}}</view>
         </view>
-        <view class="switch-state">{{mainSwitchText}}</view>
+        <block wx:if="{{item.isAccumulate}}">
+          <view class="tmpl-count">已累计订阅 <text class="tmpl-count-num">{{item.count}}</text> 次</view>
+          <view class="primary-btn" data-id="{{item.id}}" catchtap="subscribeOne">{{item.count > 0 ? '再订阅一次' : '开启提醒'}}</view>
+        </block>
+        <block wx:if="{{item.hasPref}}">
+          <view class="event-row">
+            <view class="event-copy">
+              <view class="event-label">{{item.isAccumulate ? '提醒开关' : '提醒时机'}}</view>
+              <view class="event-when">{{item.prefDesc}}</view>
+            </view>
+            <switch class="event-switch" checked="{{item.enabled}}" data-pref-key="{{item.prefKey}}" bindchange="toggleTemplatePref" catchtap="noop" color="#24aa66" />
+          </view>
+        </block>
+        <view class="preview-hint">
+          <view class="preview-hint-icon"></view>
+          <view class="preview-hint-text">点击预览通知样式</view>
+          <view class="preview-hint-arrow">›</view>
+        </view>
       </view>
-      <view class="primary-btn {{hasTemplates ? '' : 'primary-btn-disabled'}}" bindtap="requestSubscribe">
-        {{hasTemplates ? '开启订阅消息' : '暂无可订阅模板'}}
-      </view>
-      <view class="ghost-btn" bindtap="openSetting">管理微信授权</view>
+    </block>
+    <view wx:else class="section-card">
+      <view class="section-title">暂无可订阅模板</view>
+      <view class="section-desc">请在 utils/subscribe.js 配置模板 ID 后再来。</view>
     </view>
 
     <view class="section-card">
-      <view class="section-title">公众号提醒</view>
-      <view class="section-desc section-desc-wide">关注公众号后，可以接收资料更新、活动说明和学习内容提醒。</view>
-      <view class="primary-btn" bindtap="openOfficialAccount">关注公众号</view>
+      <view class="section-title">微信授权</view>
+      <view class="section-desc section-desc-wide">订阅总开关：{{mainSwitchText}}。如关闭了总开关，可在这里重新打开。</view>
+      <view class="ghost-btn" bindtap="openSetting">管理微信授权</view>
     </view>
 
     <view class="tip-card">
       <view class="tip-title">提醒说明</view>
       <view class="tip-line">订阅消息只用于学习相关提醒，不会发送无关推广。</view>
-      <view class="tip-line">如果关闭了微信总开关，可以在“管理微信授权”中重新开启。</view>
+      <view class="tip-line">事件型提醒默认开启偏好；事件发生时仍需按微信规则确认订阅。</view>
+      <view class="tip-line">微信查不到打卡提醒剩余次数，这里显示的是本地累计订阅次数，实际推送以后端为准。</view>
     </view>
 
     <view class="scroll-spacer"></view>
   </scroll-view>
+
+  <view class="preview-mask" wx:if="{{previewVisible}}" bindtap="closePreview" catchtouchmove="noop">
+    <view class="preview-panel" catchtap="noop">
+      <view class="preview-head">
+        <view class="preview-title">消息样式预览</view>
+        <view class="preview-close" bindtap="closePreview">×</view>
+      </view>
+      <view class="preview-card">
+        <view class="preview-card-title">{{previewTemplate.title}}</view>
+        <view class="preview-field" wx:for="{{previewTemplate.previewFields}}" wx:key="label">
+          <view class="preview-field-label">{{item.label}}</view>
+          <view class="preview-field-value">{{item.value}}</view>
+        </view>
+        <view class="preview-card-footer">
+          <view>详情</view>
+          <view class="preview-arrow">›</view>
+        </view>
+      </view>
+      <view class="preview-note">实际内容会按你的学习进度或订单信息生成。</view>
+    </view>
+  </view>
 </view>

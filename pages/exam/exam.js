@@ -8,6 +8,7 @@ const {
 } = require('../../utils/exam-data')
 const { imageUrl } = require('../../utils/image-host')
 const { player } = require('../../utils/player')
+const { requestSubscribeForEvent } = require('../../utils/subscribe')
 
 Page({
   data: {
@@ -271,6 +272,7 @@ Page({
       durationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000))
     })
     saveResult(this.resBookId, this.examType, result)
+    requestSubscribeForEvent('subscribePref_report')
     const query = 'resBookId=' + encodeURIComponent(this.resBookId) +
       '&type=' + this.examType +
       '&name=' + encodeURIComponent(this.bookName)
