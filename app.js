@@ -1,3 +1,5 @@
+const { getSubscribeTmplIds } = require('./utils/subscribe')
+
 const baseUrl = wx.getAccountInfoSync().miniProgram.envVersion === 'release' ? 'https://pb10.91tszx.com' : 'https://pb10.91tszx.com'
 
 function updateNetworkStatus(networkType) {
@@ -81,6 +83,8 @@ App({
   globalData: {
     book: {},
     BASE_URL: baseUrl,
-    token: ''
+    token: '',
+    // 订阅消息模板 ID，真实 ID 在 utils/subscribe.js 配置
+    subscribeTmplIds: getSubscribeTmplIds()
   }
 })

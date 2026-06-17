@@ -60,6 +60,22 @@
       </view>
     </view>
 
+    <view class="reward-state-switch">
+      <view class="reward-state-switch-label">
+        奖励状态预览
+        <text class="reward-state-switch-tag">仅供演示使用</text>
+      </view>
+      <view class="reward-state-switch-options">
+        <view
+          wx:for="{{rewardScenarios}}"
+          wx:key="id"
+          class="reward-state-chip {{rewardScenarioId === item.id ? 'reward-state-chip-active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="switchRewardScenario"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
     <view class="calendar-card">
       <view class="calendar-head">
         <view class="calendar-title">{{yearMonth}}</view>
@@ -132,7 +148,7 @@
           <view class="gift-progress-fill" style="width: 100%;"></view>
         </view>
         <view class="gift-progress-copy">已达成 30 天连续打卡，奖励待领取</view>
-        <button class="gift-dialog-copy" hover-class="power-button-hover" bindtap="closeGiftDialog">立即领取</button>
+        <button class="gift-dialog-copy" hover-class="power-button-hover" bindtap="claimReward">立即领取</button>
       </block>
       <block wx:else>
         <view class="gift-dialog-subtitle">连续不断电满 30 天，可领 5 天听说在线 VIP</view>

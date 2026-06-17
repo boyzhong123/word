@@ -102,6 +102,10 @@
           </view>
           <view class="message-row-action">去关注</view>
         </view>
+        <view class="message-foot" bindtap="openSetting">
+          <text class="message-foot-text">未收到提醒？管理微信消息授权</text>
+          <text class="message-foot-arrow">›</text>
+        </view>
       </view>
     </view>
 

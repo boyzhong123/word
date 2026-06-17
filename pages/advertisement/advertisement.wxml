@@ -7,7 +7,7 @@
 
   <scroll-view scroll-y class="content" style="height: {{scrollHeight}}px;" enhanced show-scrollbar="{{false}}">
     <view class="hero">
-      <image class="hero-image" src="{{imageBaseUrl}}/images/home/ad/product-hero-clean.png" mode="aspectFill" />
+      <image class="hero-image" src="{{imageBaseUrl}}/images/home/ad/product-hero-purchase-v3.jpg" mode="aspectFill" />
       <view class="hero-fade"></view>
     </view>
 
@@ -17,22 +17,25 @@
           <image class="book-cover" src="{{bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
         </view>
         <view class="book-meta">
-          <view class="book-pills">
-            <view wx:for="{{gradeTags}}" wx:key="*this" class="grade-pill">{{item}}</view>
-            <view wx:if="{{press}}" class="press-pill">{{press}}</view>
-          </view>
           <text class="book-name">{{name}}</text>
-          <text class="book-summary">{{bookSummary}}</text>
+          <view wx:if="{{press}}" class="press-pill">
+            <image class="press-pill-icon" src="{{imageBaseUrl}}/images/home/ad/icon-press-jelly.png" mode="aspectFit" />
+            <text class="press-pill-text">{{press}}</text>
+          </view>
+          <view wx:else class="book-pills">
+            <view wx:for="{{gradeTags}}" wx:key="*this" class="grade-pill">{{item}}</view>
+          </view>
         </view>
       </view>
 
-      <view class="stat-grid">
+      <view class="stat-row">
         <view class="stat-item" wx:for="{{contentStats}}" wx:key="label">
-          <text class="stat-value">{{item.value}}</text>
-          <view class="stat-caption">
+          <image class="stat-icon" src="{{imageBaseUrl}}/images/home/ad/icon-{{item.iconKey}}-jelly.png" mode="aspectFit" />
+          <view class="stat-num-row">
+            <text class="stat-value">{{item.value}}</text>
             <text class="stat-unit">{{item.unit}}</text>
-            <text class="stat-label">{{item.label}}</text>
           </view>
+          <text class="stat-label">{{item.label}}</text>
         </view>
       </view>
     </view>
@@ -40,7 +43,7 @@
     <view class="section section-scope">
       <view class="section-head">
         <text class="section-title">这本书适合谁</text>
-        <text class="section-note">不同教材共用模板，只替换书本数据</text>
+        <text class="section-note">初中同步 · 自主备考都适用</text>
       </view>
       <view class="scope-list">
         <view class="scope-row">
@@ -63,7 +66,7 @@
     <view class="section">
       <view class="section-head">
         <text class="section-title">购买后包含</text>
-        <text class="section-note">词典内容和学习任务分开呈现</text>
+        <text class="section-note">词典查阅 + 智能学习任务</text>
       </view>
       <view class="feature-list">
         <view class="feature-item" wx:for="{{featureCards}}" wx:key="title">
@@ -79,7 +82,7 @@
     <view class="section">
       <view class="section-head">
         <text class="section-title">学习方式</text>
-        <text class="section-note">按教材单元推进，适合长期上新</text>
+        <text class="section-note">按单元推进，循序渐进</text>
       </view>
       <view class="timeline">
         <view class="timeline-item" wx:for="{{methodSteps}}" wx:key="title">
@@ -94,51 +97,45 @@
 
     <view class="section">
       <view class="section-head">
-        <text class="section-title">选择规格</text>
-        <text class="section-note">下单前还可以再次确认</text>
+        <text class="section-title">规格对比</text>
+        <text class="section-note">两种套餐，看清区别再选</text>
       </view>
 
-      <view class="sku-group">
-        <text class="sku-group-label">词典有效期</text>
-        <view class="sku-chip-row">
+      <view class="compare-table">
+        <view class="compare-head">
+          <view class="compare-cell compare-cell-label"></view>
           <view
-            wx:for="{{validityOptions}}"
-            wx:key="id"
-            class="sku-chip {{item.id === selectedValidity ? 'sku-chip-active' : ''}}"
-            data-id="{{item.id}}"
-            bindtap="selectValidity"
+            wx:for="{{comparePlans}}"
+            wx:key="name"
+            class="compare-cell compare-cell-plan {{item.highlight ? 'compare-col-hl' : ''}}"
           >
-            <text class="sku-chip-name">{{item.name}}</text>
+            <view class="compare-plan-top">
+              <text class="compare-plan-name">{{item.name}}</text>
+              <text wx:if="{{item.tag}}" class="compare-plan-tag">{{item.tag}}</text>
+            </view>
+            <view class="compare-plan-price">
+              <text class="compare-plan-currency">¥</text>
+              <text class="compare-plan-amount">{{item.priceFrom}}</text>
+              <text class="compare-plan-from">起</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="compare-row" wx:for="{{compareRows}}" wx:key="label" wx:for-item="row">
+          <text class="compare-cell compare-cell-label">{{row.label}}</text>
+          <view
+            wx:for="{{row.cells}}"
+            wx:key="*this"
+            wx:for-item="cell"
+            class="compare-cell compare-cell-val {{index === 1 ? 'compare-col-hl' : ''}}"
+          >
+            <text wx:if="{{cell}}" class="compare-yes">✓</text>
+            <text wx:else class="compare-no">—</text>
           </view>
         </view>
       </view>
 
-      <view class="sku-group">
-        <text class="sku-group-label">套餐</text>
-        <view class="sku-chip-row">
-          <view
-            wx:for="{{packages}}"
-            wx:key="id"
-            class="sku-chip {{item.id === selectedPackage ? 'sku-chip-active' : ''}}"
-            data-id="{{item.id}}"
-            bindtap="selectPackage"
-          >
-            <text class="sku-chip-name">{{item.name}}</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="package-summary-card">
-        <view class="package-top">
-          <text class="package-name">{{currentSku.skuLabel}}</text>
-          <text wx:if="{{currentPackage.tag}}" class="package-tag">{{currentPackage.tag}}</text>
-        </view>
-        <view class="package-price">
-          <text class="package-currency">¥</text>
-          <text class="package-amount">{{currentSku.price}}</text>
-        </view>
-        <text class="package-summary">{{currentPackage.summary}}</text>
-      </view>
+      <text class="compare-foot">有效期可选 6 个月或永久有效，永久一次购买长期使用 · 点击「立即购买」选择具体规格</text>
     </view>
 
     <view wx:if="{{intro}}" class="section">
@@ -177,57 +174,64 @@
           <text class="sku-book-stats">{{wordCountText}} 词 · {{proverbCountText}} 条句子 · {{totalText}} 个单元</text>
           <text wx:if="{{press}}" class="sku-book-press">{{press}}</text>
         </view>
+        <view class="sku-close" catchtap="closeSkuSheet">✕</view>
       </view>
 
-      <view class="sku-title">词典有效期</view>
-      <view class="sku-options">
-        <view
-          wx:for="{{validityOptions}}"
-          wx:key="id"
-          class="sku-option sku-option-compact {{selectedValidity === item.id ? 'sku-option-active' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="selectValidity"
-        >
-          <view wx:if="{{item.tag}}" class="sku-badge">{{item.tag}}</view>
-          <text class="sku-option-name">{{item.name}}</text>
-          <text class="sku-option-desc">{{item.summary}}</text>
+      <scroll-view scroll-y class="sku-body" enhanced show-scrollbar="{{false}}">
+        <view class="sku-title">词典有效期</view>
+        <view class="sku-options">
+          <view
+            wx:for="{{validityOptions}}"
+            wx:key="id"
+            class="sku-option {{selectedValidity === item.id ? 'sku-option-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectValidity"
+          >
+            <view wx:if="{{selectedValidity === item.id}}" class="sku-tick">✓</view>
+            <view class="sku-option-head">
+              <text class="sku-option-name">{{item.name}}</text>
+              <text wx:if="{{item.tag}}" class="sku-pill">{{item.tag}}</text>
+            </view>
+            <text class="sku-option-desc">{{item.summary}}</text>
+          </view>
         </view>
-      </view>
 
-      <view class="sku-title">套餐</view>
-      <view class="sku-options">
-        <view
-          wx:for="{{packages}}"
-          wx:key="id"
-          class="sku-option sku-option-compact {{selectedPackage === item.id ? 'sku-option-active' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="selectPackage"
-        >
-          <view wx:if="{{item.tag}}" class="sku-badge">{{item.tag}}</view>
-          <text class="sku-option-name">{{item.name}}</text>
-          <text class="sku-option-desc">{{item.summary}}</text>
+        <view class="sku-title">套餐</view>
+        <view class="sku-options">
+          <view
+            wx:for="{{packages}}"
+            wx:key="id"
+            class="sku-option {{selectedPackage === item.id ? 'sku-option-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectPackage"
+          >
+            <view wx:if="{{selectedPackage === item.id}}" class="sku-tick">✓</view>
+            <view class="sku-option-head">
+              <text class="sku-option-name">{{item.name}}</text>
+              <text wx:if="{{item.tag}}" class="sku-pill">{{item.tag}}</text>
+            </view>
+            <text class="sku-option-desc">{{item.summary}}</text>
+          </view>
         </view>
-      </view>
 
-      <view class="sku-selected-price">
-        <text class="sku-selected-label">已选规格</text>
-        <text class="sku-selected-value">{{currentSku.skuLabel}}</text>
-        <view class="sku-selected-amount-row">
-          <text class="sku-option-currency">¥</text>
-          <text class="sku-option-price">{{currentSku.price}}</text>
+        <view class="sku-includes">
+          <view class="sku-includes-title">「{{currentPackage.name}}」包含</view>
+          <view class="sku-includes-item" wx:for="{{currentPackageItems}}" wx:key="*this">
+            <text class="sku-check">✓</text>
+            <text class="sku-includes-text">{{item}}</text>
+          </view>
         </view>
-      </view>
-
-      <view class="sku-includes">
-        <view class="sku-includes-title">套餐包含</view>
-        <view class="sku-includes-item" wx:for="{{currentPackageItems}}" wx:key="*this">
-          <text class="sku-check">✓</text>
-          <text class="sku-includes-text">{{item}}</text>
-        </view>
-      </view>
+      </scroll-view>
 
       <view class="sku-actions">
-        <view class="sku-confirm" bindtap="confirmPurchase">¥{{currentSku.price}} 确认购买</view>
+        <view class="sku-foot-price">
+          <text class="sku-foot-label">{{currentSku.skuLabel}}</text>
+          <view class="sku-foot-amount-row">
+            <text class="sku-foot-currency">¥</text>
+            <text class="sku-foot-amount">{{currentSku.price}}</text>
+          </view>
+        </view>
+        <view class="sku-confirm" bindtap="confirmPurchase">确认购买</view>
       </view>
     </view>
   </view>

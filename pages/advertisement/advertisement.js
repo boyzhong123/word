@@ -97,6 +97,29 @@ const METHOD_STEPS = [
   { title: '再练句', desc: '用短句和谚语串起真实表达' },
   { title: '持续复习', desc: '把错题、跟读和小测合并回顾' }
 ]
+const COMPARE_PLANS = [
+  {
+    id: 'book',
+    name: '仅词典',
+    priceFrom: Math.min(SKU_PRICES['book-6m'], SKU_PRICES['book-forever'])
+  },
+  {
+    id: 'full',
+    name: '词典+智能学习卡',
+    tag: '推荐',
+    highlight: true,
+    priceFrom: Math.min(SKU_PRICES['full-6m'], SKU_PRICES['full-forever'])
+  }
+]
+const COMPARE_ROWS = [
+  { label: '全部词汇与谚语词典', cells: [true, true] },
+  { label: '释义 · 例句 · 发音示范', cells: [true, true] },
+  { label: '谚语查阅与朗读音频', cells: [true, true] },
+  { label: '智能学习卡（新学/跟读/测验）', cells: [false, true] },
+  { label: '记忆曲线科学复习', cells: [false, true] },
+  { label: '朗读评分与即时纠音', cells: [false, true] },
+  { label: '打卡激励与进度追踪', cells: [false, true] }
+]
 
 function formatCount(value) {
   return String(Number(value) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -184,17 +207,20 @@ function applyBookDetail(page, book, unlocked) {
     {
       value: wordCountText,
       unit: '个',
-      label: '收录单词'
+      label: '收录单词',
+      iconKey: 'word'
     },
     {
       value: proverbCountText,
       unit: '条',
-      label: '实用句子'
+      label: '实用句子',
+      iconKey: 'proverb'
     },
     {
       value: totalText,
       unit: '个',
-      label: '学习单元'
+      label: '学习单元',
+      iconKey: 'review'
     }
   ]
 
@@ -245,6 +271,8 @@ Page({
     contentStats: [],
     featureCards: FEATURE_CARDS,
     methodSteps: METHOD_STEPS,
+    comparePlans: COMPARE_PLANS,
+    compareRows: COMPARE_ROWS,
     intro: '',
     unlocked: false,
     skuSheetVisible: false,

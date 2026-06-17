@@ -14,11 +14,10 @@ const {
   resolveProverbRefText
 } = require('./proverb-text')
 
-// 循环模式：列表循环 / 单曲循环 / 随机播放
+// 循环模式：单期循环（仅当前关卡）/ 整本书循环（贯穿所有关卡）
 const LOOP_MODES = [
-  { key: 'list', label: '列' },
-  { key: 'single', label: '单' },
-  { key: 'shuffle', label: '随' }
+  { key: 'unit', label: '单' },
+  { key: 'book', label: '册' }
 ]
 // 倍速档位
 const SPEEDS = [1, 1.25, 1.5, 2, 0.75]
@@ -320,8 +319,8 @@ const player = {
     return getUnitResource(unit.unitId).then(list => {
       const source = Array.isArray(list) ? list : []
       const tracks = buildTracks(source)
-      const unitName = (source[0] && source[0].unit && source[0].unit.unitName) ||
-        unit.unitName || ('关卡' + (unit.sort || index + 1))
+      // 统一显示为「关卡N」，不沿用后端的「第N期」命名
+      const unitName = '关卡' + (unit.sort || index + 1)
 
       this.unitIndex = index
       this.unitName = unitName
@@ -368,23 +367,19 @@ const player = {
 
   handleEnded() {
     const mode = LOOP_MODES[this.loopIndex].key
-    if (mode === 'single') {
-      this.loadCurrent(true)
-      return
-    }
-    if (mode === 'shuffle') {
-      const len = this.tracks.length
-      let next = this.current
-      if (len > 1) {
-        while (next === this.current) {
-          next = Math.floor(Math.random() * len)
-        }
+    if (mode === 'unit') {
+      // 单期循环：只在当前关卡内循环
+      if (this.current < this.tracks.length - 1) {
+        this.current += 1
+        this.loadCurrent(true)
+      } else {
+        // 关卡最后一条：回到本关卡第一条
+        this.current = 0
+        this.loadCurrent(true)
       }
-      this.current = next
-      this.loadCurrent(true)
       return
     }
-    // 列表循环
+    // 整本书循环：贯穿所有关卡
     this.next(true)
   },
 
@@ -466,10 +461,13 @@ const player = {
       this.current += 1
       this.loadCurrent(true)
     } else if (this.unitIndex < this.units.length - 1) {
-      // 进入下一期
+      // 进入下一关卡
       this.loadUnit(this.unitIndex + 1, true)
+    } else if (this.units.length > 1) {
+      // 整本书循环：最后一关最后一条回到第一关第一条
+      this.loadUnit(0, true)
     } else {
-      // 最后一期最后一条：回到第一条
+      // 只有一个关卡：回到第一条
       this.current = 0
       this.loadCurrent(autoPlay)
     }
@@ -562,7 +560,7 @@ const player = {
     this.loopIndex = (this.loopIndex + 1) % LOOP_MODES.length
     this.emit()
     wx.showToast({
-      title: ['列表循环', '单曲循环', '随机播放'][this.loopIndex],
+      title: ['单期循环', '整本书循环'][this.loopIndex],
       icon: 'none',
       duration: 800
     })

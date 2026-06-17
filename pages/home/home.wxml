@@ -597,4 +597,15 @@
       </view>
     </view>
   </view>
+
+  <!-- 结业测未解锁提示弹窗 -->
+  <view class="reprac-mask" wx:if="{{examLockPopup}}" bindtap="closeExamLockPopup" catchtouchmove="noop">
+    <view class="reprac-card" catchtap="noop">
+      <view class="reprac-title">结业测未解锁</view>
+      <view class="reprac-desc">{{examLockPopupText}}</view>
+      <view class="reprac-actions">
+        <view class="reprac-btn reprac-btn-primary" bindtap="closeExamLockPopup" hover-class="reprac-btn-hover">我知道了</view>
+      </view>
+    </view>
+  </view>
 </view>

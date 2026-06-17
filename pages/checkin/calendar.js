@@ -387,6 +387,19 @@ Page({
     this.setData({ showGiftDialog: false })
   },
 
+  // 点击「立即领取」：原地切换到「已领取」弹窗（兑换码视图），弹窗不关闭
+  claimReward() {
+    if (this.data.giftClaimed) {
+      return
+    }
+    this.setData({
+      giftClaimed: true,
+      rewardScenarioId: 'claimed',
+      giftCopied: false
+    })
+    wx.showToast({ title: '领取成功', icon: 'success' })
+  },
+
   copyRewardCode() {
     const code = this.data.rewardCode || STREAK_REWARD_CODE
     wx.setClipboardData({

@@ -330,7 +330,8 @@ Page({
       const tracks = buildTracks(source)
       const sort = unit.sort || index + 1
       this.unitSort = sort
-      const unitName = (source[0] && source[0].unit && source[0].unit.unitName) || unit.unitName || ('关卡' + sort)
+      // 统一显示为「关卡N」，不沿用后端的「第N期」命名
+      const unitName = '关卡' + sort
 
       const quizQuestions = buildListeningQuizQuestions(source)
 
@@ -618,6 +619,17 @@ Page({
     const done = this.quizPendingNext
     this.quizPendingNext = null
     this.setData({ quizNextPaused: false })
+    if (typeof done === 'function') {
+      done()
+    }
+  },
+
+  // 立即跳过：不等倒计时走完，直接执行本题的下一步
+  skipQuizNext() {
+    const done = this.quizCountdownDone
+    this.stopQuizCountdownTimer()
+    this.quizPendingNext = null
+    this.setData({ quizNextCountdown: 0, quizNextPaused: false })
     if (typeof done === 'function') {
       done()
     }

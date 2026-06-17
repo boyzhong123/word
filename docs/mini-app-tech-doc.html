@@ -353,7 +353,23 @@
 
       <section class="section" id="module-checkin">
         <div class="section-head"><div><h2>② 打卡</h2><p class="section-desc">路由 <code>pages/checkin/calendar</code>，从首页日历按钮进入</p></div></div>
-        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>月历展示每日打卡状态、连续天数、礼品/奖励进度（30 天 VIP 等）。<strong>打卡记录、连续天数、礼品活动、达标状态、兑换码、是否已领取均由后端存储并在 user/info 返回</strong>；前端只读展示。点击「复制兑换码」仅把后端下发的码写入剪贴板，<strong>不自行生成兑换码</strong>；领取落库需 claim 接口。</div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>月历展示每日打卡状态、连续天数、礼品/奖励进度（30 天 VIP 等）。<strong>打卡记录、连续天数、礼品活动配置、达标状态、兑换码、是否已领取均由后端存储并在 user/info（+ study-plan）返回</strong>；前端只读展示。点击「复制兑换码」仅把后端下发的码写入剪贴板，<strong>不自行生成兑换码</strong>；领取落库需 claim 接口。</div>
+        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+          <strong style="color:var(--amber)">活动文案 · 应接口下发（当前多处写死）</strong><br/>
+          下列 UI 的<strong>规则说明、礼品名称、门槛天数、兑换码</strong>均应由后端配置，便于运营改活动不发版。现状与目标如下：
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">页面/组件</th><th style="text-align:left;padding:6px 8px">文案示例</th><th style="text-align:left;padding:6px 8px">现状</th><th style="text-align:left;padding:6px 8px">应对接口</th></tr>
+            <tr><td style="padding:6px 8px"><code>plan</code> 打卡预告卡</td><td>每天完成 <strong>2</strong> 关即打卡；连续30天…VIP 礼品</td><td>2 来自本地 Storage；30天/VIP <strong>写死 wxml</strong></td><td><code>study-plan.groupsPerDay</code> + <code>user/info.gifts[]</code></td></tr>
+            <tr><td style="padding:6px 8px"><code>calendar</code> 打卡规则弹窗（?）</td><td>三条规则（计划关卡/学习计划/30天礼品）</td><td><strong>写死 wxml</strong></td><td><code>user/info.checkInRules[]</code> 或 <code>gifts[].ruleCopy</code></td></tr>
+            <tr><td style="padding:6px 8px"><code>calendar</code> 礼品弹窗</td><td>30天连续打卡奖励；5天听说在线 VIP</td><td>标题/副标题 <strong>写死</strong>；码读 user/info</td><td><code>gifts[].title</code> <code>rewardSubtitle</code> <code>thresholdDays</code></td></tr>
+            <tr><td style="padding:6px 8px"><code>calendar</code> 月历礼品格角标</td><td>「30天」/ 可领 / 已领</td><td>30 来自常量 <code>STREAK_REWARD_DAYS</code></td><td><code>gifts[].thresholdDays</code></td></tr>
+            <tr><td style="padding:6px 8px"><code>calendar</code> 电力提示卡</td><td>今天的电力还没续上…</td><td><strong>写死 wxml</strong>（可按 todayChecked 切换）</td><td>可选 <code>checkInHints.checked/unchecked</code></td></tr>
+            <tr><td style="padding:6px 8px"><code>finish/today</code> 打卡成功卡</td><td>连续30天可领取礼品…</td><td><strong>写死 wxml</strong></td><td><code>gifts[].shortRewardCopy</code></td></tr>
+            <tr><td style="padding:6px 8px"><code>home</code> 今日 x/y 关</td><td>今日 1/2 关</td><td>y 来自本地 <code>studyPlan_*</code></td><td><code>study-plan.groupsPerDay</code></td></tr>
+            <tr><td style="padding:6px 8px"><code>home/me</code> 连续/累计天</td><td>34 天</td><td>读 <code>user/info.continuousDays</code>（无则演示兜底）</td><td>已接 ✓</td></tr>
+          </table>
+          联调后删除前端常量：<code>STREAK_REWARD_DAYS=30</code>、<code>STREAK_REWARD_CODE</code>（calendar.js / finish/today.js）。
+        </div>
         <div class="api-detail-grid" id="checkinGiftSchema"></div>
         <div class="cards" id="checkinPages"></div>
       </section>
@@ -537,8 +553,8 @@
             request: "{}",
             response: "data 含用户基础字段 + 打卡/礼品字段（均由后端存储返回）",
             callers: "pages/home/home.js, pages/checkin/calendar.js, pages/me/me.js",
-            fields: "【打卡·后端存储】① 每日状态：checkInDates / signDates / calendar / records[]。② 连续天数：continuousDays / checkInDays / signDays。③ 礼品/奖励（全部由后端给）：gifts[] 或 streakReward 对象，含 giftId、title、门槛 rewardDay/thresholdDays、是否达标 giftUnlocked/rewardEligible、是否已领取 giftClaimed/rewardStatus、<strong>兑换码 streakRewardCode / vipRedeemCode / rewardCode（后端生成并下发，前端只展示/复制）</strong>。无码时前端演示兜底 STREAK_REWARD_CODE，联调后必须删掉。④ 学习时长：studyMinutes / learnMinutes。",
-            render: "首页连续打卡摘要；打卡页月历+礼品进度条+领取弹窗；我的页统计"
+            fields: "【打卡·后端存储】① 每日状态：checkInDates / signDates / calendar / records[]。② 连续天数：continuousDays / checkInDays / signDays。③ 礼品/奖励（全部由后端给）：gifts[] 或 streakReward 对象，含 giftId、title、<strong>thresholdDays/rewardDay</strong>、<strong>rewardDesc/rewardSubtitle/shortRewardCopy</strong>（供 plan/日历/完成页展示）、是否达标 giftUnlocked/rewardEligible、是否已领取 giftClaimed/rewardStatus、<strong>兑换码 streakRewardCode / vipRedeemCode / rewardCode</strong>。④ <strong>活动规则文案</strong>：checkInRules[]（打卡规则弹窗三条）或 gifts[].ruleCopy；可选 checkInHints（电力提示卡）。无码时前端演示兜底 STREAK_REWARD_CODE，联调后必须删掉。⑤ 学习时长：studyMinutes / learnMinutes。",
+            render: "首页连续打卡摘要；打卡页月历+礼品进度条+规则弹窗+领取弹窗；我的页统计；plan/finish 活动预告（待接文案字段）"
           }
         },
         {
@@ -573,8 +589,8 @@
             request: "{}",
             response: "见 user/info 打卡字段；后端按天返回 checkInDates[] 等，并携带礼品活动、达标门槛、可领取/已领取、兑换码",
             callers: "pages/checkin/calendar.js loadCheckin",
-            fields: "月历：checkInDates/signDates/calendar/records。连续天：continuousDays。礼品达标：giftUnlocked / rewardEligible（后端判定，前端不自行算 30 天）。<strong>兑换码：streakRewardCode / vipRedeemCode / rewardCode 必须由 user/info 返回</strong>，calendar.js pickRewardCode 读取；无则演示码兜底。已领取：giftClaimed / rewardStatus=claimed。点击复制走 copyRewardCode，不调后端；<strong>领取/核销须 POST gift-claim</strong>（待实现）。",
-            render: "月历打点、进度环、礼品弹窗、分享海报"
+            fields: "月历：checkInDates/signDates/calendar/records。连续天：continuousDays。礼品达标：giftUnlocked / rewardEligible（<strong>后端判定，前端不自行算 30 天</strong>）。<strong>活动文案</strong>：checkInRules[]、gifts[].title/rewardDesc/thresholdDays 供规则弹窗/礼品弹窗/plan 预告/finish 成功卡（当前 wxml 写死，待接）。兑换码：streakRewardCode / vipRedeemCode / rewardCode 必须由 user/info 返回；无则演示码兜底。已领取：giftClaimed / rewardStatus=claimed。领取须 POST gift-claim（待实现）。",
+            render: "月历打点、进度环、? 打卡规则弹窗、礼品弹窗、分享海报"
           }
         },
         {
@@ -669,20 +685,23 @@
             request: "建议 { resBookId, date?, unitIds[]?, groupsDone?, source?: \"finish\" }",
             response: "更新后的 checkInDates / continuousDays",
             callers: "pages/finish/today.js recordLevelDone（utils/checkin-progress.js 写 dailyProgress_*，未调后端）",
-            fields: "finish 页「打卡成功」由本地 todayDone≥todayGoal 判定；月历 checkInDates 只从 user/info 读。后端需明确：由 save-learning-record 顺带写打卡，还是独立 check-in 接口。",
+            fields: "finish 页「打卡成功」由本地 todayDone≥todayGoal 判定；月历 checkInDates 只从 user/info 读。成功卡副标题「连续30天可领取礼品」<strong>当前写死</strong>，应改读 gifts[].shortRewardCopy。后端需明确：由 save-learning-record 顺带写打卡，还是独立 check-in 接口。",
             render: "finish/today 打卡成功卡片 → 跳转打卡日历"
           }
         },
         {
           id: "study-plan", module: "首页", moduleId: "home", page: "plan · 学习计划", status: "partial",
-          endpoints: [{ method: "—", path: "本地 Storage studyPlan_<resBookId>", note: "待后端化" }],
-          summary: "每日目标关数 groupsPerDay（默认 2），影响打卡判定",
+          endpoints: [
+            { method: "GET", path: "/mini-app/study-plan", note: "待实现" },
+            { method: "POST", path: "/mini-app/study-plan", note: "待实现" }
+          ],
+          summary: "每日目标关数 groupsPerDay + 打卡预告联动",
           detail: {
-            request: "—",
-            response: "—",
-            callers: "pages/plan/plan.js 读写 Storage；pages/home/home.js goStudyPlan；utils/checkin-progress.js getDailyGoal",
-            fields: "首页「今日 x/y 关」的 y 来自 studyPlan。无后端接口，换机不同步。",
-            render: "首页 study-plan 入口 → plan 页设置每日组数"
+            request: "GET/POST ?resBookId= · POST body: { groupsPerDay, levelSize? }",
+            response: "{ groupsPerDay: 2, levelSize: 10, estimatedDays?, updatedAt? }",
+            callers: "pages/plan/plan.js 读写 Storage；pages/home/home.js；utils/checkin-progress.js getDailyGoal",
+            fields: "首页「今日 x/y 关」的 y、plan 页「每天完成 N 关即打卡」的 N 均来自 groupsPerDay。<strong>礼品活动文案</strong>仍读 user/info.gifts[]，不在本接口。当前无后端，换机不同步。",
+            render: "首页 study-plan 入口 → plan 页设置每日组数 + 打卡规则预告卡"
           }
         },
         {
@@ -919,14 +938,15 @@
           { title: "选择教材弹窗", desc: "home 内嵌 bottom-sheet：顶部学段（小学/初中/高中）+ 左侧版本栏（推荐/人教版/外研版…）+ 右侧封面网格。封面点击→商品详情；未购「去购买」；已购「切换使用」→ switch-default-book。", paths: ["home.wxml book-picker", "home.js switchBook/selectBookStage"], apis: ["user-books", "switch-default-book", "book-product-list"] },
           { title: "practice 练习", desc: "三环节主战场：word 单词新学（word-mark）、recitation 跟读（recitation-score）；review 模式走 review-words。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark", "recitation-score", "review-words"] },
           { title: "finish 完成", desc: "每环节结束页；save-learning-record 更新 tasks[]；今日达标触发本地打卡计数（待接 check-in）。", paths: ["pages/finish/today"], apis: ["save-learning-record", "check-in 待实现"] },
-          { title: "plan 学习计划", desc: "首页 study-plan 入口；设置每日目标关数 groupsPerDay（localStorage），展示预计完成天数；影响 finish 页打卡判定。", paths: ["pages/plan/plan", "home.goStudyPlan"], apis: ["study-plan 待实现"] }
+          { title: "plan 学习计划", desc: "设置 groupsPerDay（待接 study-plan）；底部打卡预告卡文案<strong>当前写死</strong>，N 关来自本地计划，30天/VIP 应读 user/info.gifts[]。", paths: ["pages/plan/plan", "home.goStudyPlan"], apis: ["study-plan 待实现", "user/info.gifts[]"] }
         ],
         commerce: [
           { title: "advertisement 商品详情", desc: "从弹窗封面/去购买进入。onLoad 应调 book-product-list 渲染 book{}+products[]（当前 URL query + PACKAGE/SKU 常量）。", paths: ["pages/advertisement/advertisement", "home.goBuyBook"], apis: ["book-product-list"] },
           { title: "vip 确认订单", desc: "展示选中 SKU/有效期/价格；pay 调 order 拿 payParams → wx.requestPayment；测试环境 markDevPurchased 模拟解锁。", paths: ["pages/vip/vip"], apis: ["order", "order/status", "pay-notify(服务端)"] }
         ],
         checkin: [
-          { title: "calendar 打卡日历", desc: "礼品达标/兑换码/已领取均读 user/info（后端存储）；兑换码后端下发，前端只复制。", paths: ["pages/checkin/calendar"], apis: ["user/info", "gift-claim 待实现"] },
+          { title: "calendar 打卡日历", desc: "连续天/月历/礼品态读 user/info；? 规则弹窗 + 礼品弹窗标题<strong>当前 wxml 写死</strong>，应对接 checkInRules[] / gifts[] 文案字段。", paths: ["pages/checkin/calendar"], apis: ["user/info", "gift-claim 待实现"] },
+          { title: "finish 打卡成功", desc: "今日 x/y 关达标显示成功卡；副标题「连续30天…」<strong>写死</strong>，待读 gifts[].shortRewardCopy。", paths: ["pages/finish/today"], apis: ["check-in 待实现", "user/info"] },
           { title: "share-poster 海报", desc: "Canvas 绘制打卡海报，保存相册（需相册权限）。", paths: ["pages/checkin/share-poster.js"], apis: ["无"] },
           { title: "本地今日进度", desc: "首页「今日完成 x/y 关」：utils/checkin-progress.js 按 resBookId 存 Storage，与月历打卡记录（后端）是两套数据。", paths: ["utils/checkin-progress.js"], apis: ["—"] }
         ],
@@ -987,7 +1007,7 @@
         { title: "exam-data.js → exam APIs", desc: "exam-paper / exam-submit / exam-result 替换 Storage；exam-report 展示 durationSeconds + reportGeneratedAt。" },
         { title: "三环节逐词上报", desc: "word-mark / recitation-score / listening-quiz-result 当前未调；save-learning-record 须带 taskType + durationSeconds。" },
         { title: "listen-duration 双源", desc: "player→audioMinutes；follow-read→listenPracticeCount+用时；study-record 演示仍用 listenAssessCount，须对齐字段名。" },
-        { title: "打卡/计划/礼品", desc: "check-in 写入、study-plan 同步、gift-claim 领取落库；plan 页 groupsPerDay 仍 localStorage。" },
+        { title: "打卡活动文案", desc: "plan 预告卡、calendar 规则弹窗/礼品弹窗、finish 成功卡 — 30天/VIP/规则三条均写死 wxml；应对接 user/info checkInRules[] + gifts[] + study-plan.groupsPerDay。" },
         { title: "商品/支付", desc: "book-product-list + order 替换 advertisement/vip 本地 SKU 与 markDevPurchased。" },
         { title: "单词分析 word-info", desc: "后续做；入口未定，倾向跟读背诵页；不做首页 search。" }
       ];
@@ -1286,7 +1306,7 @@ GET /mini-app/order/status?orderId=ord_20260616_001
       }
 
       function renderCheckinGiftSchema() {
-        const userInfoGift = `POST /mini-app/user/info  →  data 礼品字段（后端存储并下发）
+        const userInfoGift = `POST /mini-app/user/info  →  打卡数据 + 活动/礼品配置
 
 {
   "continuousDays": 34,
@@ -1296,10 +1316,22 @@ GET /mini-app/order/status?orderId=ord_20260616_001
   "rewardCode": "VIP-2026-ABCD-1234",
   "streakRewardCode": "VIP-2026-ABCD-1234",
   "rewardStatus": "claimable",
+  "checkInRules": [
+    "完成今日计划关卡，系统会自动点亮当天打卡。",
+    "今日目标来自学习计划页，调整计划后会同步更新。",
+    "连续30天不断电，即可领取听说在线 VIP 礼品。"
+  ],
+  "checkInHints": {
+    "checked": "今天的电力已经续上。继续学习，让你的战绩持续常亮。",
+    "unchecked": "噫，今天的电力还没续上。花3分钟，保持你的战绩常亮。"
+  },
   "gifts": [
     {
       "giftId": "streak_30_vip",
-      "title": "连续打卡30天 VIP",
+      "title": "30天连续打卡奖励",
+      "rewardSubtitle": "5天听说在线 VIP 兑换码",
+      "rewardDesc": "连续30天不断电，可领取听说在线 VIP 礼品",
+      "shortRewardCopy": "连续30天可领取礼品，去日历看看战绩。",
       "thresholdDays": 30,
       "eligible": true,
       "claimed": false,
@@ -1308,8 +1340,18 @@ GET /mini-app/order/status?orderId=ord_20260616_001
   ]
 }
 
-// 前端 calendar.js：pickRewardCode 读 rewardCode / streakRewardCode
-// 无接口数据时用 STREAK_REWARD_CODE 演示兜底（联调后删除）`;
+// 用户态：continuousDays / checkInDates[] / giftUnlocked / giftClaimed
+// 活动配置：checkInRules[] → calendar「?」弹窗；gifts[] → plan 预告 / 礼品弹窗 / finish 成功卡
+// 前端 calendar.js 现状：仅 pickRewardCode 读码；门槛 STREAK_REWARD_DAYS=30 写死（联调后删）`;
+        const studyPlan = `GET/POST /mini-app/study-plan?resBookId=rb_xxx  （待实现）
+
+GET → { "groupsPerDay": 2, "levelSize": 10 }
+
+POST { "groupsPerDay": 3 }
+→ { "groupsPerDay": 3, "levelSize": 10, "updatedAt": "2026-06-16T12:00:00+08:00" }
+
+// 影响：home「今日 x/y 关」、plan「每天完成 N 关即打卡」、finish 达标判定
+// 当前：Storage studyPlan_<resBookId>，DEFAULT_GROUPS=2`;
         const giftClaim = `POST /mini-app/gift-claim  （待实现）
 
 { "giftId": "streak_30_vip", "rewardType": "streak_30", "resBookId": "xxx" }
@@ -1322,7 +1364,8 @@ GET /mini-app/order/status?orderId=ord_20260616_001
 
 // 当前：copyRewardCode 只复制 user/info 里的码，不调 claim`;
         $("#checkinGiftSchema").innerHTML = [
-          ["user/info · 礼品与兑换码（后端下发）", userInfoGift],
+          ["user/info · 打卡记录 + 活动/礼品配置", userInfoGift],
+          ["study-plan · 每日目标关数（待实现）", studyPlan],
           ["gift-claim · 领取核销（待实现）", giftClaim]
         ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
       }

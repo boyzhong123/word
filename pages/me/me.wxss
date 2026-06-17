@@ -294,6 +294,31 @@ page {
   background: #f2f2f2;
 }
 
+.message-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18rpx 26rpx 22rpx;
+  border-top: 1rpx solid #f6f6f6;
+}
+
+.message-foot-text {
+  color: #8b9098;
+  font-size: 22rpx;
+  line-height: 30rpx;
+}
+
+.message-foot-arrow {
+  margin-left: 4rpx;
+  color: #c4c4c4;
+  font-size: 26rpx;
+  line-height: 30rpx;
+}
+
+.message-foot:active {
+  opacity: 0.6;
+}
+
 .menu-item {
   position: relative;
   height: 112rpx;
@@ -496,5 +521,6 @@ page {
 }
 
 .scroll-spacer {
-  height: calc(36rpx + env(safe-area-inset-bottom));
+  /* 102rpx = 自定义 tabBar 主体高度，避免「隐私与协议」被底栏遮挡 */
+  height: calc(102rpx + 36rpx + env(safe-area-inset-bottom));
 }

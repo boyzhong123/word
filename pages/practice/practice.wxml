@@ -149,7 +149,7 @@
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
                   </view>
                   <view class="wn-foot-col" catchtap="goNextWord">
-                    <text class="wn-foot-text">下一词</text>
+                    <text class="wn-foot-text">{{current >= contents.length - 1 ? '提交' : '下一词'}}</text>
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
                   </view>
                 </view>
@@ -161,7 +161,7 @@
                 </view>
                 <view wx:else class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
                   <view class="wn-foot-col" catchtap="goNextWord">
-                    <text class="wn-foot-text">下一词</text>
+                    <text class="wn-foot-text">{{current >= contents.length - 1 ? '提交' : '下一词'}}</text>
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
                   </view>
                 </view>
@@ -271,7 +271,7 @@
                   <view class="wn-foot-underline-img wn-foot-underline-known"></view>
                 </view>
                 <view wx:else class="wn-foot-col wn-detail-action" catchtap="goNextWord">
-                  <text class="wn-next">下一词</text>
+                  <text class="wn-next">{{current >= contents.length - 1 ? '提交' : '下一词'}}</text>
                   <view class="wn-foot-underline-img wn-foot-underline-known"></view>
                 </view>
               </view>
@@ -316,12 +316,12 @@
               </view>
             <view style="height: 84rpx;"></view>
             <view wx:if="{{from != 'search' && autoNextCountdown > 0 && !autoNextPaused}}" class="recitation-countdown" catchtap="pauseAutoNext">
-              <text>{{autoNextCountdown}} 秒后自动进入下一词</text>
+              <text>{{autoNextCountdown}} 秒后自动{{current >= contents.length - 1 ? '提交' : '进入下一词'}}</text>
               <text class="auto-next-cancel">取消</text>
             </view>
             <view wx:elif="{{from != 'search' && autoNextPaused}}" class="recitation-countdown" catchtap="manualGoNext">
               <text>已暂停自动切换</text>
-              <text class="auto-next-go">进入下一词 ›</text>
+              <text class="auto-next-go">{{current >= contents.length - 1 ? '提交' : '进入下一词'}} ›</text>
             </view>
 
             <!-- 各种tip -->

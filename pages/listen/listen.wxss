@@ -434,6 +434,11 @@ page {
   white-space: nowrap;
 }
 
+.quiz-countdown-skip {
+  color: #2f6fed;
+  font-weight: 600;
+}
+
 .quiz-countdown-cancel {
   padding: 2rpx 22rpx;
   border-radius: 999rpx;

@@ -35,10 +35,16 @@ test('me page menu entries navigate to complete secondary pages', () => {
   }
 
   assert.match(meScript, /url:\s*'\/pages\/me\/book'/)
-  assert.match(meScript, /url:\s*'\/pages\/me\/notify'/)
   assert.match(meScript, /url:\s*'\/pages\/me\/contact'/)
   assert.match(meScript, /url:\s*'\/pages\/me\/privacy'/)
   assert.doesNotMatch(meScript, /showPending\(\)/)
+
+  // 消息授权状态页改由隐私/客服页进入，不再从「我的」主菜单直达
+  assert.doesNotMatch(meScript, /url:\s*'\/pages\/me\/notify'/)
+  const privacyScript = read('pages/me/privacy.js')
+  const contactScript = read('pages/me/contact.js')
+  assert.match(privacyScript, /url:\s*'\/pages\/me\/notify'/)
+  assert.match(contactScript, /url:\s*'\/pages\/me\/notify'/)
 })
 
 test('me secondary pages provide real page content', () => {

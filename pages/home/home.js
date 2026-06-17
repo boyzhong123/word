@@ -394,6 +394,8 @@ Page({
     examEntryBannerUrl: '',
     examExitBannerUrl: '',
     examExitLockedBannerUrl: '',
+    examLockPopup: false,
+    examLockPopupText: '',
     units: buildDisplayUnits([], FALLBACK_UNITS),
     listUnits: FALLBACK_LIST_UNITS,
     listGroups: groupListUnits(FALLBACK_LIST_UNITS),
@@ -571,11 +573,9 @@ Page({
   // 结业测：关卡列表最后的入口，未解锁时提示
   goExamExit() {
     if (this.data.examExitLocked) {
-      wx.showModal({
-        title: '结业测未解锁',
-        content: this.data.examExitLockReason || '需先通关全部关卡且每关至少 2 星',
-        showCancel: false,
-        confirmText: '我知道了'
+      this.setData({
+        examLockPopup: true,
+        examLockPopupText: this.data.examExitLockReason || '需先通关全部关卡且每关至少 2 星'
       })
       return
     }
@@ -904,6 +904,10 @@ Page({
   cancelReprac() {
     this._closeReprac()
     this._pendingReprac = null
+  },
+
+  closeExamLockPopup() {
+    this.setData({ examLockPopup: false })
   },
 
   handleReviewTaskTap(unit, taskType) {

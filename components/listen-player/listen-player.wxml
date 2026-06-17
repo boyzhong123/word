@@ -161,12 +161,12 @@
   </view>
   </block>
 
-  <!-- 期切换面板：wx:if 卸载 DOM，避免 visibility:hidden 盖不住 scroll-view 子节点 -->
+  <!-- 关卡切换面板：wx:if 卸载 DOM，避免 visibility:hidden 盖不住 scroll-view 子节点 -->
   <view wx:if="{{showPlaylist}}" class="sheet-mask sheet-show" bindtap="closePlaylist">
     <view class="sheet" catchtap="noop">
       <view class="sheet-head">
-        <text class="sheet-title">选择期数</text>
-        <text class="sheet-count">共 {{units.length}} 期</text>
+        <text class="sheet-title">选择关卡</text>
+        <text class="sheet-count">共 {{units.length}} 关</text>
       </view>
       <scroll-view class="sheet-list" scroll-y>
         <view
@@ -177,7 +177,7 @@
           bindtap="onUnitTap"
         >
           <view class="sheet-item-main">
-            <text class="sheet-item-name">{{item.unitName || ('关卡' + (item.sort || index + 1))}}</text>
+            <text class="sheet-item-name">{{'关卡' + (item.sort || index + 1)}}</text>
             <text wx:if="{{item.wordTotal}}" class="sheet-item-sub">{{item.wordTotal}} 词</text>
           </view>
           <view wx:if="{{item.needVip}}" class="sheet-vip">会员</view>

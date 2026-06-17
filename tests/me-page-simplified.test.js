@@ -10,9 +10,11 @@ const meStyle = fs.readFileSync(path.join(projectRoot, 'pages/me/me.wxss'), 'utf
 
 test('me page keeps the menu focused on common actions', () => {
   assert.match(meScript, /label: '我的教材'/)
-  assert.match(meScript, /label: '消息授权状态'/)
   assert.match(meScript, /label: '联系客服'/)
   assert.match(meScript, /label: '隐私与协议'/)
+
+  // 消息授权状态不再作为独立菜单项，已并入「消息与关注」卡片
+  assert.doesNotMatch(meScript, /label: '消息授权状态'/)
 
   assert.doesNotMatch(meScript, /label: '会员中心'/)
   assert.doesNotMatch(meScript, /label: '错词本'/)
@@ -37,6 +39,9 @@ test('me page uses a message and official-account center instead of duplicated p
   assert.match(meTemplate, /bindtap="requestSubscribe"/)
   assert.match(meTemplate, /关注公众号，领取学习资料/)
   assert.match(meTemplate, /class="message-row"/)
+  // 「管理微信消息授权」折入卡片底部，不再单列菜单
+  assert.match(meTemplate, /bindtap="openSetting"/)
+  assert.match(meScript, /openSetting\(\)/)
   assert.doesNotMatch(meTemplate, /message-grid/)
   assert.doesNotMatch(meTemplate, /今日学习/)
   assert.doesNotMatch(meTemplate, /继续学/)

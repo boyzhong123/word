@@ -174,13 +174,6 @@ Page({
         action: 'book'
       },
       {
-        id: 'notify',
-        label: '消息授权状态',
-        desc: '管理订阅消息、公众号提醒状态',
-        url: '/pages/me/notify',
-        action: 'notify'
-      },
-      {
         id: 'contact',
         label: '联系客服',
         desc: '遇到问题时找我们',
@@ -489,6 +482,12 @@ Page({
     })
   },
 
+  openSetting() {
+    if (typeof wx.openSetting === 'function') {
+      wx.openSetting({})
+    }
+  },
+
   handleGenderSelect(event) {
     const gender = event && event.currentTarget && event.currentTarget.dataset.gender
     if (!gender || gender === this.data.characterGender) {
@@ -543,9 +542,6 @@ Page({
         })
       })
       return
-    }
-    if (action === 'notify') {
-      this.requestSubscribe()
     }
   },
 
