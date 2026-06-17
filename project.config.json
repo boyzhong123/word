@@ -87,12 +87,40 @@
         "value": "images/study-record/.jelly-build"
       },
       {
+        "type": "glob",
+        "value": "images/study-record/.jelly-build/**"
+      },
+      {
         "type": "folder",
         "value": "images/home/.build"
       },
       {
+        "type": "glob",
+        "value": "images/home/.build/**"
+      },
+      {
+        "type": "folder",
+        "value": "images/home/ad/.jelly-build"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/.jelly-build/**"
+      },
+      {
+        "type": "folder",
+        "value": "images/home/ad/.build"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/.build/**"
+      },
+      {
         "type": "folder",
         "value": "images/word-new/.build"
+      },
+      {
+        "type": "glob",
+        "value": "images/word-new/.build/**"
       },
       {
         "type": "glob",
@@ -145,6 +173,34 @@
       {
         "type": "glob",
         "value": "images/home/ad/product-hero-clean.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/product-hero-purchase.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/product-hero-purchase-v2.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/product-hero-purchase-v3.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/icon-press-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/icon-proverb-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/icon-review-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/ad/icon-word-jelly.png"
       },
       {
         "type": "glob",
@@ -269,6 +325,10 @@
       {
         "type": "glob",
         "value": "images/home/exam-entry-banner-entry.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/exam-entry-banner-exit"
       },
       {
         "type": "glob",
