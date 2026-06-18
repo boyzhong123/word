@@ -7,3 +7,6 @@ assets/_archive/
 assets/originals/
 assets/build-work/
 tmp/
+
+# 由 npm run doc:share 生成的单文件分享版（产物，勿手改、勿提交）
+docs/mini-app-tech-doc.share.html

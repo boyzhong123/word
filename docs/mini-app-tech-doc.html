@@ -45,7 +45,7 @@
         font-family: "SFMono-Regular", Consolas, monospace;
         font-size: 0.9em;
       }
-      .shell { width: min(1680px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 70px; }
+      .shell { width: min(1320px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 70px; }
       .doc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 228px; gap: 20px; align-items: start; }
       .doc-main { min-width: 0; }
       .doc-main > .section:first-child { margin-top: 0; }
@@ -206,8 +206,14 @@
       .card p { margin-top: 7px; color: var(--muted); font-size: 12px; }
       .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
       .chip { display: inline-block; padding: 4px 7px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,0.16); color: #c9f7ea; font-family: monospace; font-size: 10px; }
-      .callout { padding: 16px; border: 1px solid rgba(100,228,189,0.25); border-radius: 15px; background: var(--brand-soft); color: #d6fff4; font-size: 13px; }
-      .callout strong { color: var(--brand); }
+      .callout { padding: 15px 16px 15px 18px; border: 1px solid var(--line); border-left: 3px solid var(--line-strong); border-radius: 12px; background: rgba(255,255,255,0.025); color: #cfdae1; font-size: 13px; }
+      .callout strong { color: #eef5f7; }
+      .callout.tip { border-left-color: var(--blue); background: rgba(124,197,255,0.055); }
+      .callout.tip strong { color: var(--blue); }
+      .callout.warn { border-left-color: var(--amber); background: rgba(245,158,11,0.055); }
+      .callout.warn strong { color: var(--amber); }
+      .callout.danger { border-left-color: var(--red); background: rgba(239,68,68,0.06); }
+      .callout.danger strong { color: var(--red); }
       .api-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
       .api-box { padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,0.02); }
       .api-box h3 { font-size: 13px; color: #fff; }
@@ -255,7 +261,7 @@
           <span class="brand-mark">词</span>
           <span>词句刷刷刷 · 技术文档</span>
         </div>
-        <div class="date">MINI APP API · v1.0.4 · 交付版 · 2026-06-17</div>
+        <div class="date">MINI APP API · v1.0.8 · 交付版 · 2026-06-18</div>
       </header>
 
       <section class="hero">
@@ -267,12 +273,12 @@
             已接后端接口、请求/响应字段约定。搜索查词等已下线能力不再收录。
           </p>
           <div class="scope-note">
-            <strong>v1.0.4 前端变更（接口口径）</strong>
+            <strong>待后端实现的接口口径（截至 v1.0.8）</strong>
             <span>
-              商品详情改版（规格对比表 + SKU 弹层，待 <code>book-product-list</code> 含 comparePlans/compareRows）；
-              打卡「立即领取」仍为本地演示（待 <code>gift-claim</code>）；
-              随身听循环改为单期/整本书，列表统一「关卡N」；
-              订阅消息已落地（<code>pages/me/notify</code> + 打卡日历/支付/报告触发点）；模板 ID 在 <code>utils/subscribe.js</code>，额度上报预留 <code>POST subscribe-message/report</code>（<code>SUBSCRIBE_REPORT_ENABLED=false</code>，当前仅本地计数）。
+              <strong>① 复习关</strong>（新）：<code>review-words</code> <strong>必出且至少 10 词</strong> —— 真错词（mastery&lt;70）≥10 用真错词；不足则从已掌握词池按 mastery 升序补 <code>consolidate</code> 凑满 10（全 100 分也强补）。每词带 <code>source</code>（wrong/consolidate），巩固词不写回种子/不改 mastery。详见 <code>docs/level-score-review-spec.md §6.4</code>。<br/>
+              <strong>② 商品详情</strong>：<code>book-product-list</code> 需含 <code>comparePlans/compareRows</code>（规格对比表 + SKU 弹层）。<br/>
+              <strong>③ 打卡领取</strong>：「立即领取」仍为本地演示，待 <code>gift-claim</code>。<br/>
+              <strong>④ 订阅额度</strong>：上报预留 <code>POST subscribe-message/report</code>（<code>SUBSCRIBE_REPORT_ENABLED=false</code>，当前仅本地计数）；模板 ID 在 <code>utils/subscribe.js</code>。
             </span>
           </div>
           <div class="scope-note" style="margin-top:10px">
@@ -348,14 +354,14 @@
           对接内容系统<strong>全部图书</strong>。内容系统提供「原子素材」——单词、句子，及其<strong>标准音、汉语意思、音标、词性、句子↔单词关联</strong>。<strong>所有题目（选择题、听音填空挖空、组卷、干扰项、测评抽样）均由后端按本节规则生成并以现成题目对象下发；前端只负责渲染、采集作答与上报耗时，不在前端拼题。</strong>本节即<strong>后端出题口径</strong>：素材结构 → 导入/分关 → 各环节形态 → 出题规则 → 抽样组卷 → 缺数据兜底。
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">前后端分工（已定：题目全部后端下发）</strong><br/>
           · <strong>后端</strong>：导入内容系统素材 → 分关 → 生成每种题目（含选项/干扰项、听音填空的挖空位与字母块、测评抽样组卷）→ 以现成题目对象下发。<br/>
           · <strong>前端</strong>：按下发的题目对象渲染交互，采集作答对错 / 录音评分 / 各题耗时并上报；<strong>不计算挖空、不抽干扰项、不组卷</strong>。<br/>
           · <strong>随机可复现</strong>：打乱与挖空用后端固定 <code>seed</code>（题ID/levelId/examId），保证报告、复查、重练一致。
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+        <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">⚠ 接口影响（现状缺口，需补）</strong><br/>
           既然题目全部后端下发，<strong>现状有缺口</strong>：当前<strong>关卡小测、单词新学选择题</strong>是前端拿 <code>unit-words</code> 原始词表<strong>自己拼题</strong>的，与「全部后端下发」不符，需调整：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -367,7 +373,7 @@
           下方第四~九节的算法即<strong>后端生成这些题目对象时应遵循的规则</strong>。
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">一、内容系统原子结构</strong><br/>
           内容系统按「图书 → 单元 → 单词 / 句子」三层组织；单词与句子是最小素材，各带标准音与汉语意思。
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -414,7 +420,7 @@
           </div>
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+        <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">三、各环节形态总览（对齐算分规范）</strong><br/>
           后端按场景生成下列形态并下发现成题目对象。<strong>口径以 <code>docs/level-score-review-spec.md</code> 为准</strong>：选择题在<strong>单词新学</strong>做验证；<strong>关卡小测 = 每词 2 题（听音填空 + 背诵评测）</strong>，不含选择题；选择题 / 听音 / 句子题集中在<strong>入门测 / 结业测</strong>。下表列「下发什么」，生成规则见第四~八节。
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -445,7 +451,7 @@
           </table>
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">五、听音填空 · 挖空怎么抽（核心）</strong><br/>
           小测第 1 题：听标准音 → 用字母块拼出单词。<strong>不是整词重拼，而是给出部分字母、挖掉若干空</strong>，规则如下（常量可调）：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -465,7 +471,7 @@
           · <strong>环节2 跟读</strong>：单词读音 + 该词关联句子（<code>wordRefs</code> 命中的 Sentence）跟读；单词分与句子平均分各半（算分规范 5.6②）。无句子则只跟读单词。
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">七、关卡小测怎么组卷（全覆盖，不抽样）</strong><br/>
           小测是<strong>本关检验</strong>，覆盖单元全部单词，不抽样：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -477,7 +483,7 @@
           </table>
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+        <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">八、入门测 / 结业测怎么组卷（抽样）</strong><br/>
           测评是<strong>词书维度</strong>的卷子，从全书素材抽样组卷（区别于小测的全覆盖）：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -494,7 +500,7 @@
           </table>
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">九、选项 / 干扰项通用细则</strong><br/>
           · 选择题固定 <strong>4 个选项（1 正确 + 3 干扰）</strong>；选项<strong>随机打乱</strong>并记录正确项索引。<br/>
           · 干扰项<strong>优先同单元、同词性</strong>；同单元不足 4 个可用项时，按「同词书相邻单元 → 全书」逐级补足。<br/>
@@ -503,7 +509,7 @@
           · 同一关卡内同一单词<strong>不重复出题</strong>（除非单元词数不足以铺满题量，此时允许换题型复用）。
         </div>
 
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(239,68,68,0.3); background:var(--red-soft); color:#ffd9d9">
+        <div class="callout danger" style="margin-bottom:14px">
           <strong style="color:var(--red)">十、缺数据兜底</strong><br/>
           内容系统素材不全时按下列降级，<strong>不报错、不出空题</strong>：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -545,7 +551,7 @@
             <thead><tr><th>路由</th><th>模块</th><th>职责</th><th>主要接口</th><th>状态</th><th>联调待办</th></tr></thead>
             <tbody>
               <tr><td><code>pages/home/home</code></td><td>首页</td><td>闯关列表/地图、教材弹窗、打卡摘要、测评 Banner、报告 pill</td><td>user/info, user-books, book-units, switch-default-book, info-update</td><td><span class="badge partial">部分</span></td><td>goUnitReport→unit-report；exam→exam-paper</td></tr>
-              <tr><td><code>pages/plan/plan</code></td><td>首页</td><td>每日目标关数、打卡预告</td><td>study-plan（待实现）</td><td><span class="badge partial">部分</span></td><td>groupsPerDay 改接口；活动文案读 user/info</td></tr>
+              <tr><td><code>pages/plan/plan</code></td><td>首页</td><td>每日目标关数、关卡预览（含单词）、打卡预告、强度小怪兽</td><td>book-units, unit-words；study-plan（待实现，当前 Storage）</td><td><span class="badge partial">部分</span></td><td>groupsPerDay 改 study-plan 接口；活动文案读 user/info</td></tr>
               <tr><td><code>pages/advertisement/advertisement</code></td><td>商品</td><td>词书详情、规格对比表、SKU 弹层</td><td>book-product-list（待接）</td><td><span class="badge partial">部分</span></td><td>comparePlans/compareRows/products</td></tr>
               <tr><td><code>pages/vip/vip</code></td><td>商品</td><td>确认订单、微信支付</td><td>order, order/status（待接）</td><td><span class="badge partial">部分</span></td><td>替换 markDevPurchased</td></tr>
               <tr><td><code>pages/practice/practice</code></td><td>核心</td><td>单词新学 / 跟读背诵 / 复习关</td><td>unit-words；word-mark/recitation-score 待接</td><td><span class="badge partial">部分</span></td><td>逐词上报；word-info 后续</td></tr>
@@ -569,7 +575,7 @@
             </tbody>
           </table>
         </div>
-        <div class="callout" style="margin-top:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+        <div class="callout warn" style="margin-top:14px">
           <strong style="color:var(--amber)">截图缺口（交付前可补）</strong><br/>
           已有：home / practice / listen / checkin / me / advertisement / vip / plan / finish。<br/>
           待补：<code>exam</code>、<code>exam-report</code>、<code>report</code>（关卡报告）、<code>study-record</code> — 运行 <code>npm run doc:screenshots</code> 后更新 <code>docs/images/mini-app/</code> 与 SCREENSHOTS 常量。
@@ -626,13 +632,13 @@
           → 每环节结束进 <code>finish/today</code> → <code>save-learning-record</code> 更新该关 <code>tasks[]</code>
           → 刷新 <code>book-units</code>。每 3 关插入复习关，复习词表由后端根据历史错词返回（<code>review-words</code>），不是前端 Mock。
         </div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">数据分工</strong><br/>
           · <strong>前端提交</strong>：单词认选结果、跟读/背诵分数、小测对错、<strong>各环节/各题耗时（durationSeconds）</strong><br/>
           · <strong>后端存储&决策</strong>：掌握态、任务进度、错词池、<strong>按日汇总学习时长</strong>（供报告/学习记录/user/info）<br/>
           · <strong>前端只读</strong>：<code>book-units.tasks[]</code>；复习词表 <code>review-words</code>；报告里的 <code>minutes</code> / 三环节用时均由后端返回
         </div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+        <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">学习时长 · 全程记录</strong><br/>
           练习、小测、测评、随身听播放<strong>全过程都要记时</strong>，不能只记结果不记耗时。前端在环节/题目/播放结束时上报 <code>durationSeconds</code>（建议同时带 <code>startedAt</code>/<code>finishedAt</code>），后端汇总为：<br/>
           · 单关报告 <code>unit-report.minutes</code> + <code>taskDurations{word,recitation,listening}</code><br/>
@@ -649,7 +655,7 @@
       <section class="section" id="module-home">
         <div class="section-head"><div><h2>① 首页闯关列表</h2><p class="section-desc">Tab「学习」· 路由 <code>pages/home/home</code></p></div></div>
         <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>展示当前词书、学习进度、打卡摘要；提供地图/分类两种关卡视图；每关含「单词新学 → 跟读背诵 → 关卡小测」三任务；支持<strong>切换教材弹窗</strong>、错词复习关、入门测/结业测 Banner、单关报告入口、学习计划。</div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">教材选择 · 三处入口</strong><br/>
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">界面</th><th style="text-align:left;padding:6px 8px">路由/组件</th><th style="text-align:left;padding:6px 8px">范围</th><th style="text-align:left;padding:6px 8px">主要动作</th></tr>
@@ -666,7 +672,7 @@
       <section class="section" id="module-checkin">
         <div class="section-head"><div><h2>② 打卡</h2><p class="section-desc">路由 <code>pages/checkin/calendar</code>，从首页日历按钮进入</p></div></div>
         <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>月历展示每日打卡状态、连续天数、礼品/奖励进度（30 天 VIP 等）。<strong>打卡记录、连续天数、礼品活动配置、达标状态、兑换码、是否已领取均由后端存储并在 user/info（+ study-plan）返回</strong>；前端只读展示。点击「复制兑换码」仅把后端下发的码写入剪贴板，<strong>不自行生成兑换码</strong>；领取落库需 claim 接口。</div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+        <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">活动文案 · 应接口下发（当前多处写死）</strong><br/>
           下列 UI 的<strong>规则说明、礼品名称、门槛天数、兑换码</strong>均应由后端配置，便于运营改活动不发版。现状与目标如下：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -695,7 +701,7 @@
       <section class="section" id="module-me">
         <div class="section-head"><div><h2>④ 我的</h2><p class="section-desc">Tab「我的」· 路由 <code>pages/me/me</code> 及子页</p></div></div>
         <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计；子页含<strong>我的教材</strong>、学习记录、<strong>消息授权（notify）</strong>、联系客服、隐私协议、学习形象、手机号验证。<strong>宠物（me/pet）</strong>为本地演示，不同步后端。</div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">订阅消息 · 三类模板</strong><br/>
           配置在 <code>utils/subscribe.js</code>（模板 ID 已填入公众平台申请结果）。微信一次性订阅<strong>前端查不到剩余次数</strong>，须由后端记账并在到点时调用微信下发接口扣减额度。
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
@@ -710,6 +716,29 @@
         <div class="cards" id="mePages"></div>
       </section>
 
+      <section class="section" id="module-commerce">
+        <div class="section-head"><div><h2>⑤ 商品购买（待对接）</h2><p class="section-desc"><code>pages/advertisement/advertisement</code> → <code>pages/vip/vip</code></p></div></div>
+        <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">购买入口</strong><br/>
+          首页「选择教材」弹窗 · 封面点击 / 「去购买」→ <code>advertisement</code>（当前 URL query 传参，联调后改 <code>book-product-list</code>）→ <code>vip</code> 确认订单 → 支付成功后 <code>user-books.unlocked=1</code>，弹窗与关卡 needVip 解锁。
+        </div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>现状（v1.0.4 页面结构）</strong><br/>
+          详情页已改版：<strong>规格对比表</strong>（仅词典 vs 词典+智能学习卡，含功能矩阵 <code>compareRows</code>）+ 底栏「¥xx 起 / 立即购买」→ <strong>SKU 底部弹层</strong>选有效期+套餐后跳转 vip。<br/>
+          套餐、有效期、价格、对比表仍来自前端常量 <code>COMPARE_PLANS</code> / <code>COMPARE_ROWS</code> / <code>PACKAGE_OPTIONS</code> / <code>VALIDITY_OPTIONS</code> / <code>SKU_PRICES</code>；<code>getBookProucts</code> 尚未接入。<strong>联调时 book-product-list 须返回 book{} + products[] + comparePlans/compareRows（或可由 products 聚合）。</strong>
+        </div>
+        <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">购买链路（前端 + 后端）</strong><br/>
+          ① advertisement onLoad → <code>GET book-product-list?resBookId=</code> 拉词书详情 + 规格对比 + SKU 列表<br/>
+          ② 用户浏览对比表 → 点「立即购买」→ 弹层选套餐/有效期 → vip 页 → <code>GET order?orderProductId=</code> 拿 payParams<br/>
+          ③ <code>wx.requestPayment(payParams)</code><br/>
+          ④ 微信异步通知后端（<code>POST /mini-app/pay-notify</code> 或等价回调，服务端实现）→ 更新订单 paid + user-books.unlocked=1<br/>
+          ⑤ 前端支付成功后可轮询 <code>GET order/status</code>（待实现）或重新拉 user-books 确认解锁
+        </div>
+        <div class="api-detail-grid" id="commerceSchema"></div>
+        <div class="cards" id="commercePages"></div>
+      </section>
+
       <section class="section" id="module-exam-record">
         <div class="section-head"><div><h2>⑥ 入门测 · 结业测 · 各类报告</h2><p class="section-desc">词书级测评 + 单关/小测报告 + 学习记录汇总</p></div></div>
         <div class="callout" style="margin-bottom:14px">
@@ -717,14 +746,11 @@
           · <strong>入门测 entry</strong>：首页关卡列表<strong>最前</strong> Banner 进入（Banner 不区分已做/未做）· intro 页由 <code>exam-paper.entryCompleted</code> 决定「开始测评 / 查看上次报告」· <strong>每词书仅可完成一次</strong><br/>
           · <strong>结业测 exit</strong>：关卡列表<strong>最后</strong> Banner 进入 · 通关检验 · 须<strong>全关通关且每关≥2星</strong>（<code>book-units</code> + <code>getExitLockState</code>）· 可多次（建议后端限制次数）
         </div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.12); color:#fdecc8">
+        <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">报告时间 · 练习用时 vs 报告生成</strong><br/>
-          所有报告须区分<strong>练习用时</strong>与<strong>报告生成时间</strong>，均来自后端，<strong>不是</strong>前端估算（当前 <code>report.js</code> 的 <code>minutes=词数×0.7</code> 为 Mock）。练习过程中须上报：<br/>
-          · 三环节：<code>word-mark</code> / <code>recitation-score</code> / <code>listening-quiz-result</code> + 环节结束 <code>save-learning-record.durationSeconds</code>（写入 <code>sectionScores.*.submittedAt</code>）<br/>
-          · 测评：<code>exam-submit.durationSeconds</code>（intro→交卷）→ <code>exam-result.reportGeneratedAt</code>（计分完成后）<br/>
-          · 随身听：<code>listen-duration</code>（播放有效时长 → <code>audioMinutes</code>）
+          所有报告须区分<strong>练习用时</strong>与<strong>报告生成时间</strong>，均来自后端，<strong>不是</strong>前端估算（当前 <code>report.js</code> 的 <code>minutes=词数×0.7</code> 为 Mock）。各环节 / 测评 / 随身听<strong>如何上报 <code>durationSeconds</code> 见「★ 核心三环节 · 学习时长」</strong>；报告侧只消费：练习用时 <code>durationSeconds</code> / <code>minutes</code> + 报告生成 <code>reportGeneratedAt</code>（测评经 <code>exam-submit</code> → <code>exam-result</code>）。
         </div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">报告一览</strong><br/>
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">报告</th><th style="text-align:left;padding:6px 8px">页面</th><th style="text-align:left;padding:6px 8px">入口</th><th style="text-align:left;padding:6px 8px">接口</th><th style="text-align:left;padding:6px 8px">时间字段</th></tr>
@@ -761,10 +787,72 @@
             <tr><td colspan="2" style="padding:6px 8px">其余</td><td>稳扎稳打，继续加油！</td></tr>
           </table>
         </div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
-          <strong style="color:var(--blue)">关卡报告 · 计分与复习规则</strong><br/>
-          单关报告由后端按 <code>resBookId + unitId（levelId）+ userId</code> 查询；userId 走登录态，不入 query。<strong>词×环节矩阵、掌握度加权、首次复习种子、历史最高分</strong>等完整规则见
-          <code>docs/level-score-review-spec.md</code>（与 <code>pages/report/report</code> UI 已对齐：环节 <code>refreshedAt</code>、掌握度「?」弹窗、环节卡再练确认）。
+        <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">关卡报告 · 计算规则（3环节 → 单词掌握 → 报告）</strong><br/>
+          单关报告由后端按 <code>resBookId + unitId（levelId）+ userId</code> 查询（userId 走登录态，不入 query）。下为<strong>完整计算口径（正文嵌入，无需另开文件）</strong>，详版见 <code>docs/level-score-review-spec.md</code>。<br/>
+          <strong>三件事分开，不混用</strong>：① <strong>可练性</strong>=永远允许重练（不锁关）；② <strong>计分</strong>=展示分取<strong>历史最高 maxScore，只升不降</strong>（另存 latestScore 供分析）；③ <strong>复习触发</strong>=由<strong>首次</strong>练习数据决定（不随重练改变）。一句话：<strong>分数取最高（给人看），复习锚首次（给学习用）</strong>。
+        </div>
+
+        <div class="callout" style="margin-bottom:14px">
+          <strong>① 词 × 环节矩阵（所有报告数字的唯一来源）</strong><br/>
+          一个词经 单词新学 / 跟读背诵 / 关卡小测 三环节，同词可能某环节对某环节错。报告的 <strong>总正确率、已掌握数、待复习数</strong>全部从同一张矩阵推导，保证自洽：
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">词</th><th style="text-align:left;padding:6px 8px">单词新学</th><th style="text-align:left;padding:6px 8px">跟读背诵</th><th style="text-align:left;padding:6px 8px">关卡小测</th><th style="text-align:left;padding:6px 8px">→ 词掌握度（行）</th></tr>
+            <tr><td style="padding:6px 8px">apple</td><td>100</td><td>96</td><td>100</td><td>98 ✅ 已掌握</td></tr>
+            <tr><td style="padding:6px 8px">pencil</td><td>100</td><td>70</td><td>40</td><td><strong>61 ⚠️ 待复习</strong></td></tr>
+            <tr style="border-top:1px solid rgba(148,163,184,.2)"><td style="padding:6px 8px"><strong>环节分（列）</strong></td><td><strong>95</strong></td><td><strong>89</strong></td><td><strong>92</strong></td><td><strong>总正确率 = 各词掌握度平均</strong></td></tr>
+          </table>
+          列聚合=环节表现（报告「环节卡」三个分）；行聚合=单词掌握度（决定该词去复习/已掌握）；总正确率=所有词掌握度的平均（与 已掌握数/待复习数 同源）。
+        </div>
+
+        <div class="callout" style="margin-bottom:14px">
+          <strong>② 词掌握度（行）= 加权，小测最重</strong><br/>
+          三环节考的不是一回事，<strong>不简单平均</strong>：
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">环节</th><th style="text-align:left;padding:6px 8px">考的是</th><th style="text-align:left;padding:6px 8px">权重</th></tr>
+            <tr><td style="padding:6px 8px">单词新学</td><td>认不认识（过程）</td><td>20%</td></tr>
+            <tr><td style="padding:6px 8px">跟读背诵</td><td>发音 / 产出</td><td>30%</td></tr>
+            <tr><td style="padding:6px 8px">关卡小测</td><td>是否真记住（检验）</td><td><strong>50%</strong></td></tr>
+          </table>
+          例：pencil = 100×0.2 + 70×0.3 + 40×0.5 = <strong>61</strong> → 待复习。压在小测上可自动解掉跨环节对错冲突（先会后忘=没掌握）。<br/>
+          <strong>缺失环节归一化</strong>：某词只参与部分环节时，按其<strong>实际参与的环节重新归一化权重</strong>，缺失环节不当 0 分（如未进小测 → 仅新学20/跟读30 归一为 40%/60%）。
+        </div>
+
+        <div class="callout" style="margin-bottom:14px">
+          <strong>③ 各环节单格（cell）怎么算 → 都归一到 0–100</strong><br/>
+          <strong>· 单词新学 = 自评 × 选择题（2×2）</strong>
+          <table style="width:100%; margin-top:8px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">认识自评</th><th style="text-align:left;padding:6px 8px">选择题</th><th style="text-align:left;padding:6px 8px">cell 分</th><th style="text-align:left;padding:6px 8px">含义</th></tr>
+            <tr><td style="padding:6px 8px">认识</td><td>对</td><td>100</td><td>真会</td></tr>
+            <tr><td style="padding:6px 8px">认识</td><td>错</td><td>30</td><td>自以为会（最该抓）</td></tr>
+            <tr><td style="padding:6px 8px">不认识</td><td>对</td><td>70</td><td>蒙对 / 会一点</td></tr>
+            <tr><td style="padding:6px 8px">不认识</td><td>错</td><td>50</td><td>老实承认（新词正常）</td></tr>
+          </table>
+          <div style="margin-top:12px"><strong>· 跟读背诵 = 单词读音 + 句子，各占一半</strong>　<code>cell = 单词读音分 × 0.5 + 句子平均分 × 0.5</code></div>
+          <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">组成</th><th style="text-align:left;padding:6px 8px">怎么得分</th><th style="text-align:left;padding:6px 8px">占比</th></tr>
+            <tr><td style="padding:6px 8px">单词读音</td><td>该词跟读的 Chivox 发音分 0–100</td><td>50%</td></tr>
+            <tr><td style="padding:6px 8px">句子</td><td>该词关联例句（<code>wordRefs</code> 命中）各自发音分，<strong>先在句子内部平均</strong>，再与单词各半 → 句子条数多不冲淡单词读音</td><td>50%</td></tr>
+            <tr><td style="padding:6px 8px">边界</td><td colspan="2">无句子 → <code>cell = 单词读音分</code>；某句评分失败 → 跳过该句，句子内部重新归一</td></tr>
+          </table>
+
+          <div style="margin-top:12px"><strong>· 关卡小测 = 每词 2 小题，等权平均</strong>　<code>cell = (听音填空分 + 背诵评测分) / 2</code></div>
+          <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">小题</th><th style="text-align:left;padding:6px 8px">怎么得分</th><th style="text-align:left;padding:6px 8px">占比</th></tr>
+            <tr><td style="padding:6px 8px">① 听音填空</td><td>整词填对 = 100 / 填错 = 0；<strong>多空时 = 填对空数 / 总空数 × 100</strong></td><td>50%</td></tr>
+            <tr><td style="padding:6px 8px">② 背诵评测</td><td>看中文脱稿朗读 → Chivox 发音分 0–100</td><td>50%</td></tr>
+            <tr><td style="padding:6px 8px">汇总</td><td colspan="2">两小题平均 = 该词小测 cell → 再进 ② 的三环节加权（小测占 50%）</td></tr>
+          </table>
+        </div>
+
+        <div class="callout warn" style="margin-bottom:14px">
+          <strong style="color:var(--amber)">④ 阈值 / 星级 / 复习（两套阈值别混）</strong>
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">用途</th><th style="text-align:left;padding:6px 8px">阈值</th><th style="text-align:left;padding:6px 8px">作用</th></tr>
+            <tr><td style="padding:6px 8px"><strong>词掌握度</strong></td><td><code>MASTERY_THRESHOLD = 70</code></td><td>&lt;70 待复习 / ≥70 已掌握（给学习用）</td></tr>
+            <tr><td style="padding:6px 8px"><strong>关卡星级</strong></td><td>55 / 80（总分）</td><td>&lt;55 ⭐留本关；55–79 ⭐⭐；≥80 ⭐⭐⭐。<strong>≥55（满2星）才解锁下一关</strong></td></tr>
+          </table>
+          <strong>复习闭环</strong>：种子 = <strong>首次</strong>那次 mastery&lt;70 的词集合，<strong>冻结</strong>（重练原关不改种子）；毕业在<strong>独立「复习」场景</strong>完成（做达标→出队列），不在重刷原关里毕业。首次「蒙对」的词暂不进复习（先埋点）。
         </div>
         <div class="callout" style="margin-bottom:14px">
           <strong>测评链路</strong><br/>
@@ -773,29 +861,6 @@
         </div>
         <div class="api-detail-grid" id="examRecordSchema"></div>
         <div class="cards" id="examRecordPages"></div>
-      </section>
-
-      <section class="section" id="module-commerce">
-        <div class="section-head"><div><h2>⑤ 商品购买（待对接）</h2><p class="section-desc"><code>pages/advertisement/advertisement</code> → <code>pages/vip/vip</code></p></div></div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
-          <strong style="color:var(--blue)">购买入口</strong><br/>
-          首页「选择教材」弹窗 · 封面点击 / 「去购买」→ <code>advertisement</code>（当前 URL query 传参，联调后改 <code>book-product-list</code>）→ <code>vip</code> 确认订单 → 支付成功后 <code>user-books.unlocked=1</code>，弹窗与关卡 needVip 解锁。
-        </div>
-        <div class="callout" style="margin-bottom:14px">
-          <strong>现状（v1.0.4 页面结构）</strong><br/>
-          详情页已改版：<strong>规格对比表</strong>（仅词典 vs 词典+智能学习卡，含功能矩阵 <code>compareRows</code>）+ 底栏「¥xx 起 / 立即购买」→ <strong>SKU 底部弹层</strong>选有效期+套餐后跳转 vip。<br/>
-          套餐、有效期、价格、对比表仍来自前端常量 <code>COMPARE_PLANS</code> / <code>COMPARE_ROWS</code> / <code>PACKAGE_OPTIONS</code> / <code>VALIDITY_OPTIONS</code> / <code>SKU_PRICES</code>；<code>getBookProucts</code> 尚未接入。<strong>联调时 book-product-list 须返回 book{} + products[] + comparePlans/compareRows（或可由 products 聚合）。</strong>
-        </div>
-        <div class="callout" style="margin-bottom:14px; border-color:rgba(124,197,255,0.25); background:var(--blue-soft); color:#cae9ff">
-          <strong style="color:var(--blue)">购买链路（前端 + 后端）</strong><br/>
-          ① advertisement onLoad → <code>GET book-product-list?resBookId=</code> 拉词书详情 + 规格对比 + SKU 列表<br/>
-          ② 用户浏览对比表 → 点「立即购买」→ 弹层选套餐/有效期 → vip 页 → <code>GET order?orderProductId=</code> 拿 payParams<br/>
-          ③ <code>wx.requestPayment(payParams)</code><br/>
-          ④ 微信异步通知后端（<code>POST /mini-app/pay-notify</code> 或等价回调，服务端实现）→ 更新订单 paid + user-books.unlocked=1<br/>
-          ⑤ 前端支付成功后可轮询 <code>GET order/status</code>（待实现）或重新拉 user-books 确认解锁
-        </div>
-        <div class="api-detail-grid" id="commerceSchema"></div>
-        <div class="cards" id="commercePages"></div>
       </section>
 
       <section class="section" id="roadmap">
@@ -863,8 +928,18 @@
           group: "总览",
           items: [
             { id: "module-overview", label: "模块导航" },
-            { id: "conventions", label: "通用约定" },
-            { id: "content-import", label: "内容系统导入规则" },
+            { id: "conventions", label: "通用约定" }
+          ]
+        },
+        {
+          group: "内容与出题",
+          items: [
+            { id: "content-import", label: "内容系统导入规则" }
+          ]
+        },
+        {
+          group: "页面与接口",
+          items: [
             { id: "page-inventory", label: "页面清单" },
             { id: "gallery-section", label: "页面截图" },
             { id: "matrix", label: "接口对照表" }
@@ -878,7 +953,12 @@
             { id: "module-checkin", label: "② 打卡" },
             { id: "module-listen", label: "③ 随身听" },
             { id: "module-me", label: "④ 我的" },
-            { id: "module-commerce", label: "⑤ 商品购买" },
+            { id: "module-commerce", label: "⑤ 商品购买" }
+          ]
+        },
+        {
+          group: "测评 · 报告",
+          items: [
             { id: "module-exam-record", label: "⑥ 测评/报告" }
           ]
         },
@@ -906,7 +986,7 @@
         { id: "me-book", module: "me", title: "我的教材", file: "images/mini-app/04-me-book.png", apis: ["user-books", "switch-default-book"] },
         { id: "advertisement", module: "home", title: "商品详情", file: "images/mini-app/06-advertisement.png", apis: ["book-product-list", "order"] },
         { id: "vip", module: "home", title: "确认订单", file: "images/mini-app/06-vip.png", apis: ["order", "order/status"] },
-        { id: "plan", module: "home", title: "学习计划", file: "images/mini-app/06-plan.png", apis: ["study-plan 待实现"] }
+        { id: "plan", module: "home", title: "学习计划", file: "images/mini-app/06-plan.png", apis: ["book-units", "unit-words", "study-plan 待实现"] }
       ];
 
       const ROWS = [
@@ -947,13 +1027,13 @@
           }
         },
         {
-          id: "book-units", module: "首页/随身听", moduleId: "home", page: "关卡列表 · 随身听关卡列表", status: "ok",
+          id: "book-units", module: "首页/随身听", moduleId: "home", page: "关卡列表 · 随身听关卡列表 · 学习计划关卡预览", status: "ok",
           endpoints: [{ method: "GET", path: "/mini-app/book-units" }],
           summary: "某词书下全部关卡元数据（含三任务进度，后端存储）",
           detail: {
             request: "resBookId, page=1, rows=2000",
             response: "data: { list: Unit[], pageInfo: { total } }。Unit 核心字段：unitId, sort, wordTotal, unitName, needVip, completed, tasks[]",
-            callers: "home.js loadUnits, listen.js loadUnits, utils/player.js",
+            callers: "home.js loadUnits, listen.js loadUnits, utils/player.js, plan.js fetchAllLevels（学习计划关卡预览全量列表）",
             fields: "【进度·后端存储】completed / 星级 / tasks[]（type/current/total/percent）均由后端返回。unit.wrongWords=该关错词数（供复习关卡片展示）。列表读 completed；地图读 tasks[].percent。【购买态】unit.needVip=1 未购锁定。【展示】listen/player 列表统一渲染「关卡{sort}」，<code>unitName</code> 字段前端不用于 UI。",
             render: "首页地图/分类卡片上的任务进度、星级、解锁态；随身听顶部期切换"
           }
@@ -983,15 +1063,15 @@
           }
         },
         {
-          id: "unit-words", module: "学习流", moduleId: "home", page: "单词新学/跟读 · 随身听内容", status: "ok",
+          id: "unit-words", module: "学习流", moduleId: "home", page: "单词新学/跟读 · 随身听内容 · 学习计划关卡单词预览", status: "ok",
           endpoints: [{ method: "GET", path: "/mini-app/unit-words" }],
           summary: "单关卡学习资源；needVip 表示未购词书锁定",
           detail: {
             request: "unitId",
             response: "data: Item[] — 每项 { word, proverb?, unit, needVip, isReview? }；word 含 content, translation, audio, senses…",
-            callers: "practice.js fetchUnitData, listen.js loadUnit, player.js",
+            callers: "practice.js fetchUnitData, listen.js loadUnit, player.js, plan.js enrichLevelWords（按 unitId 懒加载，展开关卡时分批请求）",
             fields: "【needVip 用在哪】① practice：若数组中任一条 item.needVip 为真 → 整页弹「去购买」dialog（getDialogObject），跳转 advertisement/vip，不是按「单条词」分别锁 UI。② listen/player：实际在 loadUnit 前读的是 book-units 的 unit.needVip，不逐条读 unit-words。③ 业务语义：历史字段名 needVip，含义=未购买该词书（同 book.unlocked/needVip），不是会员 VIP。建议后端与 book-units 保持一致：未购时 unit-words 条目 needVip=1 或已购全为 0。",
-            render: "practice 滑动学词；listen 生成 tracks + quizQuestions"
+            render: "practice 滑动学词；listen 生成 tracks + quizQuestions；plan 关卡预览每关 word.content 用 · 拼接展示"
           }
         },
         {
@@ -1048,9 +1128,9 @@
           summary: "按 reviewUnitIds 返回应复习的错词（后端决定词表）",
           detail: {
             request: "resBookId, reviewUnitIds（逗号分隔，覆盖的前几关 unitId）",
-            response: "data: Item[]，结构同 unit-words；仅含后端判定需复习的词",
+            response: "data: Item[]，结构同 unit-words；复习关必出且至少 10 词；每词带 source（wrong 真错词 / consolidate 巩固补词）",
             callers: "practice/listen review=1&reviewUnitIds=… — 当前 buildMockReviewResource 占位",
-            fields: "首页每 3 关插复习关（home-units REVIEW_INTERVAL=3），reviewUnitIds 为前 3 关 id。book-units 的 unit.wrongWords 为错词数展示。复习关三任务标签：错词重学/错词跟读/错词听力。【核心】词表必须由后端根据 word-mark + recitation-score + listening-quiz-result 汇总，前端不自行算错词。",
+            fields: "首页每 3 关插复习关（home-units REVIEW_INTERVAL=3），reviewUnitIds 为前 3 关 id。book-units 的 unit.wrongWords 为错词数展示。复习关三任务标签：错词重学/错词跟读/错词听力。【核心】词表必须由后端根据 word-mark + recitation-score + listening-quiz-result 汇总，前端不自行算错词。【必出≥10词】按 spec §6.4：真错词（mastery<70）≥10 用真错词；不足则从已掌握词池按 mastery 升序补 consolidate 凑满 REVIEW_MIN_COUNT=10（全100分也强补，不写回种子/不改 mastery）；仅已学总词数<10 才出不满。",
             render: "首页「复习·错词巩固」卡片 → practice 或 listen quiz"
           }
         },
@@ -1084,13 +1164,13 @@
             { method: "GET", path: "/mini-app/study-plan", note: "待实现" },
             { method: "POST", path: "/mini-app/study-plan", note: "待实现" }
           ],
-          summary: "每日目标关数 groupsPerDay + 打卡预告联动",
+          summary: "每日目标关数 groupsPerDay + 关卡预览 + 打卡预告联动",
           detail: {
             request: "GET/POST ?resBookId= · POST body: { groupsPerDay, levelSize? }",
             response: "{ groupsPerDay: 2, levelSize: 10, estimatedDays?, updatedAt? }",
-            callers: "pages/plan/plan.js 读写 Storage；pages/home/home.js；utils/checkin-progress.js getDailyGoal",
-            fields: "首页「今日 x/y 关」的 y、plan 页「每天完成 N 关即打卡」的 N 均来自 groupsPerDay。<strong>礼品活动文案</strong>仍读 user/info.gifts[]，不在本接口。当前无后端，换机不同步。",
-            render: "首页 study-plan 入口 → plan 页设置每日组数 + 打卡规则预告卡"
+            callers: "pages/plan/plan.js 读写 Storage；pages/home/home.js goStudyPlan；utils/checkin-progress.js getDailyGoal",
+            fields: "首页「今日 x/y 关」的 y、plan 页「每天完成 N 关即打卡」的 N 均来自 groupsPerDay。<strong>关卡预览</strong>：GET book-units 拉全量关卡列表（按 sort），默认展示前 5 关，可「展开全部」；每关单词来自 GET unit-words（按 unitId 批量懒加载，展开后分批请求）。无 resBookId 时回退为按总词数每 10 词一档的序号区间。<strong>强度反馈</strong>：1–2 组/天 → 首页 mascot-sleep（很轻松）；3–4 组 → mascot-progress（正常）；≥5 组 → mascot-alert（苦恼）。<strong>礼品活动文案</strong>仍读 user/info.gifts[]，不在本接口。当前 groupsPerDay 无后端，换机不同步。",
+            render: "首页 study-plan 入口 → plan 页设置每日组数 + 小怪兽强度 + 打卡规则预告卡 + 关卡预览（可展开）"
           }
         },
         {
@@ -1363,7 +1443,7 @@
           { title: "选择教材弹窗", desc: "home 内嵌 bottom-sheet：顶部学段（小学/初中/高中）+ 左侧版本栏（推荐/人教版/外研版…）+ 右侧封面网格。封面点击→商品详情；未购「去购买」；已购「切换使用」→ switch-default-book。", paths: ["home.wxml book-picker", "home.js switchBook/selectBookStage"], apis: ["user-books", "switch-default-book", "book-product-list"] },
           { title: "practice 练习", desc: "三环节主战场：word 单词新学（word-mark）、recitation 跟读（recitation-score）；review 模式走 review-words。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark", "recitation-score", "review-words"] },
           { title: "finish 完成", desc: "每环节结束页；save-learning-record 更新 tasks[]；今日达标触发本地打卡计数（待接 check-in）。", paths: ["pages/finish/today"], apis: ["save-learning-record", "check-in 待实现"] },
-          { title: "plan 学习计划", desc: "设置 groupsPerDay（待接 study-plan）；底部打卡预告卡文案<strong>当前写死</strong>，N 关来自本地计划，30天/VIP 应读 user/info.gifts[]。", paths: ["pages/plan/plan", "home.goStudyPlan"], apis: ["study-plan 待实现", "user/info.gifts[]"] }
+          { title: "plan 学习计划", desc: "设置 groupsPerDay（待接 study-plan，当前 Storage）；book-units 拉全量关卡 + unit-words 懒加载单词预览（默认 5 关，可展开全部）；1–2/3–4/≥5 组对应首页 mascot-sleep/progress/alert 强度反馈；打卡预告 N 关来自 groupsPerDay，30天/VIP 应读 user/info.gifts[]。", paths: ["pages/plan/plan", "home.goStudyPlan", "utils/plan-preview.js"], apis: ["book-units", "unit-words", "study-plan 待实现", "user/info.gifts[]"] }
         ],
         commerce: [
           { title: "advertisement 商品详情", desc: "v1.0.4：规格对比表 + 底栏「立即购买」→ SKU 弹层。onLoad 应调 book-product-list（当前 URL query + COMPARE/PACKAGE/SKU 常量）。", paths: ["pages/advertisement/advertisement", "home.goBuyBook"], apis: ["book-product-list"] },
