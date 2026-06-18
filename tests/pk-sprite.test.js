@@ -1,5 +1,6 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
+const crypto = require('node:crypto')
 const fs = require('node:fs')
 const path = require('node:path')
 
@@ -23,6 +24,10 @@ function readPngSize(filePath) {
   }
 }
 
+function fileHash(filePath) {
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex')
+}
+
 test('pk source frames and sprite sheet exist for seven-frame playback', () => {
   framePaths.forEach(framePath => {
     assert.equal(fs.existsSync(framePath), true, framePath + ' should exist')
@@ -37,6 +42,20 @@ test('pk source frames and sprite sheet exist for seven-frame playback', () => {
   assert.deepEqual(readPngSize(path.join(projectRoot, 'images/home/student-monster-pk-sprite-girl.png')), {
     width: 296 * 7,
     height: 168
+  })
+})
+
+test('pk sprite upload mirrors match local runtime sprites', () => {
+  const spriteNames = [
+    'student-monster-pk-sprite.png',
+    'student-monster-pk-sprite-girl.png'
+  ]
+
+  spriteNames.forEach(spriteName => {
+    const localPath = path.join(projectRoot, 'images/home', spriteName)
+    const mirrorPath = path.join(projectRoot, 'vercel-assets/images/home', spriteName)
+    assert.equal(fs.existsSync(mirrorPath), true)
+    assert.equal(fileHash(mirrorPath), fileHash(localPath))
   })
 })
 

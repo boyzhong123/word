@@ -1,6 +1,6 @@
 {
   "name": "word",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "private": true,
   "description": "谚语词典微信小程序",
   "scripts": {

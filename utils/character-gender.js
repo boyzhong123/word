@@ -2,6 +2,7 @@ const GENDER_BOY = 'boy'
 const GENDER_GIRL = 'girl'
 const STORAGE_KEY = 'characterGender'
 const PK_SPRITE_DURATION = 3
+const { imageUrl } = require('./image-host')
 
 const CHARACTER_ASSETS = {
   [GENDER_BOY]: {
@@ -50,11 +51,10 @@ function getCharacterAssets(gender) {
 
 function buildCharacterImageUrls(imageBaseUrl) {
   const assets = getCharacterAssets()
-  const prefix = imageBaseUrl || ''
   return {
     characterGender: getCharacterGender(),
-    heroImageUrl: prefix + assets.hero,
-    pkSpriteUrl: prefix + assets.pkSprite,
+    heroImageUrl: imageUrl(assets.hero),
+    pkSpriteUrl: imageUrl(assets.pkSprite),
     pkSpriteDuration: PK_SPRITE_DURATION
   }
 }

@@ -1149,12 +1149,12 @@
         {
           id: "checkin-write", module: "打卡", moduleId: "checkin", page: "finish/today · 今日达标打卡", status: "partial",
           endpoints: [{ method: "POST", path: "/mini-app/check-in", note: "待实现/待确认" }],
-          summary: "今日完成目标关数后写入打卡（当前仅本地 Storage）",
+          summary: "今日完成目标关数后写入打卡（通关=走完三环节，跨天顺延由后端结算）",
           detail: {
             request: "建议 { resBookId, date?, unitIds[]?, groupsDone?, source?: \"finish\" }",
             response: "更新后的 checkInDates / continuousDays",
             callers: "pages/finish/today.js recordLevelDone（utils/checkin-progress.js 写 dailyProgress_*，未调后端）",
-            fields: "finish 页「打卡成功」由本地 todayDone≥todayGoal 判定；月历 checkInDates 只从 user/info 读。成功卡副标题写死。saveRecord 当前<strong>仅传 unitId</strong>，须扩展 taskType/scoreRate/durationSeconds/resBookId。",
+            fields: "<strong>【通关判定：三环节全完成，不看分数】</strong>一关固定三环节（单词新学 → 跟读背诵 → 关卡小测），<strong>三个环节都走一遍即算这关通关 / 解锁，与分数高低无关</strong>；只完成 1~2 个环节的关卡<strong>不算通关，不计入打卡</strong>。<strong>【前端已改】</strong>finish/today 仅在<strong>第三环节（关卡小测，taskType=listening）</strong>完成时才调 recordLevelDone 记关；前两环节不单独记关（顺序解锁保证走到小测即三环节齐）。<strong>【跨天顺延：后端结算】</strong>当日打卡计数 0 点归零（本地 dailyProgress_* 按 date 自动重置）；<strong>未完成的关卡顺延到次日</strong>，作为次日学习起点继续占名额——若日目标 N 关，次日应学 = 首个未完成关 + 其后 N−1 关（不跳过未完成关）。「今天该学哪几关 / 从第几关起」由后端按此口径决定并下发，前端不本地推算顺延。finish 页「打卡成功」由本地 todayDone≥todayGoal 判定；月历 checkInDates 只从 user/info 读。成功卡副标题写死。saveRecord 当前<strong>仅传 unitId</strong>，须扩展 taskType/scoreRate/durationSeconds/resBookId。",
             render: "finish/today 打卡成功卡片 → 跳转打卡日历"
           }
         },

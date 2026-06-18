@@ -63,10 +63,10 @@ page {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #f4fff6 0%, #fff7e8 100%);
-  border: 1rpx solid rgba(224, 235, 215, 0.95);
+  background: linear-gradient(135deg, #f3eff8 0%, #eef4fd 100%);
+  border: 1rpx solid rgba(206, 216, 240, 0.92);
   border-radius: 26rpx;
-  box-shadow: 0 14rpx 30rpx rgba(88, 111, 86, 0.08);
+  box-shadow: 0 14rpx 30rpx rgba(91, 127, 214, 0.08);
 }
 
 .summary-copy {
@@ -74,7 +74,7 @@ page {
 }
 
 .summary-kicker {
-  color: #24aa66;
+  color: #5b7fd6;
   font-size: 22rpx;
   line-height: 28rpx;
   font-weight: 800;

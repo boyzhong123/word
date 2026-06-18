@@ -1,6 +1,13 @@
 /* 随身听全屏覆盖层（从 pages/listen/listen.wxss 抽出播放器部分）。
    作为 custom-tab-bar 的子组件全屏盖在页面与底栏之上。 */
 
+/* 组件默认 styleIsolation: isolated，app.wxss 的全局滚动条规则进不来，需组件内自定义 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 .listen-page {
   position: fixed;
   inset: 0;

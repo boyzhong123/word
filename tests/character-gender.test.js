@@ -36,7 +36,7 @@ test('character gender utility normalizes values and maps assets', () => {
   assert.deepEqual(buildCharacterImageUrls('https://cdn.test'), {
     characterGender: GENDER_BOY,
     heroImageUrl: 'https://cdn.test/images/home/hero-campus-jelly-v5.png',
-    pkSpriteUrl: 'https://cdn.test/images/home/student-monster-pk-sprite.png',
+    pkSpriteUrl: 'https://cdn.test/images/home/student-monster-pk-sprite.png?v=20260618-girl-pk-v2',
     pkSpriteDuration: 3
   })
 })

@@ -21,7 +21,7 @@
 <view class="me-page">
   <scroll-view class="me-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="profile-header" style="padding-top: {{safeAreaTop}}px;">
-      <image class="profile-header-bg" src="{{imageBaseUrl}}/images/home/me-profile-header-monster-v2.png" mode="aspectFill" />
+      <image class="profile-header-bg" src="{{profileHeaderBg}}" mode="aspectFill" />
       <view class="profile-main">
         <block wx:if="{{logined}}">
           <button class="avatar-wrap avatar-button" open-type="chooseAvatar" bindchooseavatar="handleChooseAvatar">

@@ -3,6 +3,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import crypto from 'node:crypto'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
@@ -102,6 +103,19 @@ function getRemoteSize(headData) {
   return Number.isFinite(size) ? size : null
 }
 
+function getRemoteEtag(headData) {
+  const headers = headData?.headers || {}
+  const value = headData?.ETag || headers.etag || headers.ETag
+  return String(value || '')
+    .replace(/^W\//, '')
+    .replace(/^"|"$/g, '')
+    .toLowerCase()
+}
+
+function getFileMd5(filePath) {
+  return crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex')
+}
+
 const env = loadEnv(envPath)
 const SecretId = assertEnv(env, 'TENCENT_SECRET_ID')
 const SecretKey = assertEnv(env, 'TENCENT_SECRET_KEY')
@@ -160,7 +174,9 @@ for (const target of targets) {
     if (!force) {
       const head = await headObject(cos, params)
       const remoteSize = head.exists ? getRemoteSize(head.data) : null
-      if (remoteSize === stat.size) {
+      const remoteEtag = head.exists ? getRemoteEtag(head.data) : ''
+      const localMd5 = getFileMd5(target.filePath)
+      if (remoteSize === stat.size && remoteEtag === localMd5) {
         skipped += 1
         console.log(`skip ${target.key} (${Math.round(stat.size / 1024)}KB)`)
         continue

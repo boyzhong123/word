@@ -59,6 +59,17 @@ const REMOTE_IMAGE_PATHS = {
   '/images/pet/primary-star-bunny.png': true
 }
 
+const REMOTE_IMAGE_VERSIONS = {
+  '/images/home/exam-entry-banner-exit-locked.png': '20260618-art-v2',
+  '/images/home/exam-entry-banner-exit.png': '20260618-art-v2',
+  '/images/home/exam-intro-hero-v2.jpg': '20260618-art-v2',
+  '/images/home/hero-campus-jelly-v5-girl.png': '20260618-art-v2',
+  '/images/home/map/monsters/jelly-defeated.png': '20260618-art-v2',
+  '/images/home/map/monsters/jelly-locked.png': '20260618-locked-fighting-palette-v7',
+  '/images/home/me-profile-header-monster-v2.png': '20260618-art-v2',
+  '/images/home/student-monster-pk-sprite-girl.png': '20260618-art-v2'
+}
+
 function normalizeImagePath(path) {
   const value = String(path || '')
   if (/^https?:\/\//.test(value)) {
@@ -79,7 +90,11 @@ function imageUrl(path) {
   if (!shouldUseRemoteImages() || /^https?:\/\//.test(normalized)) {
     return path
   }
-  return REMOTE_IMAGE_PATHS[normalized] ? REMOTE_IMAGE_HOST + normalized : normalized
+  if (!REMOTE_IMAGE_PATHS[normalized]) {
+    return normalized
+  }
+  const version = REMOTE_IMAGE_VERSIONS[normalized]
+  return REMOTE_IMAGE_HOST + normalized + (version ? '?v=' + version : '')
 }
 
 module.exports = {

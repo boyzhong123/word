@@ -1,7 +1,7 @@
 const { getUserInfo, getUserBooks, saveUserInfo, bindPhoneNumber } = require('../../utils/api')
 const { login, fetchLoginCode } = require('../../utils/login')
 const { upload } = require('../../utils/util')
-const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const {
   GENDER_BOY,
   GENDER_GIRL,
@@ -157,6 +157,7 @@ function parseUploadAvatarUrl(response) {
 Page({
   data: {
     imageBaseUrl: IMAGE_BASE_URL,
+    profileHeaderBg: imageUrl('/images/home/me-profile-header-monster-v2.png'),
     safeAreaTop: 0,
     safeAreaBottom: 0,
     logined: false,

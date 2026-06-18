@@ -24,7 +24,7 @@ const { computeScrollTopToAlignTarget } = require('./home-scroll')
 const { withTestBook, applyDevPurchaseToBook, applyDevPurchaseToBooks, isDevPurchased } = require('../../utils/dev-books')
 const { getExitLockState } = require('../../utils/exam-data')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
-const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const {
   buildCharacterImageUrls,
@@ -33,13 +33,10 @@ const {
 } = require('../../utils/character-gender')
 
 function buildExamBannerUrls(imageBaseUrl) {
-  const prefix = imageBaseUrl || ''
-  const version = '20260615-chatgpt-exit'
-  const withVersion = path => `${path}?v=${version}`
   return {
-    examEntryBannerUrl: withVersion(prefix + '/images/home/exam-entry-banner-entry.png'),
-    examExitBannerUrl: withVersion(prefix + '/images/home/exam-entry-banner-exit.png'),
-    examExitLockedBannerUrl: withVersion(prefix + '/images/home/exam-entry-banner-exit-locked.png')
+    examEntryBannerUrl: imageUrl('/images/home/exam-entry-banner-entry.png'),
+    examExitBannerUrl: imageUrl('/images/home/exam-entry-banner-exit.png'),
+    examExitLockedBannerUrl: imageUrl('/images/home/exam-entry-banner-exit-locked.png')
   }
 }
 

@@ -59,7 +59,13 @@ Page({
     const resBookId = this.book && this.book.resBookId
     const todayGoal = getDailyGoal(resBookId)
     const todayDoneBefore = getTodayDone(resBookId)
-    const todayDoneAfter = recordLevelDone(resBookId, options.unitId)
+    // 一关固定三个环节（单词新学 → 跟读背诵 → 关卡小测）。
+    // 只有走完最后一个环节（关卡小测，taskType=listening）才算通关、计入当日打卡；
+    // 前两个环节不单独记关。分数不影响是否通关。
+    const isUnitComplete = this.taskType === 'listening'
+    const todayDoneAfter = isUnitComplete
+      ? recordLevelDone(resBookId, options.unitId)
+      : todayDoneBefore
     const checkinComplete = todayDoneAfter >= todayGoal
     const justCheckedIn = todayDoneBefore < todayGoal && checkinComplete
     const stage = getStageInfo(this.taskType)

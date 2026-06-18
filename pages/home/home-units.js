@@ -675,7 +675,7 @@ function buildReviewUnit(groupUnits, ordinal, listIndex) {
     reviewWords,
     reviewUnitIds,
     reviewRange: '第 ' + firstSort + '-' + lastSort + ' 关',
-    title: '复习 · 错词巩固 · ' + reviewWords + '词',
+    title: '错词巩固 · ' + reviewWords + '词',
     subtitle: REVIEW_SAYING.english,
     subtitleEnglish: REVIEW_SAYING.english,
     subtitleChinese: REVIEW_SAYING.chinese,

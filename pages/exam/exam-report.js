@@ -57,7 +57,7 @@ Page({
     typeName: '',
     bookName: '',
     result: null,
-    reportHeroSrc: imageUrl('/images/home/exam-report-header-v3.jpg'),
+    reportHeroSrc: imageUrl('/images/home/exam-report-header-v4.jpg'),
     grade: '',
     encourage: '',
     sections: [],

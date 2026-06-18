@@ -7,6 +7,7 @@ student, the jelly monster, and the VS badge). Frames are composed at 2x
 """
 
 import argparse
+import shutil
 from pathlib import Path
 
 from PIL import Image
@@ -16,6 +17,7 @@ MONSTER_DIR = PROJECT_ROOT / "images/home/map/monsters"
 PARTS_DIR = PROJECT_ROOT / "assets/pk-build/pk-parts"
 FRAMES_DIR = PROJECT_ROOT / "assets/pk-build/frames"
 HOME_DIR = PROJECT_ROOT / "images/home"
+VERCEL_HOME_DIR = PROJECT_ROOT / "vercel-assets/images/home"
 
 FRAME_COUNT = 7
 # 2x assets; the frame-animation component displays them at 148x84 rpx via background-size
@@ -155,10 +157,12 @@ def output_paths(gender):
         return {
             "frames_dir": FRAMES_DIR / "girl",
             "sprite": HOME_DIR / "student-monster-pk-sprite-girl.png",
+            "mirror_sprite": VERCEL_HOME_DIR / "student-monster-pk-sprite-girl.png",
         }
     return {
         "frames_dir": FRAMES_DIR,
         "sprite": HOME_DIR / "student-monster-pk-sprite.png",
+        "mirror_sprite": VERCEL_HOME_DIR / "student-monster-pk-sprite.png",
     }
 
 
@@ -174,6 +178,8 @@ def main():
     for output_name, frame in zip(FRAME_OUTPUT_NAMES, frames):
         frame.save(paths["frames_dir"] / output_name, optimize=True)
     build_sprite(frames, paths["sprite"])
+    paths["mirror_sprite"].parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(paths["sprite"], paths["mirror_sprite"])
     print(
         f"Composed {FRAME_COUNT} {args.gender} PK frames "
         f"({PK_FRAME_W}x{PK_FRAME_H}) and sprite at {paths['sprite']}"

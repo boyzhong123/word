@@ -167,13 +167,13 @@
           </view>
 
           <view
-            class="unit-card unit-card-{{unit.mapState}} {{unit.isReview ? 'unit-card-review' : ''}}"
+            class="unit-card unit-card-{{unit.mapState}} {{unit.isReview ? 'unit-card-review' : ''}} {{unit.cardMonsterState === 'locked' ? 'unit-card-has-sleeping-monster' : ''}}"
             id="{{unit.mapState === 'active' ? 'today-scroll-target' : ''}}"
             wx:for="{{group.units}}"
             wx:for-item="unit"
             wx:key="key"
           >
-            <view class="unit-top">
+            <view class="unit-top {{unit.cardMonsterState === 'locked' ? 'unit-top-has-sleeping-monster' : ''}}">
               <view class="unit-copy">
                 <view class="unit-heading-row">
                   <text wx:if="{{unit.isReview}}" class="unit-review-badge">复习</text>
@@ -278,12 +278,12 @@
         <block wx:else>
         <!-- 其它关卡（含复习卡）各自单独成卡。单元素 wx:for 仅用于把 group.unit 取别名为 unit -->
         <view
-          class="unit-card unit-card-{{group.unit.mapState}} {{group.unit.isReview ? 'unit-card-review' : ''}}"
+          class="unit-card unit-card-{{group.unit.mapState}} {{group.unit.isReview ? 'unit-card-review' : ''}} {{group.unit.cardMonsterState === 'locked' ? 'unit-card-has-sleeping-monster' : ''}}"
           wx:for="{{[group.unit]}}"
           wx:for-item="unit"
           wx:key="listIndex"
         >
-          <view class="unit-top">
+          <view class="unit-top {{unit.cardMonsterState === 'locked' ? 'unit-top-has-sleeping-monster' : ''}}">
             <view class="unit-copy">
               <view class="unit-heading-row">
                 <text wx:if="{{unit.isReview}}" class="unit-review-badge">复习</text>

@@ -9,13 +9,60 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageChops, ImageFilter
+from PIL import Image, ImageFilter
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+from flood_key_white_bg import flood_key_white
+
+PROJECT_ROOT = SCRIPT_DIR.parent
 PARTS_DIR = PROJECT_ROOT / "assets/pk-build/pk-parts"
 HOME_DIR = PROJECT_ROOT / "images/home"
-CHROMA_KEY_SCRIPT = Path.home() / ".codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
 HERO_SIZE = (1536, 1024)
+BOOK_CARD_SPLICE_Y = 640
+STUDENT_FOOT_SCAN_X = (80, 420)
+
+
+def detect_student_foot_bottom(arr: np.ndarray) -> int | None:
+    """Return the lowest row containing student shoes in the left hero lane."""
+    h = arr.shape[0]
+    x0, x1 = STUDENT_FOOT_SCAN_X
+    roi = arr[:, x0:x1]
+    for y in range(h - 1, 350, -1):
+        row = roi[y]
+        red, green, blue = row[:, 0], row[:, 1], row[:, 2]
+        pink = (red > 130) & (green > 80) & (green < 200) & (blue < 170) & (red > green)
+        blue_shoe = (blue > 120) & (red < 140) & (blue > red)
+        white = row.min(axis=1) > 200
+        if pink.sum() + blue_shoe.sum() + white.sum() > 40:
+            return y
+    return None
+
+
+def boy_foot_anchor(boy_arr: np.ndarray) -> int:
+    return detect_student_foot_bottom(boy_arr) or 614
+
+
+def apply_book_card_lawn(girl_arr: np.ndarray, boy_arr: np.ndarray) -> np.ndarray:
+    out = girl_arr.copy()
+    out[BOOK_CARD_SPLICE_Y:, :, :] = boy_arr[BOOK_CARD_SPLICE_Y:, :, :]
+    return out
+
+
+def align_student_feet_to_boy(girl_arr: np.ndarray, boy_arr: np.ndarray) -> np.ndarray:
+    """Shift girl hero content so shoes sit on the same row as the boy header."""
+    target_foot = boy_foot_anchor(boy_arr)
+    foot_y = detect_student_foot_bottom(girl_arr)
+    if foot_y is None or foot_y <= target_foot:
+        return girl_arr
+
+    shift = foot_y - target_foot
+    h = girl_arr.shape[0]
+    out = np.zeros_like(girl_arr)
+    out[: h - shift, :, :] = girl_arr[shift:h, :, :]
+    out[BOOK_CARD_SPLICE_Y:, :, :] = boy_arr[BOOK_CARD_SPLICE_Y:, :, :]
+    return out
 
 GIRL_PARTS = {
     "girl-idle.png": "girl-idle-source.png",
@@ -31,14 +78,26 @@ def content_bbox(image: Image.Image):
     return visible.getbbox()
 
 
-def remove_near_white(image: Image.Image) -> Image.Image:
-    rgb = image.convert("RGB")
-    white = Image.new("RGB", rgb.size, "white")
-    diff = ImageChops.difference(rgb, white).convert("L")
-    mask = diff.point(lambda value: 255 if value > 18 else 0)
-    rgba = rgb.convert("RGBA")
-    rgba.putalpha(mask)
-    return rgba
+def restore_interior_white(
+    image: Image.Image,
+    white_tolerance: int = 30,
+    dilate_radius: int = 16,
+) -> Image.Image:
+    """Reclaim near-white shirt/sock pixels removed by border-connected flood key."""
+    arr = np.array(image).copy()
+    alpha = arr[:, :, 3]
+    rgb = arr[:, :, :3]
+    opaque = alpha > 128
+
+    mask_img = Image.fromarray((opaque.astype(np.uint8) * 255))
+    for _ in range(dilate_radius):
+        mask_img = mask_img.filter(ImageFilter.MaxFilter(3))
+    envelope = np.array(mask_img) > 128
+
+    white_dist = np.max(255 - rgb.astype(np.int16), axis=2)
+    restore = envelope & (white_dist <= white_tolerance) & ~opaque
+    arr[restore, 3] = 255
+    return Image.fromarray(arr, "RGBA")
 
 
 def keyed_source(source_path: Path, work_dir: Path) -> Image.Image:
@@ -47,29 +106,11 @@ def keyed_source(source_path: Path, work_dir: Path) -> Image.Image:
         return source
 
     keyed_path = work_dir / f"{source_path.stem}-keyed.png"
-    if CHROMA_KEY_SCRIPT.exists():
-        subprocess.run(
-            [
-                sys.executable,
-                str(CHROMA_KEY_SCRIPT),
-                "--input",
-                str(source_path),
-                "--out",
-                str(keyed_path),
-                "--auto-key",
-                "border",
-                "--soft-matte",
-                "--transparent-threshold",
-                "12",
-                "--opaque-threshold",
-                "220",
-                "--despill",
-                "--force",
-            ],
-            check=True,
-        )
-        return Image.open(keyed_path).convert("RGBA")
-    return remove_near_white(source)
+    flood_key_white(source_path, keyed_path, tolerance=24)
+    keyed = Image.open(keyed_path).convert("RGBA")
+    restored = restore_interior_white(keyed)
+    restored.save(keyed_path, optimize=True)
+    return restored
 
 
 def fit_cutout(image: Image.Image, target_height: int) -> Image.Image:
@@ -102,20 +143,23 @@ def prepare_girl_parts():
 def prepare_girl_hero(source_path: Path, output_path: Path):
     """Export the girl hero banner using the same framing as the boy v5 header."""
     boy_hero_path = HOME_DIR / "hero-campus-jelly-v5.png"
+    target_w, target_h = HERO_SIZE
     source = Image.open(source_path).convert("RGB")
-    if source.size != HERO_SIZE:
-        source = source.resize(HERO_SIZE, Image.Resampling.LANCZOS)
 
+    if source.size != (target_w, target_h):
+        source = source.resize((target_w, target_h), Image.Resampling.LANCZOS)
+
+    girl_arr = np.array(source)
     if boy_hero_path.exists():
-        boy = Image.open(boy_hero_path).convert("RGB")
-        boy_grass = np.array(boy)[640:, :, :]
-        girl_arr = np.array(source)
-        # Keep the boy header's lower lawn band so the book card overlap matches.
-        girl_arr[640:, :, :] = boy_grass
-        source = Image.fromarray(girl_arr)
+        boy_arr = np.array(Image.open(boy_hero_path).convert("RGB"))
+        girl_arr = align_student_feet_to_boy(girl_arr, boy_arr)
+        girl_arr = apply_book_card_lawn(girl_arr, boy_arr)
+        foot_y = detect_student_foot_bottom(girl_arr)
+        anchor = boy_foot_anchor(boy_arr)
+        print(f"Aligned girl hero feet to row {foot_y} (boy anchor {anchor})")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    source.save(output_path, optimize=True)
+    Image.fromarray(girl_arr).save(output_path, optimize=True)
     print(f"Saved hero banner {output_path} ({HERO_SIZE[0]}x{HERO_SIZE[1]})")
 
 

@@ -271,7 +271,7 @@ page {
 .book-progress-fill {
   height: 100%;
   min-width: 8rpx;
-  background: #101010;
+  background: linear-gradient(90deg, #34d27b 0%, #22c55e 100%);
   border-radius: 8rpx;
 }
 
@@ -564,6 +564,7 @@ page {
 .unit-card-completed,
 .unit-card-upcoming {
   color: #3f4852;
+  overflow: visible;
   background: #ffffff;
   border-color: #d5dbe3;
   box-shadow: 0 5rpx 12rpx rgba(40, 48, 60, 0.05);
@@ -579,6 +580,7 @@ page {
 
 .unit-card-locked {
   color: #525a63;
+  overflow: visible;
   background: #f5f6f8;
   border-color: #ccd2da;
   box-shadow: none;
@@ -666,9 +668,19 @@ page {
   overflow: hidden;
 }
 
-.unit-card-active .unit-top {
+.unit-card-has-sleeping-monster {
   overflow: visible;
-  /* 高于 .task-grid(z-index:4)，避免 PK 角色的脚被任务卡挡住 */
+}
+
+.unit-top-has-sleeping-monster {
+  overflow: visible;
+  z-index: 5;
+}
+
+.unit-card-active .unit-top,
+.unit-card-upcoming .unit-top,
+.unit-card-locked .unit-top {
+  overflow: visible;
   z-index: 5;
 }
 
@@ -796,10 +808,20 @@ page {
 }
 
 .unit-card-monster-locked {
-  top: -14rpx;
-  opacity: 0.88;
-  filter: grayscale(0.08) saturate(0.78);
-  transform: scale(0.8);
+  top: auto;
+  bottom: -24rpx;
+  right: -10rpx;
+  z-index: 6;
+  opacity: 1;
+  filter: saturate(0.95);
+  transform: scale(0.92);
+  transform-origin: bottom right;
+}
+
+.unit-card-upcoming .unit-card-monster-locked,
+.unit-card-locked .unit-card-monster-locked {
+  opacity: 1;
+  filter: saturate(1.12) contrast(1.04);
 }
 
 .task-grid {

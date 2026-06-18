@@ -1,3 +1,10 @@
+/* 组件默认 styleIsolation: isolated，app.wxss 的全局滚动条规则进不来，需组件内自定义 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 .btn {
   position: relative;
   margin: 60rpx 36rpx 48rpx;

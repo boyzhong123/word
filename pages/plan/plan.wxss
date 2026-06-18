@@ -42,7 +42,7 @@ page {
 
 /* 教材概览 */
 .book-card {
-  margin-top: 16rpx;
+  margin-top: 24rpx;
   padding: 22rpx 25rpx;
   display: flex;
   align-items: center;
@@ -119,32 +119,87 @@ page {
   align-items: center;
   justify-content: center;
   font-size: 46rpx;
+  line-height: 1;
   font-weight: 600;
   color: #111318;
-  background: #eef0f3;
+  background: #ffffff;
+  border: 2rpx solid #e3e5e9;
   border-radius: 50%;
+  box-sizing: border-box;
+  box-shadow: 0 4rpx 12rpx rgba(17, 19, 24, 0.1);
+}
+
+/* +/− 用 text 包一层，消除字形基线偏移导致的“不在圆心” */
+.stepper-sign {
+  display: block;
+  line-height: 1;
 }
 
 .stepper-hover {
-  background: #d6e6fc;
-  transform: scale(0.94);
+  background: #f3eff8;
 }
 
 .stepper-off {
   color: #cccccc;
   background: #f3f3f3;
+  border-color: #ececec;
+  box-shadow: none;
+}
+
+.daily-core {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+}
+
+.daily-mascot-icon {
+  flex: none;
+  width: 120rpx;
+  height: 120rpx;
+  transition: transform 0.2s ease;
+}
+
+.daily-mascot-icon-hard {
+  transform: rotate(-3deg);
 }
 
 .daily-num {
-  flex: 1;
   text-align: center;
+  min-height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .daily-num .num {
+  display: inline-block;
   font-size: 76rpx;
   line-height: 80rpx;
   font-weight: 800;
   color: #101010;
+  transform-origin: center center;
+  /* 固定独立合成层：缩放动画只在该层重绘（真机更顺；模拟器仍有工具端整屏重绘瑕疵，可无视） */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 切换两个同效动画类来强制重启动画，实现数值变化时的轻微跳动 */
+.daily-num .num-bump-a {
+  animation: num-bump 0.18s ease-out;
+}
+
+.daily-num .num-bump-b {
+  animation: num-bump 0.18s ease-out;
+}
+
+@keyframes num-bump {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.06); }
+  100% { transform: scale(1); }
 }
 
 .daily-num .unit {
@@ -165,50 +220,64 @@ page {
   font-weight: 600;
 }
 
-/* 预设 */
-.presets {
-  margin-top: 26rpx;
+/* 快捷预设 — 一体分段选择器 */
+.preset-section {
+  margin-top: 22rpx;
+}
+
+.preset-track {
   display: flex;
-  gap: 16rpx;
+  align-items: stretch;
+  padding: 6rpx;
+  background: #f2f4f8;
+  border-radius: 999rpx;
+  box-sizing: border-box;
 }
 
-.preset {
+.preset-seg {
   flex: 1;
-  padding: 18rpx 0;
-  text-align: center;
-  background: #fafafa;
-  border: 1rpx solid #eeeeee;
-  border-radius: 18rpx;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  min-width: 0;
+  padding: 14rpx 6rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  box-sizing: border-box;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
 }
 
-.preset-hover {
-  background: #eef1f5;
+.preset-seg-hover {
+  background: rgba(255, 255, 255, 0.45);
 }
 
-.preset-active {
-  background: linear-gradient(180deg, #f2f3f5, #e6e8ec);
-  border-color: #111318;
+.preset-seg-active {
+  background: #ffffff;
+  box-shadow: 0 4rpx 14rpx rgba(91, 127, 214, 0.16);
 }
 
-.preset-label {
-  font-size: 23rpx;
-  font-weight: 500;
-  color: #333333;
+.preset-seg-label {
+  font-size: 24rpx;
+  line-height: 32rpx;
+  font-weight: 600;
+  color: #8a9099;
 }
 
-.preset-active .preset-label {
-  color: #111318;
+.preset-seg-active .preset-seg-label {
+  color: #2d4a8a;
+  font-weight: 800;
 }
 
-.preset-value {
-  margin-top: 6rpx;
-  font-size: 20rpx;
-  color: #999999;
+.preset-seg-num {
+  margin-top: 2rpx;
+  font-size: 19rpx;
+  line-height: 26rpx;
+  color: #b0b5bd;
 }
 
-.preset-active .preset-value {
-  color: #111318;
+.preset-seg-active .preset-seg-num {
+  color: rgba(45, 74, 138, 0.62);
+  font-weight: 600;
 }
 
 /* 结果卡片 */
@@ -217,10 +286,11 @@ page {
   padding: 30rpx 0;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #ffffff, #f4f5f7);
+  background: linear-gradient(135deg, #f3eff8 0%, #eef4fd 100%);
+  border: 2rpx solid #d5dff2;
   border-radius: 27rpx;
-  /* 真机上 1rpx 极浅色边框会被裁成 0、出现“时有时无”，改用 box-shadow 描边稳定显示 */
-  box-shadow: 0 0 0 1rpx #e2e4e8, 0 8rpx 18rpx rgba(17, 19, 24, 0.06);
+  box-sizing: border-box;
+  box-shadow: 0 14rpx 30rpx rgba(91, 127, 214, 0.08);
 }
 
 .result-item {
@@ -244,7 +314,7 @@ page {
 .result-divider {
   width: 1rpx;
   height: 56rpx;
-  background: #dbe8fb;
+  background: #e2e4e8;
 }
 
 /* 打卡规则预告 */
@@ -252,9 +322,10 @@ page {
   margin-top: 24rpx;
   padding: 27rpx 25rpx 25rpx;
   background: #ffffff;
-  border: 1rpx solid rgba(139, 108, 255, 0.14);
+  border: 2rpx solid #d5dff2;
   border-radius: 27rpx;
-  box-shadow: 0 8rpx 18rpx rgba(115, 91, 45, 0.055);
+  box-sizing: border-box;
+  box-shadow: 0 8rpx 18rpx rgba(91, 127, 214, 0.06);
 }
 
 .checkin-card-row {
@@ -282,7 +353,7 @@ page {
 }
 
 .checkin-card-title .hl {
-  color: #8b6cff;
+  color: #5b7fd6;
 }
 
 .checkin-card-copy {
@@ -297,8 +368,10 @@ page {
   padding: 16rpx 18rpx;
   display: flex;
   align-items: center;
+  border: none;
   border-radius: 18rpx;
-  background: #f5f3ff;
+  box-sizing: border-box;
+  background: #f3eff8;
 }
 
 .checkin-reward-icon {
@@ -310,7 +383,7 @@ page {
 .checkin-reward-copy {
   flex: 1;
   margin-left: 15rpx;
-  color: #4c1d95;
+  color: #2d4a8a;
   font-size: 23rpx;
   line-height: 32rpx;
   font-weight: 700;
@@ -338,8 +411,9 @@ page {
   font-size: 25rpx;
   font-weight: 600;
   color: #ffffff;
-  background: #111318;
+  background: linear-gradient(135deg, #8aa4e8 0%, #5b7fd6 100%);
   border-radius: 50%;
+  box-shadow: 0 6rpx 12rpx rgba(91, 127, 214, 0.18);
 }
 
 .level-info {
@@ -359,6 +433,21 @@ page {
   color: #999999;
 }
 
+.level-words {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  line-height: 32rpx;
+  color: #5f6872;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.level-words-loading {
+  color: #9aa0a8;
+}
+
 .level-count {
   flex: none;
   font-size: 23rpx;
@@ -371,6 +460,11 @@ page {
   text-align: center;
   font-size: 22rpx;
   color: #aaaaaa;
+}
+
+.level-more-action {
+  color: #5b7fd6;
+  font-weight: 700;
 }
 
 .scroll-spacer {
