@@ -805,9 +805,9 @@ page {
 }
 
 .unit-card-monster-defeated {
-  top: -34rpx;
+  top: -27rpx;
   z-index: 7;
-  transform: scale(0.90);
+  transform: scale(0.82);
   transform-origin: top right;
 }
 

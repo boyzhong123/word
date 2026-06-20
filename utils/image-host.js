@@ -69,13 +69,13 @@ const REMOTE_IMAGE_VERSIONS = {
   '/images/home/hero-campus-jelly-v5-girl.png': '20260618-art-v2',
   '/images/home/map/monsters/jelly-defeated.png': '20260620-defeated-cloth-flag-v5',
   '/images/home/map/monsters/jelly-fighting.png': '20260619-monster-3x-v1',
-  '/images/home/map/monsters/jelly-locked.png': '20260619-monster-3x-v1',
+  '/images/home/map/monsters/jelly-locked.png': '20260620-locked-color-v2',
   '/images/home/me-profile-header-monster-v2.png': '20260618-art-v2',
   '/images/home/student-monster-pk-sprite-girl.png': '20260619-pk-3x-v1',
   '/images/home/student-monster-pk-sprite.png': '20260619-pk-3x-v1',
-  '/images/plan/plan-mascot-easy.png': '20260620-plan-mascot-v6',
-  '/images/plan/plan-mascot-hard.png': '20260620-plan-mascot-v6',
-  '/images/plan/plan-mascot-normal.png': '20260620-plan-mascot-v6'
+  '/images/plan/plan-mascot-easy.png': '20260620-plan-mascot-color-v7',
+  '/images/plan/plan-mascot-hard.png': '20260620-plan-mascot-color-v7',
+  '/images/plan/plan-mascot-normal.png': '20260620-plan-mascot-color-v7'
 }
 
 function normalizeImagePath(path) {

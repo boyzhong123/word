@@ -251,7 +251,7 @@ test('category cards render state-specific jelly monster sprites', () => {
   assert.match(homeTemplate, /state="{{unit\.cardMonsterState === 'fighting' \? 'running' : 'paused'}}"/)
   assert.match(homeStyle, /\.unit-card-monster\s*{/)
   assert.match(homeStyle, /\.unit-card-monster-locked\s*{/)
-  assert.match(homeStyle, /\.unit-card-monster-defeated\s*{[^}]*top:\s*-34rpx/s)
+  assert.match(homeStyle, /\.unit-card-monster-defeated\s*{[^}]*top:\s*-27rpx/s)
 })
 
 test('frame animation advances sprite frames with js timing for mini program playback', () => {

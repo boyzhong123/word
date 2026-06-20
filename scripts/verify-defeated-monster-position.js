@@ -15,7 +15,7 @@ const buildScriptPath = path.join(projectRoot, 'scripts/build-jelly-defeated-v3.
 const spritePath = path.join(projectRoot, 'images/home/map/monsters/jelly-defeated.png')
 const cliPath = '/Applications/wechatwebdevtools.app/Contents/MacOS/cli'
 
-const EXPECTED_TOP_RPX = -34
+const EXPECTED_TOP_RPX = -27
 const MIN_TOP_TRANSPARENT_PX = 24
 
 function readText(filePath) {
