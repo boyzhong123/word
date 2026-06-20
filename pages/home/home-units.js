@@ -33,7 +33,7 @@ const MAP_MONSTER_FRAME_COUNTS = {
   defeated: 1,
   locked: 1
 }
-const MAP_MONSTER_FRAME_SIZE = 166
+const MAP_MONSTER_FRAME_SIZE = 166 // display rpx; PNG exports are 498px (@3x)
 const CARD_MONSTER_FRAME_SIZE = 166
 
 // Vertical闯关 trail geometry (rpx). Each level流向 from top to bottom as:

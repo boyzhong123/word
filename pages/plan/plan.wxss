@@ -163,6 +163,8 @@ page {
 }
 
 .daily-mascot-icon-hard {
+  width: 136rpx;
+  height: 136rpx;
   transform: rotate(-3deg);
 }
 

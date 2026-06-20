@@ -19,7 +19,7 @@ CARD_PADDING_X = 10
 CARD_PADDING_Y = 12
 
 SOURCES = {
-    "jelly-defeated.png": ASSETS_DIR / "jelly-defeated-v2-draft-keyed.png",
+    "jelly-defeated.png": ASSETS_DIR / "jelly-defeated-v3-draft-keyed.png",
     "jelly-locked.png": ASSETS_DIR / "jelly-locked-v2-draft-keyed.png",
 }
 

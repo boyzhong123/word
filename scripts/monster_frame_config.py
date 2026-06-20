@@ -1,0 +1,15 @@
+"""Home map monster card/trail sprite export sizes.
+
+UI still displays at MONSTER_DISPLAY_RPX (166rpx) via frame-animation; export
+at MONSTER_EXPORT_PX (~3x) so retina screens stay sharp.
+"""
+
+MONSTER_DISPLAY_RPX = 166
+MONSTER_EXPORT_SCALE = 3
+MONSTER_EXPORT_PX = MONSTER_DISPLAY_RPX * MONSTER_EXPORT_SCALE
+
+PK_DISPLAY_W = 148
+PK_DISPLAY_H = 84
+PK_EXPORT_SCALE = 3
+PK_FRAME_W = PK_DISPLAY_W * PK_EXPORT_SCALE
+PK_FRAME_H = PK_DISPLAY_H * PK_EXPORT_SCALE

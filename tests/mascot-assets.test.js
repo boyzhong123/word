@@ -31,6 +31,8 @@ const mapMonsterFrameCounts = {
   fighting: 6,
   defeated: 1
 }
+const mapMonsterExportPx = 498
+const mapMonsterDisplayRpx = 166
 
 function readPngSize(filePath) {
   const header = fs.readFileSync(filePath).subarray(0, 24)
@@ -111,13 +113,13 @@ for (const mapNodeName of mapNodeNames) {
 for (const monsterName of mapMonsterNames) {
   for (const monsterState of mapMonsterStates) {
     const spriteName = monsterName + '-' + monsterState + '.png'
-    test(spriteName + ' contains the expected 166 by 166 monster frames', () => {
+    test(spriteName + ' contains the expected @3x monster frames', () => {
       const spritePath = path.join(projectRoot, 'images/home/map/monsters', spriteName)
       assert.equal(fs.existsSync(spritePath), true, spriteName + ' should exist')
       const frameCount = mapMonsterFrameCounts[monsterState]
       assert.deepEqual(readPngSize(spritePath), {
-        width: 166 * frameCount,
-        height: 166
+        width: mapMonsterExportPx * frameCount,
+        height: mapMonsterExportPx
       })
       assert.equal(fs.readFileSync(spritePath)[25], 6, spriteName + ' should use RGBA color type')
     })

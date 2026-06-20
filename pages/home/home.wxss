@@ -679,7 +679,8 @@ page {
 
 .unit-card-active .unit-top,
 .unit-card-upcoming .unit-top,
-.unit-card-locked .unit-top {
+.unit-card-locked .unit-top,
+.unit-card-completed .unit-top {
   overflow: visible;
   z-index: 5;
 }
@@ -804,7 +805,15 @@ page {
 }
 
 .unit-card-monster-defeated {
-  filter: saturate(0.9);
+  top: -34rpx;
+  z-index: 7;
+  transform: scale(0.90);
+  transform-origin: top right;
+}
+
+.unit-card-completed .unit-card-monster-defeated {
+  opacity: 1;
+  filter: saturate(1.08);
 }
 
 .unit-card-monster-locked {
@@ -1145,7 +1154,7 @@ page {
 /* 小怪兽 BOSS */
 .trail-monster {
   position: absolute;
-  z-index: 2;
+  z-index: 6;
   top: 20rpx;
   width: 166rpx;
   display: flex;

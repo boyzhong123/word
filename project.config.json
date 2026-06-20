@@ -35,6 +35,10 @@
         "value": "node_modules"
       },
       {
+        "type": "glob",
+        "value": "package*.json"
+      },
+      {
         "type": "folder",
         "value": "assets"
       },
@@ -256,6 +260,26 @@
       },
       {
         "type": "glob",
+        "value": "images/home/map/monsters/debug-*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/map/monsters/test-*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/map/monsters/d1.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/map/monsters/jelly-defeated-on-*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/map/monsters/jelly-defeated-final-*.png"
+      },
+      {
+        "type": "glob",
         "value": "images/listen/tag-sentence-jelly.png"
       },
       {
@@ -345,6 +369,30 @@
       {
         "type": "glob",
         "value": "images/home/exam-report-header-v2.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/plan/*preview*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/plan/plan-mascot-easy.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/plan/plan-mascot-hard.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/plan/plan-mascot-normal.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/study-record/hero-mascot-jelly*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/study-record/hero-mascot-home-header-monster.png"
       }
     ],
     "include": []

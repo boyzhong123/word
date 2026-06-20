@@ -2,15 +2,19 @@
 """Compose the 7-frame home-page PK battle sprite from extracted character parts.
 
 Parts live in assets/pk-build/pk-parts/ (clean chroma-keyed cutouts of the
-student, the jelly monster, and the VS badge). Frames are composed at 2x
-(296x168) with fixed anchors so the loop never wobbles.
+student, the jelly monster, and the VS badge). Frames export at 3x (444x252)
+and display at 148x84 rpx via frame-animation background-size.
 """
 
 import argparse
 import shutil
+import sys
 from pathlib import Path
 
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from monster_frame_config import PK_FRAME_H, PK_FRAME_W
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MONSTER_DIR = PROJECT_ROOT / "images/home/map/monsters"
@@ -20,10 +24,8 @@ HOME_DIR = PROJECT_ROOT / "images/home"
 VERCEL_HOME_DIR = PROJECT_ROOT / "vercel-assets/images/home"
 
 FRAME_COUNT = 7
-# 2x assets; the frame-animation component displays them at 148x84 rpx via background-size
-PK_FRAME_W = 296
-PK_FRAME_H = 168
-BASELINE_Y = PK_FRAME_H - 6
+LAYOUT = PK_FRAME_H / 168
+BASELINE_Y = PK_FRAME_H - round(6 * LAYOUT)
 
 FRAME_OUTPUT_NAMES = [
     "student-monster-pk-frame-01.png",
@@ -82,13 +84,13 @@ def compose_frames(gender="boy"):
     monster_dizzy = load_part("monster-dizzy.png")
     vs_badge = load_part("vs-badge.png")
 
-    student_h = 150
-    monster_h = 118
-    vs_h = 88
-    student_x = 40
-    monster_x = PK_FRAME_W - 40
+    student_h = round(150 * LAYOUT)
+    monster_h = round(118 * LAYOUT)
+    vs_h = round(88 * LAYOUT)
+    student_x = round(40 * LAYOUT)
+    monster_x = PK_FRAME_W - round(40 * LAYOUT)
     vs_x = PK_FRAME_W // 2
-    vs_y = 8
+    vs_y = round(8 * LAYOUT)
 
     frames = []
 
@@ -101,44 +103,44 @@ def compose_frames(gender="boy"):
 
     # 2. student lunges in, monster flinches, badge glows
     frame = new_frame()
-    paste_bottom(frame, scaled(student_attack, student_h - 10), student_x + 12, "left")
-    paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.05, squash_y=0.93), monster_x + 4, "right")
-    paste_top(frame, scaled(vs_badge, round(vs_h * 1.12)), vs_x + 6, vs_y - 2)
+    paste_bottom(frame, scaled(student_attack, student_h - round(10 * LAYOUT)), student_x + round(12 * LAYOUT), "left")
+    paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.05, squash_y=0.93), monster_x + round(4 * LAYOUT), "right")
+    paste_top(frame, scaled(vs_badge, round(vs_h * 1.12)), vs_x + round(6 * LAYOUT), vs_y - round(2 * LAYOUT))
     frames.append(frame)
 
     # 3. clash: both close in, badge flares
     frame = new_frame()
-    paste_bottom(frame, scaled(student_attack, student_h - 8), student_x + 24, "left")
-    paste_bottom(frame, scaled(monster_angry, monster_h + 10), monster_x - 4, "right")
-    paste_top(frame, scaled(vs_badge, round(vs_h * 1.32)), vs_x + 2, vs_y - 6, )
+    paste_bottom(frame, scaled(student_attack, student_h - round(8 * LAYOUT)), student_x + round(24 * LAYOUT), "left")
+    paste_bottom(frame, scaled(monster_angry, monster_h + round(10 * LAYOUT)), monster_x - round(4 * LAYOUT), "right")
+    paste_top(frame, scaled(vs_badge, round(vs_h * 1.32)), vs_x + round(2 * LAYOUT), vs_y - round(6 * LAYOUT), )
     frames.append(frame)
 
     # 4. student cheers, monster squashed dizzy
     frame = new_frame()
-    paste_bottom(frame, scaled(student_cheer, student_h), student_x + 2, "left")
-    paste_bottom(frame, scaled(monster_dizzy, round(monster_h * 0.82)), monster_x + 2, "right")
-    paste_top(frame, scaled(vs_badge, vs_h - 8), vs_x, vs_y + 8)
+    paste_bottom(frame, scaled(student_cheer, student_h), student_x + round(2 * LAYOUT), "left")
+    paste_bottom(frame, scaled(monster_dizzy, round(monster_h * 0.82)), monster_x + round(2 * LAYOUT), "right")
+    paste_top(frame, scaled(vs_badge, vs_h - round(8 * LAYOUT)), vs_x, vs_y + round(8 * LAYOUT))
     frames.append(frame)
 
     # 5. monster puffs back up angrily, student eases off
     frame = new_frame()
-    paste_bottom(frame, scaled(student_idle, student_h - 4), student_x - 4, "left")
-    paste_bottom(frame, scaled(monster_angry, monster_h + 14), monster_x - 8, "right")
-    paste_top(frame, scaled(vs_badge, vs_h), vs_x - 4, vs_y)
+    paste_bottom(frame, scaled(student_idle, student_h - round(4 * LAYOUT)), student_x - round(4 * LAYOUT), "left")
+    paste_bottom(frame, scaled(monster_angry, monster_h + round(14 * LAYOUT)), monster_x - round(8 * LAYOUT), "right")
+    paste_top(frame, scaled(vs_badge, vs_h), vs_x - round(4 * LAYOUT), vs_y)
     frames.append(frame)
 
     # 6. second clash
     frame = new_frame()
-    paste_bottom(frame, scaled(student_attack, student_h - 8), student_x + 20, "left")
-    paste_bottom(frame, scaled(monster_angry, monster_h + 8, squash_x=1.04, squash_y=0.95), monster_x - 2, "right")
-    paste_top(frame, scaled(vs_badge, round(vs_h * 1.26)), vs_x, vs_y - 4)
+    paste_bottom(frame, scaled(student_attack, student_h - round(8 * LAYOUT)), student_x + round(20 * LAYOUT), "left")
+    paste_bottom(frame, scaled(monster_angry, monster_h + round(8 * LAYOUT), squash_x=1.04, squash_y=0.95), monster_x - round(2 * LAYOUT), "right")
+    paste_top(frame, scaled(vs_badge, round(vs_h * 1.26)), vs_x, vs_y - round(4 * LAYOUT))
     frames.append(frame)
 
     # 7. back to face-off (tiny bounce) for a seamless loop
     frame = new_frame()
     paste_bottom(frame, scaled(student_idle, student_h), student_x, "left")
     paste_bottom(frame, scaled(monster_idle, monster_h, squash_x=1.03, squash_y=0.96), monster_x, "right")
-    paste_top(frame, scaled(vs_badge, vs_h), vs_x, vs_y + 2)
+    paste_top(frame, scaled(vs_badge, vs_h), vs_x, vs_y + round(2 * LAYOUT))
     frames.append(frame)
 
     return frames

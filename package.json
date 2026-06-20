@@ -5,6 +5,7 @@
   "description": "谚语词典微信小程序",
   "scripts": {
     "check:images": "node scripts/check-image-assets.mjs",
+    "verify:defeated-monster": "node scripts/verify-defeated-monster-position.js",
     "sync:large-images": "node scripts/sync-large-images.mjs",
     "upload:images": "node scripts/upload-image-assets.mjs",
     "dev:local-images": "node scripts/toggle-image-mode.mjs local",

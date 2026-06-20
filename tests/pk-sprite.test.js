@@ -34,14 +34,14 @@ test('pk source frames and sprite sheet exist for seven-frame playback', () => {
   })
   assert.equal(fs.existsSync(spritePath), true)
   assert.equal(fs.existsSync(path.join(projectRoot, 'images/home/student-monster-pk-sprite-girl.png')), true)
-  // 2x assets displayed at 148x84 rpx via the frame-animation background-size
+  // 3x assets displayed at 148x84 rpx via the frame-animation background-size
   assert.deepEqual(readPngSize(spritePath), {
-    width: 296 * 7,
-    height: 168
+    width: 444 * 7,
+    height: 252
   })
   assert.deepEqual(readPngSize(path.join(projectRoot, 'images/home/student-monster-pk-sprite-girl.png')), {
-    width: 296 * 7,
-    height: 168
+    width: 444 * 7,
+    height: 252
   })
 })
 

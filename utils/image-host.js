@@ -56,7 +56,10 @@ const REMOTE_IMAGE_PATHS = {
   '/images/pet/middle-note-fox.png': true,
   '/images/pet/primary-reader-cat.png': true,
   '/images/pet/primary-scarf-dog.png': true,
-  '/images/pet/primary-star-bunny.png': true
+  '/images/pet/primary-star-bunny.png': true,
+  '/images/plan/plan-mascot-easy.png': true,
+  '/images/plan/plan-mascot-hard.png': true,
+  '/images/plan/plan-mascot-normal.png': true
 }
 
 const REMOTE_IMAGE_VERSIONS = {
@@ -64,10 +67,15 @@ const REMOTE_IMAGE_VERSIONS = {
   '/images/home/exam-entry-banner-exit.png': '20260618-art-v2',
   '/images/home/exam-intro-hero-v2.jpg': '20260618-art-v2',
   '/images/home/hero-campus-jelly-v5-girl.png': '20260618-art-v2',
-  '/images/home/map/monsters/jelly-defeated.png': '20260618-art-v2',
-  '/images/home/map/monsters/jelly-locked.png': '20260618-locked-fighting-palette-v7',
+  '/images/home/map/monsters/jelly-defeated.png': '20260620-defeated-cloth-flag-v5',
+  '/images/home/map/monsters/jelly-fighting.png': '20260619-monster-3x-v1',
+  '/images/home/map/monsters/jelly-locked.png': '20260619-monster-3x-v1',
   '/images/home/me-profile-header-monster-v2.png': '20260618-art-v2',
-  '/images/home/student-monster-pk-sprite-girl.png': '20260618-art-v2'
+  '/images/home/student-monster-pk-sprite-girl.png': '20260619-pk-3x-v1',
+  '/images/home/student-monster-pk-sprite.png': '20260619-pk-3x-v1',
+  '/images/plan/plan-mascot-easy.png': '20260620-plan-mascot-v6',
+  '/images/plan/plan-mascot-hard.png': '20260620-plan-mascot-v6',
+  '/images/plan/plan-mascot-normal.png': '20260620-plan-mascot-v6'
 }
 
 function normalizeImagePath(path) {

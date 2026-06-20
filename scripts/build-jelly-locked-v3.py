@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Drop jelly-locked v3 keyed draft into home-map 166px monster slots."""
+"""Drop jelly-locked v3 keyed draft into home-map 166rpx (@3x) monster slots."""
 
 from pathlib import Path
 
 from PIL import Image, ImageEnhance
+
+from monster_frame_config import MONSTER_EXPORT_PX, MONSTER_EXPORT_SCALE
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ASSETS_DIR = PROJECT_ROOT / "assets"
@@ -11,10 +13,10 @@ MONSTER_DIR = PROJECT_ROOT / "images/home/map/monsters"
 VERCEL_MONSTER_DIR = PROJECT_ROOT / "vercel-assets/images/home/map/monsters"
 
 SOURCE = ASSETS_DIR / "jelly-locked-v3-draft-keyed.png"
-MONSTER_FRAME = 166
-CARD_PADDING_LEFT = 8
-CARD_PADDING_RIGHT = 12
-CARD_PADDING_Y = 8
+MONSTER_FRAME = MONSTER_EXPORT_PX
+CARD_PADDING_LEFT = 8 * MONSTER_EXPORT_SCALE
+CARD_PADDING_RIGHT = 12 * MONSTER_EXPORT_SCALE
+CARD_PADDING_Y = 8 * MONSTER_EXPORT_SCALE
 COLOR_SATURATION = 1.18
 
 
@@ -41,7 +43,7 @@ def fit_frame(image, frame_w, frame_h):
 
     frame = Image.new("RGBA", (frame_w, frame_h), (0, 0, 0, 0))
     x = (frame_w - width) // 2
-    y = max(CARD_PADDING_Y, (frame_h - height) // 2 - 6)
+    y = max(CARD_PADDING_Y, (frame_h - height) // 2 - 6 * MONSTER_EXPORT_SCALE)
     frame.alpha_composite(content, (x, y))
     return frame
 
