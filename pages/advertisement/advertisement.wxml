@@ -30,7 +30,6 @@
 
       <view class="stat-row">
         <view class="stat-item" wx:for="{{contentStats}}" wx:key="label">
-          <image class="stat-icon" src="{{imageBaseUrl}}/images/home/ad/icon-{{item.iconKey}}-jelly.png" mode="aspectFit" />
           <view class="stat-num-row">
             <text class="stat-value">{{item.value}}</text>
             <text class="stat-unit">{{item.unit}}</text>
@@ -40,109 +39,92 @@
       </view>
     </view>
 
-    <view class="section section-scope">
-      <view class="section-head">
-        <text class="section-title">这本书适合谁</text>
-        <text class="section-note">初中同步 · 自主备考都适用</text>
+    <view class="detail-tabs">
+      <view
+        class="detail-tab {{activeTab === 'detail' ? 'detail-tab-on' : ''}}"
+        data-tab="detail"
+        bindtap="switchTab"
+      >
+        <text class="detail-tab-text">详情</text>
+        <view class="detail-tab-bar"></view>
       </view>
-      <view class="scope-list">
-        <view class="scope-row">
-          <text class="scope-label">适用年级</text>
-          <view class="scope-tags">
-            <text wx:for="{{gradeTags}}" wx:key="*this" class="scope-tag">{{item}}</text>
-          </view>
-        </view>
-        <view wx:if="{{press}}" class="scope-row">
-          <text class="scope-label">出版社</text>
-          <text class="scope-value">{{press}}</text>
-        </view>
-        <view class="scope-row">
-          <text class="scope-label">内容范围</text>
-          <text class="scope-value">{{wordCountText}} 个单词 / {{proverbCountText}} 条句子 / {{totalText}} 个单元</text>
-        </view>
+      <view
+        class="detail-tab {{activeTab === 'review' ? 'detail-tab-on' : ''}}"
+        data-tab="review"
+        bindtap="switchTab"
+      >
+        <text class="detail-tab-text">评价 {{reviewSummary.countLabel}}</text>
+        <view class="detail-tab-bar"></view>
       </view>
     </view>
 
-    <view class="section">
-      <view class="section-head">
-        <text class="section-title">购买后包含</text>
-        <text class="section-note">词典查阅 + 智能学习任务</text>
-      </view>
-      <view class="feature-list">
-        <view class="feature-item" wx:for="{{featureCards}}" wx:key="title">
-          <view class="feature-mark">{{item.mark}}</view>
-          <view class="feature-copy">
-            <text class="feature-title">{{item.title}}</text>
-            <text class="feature-desc">{{item.desc}}</text>
-          </view>
-        </view>
-      </view>
+    <view wx:if="{{activeTab === 'detail'}}" class="detail-long">
+      <image
+        wx:for="{{detailImages}}"
+        wx:key="*this"
+        class="detail-long-image"
+        src="{{imageBaseUrl}}{{item}}"
+        mode="widthFix"
+        lazy-load
+      />
     </view>
 
-    <view class="section">
-      <view class="section-head">
-        <text class="section-title">学习方式</text>
-        <text class="section-note">按单元推进，循序渐进</text>
+    <view wx:else class="reviews">
+      <view class="reviews-head">
+        <text class="reviews-title">用户评价 · {{reviewSummary.countLabel}}</text>
+        <text class="reviews-recent">{{reviewSummary.recent}}</text>
       </view>
-      <view class="timeline">
-        <view class="timeline-item" wx:for="{{methodSteps}}" wx:key="title">
-          <view class="timeline-index">{{index + 1}}</view>
-          <view class="timeline-copy">
-            <text class="timeline-title">{{item.title}}</text>
-            <text class="timeline-desc">{{item.desc}}</text>
-          </view>
+
+      <scroll-view scroll-x class="review-tags" enhanced show-scrollbar="{{false}}">
+        <view class="review-tag" wx:for="{{reviewTags}}" wx:key="label">
+          <text class="review-tag-label">{{item.label}}</text>
+          <text class="review-tag-count">{{item.count}}</text>
         </view>
-      </view>
-    </view>
+      </scroll-view>
 
-    <view class="section">
-      <view class="section-head">
-        <text class="section-title">规格对比</text>
-        <text class="section-note">两种套餐，看清区别再选</text>
-      </view>
-
-      <view class="compare-table">
-        <view class="compare-head">
-          <view class="compare-cell compare-cell-label"></view>
-          <view
-            wx:for="{{comparePlans}}"
-            wx:key="name"
-            class="compare-cell compare-cell-plan {{item.highlight ? 'compare-col-hl' : ''}}"
-          >
-            <view class="compare-plan-top">
-              <text class="compare-plan-name">{{item.name}}</text>
-              <text wx:if="{{item.tag}}" class="compare-plan-tag">{{item.tag}}</text>
+      <block wx:for="{{reviews}}" wx:key="name" wx:for-item="rv">
+        <view wx:if="{{reviewsExpanded || index < 3}}" class="review-item">
+          <view class="review-top">
+            <view class="review-avatar" style="background:{{rv.avatarBg}}">{{rv.avatarText}}</view>
+            <view class="review-id">
+              <text class="review-name">{{rv.name}}</text>
+              <view class="review-sub">
+                <text class="review-date">{{rv.date}}</text>
+                <text class="review-spec">已购：{{rv.spec}}</text>
+              </view>
             </view>
-            <view class="compare-plan-price">
-              <text class="compare-plan-currency">¥</text>
-              <text class="compare-plan-amount">{{item.priceFrom}}</text>
-              <text class="compare-plan-from">起</text>
+            <view class="review-stars">
+              <text
+                wx:for="{{5}}"
+                wx:key="*this"
+                wx:for-item="s"
+                class="review-star {{index < rv.rating ? 'review-star-on' : ''}}"
+              >★</text>
             </view>
           </view>
-        </view>
 
-        <view class="compare-row" wx:for="{{compareRows}}" wx:key="label" wx:for-item="row">
-          <text class="compare-cell compare-cell-label">{{row.label}}</text>
-          <view
-            wx:for="{{row.cells}}"
-            wx:key="*this"
-            wx:for-item="cell"
-            class="compare-cell compare-cell-val {{index === 1 ? 'compare-col-hl' : ''}}"
-          >
-            <text wx:if="{{cell}}" class="compare-yes">✓</text>
-            <text wx:else class="compare-no">—</text>
+          <text class="review-text">{{rv.text}}</text>
+
+          <view wx:if="{{rv.images.length}}" class="review-imgs">
+            <image
+              wx:for="{{rv.images}}"
+              wx:key="*this"
+              wx:for-item="img"
+              class="review-img"
+              src="{{imageBaseUrl}}{{img}}"
+              mode="aspectFill"
+              lazy-load
+              data-url="{{img}}"
+              data-urls="{{rv.images}}"
+              bindtap="previewReviewImage"
+            />
           </view>
         </view>
-      </view>
+      </block>
 
-      <text class="compare-foot">有效期可选 6 个月或永久有效，永久一次购买长期使用 · 点击「立即购买」选择具体规格</text>
-    </view>
-
-    <view wx:if="{{intro}}" class="section">
-      <view class="section-head">
-        <text class="section-title">教材简介</text>
+      <view class="review-more" bindtap="toggleReviews">
+        {{reviewsExpanded ? '收起评价' : '查看全部评价'}}
       </view>
-      <text class="intro-text">{{intro}}</text>
     </view>
 
     <view style="height: {{actionHeight}}px;"></view>

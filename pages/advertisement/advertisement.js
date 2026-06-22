@@ -17,6 +17,117 @@ const purchaseBarHeight = Math.round(62 + safeAreaBottom)
 const scrollHeight = systemInfo.windowHeight - statusBarHeight - navigationBarHeight - purchaseBarHeight
 const encodeQueryValue = (value) => encodeURIComponent(value == null ? '' : value)
 
+// 商品详情长图（6 页营销详情，按页序排列，COS 下发）
+const DETAIL_IMAGE_VERSION = '20260623-trim'
+const DETAIL_IMAGES = [
+  '/images/home/ad/detail/detail-01.jpg',
+  '/images/home/ad/detail/detail-02.jpg',
+  '/images/home/ad/detail/detail-03.jpg',
+  '/images/home/ad/detail/detail-04.jpg',
+  '/images/home/ad/detail/detail-05.jpg',
+  '/images/home/ad/detail/detail-06.jpg'
+].map((path) => path + '?v=' + DETAIL_IMAGE_VERSION)
+
+// 宝贝评价（淘宝风：文字 + 买家秀，买家秀图复用仓库截图/场景图裁成方图）
+const REVIEW_SUMMARY = {
+  countLabel: '600+',
+  recent: '近 3 个月好评率高达 98.9%'
+}
+
+// 评价标签（带计数，横向可滑）
+const REVIEW_TAGS = [
+  { label: '发音标准', count: 145 },
+  { label: '孩子爱学', count: 123 },
+  { label: '内容实用', count: 111 },
+  { label: '效果明显', count: 97 },
+  { label: '界面好看', count: 63 },
+  { label: '性价比高', count: 46 },
+  { label: '客服态度好', count: 36 }
+]
+
+const REVIEWS = [
+  {
+    name: '笑***妈',
+    avatarText: '笑',
+    avatarBg: 'linear-gradient(135deg,#4f8cff,#2f6bff)',
+    rating: 5,
+    date: '2026-06-18',
+    spec: '终生+卡 · 词典+智能学习卡',
+    text: '孩子三年级，跟读评分太实用了，发音不准会逐音纠正，比我教得标准。坚持两周，明显愿意开口读了。',
+    images: ['/images/home/ad/reviews/r-recite.png', '/images/home/ad/reviews/r-finish-today.png']
+  },
+  {
+    name: 't***o',
+    avatarText: 'T',
+    avatarBg: 'linear-gradient(135deg,#43d39e,#1fb886)',
+    rating: 5,
+    date: '2026-06-15',
+    spec: '终生版 · 小程序学习权益',
+    text: '冲着永久版买的，一次付费长期用很划算。每关学完都有评星和报告，孩子像闯关一样停不下来。',
+    images: ['/images/home/ad/reviews/r-home-map.png', '/images/home/ad/reviews/r-finish-word.png']
+  },
+  {
+    name: '海****8',
+    avatarText: '海',
+    avatarBg: 'linear-gradient(135deg,#ffb24d,#ff8a1c)',
+    rating: 4,
+    date: '2026-06-12',
+    spec: '6个月版 · 小程序学习权益',
+    text: '内容跟教材同步，听力小测和单词新学的闭环设计不错。就是希望后面能多更新几个单元。',
+    images: ['/images/home/ad/reviews/r-quiz.png']
+  },
+  {
+    name: '安**麻麻',
+    avatarText: '安',
+    avatarBg: 'linear-gradient(135deg,#a78bfa,#8b5cf6)',
+    rating: 5,
+    date: '2026-06-10',
+    spec: '6个月+卡 · 小程序+纸质词卡',
+    text: '学习报告每天能看到进度和正确率，做家长心里有数。现在孩子自己会主动打卡，不用催了。',
+    images: ['/images/home/ad/reviews/r-finish-today.png', '/images/home/ad/reviews/r-checkin.png']
+  },
+  {
+    name: '默****读',
+    avatarText: '默',
+    avatarBg: 'linear-gradient(135deg,#ff7eb3,#ff5a9e)',
+    rating: 5,
+    date: '2026-06-08',
+    spec: '终生+卡 · 小程序+纸质词卡',
+    text: '带卡版到了，纸质词卡扫码就能进对应内容，线上线下联动，仪式感很强，孩子特别喜欢。',
+    images: ['/images/home/ad/reviews/r-loop.png']
+  },
+  {
+    name: '一****夏',
+    avatarText: '夏',
+    avatarBg: 'linear-gradient(135deg,#2dd4bf,#14b8a6)',
+    rating: 5,
+    date: '2026-06-05',
+    spec: '终生版 · 小程序学习权益',
+    text: '随身听零碎时间磨耳朵，上下学路上放着听。语音评测说是跟中高考同源，练口语更有底气了。',
+    images: ['/images/home/ad/reviews/r-player.png', '/images/home/ad/reviews/r-word.png']
+  },
+  {
+    name: '用户****77',
+    avatarText: '7',
+    avatarBg: 'linear-gradient(135deg,#60a5fa,#3b82f6)',
+    rating: 5,
+    date: '2026-06-03',
+    spec: '6个月版 · 小程序学习权益',
+    text: '以前单词背了就忘，这个 AI 记忆加反复练，记得住多了。这周报告掌握率到九十多，挺惊喜。',
+    images: ['/images/home/ad/reviews/r-finish-recite.png']
+  },
+  {
+    name: 'm****妈',
+    avatarText: 'M',
+    avatarBg: 'linear-gradient(135deg,#fb7185,#f43f5e)',
+    rating: 5,
+    date: '2026-05-30',
+    spec: '终生版 · 小程序学习权益',
+    text: '微信打开就能用，不用下载 App，很方便。学习计划能按孩子节奏定，省心，已经推荐给同学家长了。',
+    images: ['/images/home/ad/reviews/r-plan.png', '/images/home/ad/reviews/r-family.png']
+  }
+]
+
 const VALIDITY_OPTIONS = [
   {
     id: '6m',
@@ -269,6 +380,12 @@ Page({
     gradeTags: DEFAULT_GRADE_TAGS,
     bookSummary: '0 词 · 0 句 · 0 单元',
     contentStats: [],
+    activeTab: 'detail',
+    detailImages: DETAIL_IMAGES,
+    reviewSummary: REVIEW_SUMMARY,
+    reviewTags: REVIEW_TAGS,
+    reviews: REVIEWS,
+    reviewsExpanded: false,
     featureCards: FEATURE_CARDS,
     methodSteps: METHOD_STEPS,
     comparePlans: COMPARE_PLANS,
@@ -321,6 +438,29 @@ Page({
   },
 
   noop() {},
+
+  switchTab(event) {
+    const tab = event.currentTarget.dataset.tab
+    if (tab && tab !== this.data.activeTab) {
+      this.setData({ activeTab: tab })
+    }
+  },
+
+  toggleReviews() {
+    this.setData({ reviewsExpanded: !this.data.reviewsExpanded })
+  },
+
+  previewReviewImage(event) {
+    const { url, urls } = event.currentTarget.dataset
+    const list = (urls || []).map((item) => IMAGE_BASE_URL + item)
+    if (!list.length) {
+      return
+    }
+    wx.previewImage({
+      current: IMAGE_BASE_URL + url,
+      urls: list
+    })
+  },
 
   openSkuSheet() {
     this.setData({ skuSheetVisible: true })

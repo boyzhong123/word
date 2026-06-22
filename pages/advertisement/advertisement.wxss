@@ -51,6 +51,222 @@ page {
   width: 100%;
 }
 
+/* ---------- 商品详情长图 ---------- */
+.detail-long {
+  width: 100%;
+  font-size: 0;
+  background: #fffdf8;
+}
+
+.detail-long-image {
+  display: block;
+  width: 100%;
+  vertical-align: top;
+}
+
+/* ---------- 详情 / 评价 切换 ---------- */
+.detail-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  margin-top: 20rpx;
+  background: #ffffff;
+  border-top: 1rpx solid rgba(17, 19, 24, 0.06);
+  border-bottom: 1rpx solid rgba(17, 19, 24, 0.06);
+}
+
+.detail-tab {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22rpx 0 18rpx;
+}
+
+.detail-tab-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #7a8798;
+}
+
+.detail-tab-bar {
+  width: 44rpx;
+  height: 6rpx;
+  margin-top: 12rpx;
+  border-radius: 999rpx;
+  background: transparent;
+}
+
+.detail-tab-on .detail-tab-text {
+  color: #17406f;
+  font-weight: 700;
+}
+
+.detail-tab-on .detail-tab-bar {
+  background: #ff8200;
+}
+
+/* ---------- 宝贝评价（淘宝风） ---------- */
+.reviews {
+  padding: 28rpx 28rpx 8rpx;
+  background: #ffffff;
+}
+
+.reviews-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 18rpx;
+}
+
+.reviews-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #17406f;
+}
+
+.reviews-recent {
+  margin-left: 14rpx;
+  font-size: 23rpx;
+  color: #9aa3b2;
+}
+
+.review-tags {
+  white-space: nowrap;
+  margin-bottom: 6rpx;
+}
+
+.review-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-right: 16rpx;
+  padding: 12rpx 22rpx;
+  border-radius: 999rpx;
+  background: #fff6ec;
+}
+
+.review-tag-label {
+  font-size: 24rpx;
+  color: #c2691a;
+}
+
+.review-tag-count {
+  font-size: 22rpx;
+  color: #e0a878;
+}
+
+.review-item {
+  padding: 28rpx 0;
+  border-top: 1rpx solid rgba(17, 19, 24, 0.07);
+}
+
+.review-top {
+  display: flex;
+  align-items: flex-start;
+}
+
+.review-avatar {
+  flex: none;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.review-id {
+  flex: 1;
+  margin-left: 16rpx;
+  min-width: 0;
+}
+
+.review-name {
+  display: block;
+  font-size: 27rpx;
+  font-weight: 600;
+  color: #333a45;
+  line-height: 36rpx;
+}
+
+.review-sub {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4rpx;
+}
+
+.review-date {
+  font-size: 22rpx;
+  color: #b6bdc8;
+}
+
+.review-spec {
+  margin-left: 14rpx;
+  font-size: 22rpx;
+  color: #aab2bd;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.review-stars {
+  flex: none;
+  display: flex;
+  margin-left: 12rpx;
+  padding-top: 4rpx;
+}
+
+.review-star {
+  font-size: 22rpx;
+  color: #dfe3ea;
+  letter-spacing: 1rpx;
+}
+
+.review-star-on {
+  color: #ffb400;
+}
+
+.review-text {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 27rpx;
+  line-height: 40rpx;
+  color: #2b323c;
+}
+
+.review-imgs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.review-img {
+  width: 210rpx;
+  height: 210rpx;
+  border-radius: 12rpx;
+  background: #f2f4f7;
+}
+
+.review-more {
+  margin: 24rpx auto 12rpx;
+  width: 360rpx;
+  padding: 20rpx 0;
+  border: 1rpx solid rgba(24, 35, 49, 0.16);
+  border-radius: 999rpx;
+  text-align: center;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #3a4351;
+}
+
 /* ---------- Hero ---------- */
 .hero {
   position: relative;
@@ -88,7 +304,7 @@ page {
 
 .book-main {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 28rpx;
 }
 
@@ -114,7 +330,6 @@ page {
 .book-meta {
   flex: 1;
   min-width: 0;
-  padding-top: 26rpx;
 }
 
 .book-pills {
@@ -209,12 +424,6 @@ page {
   left: 0;
   width: 1rpx;
   background: rgba(24, 35, 49, 0.08);
-}
-
-.stat-icon {
-  width: 60rpx;
-  height: 60rpx;
-  margin-bottom: 4rpx;
 }
 
 .stat-num-row {
@@ -666,8 +875,8 @@ page {
 
 .purchase-button-buy {
   flex: 1;
-  background: linear-gradient(135deg, #1f5589 0%, #123b63 100%);
-  box-shadow: 0 14rpx 26rpx rgba(18, 59, 99, 0.3);
+  background: linear-gradient(135deg, #ffa11c 0%, #ff7a18 100%);
+  box-shadow: 0 14rpx 26rpx rgba(255, 130, 0, 0.32);
 }
 
 .purchase-button-owned {
@@ -989,14 +1198,14 @@ page {
   padding: 0 56rpx;
   height: 92rpx;
   border-radius: 999rpx;
-  background: linear-gradient(135deg, #1f5589 0%, #123b63 100%);
+  background: linear-gradient(135deg, #ffa11c 0%, #ff7a18 100%);
   color: #ffffff;
   font-size: 32rpx;
   font-weight: 800;
   line-height: 92rpx;
   text-align: center;
   letter-spacing: 1rpx;
-  box-shadow: 0 14rpx 26rpx rgba(18, 59, 99, 0.28);
+  box-shadow: 0 14rpx 26rpx rgba(255, 130, 0, 0.32);
 }
 
 .sku-confirm:active {
