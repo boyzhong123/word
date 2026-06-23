@@ -7,8 +7,12 @@ const vm = require('node:vm')
 const projectRoot = path.resolve(__dirname, '..')
 const waveScript = fs.readFileSync(path.join(projectRoot, 'components/wave/wave.js'), 'utf8')
 const waveTemplate = fs.readFileSync(path.join(projectRoot, 'components/wave/wave.wxml'), 'utf8')
+const waveWxss = fs.readFileSync(path.join(projectRoot, 'components/wave/wave.wxss'), 'utf8')
 const mediaScript = fs.readFileSync(path.join(projectRoot, 'components/media/media.js'), 'utf8')
 const mediaTemplate = fs.readFileSync(path.join(projectRoot, 'components/media/media.wxml'), 'utf8')
+const practiceTemplate = fs.readFileSync(path.join(projectRoot, 'pages/practice/practice.wxml'), 'utf8')
+const listenTemplate = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.wxml'), 'utf8')
+const listenPlayerTemplate = fs.readFileSync(path.join(projectRoot, 'components/listen-player/listen-player.wxml'), 'utf8')
 
 function loadWaveComponent() {
   let config = null
@@ -19,6 +23,9 @@ function loadWaveComponent() {
     require(mod) {
       if (mod.indexOf('recording-wave-debug') >= 0) {
         return { log() {} }
+      }
+      if (mod.indexOf('recording-wave-math') >= 0) {
+        return require(path.join(projectRoot, 'utils/recording-wave-math'))
       }
       throw new Error('unexpected require: ' + mod)
     },
@@ -65,6 +72,7 @@ function createWaveInstance(config, rect) {
     }
   }
   const instance = {
+    properties: { variant: 'canvas' },
     data: Object.assign({}, config.data),
     measureRetries: 0,
     setData(patch, cb) {
@@ -98,6 +106,34 @@ function createWaveInstance(config, rect) {
 function flushTimers(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+test('recording overlays use the same canvas wave animation as inline recording', () => {
+  assert.doesNotMatch(practiceTemplate, /<wave-line[^>]*variant="css"/)
+  assert.doesNotMatch(listenTemplate, /<wave-line[^>]*variant="css"/)
+  assert.doesNotMatch(listenPlayerTemplate, /<wave-line[^>]*variant="css"/)
+  assert.doesNotMatch(waveTemplate, /recording-wave-css-frames\.svg/)
+  assert.match(waveTemplate, /type="2d"/)
+})
+
+test('canvas wave has an internal viewport so overlay pages can position it reliably', () => {
+  assert.match(waveTemplate, /class="wave-canvas-viewport"/)
+  assert.match(waveWxss, /:host\s*{[^}]*display:\s*block/s)
+  assert.match(waveWxss, /:host\s*{[^}]*height:\s*106rpx/s)
+  assert.match(waveWxss, /\.wave-canvas-viewport\s*{[^}]*position:\s*relative/s)
+  assert.match(waveWxss, /\.wave-canvas-viewport\s*{[^}]*overflow:\s*hidden/s)
+  // canvas must stay in normal flow inside the viewport — an absolutely
+  // positioned native canvas escapes the flex-centered overlay and renders at
+  // the top of the fixed overlay box instead of next to the tip.
+  assert.doesNotMatch(waveWxss, /\.wave-canvas\s*{[^}]*position:\s*absolute/s)
+  assert.match(waveWxss, /\.wave-canvas\s*{[^}]*min-width:\s*0/s)
+  assert.doesNotMatch(waveWxss, /min-width:\s*480rpx/)
+})
+
+test('recording wave math exports css frame cycle matching canvas offset speed', () => {
+  const math = require('../utils/recording-wave-math')
+  assert.equal(math.CSS_CYCLE_MS, math.offsetSpeed * 2)
+  assert.equal(math.CSS_FRAME_COUNT, 30)
+})
 
 test('wave uses canvas 2d sine layers instead of legacy canvas-id or svg', () => {
   assert.match(waveTemplate, /type="2d"/)

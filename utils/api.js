@@ -111,7 +111,26 @@ function toggleBook(resBookId) {
   })
 }
 
+const {
+  isDemoUnitsEnabled,
+  isDemoUnitId,
+  buildDemoUnitResource,
+  resolveDemoUnitResource,
+  buildDemoUnitsList
+} = require('./demo-unit-mock')
+
+function resolveDemoUnitsResponse(data) {
+  const demoList = buildDemoUnitsList()
+  return {
+    list: demoList,
+    pageInfo: Object.assign({}, data && data.pageInfo, { total: demoList.length })
+  }
+}
+
 function getUnits(resBookId, page = 1, rows = 2000) {
+  if (isDemoUnitsEnabled()) {
+    return Promise.resolve(resolveDemoUnitsResponse())
+  }
   return new Promise(resolve => {
     util.request('GET', '/mini-app/book-units', {
       data: {
@@ -157,6 +176,12 @@ function getUnitWords(unitId) {
 }
 
 function getUnitResource(unitId) {
+  if (isDemoUnitsEnabled()) {
+    return Promise.resolve(resolveDemoUnitResource(unitId))
+  }
+  if (isDemoUnitId(unitId)) {
+    return Promise.resolve(buildDemoUnitResource(unitId))
+  }
   return new Promise(resolve => {
     util.request('GET', '/mini-app/unit-words', {
       data: {

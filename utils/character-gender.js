@@ -4,13 +4,18 @@ const STORAGE_KEY = 'characterGender'
 const PK_SPRITE_DURATION = 3
 const { imageUrl } = require('./image-host')
 
+// 首页 hero：男生、女生、小怪兽三人同框，不随形象切换
+const HOME_HERO = '/images/home/hero-campus-jelly-v5-trio.png'
+
 const CHARACTER_ASSETS = {
   [GENDER_BOY]: {
-    hero: '/images/home/hero-campus-jelly-v5.png',
+    hero: HOME_HERO,
+    todayHero: '/images/home/hero-campus-jelly-v5-pk.png',
     pkSprite: '/images/home/student-monster-pk-sprite.png'
   },
   [GENDER_GIRL]: {
-    hero: '/images/home/hero-campus-jelly-v5-girl.png',
+    hero: HOME_HERO,
+    todayHero: '/images/home/hero-campus-jelly-v5-pk-girl.png',
     pkSprite: '/images/home/student-monster-pk-sprite-girl.png'
   }
 }
@@ -54,6 +59,7 @@ function buildCharacterImageUrls(imageBaseUrl) {
   return {
     characterGender: getCharacterGender(),
     heroImageUrl: imageUrl(assets.hero),
+    todayHeroImageUrl: imageUrl(assets.todayHero),
     pkSpriteUrl: imageUrl(assets.pkSprite),
     pkSpriteDuration: PK_SPRITE_DURATION
   }

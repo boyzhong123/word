@@ -116,18 +116,14 @@ test('subscribe templates distinguish accumulated checkin from event preferences
   assert.equal(report.prefKey, 'subscribePref_report')
 })
 
-test('event subscribe prompts are requested at payment and report completion points', () => {
+test('event subscribe prompts are not auto-requested at payment and report completion', () => {
   const vipScript = read('pages/vip/vip.js')
   const practiceScript = read('pages/practice/practice.js')
   const listenScript = read('pages/listen/listen.js')
   const examScript = read('pages/exam/exam.js')
+  const membershipScript = read('pages/membership/membership.js')
 
-  assert.match(vipScript, /requestSubscribeForEvent/)
-  assert.match(vipScript, /subscribePref_payment/)
-  assert.match(practiceScript, /requestSubscribeForEvent/)
-  assert.match(practiceScript, /subscribePref_report/)
-  assert.match(listenScript, /requestSubscribeForEvent/)
-  assert.match(listenScript, /subscribePref_report/)
-  assert.match(examScript, /requestSubscribeForEvent/)
-  assert.match(examScript, /subscribePref_report/)
+  for (const script of [vipScript, practiceScript, listenScript, examScript, membershipScript]) {
+    assert.doesNotMatch(script, /requestSubscribeForEvent/)
+  }
 })

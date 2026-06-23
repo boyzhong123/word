@@ -26,6 +26,11 @@ const { getExitLockState } = require('../../utils/exam-data')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
+const { isTruthyFlag, isNewStandardBook } = require('../../utils/book-tags')
+const { isLevelUnlocked } = require('../../utils/level-access')
+const { navigateToVipPurchase } = require('../../utils/vip-purchase')
+const { redirectToOnboardingIfNeeded } = require('../../utils/onboarding-guard')
+const { pickActiveBook } = require('../../utils/book-select')
 const {
   buildCharacterImageUrls,
   pickGenderFromUserInfo,
@@ -40,10 +45,6 @@ function buildExamBannerUrls(imageBaseUrl) {
   }
 }
 
-function isTruthyFlag(value) {
-  return value === true || value === 1 || value === '1'
-}
-
 function isBookLocked(book) {
   if (!book) {
     return false
@@ -55,20 +56,6 @@ function isBookLocked(book) {
     return !isTruthyFlag(book.unlocked)
   }
   return isTruthyFlag(book.needVip)
-}
-
-// 新课标教材：优先看后端显式标记，没有就从名称/简介/版本字段里识别
-function isNewStandardBook(book) {
-  if (!book) {
-    return false
-  }
-  if (isTruthyFlag(book.newStandard) || isTruthyFlag(book.isNewStandard)) {
-    return true
-  }
-  const text = [book.name, book.intro, book.edition, book.version, book.tags]
-    .filter(Boolean)
-    .join(' ')
-  return text.indexOf('新课标') >= 0
 }
 
 function enrichPickerBooks(books) {
@@ -208,7 +195,7 @@ function buildDemoCheckinMetrics() {
 }
 
 const FALLBACK_BOOK = {
-  name: '小学英语图解词汇词典',
+  name: '初中英语词汇格言谚语词典',
   bookCover: getFallbackBookCover(),
   wordCount: 6392,
   proverbCount: 1413,
@@ -226,56 +213,7 @@ const FALLBACK_BOOK = {
   }
 }
 
-const FALLBACK_UNITS = [
-  {
-    levelWords: 12,
-    subtitle: '千里之行，始于足下。',
-    subtitleColor: '#111318',
-    stageColor: '#111318',
-    doneStages: 3,
-    mascot: '../../images/home/mascot-progress.png',
-    mascotSprite: '../../images/home/mascot-progress-sprite.png',
-    mascotDuration: 2.4,
-    locked: false,
-    tasks: [
-      { type: 'word', label: '单词新学', current: 12, total: 12, percent: 100, color: '#111318', icon: '../../images/home/task-word.png' },
-      { type: 'recitation', label: '跟读背诵', current: 12, total: 12, percent: 100, color: '#ff8200', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '关卡小测', current: 12, total: 12, percent: 100, color: '#111318', icon: '../../images/home/task-listening.png' }
-    ]
-  },
-  {
-    levelWords: 150,
-    subtitle: '实践出真知。',
-    subtitleColor: '#111318',
-    stageColor: '#111318',
-    doneStages: 1,
-    mascot: '../../images/home/mascot-alert.png',
-    mascotSprite: '../../images/home/mascot-alert-sprite.png',
-    mascotDuration: 2.4,
-    locked: false,
-    tasks: [
-      { type: 'word', label: '单词新学', current: 50, total: 50, percent: 100, color: '#111318', icon: '../../images/home/task-word.png' },
-      { type: 'recitation', label: '跟读背诵', current: 24, total: 50, percent: 48, color: '#ff8200', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '关卡小测', current: 0, total: 50, percent: 0, color: '#111318', icon: '../../images/home/task-listening.png' }
-    ]
-  },
-  {
-    levelWords: 180,
-    subtitle: '积跬步，至千里。',
-    subtitleColor: '#5c636a',
-    stageColor: '#5c636a',
-    doneStages: 0,
-    mascot: '../../images/home/mascot-sleep.png',
-    mascotSprite: '../../images/home/mascot-sleep-sprite.png',
-    mascotDuration: 3.2,
-    locked: true,
-    tasks: [
-      { type: 'word', label: '单词新学', current: 0, total: 60, percent: 0, color: '#9a9a9a', icon: '../../images/home/task-word.png' },
-      { type: 'recitation', label: '跟读背诵', current: 0, total: 60, percent: 0, color: '#9a9a9a', icon: '../../images/home/task-recitation.png' },
-      { type: 'listening', label: '关卡小测', current: 0, total: 60, percent: 0, color: '#9a9a9a', icon: '../../images/home/task-listening.png' }
-    ]
-  }
-]
+const { FALLBACK_UNITS } = require('../../utils/fallback-units')
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value))
@@ -289,10 +227,9 @@ function getSafeAreaBottom() {
   return Math.max(systemInfo.windowHeight - systemInfo.safeArea.bottom, 0)
 }
 
-const BOOK_CARD_HEIGHT = 275
-const HERO_TITLE_BLOCK_HEIGHT = 101
-
 const TAB_BAR_BODY_RPX = 102
+// 1536×640 顶裁横幅：与 images/home/hero-campus-jelly-v5-trio.png 交付尺寸一致
+const HERO_IMAGE_HEIGHT_RPX = Math.ceil(750 * 640 / 1536)
 
 function getHeroLayout() {
   const systemInfo = wx.getSystemInfoSync()
@@ -310,23 +247,19 @@ function getHeroLayout() {
   }
 
   const safeAreaBottom = getSafeAreaBottom()
-  const heroContentTop = Math.ceil((menuBottom + 8) * 750 / windowWidth)
-  const bookCardTop = heroContentTop + HERO_TITLE_BLOCK_HEIGHT + 40
-  const heroSectionHeight = bookCardTop + BOOK_CARD_HEIGHT
+  const heroContentTop = Math.ceil((menuBottom - 16) * 750 / windowWidth)
   const scrollSpacerRpx = Math.ceil(TAB_BAR_BODY_RPX + 36 + safeAreaBottom * 750 / windowWidth)
 
   return {
     heroContentTop,
-    bookCardTop,
-    heroSectionHeight,
+    heroImageHeightRpx: HERO_IMAGE_HEIGHT_RPX,
     scrollViewHeight: screenHeight,
     scrollSpacerRpx,
     // 用 screenHeight 撑满整屏：真机 windowHeight 扣了底栏，写死它会让 scroll-view
     // 比满屏的 .home-page 矮一个底栏，底栏上方露出一条页面背景空带（遮挡内容）。
     scrollViewStyle: 'height: ' + screenHeight + 'px;',
-    heroSectionStyle: 'height: ' + heroSectionHeight + 'rpx;',
+    heroClipStyle: 'height: ' + HERO_IMAGE_HEIGHT_RPX + 'rpx;',
     heroCopyStyle: 'top: ' + heroContentTop + 'rpx;',
-    bookCardStyle: 'top: ' + bookCardTop + 'rpx;',
     scrollSpacerStyle: 'height: ' + scrollSpacerRpx + 'rpx;'
   }
 }
@@ -429,18 +362,39 @@ Page({
   },
 
   onShow() {
+    if (redirectToOnboardingIfNeeded()) {
+      return
+    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 0,
+        selected: 1,
         hidden: !!this.data.bookPickerVisible
       })
     }
     this.applyCharacterAssets()
+    if (getApp().globalData.openBookPicker) {
+      getApp().globalData.openBookPicker = false
+      this.pendingOpenPicker = true
+      // 从「今日」页过来选教材，切换成功后应回到今日页。
+      this.returnToTodayAfterBookSwitch = true
+    }
     if (this.refresh) {
       this.refresh = false
       this.loadHomeData()
     }
     this.refreshCheckin()
+    this.maybeOpenBookPicker()
+  },
+
+  // 从「今日」头部教材胶囊跳转过来时，待教材列表就绪后自动拉起选择教材弹层。
+  maybeOpenBookPicker() {
+    if (!this.pendingOpenPicker) {
+      return
+    }
+    if (Array.isArray(this.data.allBooks) && this.data.allBooks.length) {
+      this.pendingOpenPicker = false
+      this.switchBook()
+    }
   },
 
   applyCharacterAssets() {
@@ -501,7 +455,7 @@ Page({
       }
 
       books = applyDevPurchaseToBooks(withMockTextbooks(withTestBook(books)))
-      let selectedBook = books.find(item => item.defaultBook) || books[0]
+      let selectedBook = pickActiveBook(books)
       let otherBook = books.find(item => item.resBookId !== selectedBook.resBookId) || {}
       selectedBook = normalizeBook(selectedBook)
 
@@ -509,6 +463,7 @@ Page({
       this.updateBook(selectedBook, otherBook)
       getApp().globalData.book = selectedBook
       this.loadUnits(selectedBook.resBookId)
+      this.maybeOpenBookPicker()
     }).catch(error => {
       console.log('[home] load fallback data', error)
       this.setData(Object.assign({ loading: false }, buildDemoCheckinMetrics()))
@@ -678,39 +633,24 @@ Page({
   closeBookPicker() {
     this.setData({ bookPickerVisible: false })
     this.setTabBarHidden(false)
+    if (this.returnToTodayAfterBookSwitch) {
+      this.returnToTodayAfterBookSwitch = false
+      wx.switchTab({ url: '/pages/today/today' })
+    }
   },
 
-  // 封面区（卡片上部）：点击进入商品详情页，不区分是否购买
+  // 图书弹窗里所有教材点击都只切换当前教材，不再跳转到 VIP 详情页。
   goBookDetail(event) {
-    const resBookId = event.currentTarget.dataset.resBookId
-    const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
-
-    if (!target) {
-      return
-    }
-
-    this.goBuyBook(target, () => {
-      this.setData({ bookPickerVisible: false })
-      this.setTabBarHidden(false)
-    })
+    this.switchBookUse(event)
   },
 
-  // 底部「去购买」：始终按未购买状态打开详情页
+  // 兼容历史按钮入口：现在也统一改为切换教材。
   goBuyFromPicker(event) {
-    const resBookId = event.currentTarget.dataset.resBookId
-    const target = (this.data.allBooks || []).find(item => item.resBookId === resBookId)
-
-    if (!target) {
-      return
-    }
-
-    this.goBuyBook(Object.assign({}, target, { locked: true }), () => {
-      this.setData({ bookPickerVisible: false })
-      this.setTabBarHidden(false)
-    })
+    this.switchBookUse(event)
   },
 
-  // 切换横条（卡片底部）：把该教材设为当前。未购买/演示教材切换后由首页据数据上锁提示购买
+  // 切换横条（卡片底部）和封面点击都走这里：先把该教材设为当前，
+  // 是否可学由首页关卡门禁决定，不在图书弹窗里跳购买页。
   switchBookUse(event) {
     const resBookId = event.currentTarget.dataset.resBookId
     const currentBook = this.data.book
@@ -724,6 +664,10 @@ Page({
     this.setTabBarHidden(false)
 
     if (!resBookId || resBookId === currentBook.resBookId) {
+      if (this.returnToTodayAfterBookSwitch) {
+        this.returnToTodayAfterBookSwitch = false
+        wx.switchTab({ url: '/pages/today/today' })
+      }
       return
     }
 
@@ -732,8 +676,13 @@ Page({
       const selectedBook = normalizeBook(target)
       this.updateBook(selectedBook, otherBook)
       this.resetVisibleUnits()
+      getApp().globalData.pendingBookId = selectedBook.resBookId
       getApp().globalData.book = selectedBook
       this.loadUnits(selectedBook.resBookId)
+      if (this.returnToTodayAfterBookSwitch) {
+        this.returnToTodayAfterBookSwitch = false
+        wx.switchTab({ url: '/pages/today/today' })
+      }
     }
 
     // 演示教材没有真实服务端记录，直接前端切换预览
@@ -1014,6 +963,16 @@ Page({
     this.navigateToPracticeUnit(unit, taskType)
   },
 
+  // 会员门禁：第 1 关免费，其余关卡需开通会员。命中拦截则跳 VIP 购买页并返回 true。
+  blockByMembership(unit) {
+    const sort = Number(unit && unit.sort)
+    if (Number.isFinite(sort) && sort > 0 && !isLevelUnlocked(sort)) {
+      navigateToVipPurchase(this.data.book, { locked: true })
+      return true
+    }
+    return false
+  },
+
   navigateToListeningUnit(unit) {
     const book = this.data.book
     const unitId = resolveUnitId(unit)
@@ -1024,6 +983,10 @@ Page({
 
     if (unit.locked) {
       this.showLocked()
+      return
+    }
+
+    if (this.blockByMembership(unit)) {
       return
     }
 
@@ -1044,6 +1007,10 @@ Page({
 
     if (unit.locked) {
       this.showLocked()
+      return
+    }
+
+    if (this.blockByMembership(unit)) {
       return
     }
 
@@ -1141,12 +1108,6 @@ Page({
     })
   },
 
-  goCheckinCalendar() {
-    wx.navigateTo({
-      url: '/pages/checkin/calendar'
-    })
-  },
-
   goUnitReport(event) {
     const unitIndex = Number(event.currentTarget.dataset.unitIndex)
     const units = Array.isArray(this.data.listUnits) ? this.data.listUnits : []
@@ -1164,33 +1125,6 @@ Page({
 
     wx.navigateTo({
       url: '/pages/report/report?' + query
-    })
-  },
-
-  goBuyBook(book, onNavigated) {
-    const learningUnits = book.learningInfo && book.learningInfo.book
-      ? book.learningInfo.book.learningUnits
-      : 0
-    const query = [
-      'resBookId=' + encodeURIComponent(book.resBookId || ''),
-      'name=' + encodeURIComponent(book.name || ''),
-      'bookCover=' + encodeURIComponent(book.bookCover || ''),
-      'total=' + encodeURIComponent(book.total || learningUnits || 0),
-      'wordCount=' + encodeURIComponent(book.wordCount || 0),
-      'proverbCount=' + encodeURIComponent(book.proverbCount || 0),
-      'press=' + encodeURIComponent(book.press || ''),
-      'grades=' + encodeURIComponent(book.grades || book.grade || book.gradeTags || book.applyGrades || book.applicableGrades || ''),
-      'intro=' + encodeURIComponent(book.intro || ''),
-      'unlocked=' + (book.locked ? '0' : '1')
-    ].join('&')
-
-    wx.navigateTo({
-      url: '../advertisement/advertisement?' + query,
-      success: () => {
-        if (typeof onNavigated === 'function') {
-          onNavigated()
-        }
-      }
     })
   },
 

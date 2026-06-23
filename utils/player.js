@@ -9,10 +9,12 @@
 
 const { getUnits, getUnitResource } = require('./api')
 const { getFallbackBookCover, normalizeBookCover } = require('./book-cover')
+const { isLevelUnlocked } = require('./level-access')
 const {
   resolveProverbDisplayText,
   resolveProverbRefText
 } = require('./proverb-text')
+const { buildVoiceUrl } = require('./voice-url')
 
 // 循环模式：单期循环（仅当前关卡）/ 整本书循环（贯穿所有关卡）
 const LOOP_MODES = [
@@ -35,6 +37,14 @@ function speedLabel(speed) {
   return speed.toFixed(speed % 1 === 0 ? 1 : 2) + 'x'
 }
 
+function resolveTrackAudio(text, audio) {
+  const url = String(audio || '').trim()
+  if (url) {
+    return url
+  }
+  return buildVoiceUrl(text)
+}
+
 // 把一期资源拍平成顺序播放列表：单词 -> 该词的例句 -> 下一个单词 ...
 function buildTracks(source) {
   const list = Array.isArray(source) ? source : []
@@ -45,34 +55,46 @@ function buildTracks(source) {
     }
     // 例句归属于该单词，沿用单词的课本页码（P1=第1页）。
     const page = item.word && item.word.page ? item.word.page : ''
-    if (item.word && item.word.audio) {
-      tracks.push({
-        type: 'word',
-        content: item.word.content || '',
-        refText: item.word.content || '',
-        exchange: item.word.exchange || '',
-        wordContent: item.word.content || '',
-        symbol: item.word.symbol ? '[' + item.word.symbol + ']' : '',
-        translation: (item.word.attribute || '') + (item.word.translation || ''),
-        page,
-        audio: item.word.audio
-      })
+    const word = item.word || null
+    const wordContent = word && word.content ? String(word.content) : ''
+    if (word && (wordContent || word.audio)) {
+      const audio = resolveTrackAudio(wordContent, word.audio)
+      if (audio) {
+        tracks.push({
+          type: 'word',
+          content: wordContent,
+          refText: wordContent,
+          exchange: word.exchange || '',
+          wordContent,
+          symbol: word.symbol ? '[' + word.symbol + ']' : '',
+          translation: (word.attribute || '') + (word.translation || ''),
+          page,
+          audio
+        })
+      }
     }
     if (Array.isArray(item.proverb)) {
       item.proverb.forEach(p => {
-        if (p && p.audio) {
-          tracks.push({
-            type: 'sentence',
-            content: resolveProverbDisplayText(p),
-            refText: resolveProverbRefText(p),
-            exchange: (item.word && item.word.exchange) || '',
-            wordContent: (item.word && item.word.content) || '',
-            symbol: '',
-            translation: p.translation || '',
-            page: p.page || page,
-            audio: p.audio
-          })
+        if (!p) {
+          return
         }
+        const content = resolveProverbDisplayText(p)
+        const refText = resolveProverbRefText(p) || content
+        const audio = resolveTrackAudio(refText, p.audio)
+        if (!content && !audio) {
+          return
+        }
+        tracks.push({
+          type: 'sentence',
+          content,
+          refText,
+          exchange: (item.word && item.word.exchange) || '',
+          wordContent: (item.word && item.word.content) || '',
+          symbol: '',
+          translation: p.translation || '',
+          page: p.page || page,
+          audio
+        })
       })
     }
   })
@@ -85,7 +107,7 @@ const player = {
   resBookId: '',
   units: [],
   unitIndex: 0,
-  unitName: '随身听',
+  unitName: '伴读',
   bookCover: getFallbackBookCover(),
   tracks: [],
   current: 0,
@@ -258,8 +280,8 @@ const player = {
 
   syncBackgroundMetadata(track) {
     const audio = this.ensureAudio()
-    audio.title = (track && track.content) || this.unitName || '随身听'
-    audio.epname = this.unitName || '随身听'
+    audio.title = (track && track.content) || this.unitName || '伴读'
+    audio.epname = this.unitName || '伴读'
     audio.singer = track && track.type === 'sentence' ? '例句' : '单词'
     if (this.bookCover) {
       audio.coverImgUrl = this.bookCover
@@ -310,6 +332,11 @@ const player = {
   loadUnit(index, autoPlay, toEnd) {
     const unit = this.units[index]
     if (!unit) {
+      return Promise.resolve(false)
+    }
+    const unitSort = Number(unit.sort) || index + 1
+    if (!isLevelUnlocked(unitSort)) {
+      wx.showToast({ title: '仅第1关可免费试听', icon: 'none' })
       return Promise.resolve(false)
     }
     if (unit.needVip) {

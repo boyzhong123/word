@@ -17,9 +17,17 @@ test('mini player subscribes to player.active and renders the progress track', (
 
 test('mini player returns to the real listen page instead of mounting a tab-bar overlay', () => {
   assert.match(tabBarScript, /wx\.navigateTo\(\{[\s\S]*\/pages\/listen\/listen\?resBookId=/)
+  assert.match(tabBarScript, /ensureActiveBook/)
+  assert.match(tabBarScript, /player\.start\(/)
   assert.doesNotMatch(tabBarScript, /selectComponent\('#listen-player'\)/)
   assert.doesNotMatch(tabBarTemplate, /<listen-player/)
   assert.equal(tabBarConfig.usingComponents && tabBarConfig.usingComponents['listen-player'], undefined)
+})
+
+test('player buildTracks falls back to tts when unit audio is missing', () => {
+  const playerScript = fs.readFileSync(path.join(projectRoot, 'utils/player.js'), 'utf8')
+  assert.match(playerScript, /buildVoiceUrl/)
+  assert.match(playerScript, /resolveTrackAudio/)
 })
 
 test('player resumes playback when re-entering an active listen session', () => {

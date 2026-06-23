@@ -19,7 +19,11 @@ const {
     normalizeProverb
 } = require('../../utils/proverb-text')
 const { player } = require('../../utils/player')
-const { requestSubscribeForEvent } = require('../../utils/subscribe')
+const { navigateToVipPurchase } = require('../../utils/vip-purchase')
+const {
+  syncRecordingOverlay,
+  hideRecordingOverlay
+} = require('../../utils/recording-overlay')
 
 const PRONUNCIATION_TIPS = [
   '先发 /æ/ 音，嘴巴张大，舌尖抵下齿背',
@@ -209,6 +213,7 @@ Page({
     contents: [],
     needVip: 0,
     innerAudioContext: null,
+    recordingOverlay: { active: false, top: 0, left: 0, width: 0, height: 0, waveSession: 0 },
   },
   /**
    * 生命周期函数--监听页面加载
@@ -258,6 +263,8 @@ Page({
       // 错词复习模式：review=1，reviewUnitIds 为覆盖的关卡 id 列表。
       // 待后端提供错词接口后，可据此把内容收敛到这些关卡里做错的词。
       this.review = options.review === '1' || options.review === 1
+      // 今日页「免费体验关」：放行会员内容门槛，让免费用户也能完整体验第一关。
+      this.trial = options.trial === '1' || options.trial === 1
       this.reviewUnitIds = options.reviewUnitIds
         ? decodeURIComponent(options.reviewUnitIds).split(',').filter(Boolean)
         : []
@@ -302,6 +309,10 @@ Page({
           this.prepareWordChoiceOptions(data)
           vip = !data.some(item => item.needVip)
       }
+      // 免费体验关：视为已解锁，不弹会员拦截弹窗。
+      if (this.trial) {
+        vip = true
+      }
       const wordTotal = data.length
       this.setData({
         loading: false,
@@ -326,16 +337,14 @@ Page({
       return {
           type: needVip ? 'vip' : '',
           confirm: function () {
-              wx.navigateTo({
-                  url: '../vip/vip?resBookId=' + that.resBookId + '&name=' + that.resBookName,
-                  events: {
-                      'vip': () => {
-                          refreshHomePage()
-                          that.setData({
-                              needVip: 0
-                          })
-                      }
-                  }
+              navigateToVipPurchase(null, {
+                locked: true,
+                onVip: () => {
+                  refreshHomePage()
+                  that.setData({
+                    needVip: 0
+                  })
+                }
               })
           }
       }
@@ -516,6 +525,13 @@ Page({
     this.goAutoNext(this.data.current)
   },
 
+  // 立即跳过：不等倒计时走完，直接进入本词的下一步
+  skipAutoNext() {
+    this.stopAutoNextCountdown()
+    this.setData({ autoNextCountdown: 0, autoNextPaused: false })
+    this.goAutoNext(this.data.current)
+  },
+
   startAutoNextCountdown(index, delayMs) {
     this.stopAutoNextCountdown()
     const token = this.autoNextSeq
@@ -576,6 +592,28 @@ Page({
       dialog: e.detail.dialog
     })
   },
+
+  syncRecordingOverlay(options) {
+    syncRecordingOverlay(this, {
+      positionOnly: !!(options && options.positionOnly),
+      overlayKey: 'recordingOverlay',
+      mediaSelector: '.media',
+      topOffsetRpx: 20
+    })
+  },
+
+  hideRecordingOverlay() {
+    hideRecordingOverlay(this, { overlayKey: 'recordingOverlay' })
+  },
+
+  onRecordingOverlayTap() {
+    const media = this.selectComponent('.media')
+    if (media && typeof media.record === 'function') {
+      media.record()
+    }
+  },
+
+  noop() {},
   onMediaStateChange(e) {
     if (e.detail.state != 0) {
         this.stopAudio()
@@ -583,6 +621,12 @@ Page({
         this.stopAutoNextCountdown()
     } else {
         this.scheduleAutoNextIfDone()
+    }
+    if (e.detail.state === 2) {
+      setTimeout(() => this.syncRecordingOverlay(), 120)
+      setTimeout(() => this.syncRecordingOverlay({ positionOnly: true }), 360)
+    } else {
+      this.hideRecordingOverlay()
     }
     switch (e.detail.state) {
       case 2:
@@ -781,7 +825,6 @@ Page({
     const scoreRate = this.data.isWordNewMode
       ? computeWordNewScoreRate(this.data.contents)
       : computePracticeScoreRate(this.data.contents)
-    requestSubscribeForEvent('subscribePref_report')
     wx.navigateTo({
       url: '../finish/today?unitId=' + this.unitId +
         '&unitSort=' + this.unitSort +
@@ -1094,7 +1137,6 @@ Page({
 
     if (!this.wordId) {
       const scoreRate = computeWordNewScoreRate(this.data.contents)
-      requestSubscribeForEvent('subscribePref_report')
       wx.navigateTo({
         url: '../finish/today?unitId=' + this.unitId +
           '&unitSort=' + this.unitSort +

@@ -59,6 +59,13 @@
     transform: translateY(100%);
   }
 }
+
+.listen-page-settled {
+  will-change: auto;
+  transform: none;
+  animation: none;
+}
+
 .listen-nav-title-wrap {
   position: absolute;
   left: 0;
@@ -373,7 +380,6 @@
   padding: 8rpx 0 4rpx;
   overflow: visible;
 }
-/* media 组件：示范音 / 录音 / 回放打分，三键整体水平居中 */
 .follow-media {
   width: 100%;
   box-sizing: border-box;
@@ -401,12 +407,40 @@
   height: 80rpx;
 }
 .follow-media .recording {
-  z-index: 2;
+  display: none !important;
 }
 .follow-media .recording-wave {
-  width: 100%;
-  min-width: 480rpx;
+  width: 100% !important;
+  min-width: 0 !important;
   height: 106rpx;
+}
+.follow-recording-overlay-root {
+  z-index: 1200;
+}
+.follow-recording-overlay {
+  position: fixed;
+  z-index: 180;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  background: transparent;
+  overflow: hidden;
+}
+.follow-recording-wave {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 106rpx;
+}
+.follow-recording-tip {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #4e6a70;
+  line-height: 24rpx;
+  position: relative;
+  z-index: 2;
 }
 
 /* ---------------- 页码指示点 ---------------- */

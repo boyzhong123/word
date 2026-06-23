@@ -224,7 +224,7 @@ Component({
       type: String,
       value: ''
     },
-    _overlayRecord: {
+    overlayRecord: {
       type: Boolean,
       value: false
     }
@@ -241,6 +241,9 @@ Component({
       this.triggerEvent('mediaStateChange', { state: value })
       if (value === RECORDING) {
         this.clearRecordingWaveRetry()
+        if (this.properties.overlayRecord) {
+          return
+        }
         const waveSession = this.data.waveSession + 1
         this.waveRetryToken = (this.waveRetryToken || 0) + 1
         const waveRetryToken = this.waveRetryToken

@@ -23,7 +23,7 @@
         <image class="userinfo-avatar sk-image" mode="cover"></image>
         <text class="userinfo-nickname sk-transparent sk-text-30-0000-790 sk-text">HI，孙硕</text>
       </view>
-      <scroll-view scroll-y="true" style="position: relative;height:{{scrollHeight}}px;margin-top: 14rpx;">
+      <scroll-view scroll-y="true" enhanced show-scrollbar="{{false}}" style="position: relative;height:{{scrollHeight}}px;margin-top: 14rpx;">
         <view is="components/searchbar/searchbar">
           <view class="search-form searchbar--search-form">
             <view class="search-box searchbar--search-box">

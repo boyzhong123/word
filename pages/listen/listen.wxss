@@ -46,6 +46,12 @@ page {
   }
 }
 
+.listen-page-settled {
+  will-change: auto;
+  transform: none;
+  animation: none;
+}
+
 /* 关卡小测：普通页面推入/返回，不用随身听的底部滑入滑出 */
 .listen-quiz-shell {
   position: fixed;
@@ -774,6 +780,247 @@ page {
   color: #5d6e66;
   letter-spacing: 2rpx;
 }
+.listen-guide-controls-block {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 320rpx;
+  z-index: 210;
+  background: transparent;
+}
+
+/* ============ 游戏化引导：通用吉祥物教练气泡 ============ */
+.listen-guide-coach {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  pointer-events: none;
+}
+.listen-guide-coach-mascot {
+  width: 128rpx;
+  height: 128rpx;
+  flex-shrink: 0;
+  margin-right: -12rpx;
+  filter: drop-shadow(0 8rpx 14rpx rgba(10, 14, 20, 0.28));
+  animation: listen-guide-mascot-bob 1.6s ease-in-out infinite;
+}
+.listen-guide-coach-bubble {
+  position: relative;
+  flex: 1;
+  padding: 22rpx 26rpx;
+  border-radius: 26rpx 26rpx 26rpx 6rpx;
+  background: linear-gradient(160deg, #ffffff 0%, #eef3ff 100%);
+  box-shadow: 0 16rpx 44rpx rgba(10, 14, 20, 0.3);
+}
+.listen-guide-coach-arrow {
+  position: absolute;
+  left: -10rpx;
+  bottom: 16rpx;
+  width: 26rpx;
+  height: 26rpx;
+  background: #ffffff;
+  border-radius: 4rpx;
+  transform: rotate(45deg);
+}
+.listen-guide-coach-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1b2330;
+  line-height: 1.3;
+}
+.listen-guide-coach-sub {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #5a6577;
+  line-height: 1.45;
+}
+
+/* ============ 跟读评测遮罩：聚光 + 麦克风点按涟漪 + 教练 ============ */
+.listen-guide-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  pointer-events: none;
+  animation: listen-guide-mask-in 0.28s ease-out both;
+}
+.listen-guide-spotlight {
+  position: absolute;
+  border-radius: 30rpx;
+  background: transparent;
+  box-shadow: 0 0 0 3000px rgba(8, 11, 18, 0.66);
+  animation: listen-guide-spot-pulse 1.7s ease-in-out infinite;
+}
+.listen-guide-spotlight-sentence {
+  border-radius: 28rpx;
+}
+/* 麦克风点按涟漪 */
+.listen-guide-tap {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.listen-guide-tap-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 96rpx;
+  height: 96rpx;
+  margin: -48rpx 0 0 -48rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(122, 162, 255, 0.9);
+  opacity: 0;
+  animation: listen-guide-tap-ripple 1.8s ease-out infinite;
+}
+.listen-guide-tap-ring-2 {
+  animation-delay: 0.9s;
+}
+.listen-guide-tap-finger-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 72rpx;
+  height: 72rpx;
+  margin: -18rpx 0 0 2rpx;
+  animation: listen-guide-tap-press 1.8s ease-in-out infinite;
+}
+.listen-guide-coach-below {
+  position: absolute;
+  left: 50%;
+  width: 560rpx;
+  transform: translateX(-50%);
+  animation: listen-guide-coach-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.listen-guide-coach-above {
+  position: absolute;
+  left: 50%;
+  width: 560rpx;
+  transform: translateX(-50%);
+  animation: listen-guide-coach-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ============ 滑动引导：独立全屏遮罩 + 动效手势 + 教练 ============ */
+.listen-guide-swipe-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  pointer-events: none;
+}
+.listen-guide-swipe-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 11, 18, 0.68);
+  animation: listen-guide-mask-in 0.28s ease-out both;
+}
+.listen-guide-swipe-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 48%;
+  transform: translateY(-8%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30rpx;
+}
+.listen-guide-swipe-stage {
+  position: relative;
+  width: 380rpx;
+  height: 112rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.listen-guide-swipe-chev-img {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 132rpx;
+  height: 52rpx;
+  transform: translateY(-50%);
+  opacity: 1;
+  filter: drop-shadow(0 6rpx 18rpx rgba(255, 255, 255, 0.4));
+  animation: listen-guide-chev-pulse 1.4s ease-in-out infinite;
+}
+.listen-guide-swipe-hand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  animation: listen-guide-hand-swipe 1.8s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+}
+.listen-guide-swipe-hand-img {
+  position: absolute;
+  left: -52rpx;
+  top: -52rpx;
+  width: 104rpx;
+  height: 104rpx;
+}
+.listen-guide-swipe-trail {
+  position: absolute;
+  left: -28rpx;
+  top: -28rpx;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.26);
+  animation: listen-guide-trail-fade 1.8s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+}
+.listen-guide-swipe-trail-2 {
+  animation-delay: 0.12s;
+  background: rgba(255, 255, 255, 0.14);
+}
+.listen-guide-coach-static {
+  width: 540rpx;
+  position: relative;
+  z-index: 1;
+  margin-left: -28rpx;
+}
+
+@keyframes listen-guide-mask-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes listen-guide-spot-pulse {
+  0%, 100% { box-shadow: 0 0 0 3000px rgba(8, 11, 18, 0.66), 0 0 0 0 rgba(122, 162, 255, 0); }
+  50% { box-shadow: 0 0 0 3000px rgba(8, 11, 18, 0.66), 0 0 0 8rpx rgba(122, 162, 255, 0.55); }
+}
+@keyframes listen-guide-tap-ripple {
+  0% { transform: scale(0.5); opacity: 0.85; }
+  70% { opacity: 0.18; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+@keyframes listen-guide-tap-press {
+  0%, 100% { transform: translate(0, 0); }
+  45% { transform: translate(-6rpx, 8rpx) scale(0.92); }
+}
+@keyframes listen-guide-coach-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(14rpx) scale(0.96); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes listen-guide-mascot-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10rpx) rotate(2deg); }
+}
+@keyframes listen-guide-chev-pulse {
+  0%, 100% { opacity: 0.2; transform: translateX(8rpx); }
+  50% { opacity: 1; transform: translateX(-8rpx); }
+}
+@keyframes listen-guide-hand-swipe {
+  0% { transform: translateX(140rpx); opacity: 0; }
+  18% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { transform: translateX(-140rpx); opacity: 0; }
+}
+@keyframes listen-guide-trail-fade {
+  0% { transform: translateX(140rpx) scale(0.6); opacity: 0; }
+  18% { opacity: 0.7; }
+  100% { transform: translateX(-140rpx) scale(1); opacity: 0; }
+}
 
 .lyrics {
   height: 100%;
@@ -890,12 +1137,42 @@ page {
   height: 80rpx;
 }
 .follow-media .recording {
-  z-index: 2;
+  display: none !important;
 }
 .follow-media .recording-wave {
-  width: 100%;
-  min-width: 480rpx;
+  width: 100% !important;
+  min-width: 0 !important;
   height: 106rpx;
+}
+
+/* 录音波纹固定浮层：挂在 listen-page 外，对齐展开卡片 */
+.follow-recording-overlay-root {
+  z-index: 1200;
+}
+.follow-recording-overlay {
+  position: fixed;
+  z-index: 180;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  background: transparent;
+  overflow: hidden;
+}
+.follow-recording-wave {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 106rpx;
+}
+.follow-recording-tip {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #4e6a70;
+  line-height: 24rpx;
+  position: relative;
+  z-index: 2;
 }
 
 /* ---------------- 页码指示点 ---------------- */
@@ -1128,6 +1405,9 @@ page {
 .sheet-item-active {
   background: rgba(17, 19, 24, 0.04);
 }
+.sheet-item-locked {
+  background: #fafbfc;
+}
 .sheet-item-main {
   display: flex;
   flex-direction: column;
@@ -1144,6 +1424,10 @@ page {
   margin-top: 6rpx;
   font-size: 22rpx;
   color: #9498a3;
+}
+.sheet-item-locked .sheet-item-name,
+.sheet-item-locked .sheet-item-sub {
+  color: #a4acb6;
 }
 .sheet-vip {
   font-size: 22rpx;

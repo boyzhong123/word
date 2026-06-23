@@ -70,7 +70,7 @@ test('study record page is registered and reachable from the Me stats card', () 
   const recordStyle = fs.readFileSync(path.join(projectRoot, 'pages/study-record/record.wxss'), 'utf8')
 
   assert.ok(appConfig.pages.includes('pages/study-record/record'))
-  assert.match(meTemplate, /class="stats-card[^"]*stats-card-clickable[^"]*"/)
+  assert.match(meTemplate, /class="menu-label">学习记录</)
   assert.match(meTemplate, /data-url="\/pages\/study-record\/record"/)
   assert.match(meTemplate, /bindtap="handleMenuTap"/)
   assert.match(meScript, /goStudyRecord\(\)/)

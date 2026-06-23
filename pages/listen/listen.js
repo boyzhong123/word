@@ -21,17 +21,38 @@ const {
 const { player, buildTracks } = require('../../utils/player')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
-const { requestSubscribeForEvent } = require('../../utils/subscribe')
+const { isLevelUnlocked } = require('../../utils/level-access')
+const { navigateToVipPurchase } = require('../../utils/vip-purchase')
+const {
+  syncRecordingOverlay,
+  hideRecordingOverlay
+} = require('../../utils/recording-overlay')
+const {
+  hasCompletedListenGuide,
+  markListenGuideDone,
+  findGuideTrackIndex
+} = require('../../utils/listen-guide')
 const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
 const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
 const LOADING_MASCOT_SPRITE = imageUrl('/images/listen/loading-mascot-sprite.png')
 
 const LISTEN_PAGE_ANIM_MS = 320
 // 与 app.json tabBar.list 保持一致
-const TAB_ROUTES = ['pages/home/home', 'pages/me/me']
+const TAB_ROUTES = ['pages/today/today', 'pages/home/home', 'pages/me/me']
 const QUIZ_NEXT_COUNTDOWN_S = 3
 // media 组件评分反馈（彩带/表情）展示 2000ms 后淡出，倒计时等它播完
 const QUIZ_CELEBRATE_DELAY_MS = 2200
+
+function isListenUnitUnlocked(unit, index) {
+  const sort = Number(unit && unit.sort) || (Number(index) + 1)
+  return isLevelUnlocked(sort)
+}
+
+function decorateListenUnits(units) {
+  return (Array.isArray(units) ? units : []).map((unit, index) => Object.assign({}, unit, {
+    isUnlockedForListen: isListenUnitUnlocked(unit, index)
+  }))
+}
 
 function postListeningQuizResult(payload) {
   let report
@@ -46,6 +67,9 @@ function postListeningQuizResult(payload) {
   report(payload).catch(() => {})
 }
 
+// 与 wxss 里 listen-slide-up 动画时长一致
+const ANIM_IN_MS = 360
+
 Page({
   data: {
     imageBaseUrl: IMAGE_BASE_URL,
@@ -53,6 +77,7 @@ Page({
     listenSentenceTagImage: LISTEN_SENTENCE_TAG_IMAGE,
     loadingMascotSprite: LOADING_MASCOT_SPRITE,
     pageAnimState: 'listen-page-preenter',
+    pageSettled: false,
     safeAreaBottom: Math.max((wx.getStorageSync('windowHeight') || 0) - ((wx.getStorageSync('safeArea') || {}).bottom || wx.getStorageSync('windowHeight') || 0), 0),
 
     loading: true,
@@ -61,7 +86,7 @@ Page({
     // 期（单元）列表
     units: [],
     unitIndex: 0,
-    unitName: '随身听',
+    unitName: '伴读',
     navTitle: '',
     navSubtitle: '',
 
@@ -89,6 +114,13 @@ Page({
     // 课文滚动位置（受控 scroll-top）。激活/展开时只在必要时滚动，不再贴顶
     scrollTop: 0,
     tonearmInstant: false,
+
+    // 首次进入引导：swipe 向左滑 | evaluate 展开例句提示 | record 自动开录
+    listenGuideActive: false,
+    listenGuideStep: '',
+    // evaluate/record 遮罩聚光位置（px，相对视口）。width 为 0 表示尚未测量
+    listenGuideSpot: { top: 0, left: 0, width: 0, height: 0, micX: 0, micY: 0, calloutTop: 0, placement: 'below' },
+    followRecordingOverlay: { active: false, top: 0, left: 0, width: 0, height: 0, waveSession: 0 },
 
     quizMode: false,
     quizQuestions: [],
@@ -125,6 +157,8 @@ Page({
     const quizMode = options.mode === 'quiz' || options.taskType === 'listening'
     // 错词复习模式：review=1，reviewUnitIds 为覆盖的关卡 id 列表。
     this.review = options.review === '1' || options.review === 1
+    // 今日页「免费体验关」：放行会员内容门槛，让免费用户也能听第一关小测。
+    this.trial = options.trial === '1' || options.trial === 1
     this.reviewUnitIds = options.reviewUnitIds
       ? decodeURIComponent(options.reviewUnitIds).split(',').filter(Boolean)
       : []
@@ -157,6 +191,20 @@ Page({
     this.measureSeekBar()
   },
 
+  markListenPageSettled() {
+    if (this._listenSettleTimer) {
+      clearTimeout(this._listenSettleTimer)
+      this._listenSettleTimer = null
+    }
+    this._listenSettleTimer = setTimeout(() => {
+      this._listenSettleTimer = null
+      if (this.closing || this.data.quizMode) {
+        return
+      }
+      this.setData({ pageSettled: true })
+    }, ANIM_IN_MS)
+  },
+
   onShow() {
     if (this.closing) {
       return
@@ -164,13 +212,17 @@ Page({
     if (this.data.quizMode) {
       return
     }
-    this.setData({ pageAnimState: 'listen-page-preenter' })
+    this.setData({ pageAnimState: 'listen-page-preenter', pageSettled: false })
     wx.nextTick(() => {
       setTimeout(() => {
         if (this.closing) {
           return
         }
         this.setData({ pageAnimState: 'listen-page-enter' })
+        this.markListenPageSettled()
+        if (!this.data.quizMode && !this.data.loading) {
+          this.maybeStartListenGuide()
+        }
       }, 20)
     })
   },
@@ -211,7 +263,7 @@ Page({
       loading: !s.active,
       unitName: s.unitName,
       bookCover: normalizeBookCover(s.bookCover),
-      units: s.units,
+      units: decorateListenUnits(s.units),
       unitIndex: s.unitIndex,
       tracks: s.tracks,
       current: s.current,
@@ -229,6 +281,9 @@ Page({
     this.setData(patch, () => {
       if (patch.tonearmInstant) {
         setTimeout(() => this.setData({ tonearmInstant: false }), 32)
+      }
+      if (s.active && s.tracks && s.tracks.length) {
+        this.maybeStartListenGuide()
       }
     })
     // 切换期：清空展开面板与该期的得分缓存
@@ -262,7 +317,7 @@ Page({
       const targetIndex = this.targetUnitId
         ? list.findIndex(item => String(item.unitId) === String(this.targetUnitId))
         : 0
-      this.setData({ units: list })
+      this.setData({ units: decorateListenUnits(list) })
       this.loadUnit(Math.max(targetIndex, 0), false)
     })
   },
@@ -321,7 +376,13 @@ Page({
     if (!unit) {
       return
     }
-    if (unit.needVip) {
+    // 第 1 关随身听免费，其余关卡需开通会员；今日页「免费体验关」（trial）放行。
+    const unitSort = Number(unit.sort) || index + 1
+    if (!this.data.review && !this.trial && !isLevelUnlocked(unitSort)) {
+      navigateToVipPurchase(null, { locked: true })
+      return
+    }
+    if (unit.needVip && !this.trial) {
       wx.showToast({ title: '该期为会员内容', icon: 'none' })
       return
     }
@@ -773,7 +834,6 @@ Page({
     const unitSort = unit.sort || 1
     const total = this.data.quizQuestions.length || 0
     const scoreRate = computeQuizScoreRate(this.data.quizRecords, total)
-    requestSubscribeForEvent('subscribePref_report')
     wx.redirectTo({
       url: '/pages/finish/today?unitId=' + unitId +
         '&unitSort=' + unitSort +
@@ -838,10 +898,188 @@ Page({
     player.next()
   },
 
+  maybeStartListenGuide() {
+    if (this.data.quizMode || this.listenGuideStarted || hasCompletedListenGuide()) {
+      return
+    }
+    const tracks = this.data.tracks || []
+    const guideTargetIndex = findGuideTrackIndex(tracks)
+    if (guideTargetIndex < 0) {
+      return
+    }
+    this.listenGuideStarted = true
+    this.listenGuideTargetIndex = guideTargetIndex
+    this.setData({
+      listenGuideActive: true,
+      listenGuideStep: 'swipe',
+      currentPage: 0
+    })
+  },
+
+  advanceListenGuideToEvaluate() {
+    const index = this.listenGuideTargetIndex
+    if (index == null || index < 0) {
+      this.finishListenGuide()
+      return
+    }
+    this.clearListenGuideRecordTimer()
+    this.setData({ listenGuideStep: 'sentence' })
+    if (this.data.playing) {
+      player.pause()
+    }
+    player.focusTrack(index)
+    this.scrollToIndex(index)
+    setTimeout(() => this.measureListenGuideSentenceSpot(index), 320)
+  },
+
+  measureListenGuideSentenceSpot(index) {
+    if (!this.data.listenGuideActive || this.data.listenGuideStep !== 'sentence') {
+      return
+    }
+    const q = this.createSelectorQuery()
+    q.select('#track-' + index).boundingClientRect()
+    q.exec(res => {
+      const item = res && res[0]
+      if (!item || !item.width) {
+        return
+      }
+      const pad = 10
+      const top = Math.max(item.top - pad, 8)
+      const left = Math.max(item.left + 20, 8)
+      const width = Math.max(item.width - 40, 0)
+      const height = item.height + pad * 2
+      const winH = wx.getStorageSync('windowHeight') || 667
+      let placement = 'below'
+      let calloutTop = top + height + 22
+      if (calloutTop > winH - 250) {
+        placement = 'above'
+        calloutTop = Math.max(top - 150, 12)
+      }
+      this.setData({
+        listenGuideSpot: { top, left, width, height, micX: 0, micY: 0, calloutTop, placement }
+      })
+    })
+  },
+
+  // 量取展开后的跟读卡片矩形，换算成遮罩聚光、麦克风点按涟漪与教练气泡位置
+  measureListenGuideSpot() {
+    if (!this.data.listenGuideActive) {
+      return
+    }
+    const q = this.createSelectorQuery()
+    q.select('.follow-card').boundingClientRect()
+    q.select('.follow-media').boundingClientRect()
+    q.exec(res => {
+      const card = res && res[0]
+      const media = res && res[1]
+      if (!card || !card.width) {
+        return
+      }
+      const pad = 8
+      const top = Math.max(card.top - pad, 8)
+      const left = Math.max(card.left - pad, 8)
+      const width = card.width + pad * 2
+      const height = card.height + pad * 2
+      // 点按涟漪锚在麦克风（media 控件行的视觉中心）
+      const micX = media && media.width
+        ? media.left + media.width / 2
+        : left + width / 2
+      const micY = media && media.height
+        ? media.top + media.height / 2
+        : top + height / 2
+      const winH = wx.getStorageSync('windowHeight') || 667
+      // 默认教练气泡放卡片下方，空间不足则翻到上方
+      let placement = 'below'
+      let calloutTop = top + height + 24
+      if (calloutTop > winH - 260) {
+        placement = 'above'
+        calloutTop = Math.max(top - 150, 12)
+      }
+      this.setData({
+        listenGuideSpot: { top, left, width, height, micX, micY, calloutTop, placement }
+      })
+    })
+  },
+
+  clearListenGuideRecordTimer() {
+    if (this.listenGuideRecordTimer) {
+      clearTimeout(this.listenGuideRecordTimer)
+      this.listenGuideRecordTimer = null
+    }
+  },
+
+  onListenGuideAudioEnd() {
+    if (!this.data.listenGuideActive || this.data.listenGuideStep !== 'evaluate') {
+      return
+    }
+    this.clearListenGuideRecordTimer()
+    this.setData({ listenGuideStep: 'record' }, () => {
+      setTimeout(() => {
+        this.measureListenGuideSpot()
+        const media = this.selectComponent('.follow-media')
+        if (media && typeof media.startRecord === 'function') {
+          media.startRecord()
+        }
+      }, 280)
+    })
+  },
+
+  syncFollowRecordingOverlay(options) {
+    syncRecordingOverlay(this, {
+      positionOnly: !!(options && options.positionOnly),
+      overlayKey: 'followRecordingOverlay',
+      mediaSelector: '.follow-media',
+      fallbackSelector: '.follow-recite-panel',
+      topOffsetRpx: 20,
+      canSync: () => this.data.expandedIndex >= 0
+    })
+  },
+
+  hideFollowRecordingOverlay() {
+    hideRecordingOverlay(this, { overlayKey: 'followRecordingOverlay' })
+  },
+
+  onFollowRecordingOverlayTap() {
+    const media = this.selectComponent('.follow-media')
+    if (media && typeof media.record === 'function') {
+      media.record()
+    }
+  },
+
+  finishListenGuide() {
+    if (!this.data.listenGuideActive) {
+      return
+    }
+    this.clearListenGuideRecordTimer()
+    markListenGuideDone()
+    this.setData({
+      listenGuideActive: false,
+      listenGuideStep: '',
+      listenGuideSpot: { top: 0, left: 0, width: 0, height: 0, micX: 0, micY: 0, calloutTop: 0, placement: 'below' }
+    })
+  },
+
+  onFollowMediaAudioEnd() {
+    this.onListenGuideAudioEnd()
+  },
+
   onTrackTap(e) {
+    if (
+      this.data.listenGuideActive &&
+      (this.data.listenGuideStep === 'swipe' || this.data.listenGuideStep === 'evaluate')
+    ) {
+      return
+    }
     const index = Number(e.currentTarget.dataset.index)
+    if (this.data.listenGuideActive && this.data.listenGuideStep === 'sentence') {
+      if (index !== this.listenGuideTargetIndex) {
+        return
+      }
+      this.setData({ listenGuideStep: 'evaluate', listenGuideSpot: { top: 0, left: 0, width: 0, height: 0, micX: 0, micY: 0, calloutTop: 0, placement: 'below' } })
+    }
     // 再次点击已展开的句子：收起
     if (this.data.expandedIndex === index) {
+      this.hideFollowRecordingOverlay()
       this.setData({ expandedIndex: -1 })
       return
     }
@@ -851,7 +1089,17 @@ Page({
     }
     player.focusTrack(index)
     this.setData({ expandedIndex: index }, () => {
-      this.scrollToIndex(index)
+      setTimeout(() => {
+        this.scrollToIndex(index)
+        if (this.data.listenGuideActive && this.data.listenGuideStep === 'evaluate') {
+          setTimeout(() => this.measureListenGuideSpot(), 460)
+          this.listenGuideRecordTimer = setTimeout(() => {
+            if (this.data.listenGuideActive && this.data.listenGuideStep === 'evaluate') {
+              this.onListenGuideAudioEnd()
+            }
+          }, 8000)
+        }
+      }, 80)
     })
   },
 
@@ -861,6 +1109,15 @@ Page({
   onMediaStateChange(e) {
     if (e.detail.state !== 0 && this.data.playing) {
       player.pause()
+    }
+    if (this.data.listenGuideActive && e.detail.state === 2) {
+      this.finishListenGuide()
+    }
+    if (e.detail.state === 2) {
+      setTimeout(() => this.syncFollowRecordingOverlay(), 120)
+      setTimeout(() => this.syncFollowRecordingOverlay({ positionOnly: true }), 360)
+    } else {
+      this.hideFollowRecordingOverlay()
     }
   },
 
@@ -885,6 +1142,9 @@ Page({
 
   // 录音未授权：提示去设置开启
   onMediaUnauthorized(e) {
+    if (this.data.listenGuideActive) {
+      this.finishListenGuide()
+    }
     const dialog = (e.detail && e.detail.dialog) || {}
     wx.showModal({
       title: dialog.title || '提示',
@@ -1009,14 +1269,27 @@ Page({
 
   onUnitTap(e) {
     const index = Number(e.currentTarget.dataset.index)
+    const unit = this.data.units[index]
     this.setData({ showPlaylist: false })
+    if (!isListenUnitUnlocked(unit, index)) {
+      navigateToVipPurchase(null, { locked: true })
+      return
+    }
     player.selectUnit(index)
   },
 
   noop() {},
 
   onSwiperChange(e) {
-    this.setData({ currentPage: e.detail.current })
+    const current = e.detail.current
+    this.setData({ currentPage: current })
+    if (
+      this.data.listenGuideActive &&
+      this.data.listenGuideStep === 'swipe' &&
+      current === 1
+    ) {
+      this.advanceListenGuideToEvaluate()
+    }
   },
 
   close() {

@@ -1,0 +1,239 @@
+/* pages/membership/membership.wxss */
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #2a2014 0%, #1b1712 60%);
+}
+
+.nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 20rpx;
+}
+.nav-back {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-back-arrow {
+  color: #ffe6b8;
+  font-size: 56rpx;
+  line-height: 56rpx;
+}
+.nav-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #ffe6b8;
+  pointer-events: none;
+}
+
+.scroll {
+  height: calc(100vh - 88rpx);
+  box-sizing: border-box;
+}
+
+.hero {
+  text-align: center;
+  padding: 30rpx 40rpx 10rpx;
+}
+.hero-crown {
+  font-size: 88rpx;
+}
+.hero-title {
+  margin-top: 12rpx;
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #ffe6b8;
+}
+.hero-sub {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: rgba(255, 230, 184, 0.7);
+}
+.hero-active {
+  margin-top: 18rpx;
+  display: inline-block;
+  font-size: 24rpx;
+  color: #4a3411;
+  background: #ffce7a;
+  padding: 8rpx 22rpx;
+  border-radius: 999rpx;
+}
+
+.benefits {
+  margin: 36rpx 32rpx 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1rpx solid rgba(255, 206, 122, 0.18);
+  border-radius: 28rpx;
+  padding: 12rpx 28rpx;
+}
+.benefit {
+  display: flex;
+  align-items: center;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+.benefit:last-child {
+  border-bottom: none;
+}
+.benefit-icon {
+  width: 70rpx;
+  height: 70rpx;
+  margin-right: 22rpx;
+  flex: none;
+}
+.benefit-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #f6ead5;
+}
+.benefit-desc {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: rgba(246, 234, 213, 0.55);
+}
+
+.tiers {
+  display: flex;
+  gap: 20rpx;
+  margin: 36rpx 32rpx 0;
+}
+.tier {
+  position: relative;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2rpx solid rgba(255, 206, 122, 0.2);
+  border-radius: 24rpx;
+  padding: 30rpx 12rpx 26rpx;
+  text-align: center;
+}
+.tier-sel {
+  background: linear-gradient(180deg, #5a4326, #3a2c1a);
+  border-color: #ffce7a;
+  box-shadow: 0 10rpx 26rpx rgba(255, 206, 122, 0.18);
+}
+.tier-tag {
+  position: absolute;
+  top: -16rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #4a3411;
+  background: #ffce7a;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  white-space: nowrap;
+}
+.tier-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #f6ead5;
+}
+.tier-price {
+  margin-top: 12rpx;
+  font-size: 52rpx;
+  font-weight: 800;
+  color: #ffce7a;
+}
+.tier-unit {
+  font-size: 26rpx;
+  font-weight: 700;
+}
+.tier-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: rgba(246, 234, 213, 0.55);
+}
+
+.redeem {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 32rpx 32rpx 0;
+}
+.redeem-input {
+  flex: 1;
+  height: 84rpx;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1rpx solid rgba(255, 206, 122, 0.18);
+  border-radius: 18rpx;
+  padding: 0 24rpx;
+  font-size: 26rpx;
+  color: #f6ead5;
+}
+.redeem-ph {
+  color: rgba(246, 234, 213, 0.4);
+}
+.redeem-btn {
+  flex-shrink: 0;
+  height: 84rpx;
+  padding: 0 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 206, 122, 0.16);
+  color: #ffce7a;
+  font-size: 26rpx;
+  font-weight: 700;
+  border-radius: 18rpx;
+}
+.redeem-ok {
+  background: #ffce7a;
+  color: #4a3411;
+}
+
+.agreement {
+  margin: 28rpx 40rpx 0;
+  font-size: 22rpx;
+  color: rgba(246, 234, 213, 0.4);
+  text-align: center;
+  line-height: 34rpx;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 20rpx 32rpx 24rpx;
+  background: rgba(27, 23, 18, 0.96);
+  border-top: 1rpx solid rgba(255, 206, 122, 0.14);
+}
+.footer-price {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.footer-amount {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #ffce7a;
+}
+.footer-tier {
+  font-size: 22rpx;
+  color: rgba(246, 234, 213, 0.55);
+}
+.footer-btn {
+  flex-shrink: 0;
+  height: 92rpx;
+  padding: 0 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #ffd27a, #ffb347);
+  color: #4a3411;
+  font-size: 32rpx;
+  font-weight: 800;
+  border-radius: 999rpx;
+  box-shadow: 0 10rpx 24rpx rgba(255, 179, 71, 0.3);
+}

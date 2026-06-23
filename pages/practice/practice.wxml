@@ -292,7 +292,7 @@
             <image class="anchor-page" src="../../images/icon_tip.png" style="width: 26rpx;height: 26rpx;margin-left: 18rpx;vertical-align: middle;padding: 10rpx;" bindtap="showTipPopup" />
             <text style="color: #4e6a70;font-size: 24rpx;">{{item.word.page ? 'P' + item.word.page : ''}}</text>
           </view>
-          <scroll-view scroll-y class="scroll-container" scroll-into-view="v{{item.selectedIndex}}" scroll-with-animation="true" bindscroll="onScroll" bindtouchstart="onRecitationTouchStart" bindtouchend="onRecitationTouchEnd" capture-catch:tap="{{needVip == 1 ? 'showVip':''}}">
+          <scroll-view scroll-y class="scroll-container" scroll-into-view="v{{item.selectedIndex}}" scroll-with-animation="true" catchtouchmove="{{recordingOverlay.active ? 'noop' : ''}}" bindscroll="onScroll" bindtouchstart="onRecitationTouchStart" bindtouchend="onRecitationTouchEnd" capture-catch:tap="{{needVip == 1 ? 'showVip':''}}">
             <view class="word-container" bindtap="onItemClick" id="v0" data-index="0">
               <wxs src='/pages/paint.wxs' module="paintHandler"></wxs>
               <text style="margin-top: 84rpx;color: {{paintHandler.paintColor(item.word.result)}};font-size: 54rpx;font-weight: bold;line-height: 60rpx;">{{item.word.content}}</text>
@@ -316,12 +316,12 @@
               </view>
             <view style="height: 84rpx;"></view>
             <view wx:if="{{from != 'search' && autoNextCountdown > 0 && !autoNextPaused}}" class="recitation-countdown" catchtap="pauseAutoNext">
-              <text>{{autoNextCountdown}} 秒后自动{{current >= contents.length - 1 ? '提交' : '进入下一词'}}</text>
+              <text>{{autoNextCountdown}} 秒后{{current >= contents.length - 1 ? '提交' : '进入下一步'}}，<text class="auto-next-skip" catchtap="skipAutoNext">立即跳过</text></text>
               <text class="auto-next-cancel">取消</text>
             </view>
             <view wx:elif="{{from != 'search' && autoNextPaused}}" class="recitation-countdown" catchtap="manualGoNext">
               <text>已暂停自动切换</text>
-              <text class="auto-next-go">{{current >= contents.length - 1 ? '提交' : '进入下一词'}} ›</text>
+              <text class="auto-next-go">{{current >= contents.length - 1 ? '提交' : '进入下一步'}} ›</text>
             </view>
 
             <!-- 各种tip -->
@@ -334,9 +334,18 @@
     </block>
   </swiper>
   </block>
+  <view
+    wx:if="{{recordingOverlay.active}}"
+    class="recording-overlay"
+    style="top: {{recordingOverlay.top}}px; left: {{recordingOverlay.left}}px; width: {{recordingOverlay.width}}px; height: {{recordingOverlay.height}}px;"
+    catchtap="onRecordingOverlayTap"
+  >
+    <wave-line wx:key="rw-{{recordingOverlay.waveSession}}" class="recording-overlay-wave" />
+    <text class="recording-overlay-tip">点击波纹，结束录音</text>
+  </view>
 </view>
 <template name="bottom">
-  <media class="media" wx:if="{{showMedia}}" _index="{{index}}" _autoplay="{{autoplay}}" _audio="{{audio}}" _refText="{{refText}}" _coreType="{{coreType}}" score="{{score == undefine ?'':score}}" bindresult="onResult" bindaudioEnd="onAudioEnd" bindmediaStateChange="onMediaStateChange" bindunauthorized="unauthorized"></media>
+  <media class="media" wx:if="{{showMedia}}" overlay-record="{{true}}" _index="{{index}}" _autoplay="{{autoplay}}" _audio="{{audio}}" _refText="{{refText}}" _coreType="{{coreType}}" score="{{score == undefine ?'':score}}" bindresult="onResult" bindaudioEnd="onAudioEnd" bindmediaStateChange="onMediaStateChange" bindunauthorized="unauthorized"></media>
   <block wx:elif="{{score != undefine}}">
     <text class="score" wx:if="{{score >= 55}}">{{score}}</text>
     <image class="cry" wx:else src="../../images/icon_cry.png" />

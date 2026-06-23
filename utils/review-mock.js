@@ -1,6 +1,7 @@
 // 错词复习的「假数据」。等后端提供按 reviewUnitIds / 用户维度返回错词的接口后，
 // 用真实请求替换 buildMockReviewResource 即可，practice / listen 页消费的数据结构
 // 与 getUnitResource 保持一致，因此替换时无需改动页面逻辑。
+const { buildVoiceUrl } = require('./voice-url')
 const MOCK_REVIEW_WORDS = [
   {
     content: 'apple',
@@ -97,7 +98,7 @@ function buildMockReviewResource(reviewUnitIds) {
       symbol: item.symbol,
       attribute: item.attribute,
       translation: item.translation,
-      audio: '',
+      audio: buildVoiceUrl(item.content),
       pages: [],
       exchange: item.exchange || item.content,
       // 详情页可选区块：后端补齐对应字段后即可自动展示
@@ -114,7 +115,7 @@ function buildMockReviewResource(reviewUnitIds) {
       {
         content: item.sentence,
         translation: item.sentenceCn,
-        audio: '',
+        audio: buildVoiceUrl(item.sentence),
         translationAudio: ''
       }
     ]

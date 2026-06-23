@@ -47,13 +47,19 @@ const REMOTE_IMAGE_PATHS = {
   '/images/home/exam-entry-banner-entry.png': true,
   '/images/home/exam-entry-banner-exit-locked.png': true,
   '/images/home/exam-entry-banner-exit.png': true,
+  '/images/home/exam-entry-prompt-hero.png': true,
   '/images/home/exam-intro-hero-v2.jpg': true,
   '/images/home/exam-report-header-v2.jpg': true,
   '/images/home/fab-today-locate-jelly.png': true,
   '/images/home/hero-campus-jelly-overlay-sprite.png': true,
   '/images/home/hero-campus-jelly-sprite.png': true,
   '/images/home/hero-campus-jelly-v5-girl.png': true,
+  '/images/home/hero-campus-jelly-v5-pk-girl.png': true,
+  '/images/home/hero-campus-jelly-v5-pk.png': true,
+  '/images/home/hero-campus-jelly-v5-trio.png': true,
   '/images/home/hero-campus-jelly-v5.png': true,
+  '/images/home/vip-floating-guide-banner.png': true,
+  '/images/home/vip-floating-unlock.png': true,
   '/images/home/map/monsters/jelly-defeated.png': true,
   '/images/home/map/monsters/jelly-fighting.png': true,
   '/images/home/map/monsters/jelly-locked.png': true,
@@ -84,7 +90,14 @@ const REMOTE_IMAGE_VERSIONS = {
   '/images/home/exam-entry-banner-exit-locked.png': '20260618-art-v2',
   '/images/home/exam-entry-banner-exit.png': '20260618-art-v2',
   '/images/home/exam-intro-hero-v2.jpg': '20260618-art-v2',
-  '/images/home/hero-campus-jelly-v5-girl.png': '20260618-art-v2',
+  '/images/home/exam-entry-prompt-hero.png': '20260623-entry-prompt-v2',
+  '/images/home/hero-campus-jelly-v5-girl.png': '20260623-record-hero-v2',
+  '/images/home/hero-campus-jelly-v5-pk-girl.png': '20260612-pk-hero-v1',
+  '/images/home/hero-campus-jelly-v5-pk.png': '20260612-pk-hero-v1',
+  '/images/home/hero-campus-jelly-v5-trio.png': '20260623-hero-trio-v1',
+  '/images/home/hero-campus-jelly-v5.png': '20260623-record-hero-v2',
+  '/images/home/vip-floating-guide-banner.png': '20260623-vip-floating-banner-v12',
+  '/images/home/vip-floating-unlock.png': '20260623-vip-floating-v4',
   '/images/home/map/monsters/jelly-defeated.png': '20260620-defeated-cloth-flag-v5',
   '/images/home/map/monsters/jelly-fighting.png': '20260619-monster-3x-v1',
   '/images/home/map/monsters/jelly-locked.png': '20260620-locked-color-v2',
@@ -94,6 +107,13 @@ const REMOTE_IMAGE_VERSIONS = {
   '/images/plan/plan-mascot-easy.png': '20260620-plan-mascot-color-v7',
   '/images/plan/plan-mascot-hard.png': '20260620-plan-mascot-color-v7',
   '/images/plan/plan-mascot-normal.png': '20260620-plan-mascot-color-v7'
+}
+
+// These files exist locally but are currently missing on COS.
+// Force local delivery so the affected pages keep rendering.
+const FORCE_LOCAL_IMAGE_PATHS = {
+  '/images/home/exam-entry-prompt-hero.png': true,
+  '/images/home/hero-campus-jelly-v5-trio.png': true
 }
 
 function normalizeImagePath(path) {
@@ -115,6 +135,9 @@ function imageUrl(path) {
   const normalized = normalizeImagePath(path)
   if (!shouldUseRemoteImages() || /^https?:\/\//.test(normalized)) {
     return path
+  }
+  if (FORCE_LOCAL_IMAGE_PATHS[normalized]) {
+    return normalized
   }
   if (!REMOTE_IMAGE_PATHS[normalized]) {
     return normalized

@@ -29,19 +29,67 @@
             <view wx:else class="avatar avatar-empty">👤</view>
           </button>
           <view class="profile-copy">
-            <input
-              class="nickname nickname-input"
-              type="nickname"
-              value="{{userInfo.nickName}}"
-              maxlength="16"
-              placeholder="英语学习者"
-              placeholder-style="color: #17406f;"
-              confirm-type="done"
-              bindinput="handleNickNameInput"
-              bindblur="handleNickNameBlur"
-              bindconfirm="handleNickNameBlur"
-            />
-            <view class="profile-sub">账号、通知和学习资料都在这里</view>
+            <view class="nickname-row">
+              <view class="nickname-inline">
+                <view class="nickname-edit-wrap">
+                  <text class="nickname nickname-ruler">{{userInfo.nickName || '英语学习者'}}</text>
+                  <input
+                    class="nickname nickname-input"
+                    type="nickname"
+                    value="{{userInfo.nickName}}"
+                    maxlength="16"
+                    placeholder="英语学习者"
+                    placeholder-style="color: #17406f;"
+                    confirm-type="done"
+                    bindinput="handleNickNameInput"
+                    bindblur="handleNickNameBlur"
+                    bindconfirm="handleNickNameBlur"
+                  />
+                </view>
+                <image
+                  class="profile-vip-badge"
+                  src="{{membership.active ? vipNameBadgeUrl : vipNameBadgeInactiveUrl}}"
+                  mode="aspectFit"
+                  bindtap="goMembership"
+                />
+                <text
+                  wx:if="{{membership.active}}"
+                  class="profile-vip-expire"
+                  bindtap="goMembership"
+                >会员有效期至 {{membership.expireText}}</text>
+              </view>
+            </view>
+            <view class="profile-sub-chips">
+              <block wx:if="{{profileGradeSemester || profileVersion}}">
+                <view
+                  wx:if="{{profileGradeSemester}}"
+                  class="profile-sub-chip"
+                  hover-class="profile-sub-chip-hover"
+                  hover-stay-time="80"
+                  bindtap="editProfile"
+                >
+                  <text class="profile-sub-chip-text">{{profileGradeSemester}}</text>
+                </view>
+                <view
+                  wx:if="{{profileVersion}}"
+                  class="profile-sub-chip"
+                  hover-class="profile-sub-chip-hover"
+                  hover-stay-time="80"
+                  bindtap="editProfile"
+                >
+                  <text class="profile-sub-chip-text">{{profileVersion}}</text>
+                </view>
+              </block>
+              <view
+                wx:else
+                class="profile-sub-chip"
+                hover-class="profile-sub-chip-hover"
+                hover-stay-time="80"
+                bindtap="editProfile"
+              >
+                <text class="profile-sub-chip-text">点击设置年级和教材</text>
+              </view>
+            </view>
           </view>
         </block>
         <block wx:else>
@@ -56,29 +104,50 @@
       </view>
     </view>
 
-    <view class="stats-section">
-      <view class="section-title">学习记录</view>
-      <view
-        class="stats-card stats-card-clickable"
-        data-url="/pages/study-record/record"
-        bindtap="handleMenuTap"
-      >
-        <view class="stats-row">
-        <view class="stat-item">
-          <view class="stat-number">{{stats.checkInDays}}</view>
-          <view class="stat-label">连续打卡</view>
-        </view>
-        <view class="stat-divider"></view>
-        <view class="stat-item">
-          <view class="stat-number">{{stats.learnedWords}}</view>
-          <view class="stat-label">累计学词</view>
-        </view>
-        <view class="stat-divider"></view>
-        <view class="stat-item">
-          <view class="stat-number">{{stats.studyMinutes}}</view>
-          <view class="stat-label">学习分钟</view>
-        </view>
+    <view class="checkin-section">
+      <view class="checkin-section-head">
+        <view class="section-title">学习打卡</view>
+        <view class="checkin-section-tagline">坚持打卡，词汇天天涨</view>
       </view>
+      <view class="checkin-card">
+        <view class="checkin-metrics">
+          <view class="checkin-metric metric-streak" bindtap="goCheckinCalendar">
+            <view class="metric-icon">
+              <image src="../../images/home/icon-checkin-streak-jelly.png" mode="aspectFit" />
+            </view>
+            <view class="metric-copy">
+              <view class="metric-number">{{checkin.continuousDays}}<text>天</text></view>
+              <view class="metric-label">连续打卡</view>
+            </view>
+          </view>
+          <view class="checkin-metric" bindtap="goCheckinCalendar">
+            <view class="metric-icon">
+              <image src="../../images/home/icon-checkin-total-jelly.png" mode="aspectFit" />
+            </view>
+            <view class="metric-copy">
+              <view class="metric-number">{{checkin.totalDays}}<text>天</text></view>
+              <view class="metric-label">累计打卡</view>
+            </view>
+          </view>
+          <view class="checkin-metric metric-words" bindtap="goCheckinCalendar">
+            <view class="metric-icon">
+              <image src="../../images/home/icon-checkin-words-jelly.png" mode="aspectFit" />
+            </view>
+            <view class="metric-copy">
+              <view class="metric-number">{{stats.learnedWords}}</view>
+              <view class="metric-label">累计学词</view>
+            </view>
+          </view>
+          <view class="checkin-metric metric-minutes" bindtap="goCheckinCalendar">
+            <view class="metric-icon">
+              <image src="../../images/home/icon-checkin-minutes-jelly.png" mode="aspectFit" />
+            </view>
+            <view class="metric-copy">
+              <view class="metric-number">{{stats.studyMinutes}}</view>
+              <view class="metric-label">学习分钟</view>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
 
@@ -108,6 +177,18 @@
     <view class="menu-section menu-section-tight">
       <view class="section-title">常用</view>
       <view class="menu-group">
+        <view
+          class="menu-item"
+          data-url="/pages/study-record/record"
+          bindtap="handleMenuTap"
+        >
+          <view class="menu-icon menu-ic-record"></view>
+          <view class="menu-copy">
+            <view class="menu-label">学习记录</view>
+            <view class="menu-desc">查看学习周期与每天记录</view>
+          </view>
+          <view class="menu-arrow">›</view>
+        </view>
         <view
           class="menu-item"
           wx:for="{{menus}}"

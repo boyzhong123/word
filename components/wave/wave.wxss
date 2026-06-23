@@ -1,7 +1,22 @@
 /* components/wave/wave.wxss */
+:host {
+  display: block;
+  width: 100%;
+  height: 106rpx;
+  min-width: 0;
+}
+
+.wave-canvas-viewport {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 106rpx;
+  overflow: hidden;
+}
+
 .wave-canvas {
   display: block;
   width: 100%;
-  min-width: 480rpx;
+  min-width: 0;
   height: 106rpx;
 }

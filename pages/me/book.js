@@ -143,6 +143,7 @@ Page({
         current: item.resBookId === resBookId
       }))
       const currentBook = books.find(item => item.current) || target
+      getApp().globalData.pendingBookId = resBookId
       getApp().globalData.book = currentBook
       this.setData({ books, currentBook })
       wx.showToast({ title: '已切换教材', icon: 'success' })

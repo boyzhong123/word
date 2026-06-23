@@ -1,6 +1,9 @@
-const samplingSize = 64
-const offsetSpeed = 290
-const pathFuncs = [0.6, 0.25, 0.1, -0.1]
+const {
+  samplingSize,
+  offsetSpeed,
+  pathFuncs,
+  calcValue: waveCalcValue
+} = require('../../utils/recording-wave-math')
 const waveDebug = require('../../utils/recording-wave-debug')
 
 function isDevtools() {
@@ -174,9 +177,7 @@ Component({
       }
     },
     calcValue(mapX, offset) {
-      offset %= 2
-      const sinFunc = Math.sin(Math.PI * mapX - offset * Math.PI)
-      return sinFunc * 4 / (4 + Math.pow(mapX, 4))
+      return waveCalcValue(mapX, offset)
     }
   }
 })

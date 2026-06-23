@@ -13,7 +13,7 @@
         <view class="order-book-meta">
           <text class="order-book-name">{{name}}</text>
           <text wx:if="{{press}}" class="order-book-press">{{press}}</text>
-          <view class="order-package-pill">{{packageName}} · {{validityName}}</view>
+          <view class="order-package-pill">{{orderPill || (packageName + ' · ' + validityName)}}</view>
         </view>
         <view class="order-price-col">
           <text class="order-price-currency">¥</text>
@@ -52,14 +52,26 @@
 
     <!-- 订单明细 -->
     <view class="order-card">
-      <view class="order-row">
-        <text class="order-row-label">套餐</text>
-        <text class="order-row-value">{{packageName}}</text>
-      </view>
-      <view class="order-row">
-        <text class="order-row-label">有效期</text>
-        <text class="order-row-value">{{validityName}}</text>
-      </view>
+      <block wx:if="{{orderMode === 'membership'}}">
+        <view class="order-row">
+          <text class="order-row-label">会员类型</text>
+          <text class="order-row-value">VIP 会员</text>
+        </view>
+        <view class="order-row">
+          <text class="order-row-label">会员时长</text>
+          <text class="order-row-value">{{validityName}}</text>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="order-row">
+          <text class="order-row-label">套餐</text>
+          <text class="order-row-value">{{packageName}}</text>
+        </view>
+        <view class="order-row">
+          <text class="order-row-label">有效期</text>
+          <text class="order-row-value">{{validityName}}</text>
+        </view>
+      </block>
       <view class="order-row">
         <text class="order-row-label">支付方式</text>
         <text class="order-row-value">微信支付</text>

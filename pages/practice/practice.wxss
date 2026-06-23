@@ -52,6 +52,38 @@ page {
   background: transparent;
 }
 
+.media .recording {
+  display: none !important;
+}
+
+.recording-overlay {
+  position: fixed;
+  z-index: 180;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  background: transparent;
+  overflow: hidden;
+}
+
+.recording-overlay-wave {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 106rpx;
+}
+
+.recording-overlay-tip {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #4e6a70;
+  line-height: 24rpx;
+  position: relative;
+  z-index: 2;
+}
+
 .word-container {
   display: flex;
   flex-direction: column;
@@ -138,6 +170,11 @@ page {
   font-size: 24rpx;
   line-height: 34rpx;
   white-space: nowrap;
+}
+
+.auto-next-skip {
+  color: #2f6fed;
+  font-weight: 600;
 }
 
 .auto-next-cancel {

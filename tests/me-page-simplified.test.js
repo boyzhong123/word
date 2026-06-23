@@ -9,6 +9,7 @@ const meTemplate = fs.readFileSync(path.join(projectRoot, 'pages/me/me.wxml'), '
 const meStyle = fs.readFileSync(path.join(projectRoot, 'pages/me/me.wxss'), 'utf8')
 
 test('me page keeps the menu focused on common actions', () => {
+  assert.match(meTemplate, /class="menu-label">学习记录</)
   assert.match(meScript, /label: '我的教材'/)
   assert.match(meScript, /label: '联系客服'/)
   assert.match(meScript, /label: '隐私与协议'/)
@@ -23,11 +24,18 @@ test('me page keeps the menu focused on common actions', () => {
   assert.doesNotMatch(meScript, /label: '关于我们'/)
 })
 
-test('me page removes VIP entry points from the profile area', () => {
-  assert.doesNotMatch(meTemplate, /vip-badge/)
+test('me page shows VIP badge beside nickname when membership is active', () => {
+  assert.match(meTemplate, /profile-vip-badge/)
+  assert.match(meTemplate, /class="nickname-inline"/)
+  assert.match(meTemplate, /nickname-ruler/)
+  assert.match(meStyle, /\.nickname-inline\s*{[^}]*display:\s*inline-flex/s)
+  assert.doesNotMatch(meStyle, /\.nickname-input\s*{[^}]*flex:\s*1/s)
+  assert.match(meTemplate, /membership\.active \? vipNameBadgeUrl : vipNameBadgeInactiveUrl/)
+  assert.match(meScript, /getMembership/)
+  assert.match(meScript, /refreshMembership\(\)/)
+  assert.match(meScript, /vipNameBadgeInactiveUrl/)
   assert.doesNotMatch(meTemplate, /bindtap="goVip"/)
   assert.doesNotMatch(meScript, /goVip/)
-  assert.doesNotMatch(meScript, /isVip/)
   assert.doesNotMatch(meStyle, /menu-ic-vip/)
   assert.doesNotMatch(meTemplate, /开通/)
 })

@@ -1,9 +1,12 @@
 {
   "pages": [
+    "pages/onboarding/onboarding",
+    "pages/today/today",
     "pages/home/home",
     "pages/index/index",
     "pages/practice/practice",
     "pages/advertisement/advertisement",
+    "pages/membership/membership",
     "pages/vip/vip",
     "pages/finish/today",
     "pages/listen/listen",
@@ -33,8 +36,12 @@
     "backgroundColor": "#fffdf8",
     "list": [
       {
+        "pagePath": "pages/today/today",
+        "text": "今日"
+      },
+      {
         "pagePath": "pages/home/home",
-        "text": "学习"
+        "text": "成长"
       },
       {
         "pagePath": "pages/me/me",

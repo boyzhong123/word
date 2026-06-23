@@ -1,0 +1,58 @@
+<!--pages/membership/membership.wxml-->
+<view class="page">
+  <view class="nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-back" bindtap="back">
+      <text class="nav-back-arrow">‹</text>
+    </view>
+    <view class="nav-title">开通会员</view>
+  </view>
+
+  <scroll-view scroll-y class="scroll" style="padding-bottom: {{safeAreaBottom + 180}}rpx;">
+    <view class="hero">
+      <view class="hero-crown">👑</view>
+      <view class="hero-title">词句刷刷刷 会员</view>
+      <view class="hero-sub">一次开通，解锁全部关卡 · 随身听 · 学习报告</view>
+      <view wx:if="{{membership.active}}" class="hero-active">当前会员有效期至 {{membership.expireText}}</view>
+    </view>
+
+    <view class="benefits">
+      <view wx:for="{{benefits}}" wx:key="title" class="benefit">
+        <image class="benefit-icon" src="{{item.icon}}" mode="aspectFit" />
+        <view class="benefit-copy">
+          <view class="benefit-title">{{item.title}}</view>
+          <view class="benefit-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="tiers">
+      <view
+        wx:for="{{tiers}}"
+        wx:key="id"
+        class="tier {{selectedTierId === item.id ? 'tier-sel' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="selectTier"
+      >
+        <view wx:if="{{item.tag}}" class="tier-tag">{{item.tag}}</view>
+        <view class="tier-name">{{item.name}}</view>
+        <view class="tier-price"><text class="tier-unit">¥</text>{{item.price}}</view>
+        <view class="tier-sub">{{item.sub}}</view>
+      </view>
+    </view>
+
+    <view class="redeem">
+      <input class="redeem-input" placeholder="有兑换码？输入后可免费开通" placeholder-class="redeem-ph" value="{{redeemInput}}" bindinput="onRedeemInput" />
+      <view class="redeem-btn {{redeemApplied ? 'redeem-ok' : ''}}" bindtap="applyRedeem">{{redeemApplied ? '已应用' : '使用'}}</view>
+    </view>
+
+    <view class="agreement">开通即视为同意《会员服务协议》，虚拟商品一经开通不支持退款。</view>
+  </scroll-view>
+
+  <view class="footer" style="padding-bottom: {{safeAreaBottom + 24}}rpx;">
+    <view class="footer-price">
+      <text class="footer-amount">¥{{redeemApplied ? 0 : currentTier.price}}</text>
+      <text class="footer-tier">{{currentTier.name}}会员</text>
+    </view>
+    <view class="footer-btn" bindtap="openMembership">{{redeemApplied ? '免费兑换开通' : '立即开通'}}</view>
+  </view>
+</view>

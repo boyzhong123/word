@@ -16,14 +16,18 @@ function loadHomePage() {
   let pageConfig
   const calls = {
     navigateTo: [],
+    switchTab: [],
     showToast: []
+  }
+  const globalData = {
+    BASE_URL: 'https://example.test',
+    token: '',
+    openBookPicker: false,
+    pendingBookId: ''
   }
 
   global.getApp = () => ({
-    globalData: {
-      BASE_URL: 'https://example.test',
-      token: ''
-    }
+    globalData
   })
   const storage = {}
   global.wx = {
@@ -39,6 +43,7 @@ function loadHomePage() {
         options.success()
       }
     },
+    switchTab: options => calls.switchTab.push(options),
     showToast: options => calls.showToast.push(options),
     hideTabBar: () => {},
     showTabBar: () => {},
@@ -80,15 +85,19 @@ function loadHomePage() {
 }
 
 test('home hero uses the jelly campus header with safe-zone positioning', () => {
-  const heroPath = path.join(projectRoot, 'images/home/hero-campus-jelly-v5.png')
-  const heroGirlPath = path.join(projectRoot, 'images/home/hero-campus-jelly-v5-girl.png')
+  const heroPath = path.join(projectRoot, 'images/home/hero-campus-jelly-v5-trio.png')
   assert.ok(fs.existsSync(heroPath))
-  assert.ok(fs.existsSync(heroGirlPath))
   assert.match(homeTemplate, /heroImageUrl/)
   assert.match(homeScript, /buildCharacterImageUrls/)
   assert.match(homeTemplate, /class="hero-image"[^>]*mode="widthFix"/)
+  assert.match(homeTemplate, /hero-image-clip/)
+  assert.match(homeTemplate, /hero-slogan-line/)
+  assert.match(homeTemplate, /style="{{heroClipStyle}}"/)
+  assert.match(homeScript, /HERO_IMAGE_HEIGHT_RPX/)
+  assert.match(homeScript, /heroClipStyle:/)
   assert.match(homeStyle, /\.hero-image\s*{[^}]*width:\s*100%/s)
   assert.match(homeStyle, /\.hero-image\s*{[^}]*max-width:\s*100%/s)
+  assert.match(homeStyle, /\.hero-image-clip\s*{[^}]*overflow:\s*hidden/s)
 })
 
 test('home monster hint toast uses the jelly icon plus text layout', () => {
@@ -457,6 +466,8 @@ test('unlocked recitation navigates with the selected unit id', () => {
 
 test('map level taps reveal details and start the selected unit', () => {
   const { page, calls } = loadHomePage()
+  // 第 1 关之外的关卡需会员，模拟已开通会员后可直接开始
+  wx.setStorageSync('membership', { tierId: 'y1', expireAt: Date.now() + 86400000 })
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.units = [{
     unitId: 'unit-7',
@@ -541,58 +552,65 @@ test('book picker uses lock overlay for unpurchased books without extra badges',
   assert.match(homeScript, /enrichPickerBooks/)
 })
 
-test('book picker cell splits into a cover (detail) zone and a switch bar', () => {
+test('book picker cell uses both cover and switch bar to change books', () => {
   assert.match(homeTemplate, /class="book-picker-cover-wrap"[^>]*catchtap="goBookDetail"/)
-  assert.match(homeTemplate, /book-picker-switch-buy[^>]*catchtap="goBuyFromPicker"/)
-  assert.match(homeTemplate, /class="book-picker-switch"[^>]*catchtap="switchBookUse"/)
+  assert.match(homeTemplate, /class="book-picker-switch \{\{item\.locked \? 'book-picker-switch-buy' : ''\}\}"[^>]*catchtap="switchBookUse"/)
   assert.match(homeTemplate, /book-picker-switch-current/)
   assert.doesNotMatch(homeTemplate, /bindtap="selectBook"/)
   assert.match(homeStyle, /\.book-picker-switch\s*{/)
 })
 
-test('book picker buy button always opens detail as unpurchased', () => {
+test('book picker buy button now switches books instead of opening detail', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
     resBookId: 'book-2',
     name: 'Owned Book',
     wordCount: 1200,
-    locked: false
+    locked: false,
+    demo: true
   }]
   page.data.bookPickerVisible = true
+  let switched = null
+  page.updateBook = selected => { switched = selected }
+  page.resetVisibleUnits = () => {}
+  page.loadUnits = () => {}
 
   page.goBuyFromPicker({
     currentTarget: { dataset: { resBookId: 'book-2' } }
   })
 
   assert.equal(page.data.bookPickerVisible, false)
-  assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
-  assert.match(calls.navigateTo[0].url, /resBookId=book-2/)
-  assert.match(calls.navigateTo[0].url, /unlocked=0/)
+  assert.equal(calls.navigateTo.length, 0)
+  assert.ok(switched && switched.resBookId === 'book-2')
 })
 
-test('book picker cover tap opens the product detail page for a locked book', () => {
+test('book picker cover tap switches to a locked book without opening detail', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
     resBookId: 'book-2',
     name: 'Locked Book',
     wordCount: 1000,
-    locked: true
+    locked: true,
+    demo: true
   }]
   page.data.bookPickerVisible = true
+  let switched = null
+  page.updateBook = selected => { switched = selected }
+  page.resetVisibleUnits = () => {}
+  page.loadUnits = () => {}
 
   page.goBookDetail({
     currentTarget: { dataset: { resBookId: 'book-2' } }
   })
 
   assert.equal(page.data.bookPickerVisible, false)
-  assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
-  assert.match(calls.navigateTo[0].url, /resBookId=book-2/)
-  assert.match(calls.navigateTo[0].url, /unlocked=0/)
+  assert.equal(calls.navigateTo.length, 0)
+  assert.ok(switched && switched.resBookId === 'book-2')
 })
 
-test('book picker cover tap opens the product detail page for an owned book', () => {
+test('book picker cover tap switches to an owned book without opening detail', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
@@ -602,9 +620,14 @@ test('book picker cover tap opens the product detail page for an owned book', ()
     wordCount: 1200,
     proverbCount: 300,
     press: '人教版',
-    locked: false
+    locked: false,
+    demo: true
   }]
   page.data.bookPickerVisible = true
+  let switched = null
+  page.updateBook = selected => { switched = selected }
+  page.resetVisibleUnits = () => {}
+  page.loadUnits = () => {}
 
   page.goBookDetail({
     currentTarget: { dataset: { resBookId: 'book-2' } }
@@ -612,13 +635,11 @@ test('book picker cover tap opens the product detail page for an owned book', ()
 
   assert.equal(page.data.bookPickerVisible, false)
   assert.equal(calls.showToast.length, 0)
-  assert.equal(calls.navigateTo.length, 1)
-  assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
-  assert.match(calls.navigateTo[0].url, /resBookId=book-2/)
-  assert.match(calls.navigateTo[0].url, /unlocked=1/)
+  assert.equal(calls.navigateTo.length, 0)
+  assert.ok(switched && switched.resBookId === 'book-2')
 })
 
-test('book picker cover tap opens the product detail page for a demo book', () => {
+test('book picker cover tap switches to a demo book without opening detail', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.allBooks = [{
@@ -631,6 +652,10 @@ test('book picker cover tap opens the product detail page for a demo book', () =
     locked: true
   }]
   page.data.bookPickerVisible = true
+  let switched = null
+  page.updateBook = selected => { switched = selected }
+  page.resetVisibleUnits = () => {}
+  page.loadUnits = () => {}
 
   page.goBookDetail({
     currentTarget: { dataset: { resBookId: 'demo-rj-7a' } }
@@ -638,10 +663,8 @@ test('book picker cover tap opens the product detail page for a demo book', () =
 
   assert.equal(page.data.bookPickerVisible, false)
   assert.equal(calls.showToast.length, 0)
-  assert.equal(calls.navigateTo.length, 1)
-  assert.match(calls.navigateTo[0].url, /advertisement\/advertisement/)
-  assert.match(calls.navigateTo[0].url, /resBookId=demo-rj-7a/)
-  assert.match(calls.navigateTo[0].url, /unlocked=0/)
+  assert.equal(calls.navigateTo.length, 0)
+  assert.ok(switched && switched.resBookId === 'demo-rj-7a')
 })
 
 test('book picker switch bar switches the active book without opening detail', () => {
@@ -669,6 +692,49 @@ test('book picker switch bar switches the active book without opening detail', (
   assert.equal(page.data.bookPickerVisible, false)
   assert.equal(calls.navigateTo.length, 0)
   assert.ok(switched && switched.resBookId === 'demo-rj-7a')
+})
+
+test('book picker opened from today returns to today tab after switching book', () => {
+  assert.match(homeScript, /openBookPicker[\s\S]*returnToTodayAfterBookSwitch = true/)
+  assert.match(homeScript, /returnToTodayAfterBookSwitch[\s\S]*wx\.switchTab\(\{ url: '\/pages\/today\/today' \}\)/)
+  assert.match(homeScript, /globalData\.pendingBookId = selectedBook\.resBookId/)
+
+  const { page, calls } = loadHomePage()
+  page.returnToTodayAfterBookSwitch = true
+  page.data.book = { resBookId: 'book-1', name: 'Book Name' }
+  page.data.allBooks = [{
+    resBookId: 'demo-rj-7a',
+    name: '(新)七年级上册',
+    bookCover: '/mock.png',
+    wordCount: 486,
+    demo: true
+  }]
+  page.data.bookPickerVisible = true
+
+  let switched = null
+  page.updateBook = (selected) => { switched = selected }
+  page.resetVisibleUnits = () => {}
+  page.loadUnits = () => {}
+
+  page.switchBookUse({
+    currentTarget: { dataset: { resBookId: 'demo-rj-7a' } }
+  })
+
+  assert.ok(switched && switched.resBookId === 'demo-rj-7a')
+  assert.equal(getApp().globalData.pendingBookId, 'demo-rj-7a')
+  assert.equal(calls.switchTab.length, 1)
+  assert.equal(calls.switchTab[0].url, '/pages/today/today')
+})
+
+test('book picker opened from today returns to today tab when closed without switching', () => {
+  const { page, calls } = loadHomePage()
+  page.returnToTodayAfterBookSwitch = true
+
+  page.closeBookPicker()
+
+  assert.equal(calls.switchTab.length, 1)
+  assert.equal(calls.switchTab[0].url, '/pages/today/today')
+  assert.equal(page.returnToTodayAfterBookSwitch, false)
 })
 
 test('today locate fab scrolls the today group to the top of the list', () => {

@@ -1,0 +1,476 @@
+<!--pages/today/today.wxml-->
+<view class="page {{showVipFloatingGuide ? 'page-vip-floating' : ''}}">
+  <scroll-view class="today-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="today-scroll-inner">
+  <!-- ================= 今日看板 ================= -->
+  <block>
+    <!-- 顶部 hero 表头：插画 + 昵称 + 每天进步一点点 -->
+    <view class="today-hero">
+      <image class="today-hero-img" src="{{todayHeroImageUrl}}" mode="widthFix" />
+      <view class="today-hero-fade"></view>
+      <view class="today-hero-copy" style="padding-top: {{statusBarHeight}}px;">
+        <view class="today-hero-eyebrow">{{greeting}} · {{dateText}}</view>
+        <view class="today-hero-title">
+          <text>Hi，</text>
+          <view class="today-hero-name-row">
+            <block wx:if="{{canUseUserProfile}}">
+              <text wx:if="{{nickName}}" class="today-hero-name" bindtap="getUserProfile">{{nickName}}</text>
+              <text wx:else class="today-hero-name today-hero-name-ph" bindtap="getUserProfile">点击授权</text>
+            </block>
+            <block wx:else>
+              <text wx:if="{{nickName}}" class="today-hero-name" bindtap="getUserProfile">{{nickName}}</text>
+              <input
+                wx:else
+                class="today-hero-name-input"
+                type="nickname"
+                value="{{nickName}}"
+                focus="{{nicknameFocus}}"
+                maxlength="10"
+                placeholder="设置昵称"
+                placeholder-style="color: rgba(15,53,89,0.55);"
+                bindinput="nickNameChange"
+                bindblur="nickNameBlur"
+              />
+            </block>
+            <image
+              wx:if="{{nickName}}"
+              class="today-hero-vip-badge"
+              src="{{membership.active ? vipNameBadgeUrl : vipNameBadgeInactiveUrl}}"
+              mode="aspectFit"
+              bindtap="goMembership"
+            />
+          </view>
+        </view>
+        <view class="today-hero-sub">每天进步一点点，词汇量大大！</view>
+      </view>
+    </view>
+
+    <!-- 今日概览卡：上浮压住 hero 草坪底部，填掉空白；教材主体 + 亮点折叠 + 学习数据 -->
+    <view wx:if="{{book}}" class="today-overview">
+      <view class="ov-head" catchtap="toggleHighlights">
+        <view class="ov-title-wrap">
+          <image class="ov-title-icon" src="../../images/home/icon-today-textbook-sync.png" mode="aspectFit" />
+          <view class="ov-title-cluster">
+            <text class="ov-title">课本同步学</text>
+            <view class="ov-sync-badge">同步2026新教材</view>
+          </view>
+        </view>
+        <view class="ov-head-action inline-action">
+          <text class="ov-head-action-text">{{highlightsExpanded ? '收起' : '展开'}}</text>
+          <text class="ui-caret {{highlightsExpanded ? 'ui-caret-up' : 'ui-caret-down'}}"></text>
+        </view>
+      </view>
+
+      <view class="ov-book">
+        <view class="ov-book-body">
+          <view class="ov-book-cover-wrap">
+            <image class="ov-book-cover" src="{{book.bookCover}}" mode="aspectFill" />
+            <view wx:if="{{book.newStandard}}" class="tag-new-standard ov-book-cover-tag">新课标</view>
+          </view>
+          <view class="ov-book-main">
+            <view class="ov-book-kicker">
+              <text>我的教材</text>
+              <view class="ov-book-switch inline-action" catchtap="switchBook">
+                <text>切换</text>
+                <text class="ui-caret ui-caret-right"></text>
+              </view>
+            </view>
+            <view class="ov-book-title-row">
+              <view class="ov-book-name">{{book.name}}</view>
+            </view>
+            <view class="ov-book-meta">{{book.press || profileText || '精选教材'}}</view>
+          </view>
+        </view>
+
+        <view class="ov-highlights">
+          <view wx:if="{{highlightsExpanded}}" class="ov-highlight-list">
+            <view
+              class="ov-highlight ov-highlight-{{index}}"
+              wx:for="{{productHighlights}}"
+              wx:for-item="item"
+              wx:for-index="index"
+              wx:key="title"
+            >
+              <view class="ov-highlight-badge">
+                <view class="ov-highlight-badge-inner">
+                  <image class="ov-highlight-icon" src="{{item.icon}}" mode="aspectFit" />
+                </view>
+              </view>
+              <view class="ov-highlight-copy">
+                <view class="ov-highlight-title-row">
+                  <text class="ov-highlight-title">{{item.title}}</text>
+                  <text wx:if="{{item.tag}}" class="ov-highlight-tag">{{item.tag}}</text>
+                </view>
+                <view class="ov-highlight-desc">{{item.desc}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="ov-stats" bindtap="showTodayProgressHint">
+        <view class="ov-stat">
+          <image class="ov-stat-icon" src="../../images/home/icon-today-learned-word.png" mode="aspectFit" />
+          <view class="ov-stat-copy">
+            <view class="ov-stat-num">
+              {{todayWords}}<text class="ov-stat-unit">词</text>
+            </view>
+            <view class="ov-stat-label">今日单词</view>
+          </view>
+        </view>
+        <view class="ov-stat">
+          <image class="ov-stat-icon" src="../../images/home/icon-today-learned-sentence.png" mode="aspectFit" />
+          <view class="ov-stat-copy">
+            <view class="ov-stat-num">
+              {{todaySentences}}<text class="ov-stat-unit">句</text>
+            </view>
+            <view class="ov-stat-label">今日句子</view>
+          </view>
+        </view>
+        <view class="ov-stat">
+          <image class="ov-stat-icon" src="../../images/home/icon-today-streak.png" mode="aspectFit" />
+          <view class="ov-stat-copy">
+            <view class="ov-stat-num">
+              {{todayDone}}<text class="ov-stat-unit">关</text>
+            </view>
+            <view class="ov-stat-label">今日闯关</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <block wx:if="{{loading}}">
+      <view class="today-skeleton" aria-hidden="true">
+        <view class="today-overview today-sk-overview">
+          <view class="today-sk-head">
+            <view class="today-sk-head-left">
+              <view class="sk-block today-sk-head-icon"></view>
+              <view class="sk-block sk-line today-sk-head-title"></view>
+            </view>
+            <view class="sk-block sk-line today-sk-head-action"></view>
+          </view>
+          <view class="today-sk-book">
+            <view class="sk-block today-sk-cover"></view>
+            <view class="today-sk-book-main">
+              <view class="sk-block sk-line today-sk-line-sm"></view>
+              <view class="sk-block sk-line today-sk-line-lg"></view>
+              <view class="sk-block sk-line today-sk-line-md"></view>
+            </view>
+          </view>
+          <view class="today-sk-stats">
+            <view class="today-sk-stat" wx:for="{{[1, 2, 3]}}" wx:key="*this">
+              <view class="sk-block today-sk-stat-icon"></view>
+              <view class="today-sk-stat-copy">
+                <view class="sk-block sk-line today-sk-stat-num"></view>
+                <view class="sk-block sk-line today-sk-stat-label"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="route today-sk-route">
+          <view class="today-sk-route-head">
+            <view class="today-sk-route-left">
+              <view class="sk-block today-sk-route-flag"></view>
+              <view class="today-sk-route-copy">
+                <view class="sk-block sk-line today-sk-route-title"></view>
+                <view class="sk-block sk-line today-sk-route-sub"></view>
+              </view>
+            </view>
+            <view class="sk-block today-sk-route-btn"></view>
+          </view>
+          <view class="sk-block today-sk-route-bar"></view>
+
+          <view class="seg seg-current today-sk-seg">
+            <view class="today-sk-seg-head">
+              <view class="sk-block today-sk-marker"></view>
+              <view class="today-sk-seg-sign">
+                <view class="sk-block sk-line today-sk-seg-title"></view>
+                <view class="sk-block sk-line today-sk-seg-state"></view>
+              </view>
+            </view>
+            <view class="today-sk-steps">
+              <view class="today-sk-step">
+                <view class="sk-block today-sk-step-dot"></view>
+                <view class="sk-block today-sk-spot"></view>
+              </view>
+              <view class="today-sk-step" wx:for="{{[1, 2]}}" wx:key="*this">
+                <view class="sk-block today-sk-step-dot"></view>
+                <view class="today-sk-step-row">
+                  <view class="sk-block sk-line today-sk-step-name"></view>
+                  <view class="sk-block sk-line today-sk-step-status"></view>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="seg today-sk-seg-fold" wx:for="{{[1, 2]}}" wx:key="*this">
+            <view class="sk-block today-sk-marker-sm"></view>
+            <view class="today-sk-fold-copy">
+              <view class="sk-block sk-line today-sk-fold-title"></view>
+              <view class="sk-block sk-line today-sk-fold-sub"></view>
+            </view>
+            <view class="sk-block sk-line today-sk-fold-action"></view>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <!-- 今日学习路线：只突出当前要做的一步，后续步骤轻量预告。 -->
+      <view wx:if="{{targetLevels.length}}" class="route">
+        <view class="route-head">
+          <view class="route-head-left">
+            <image class="route-flag" src="{{routeIconUrl}}" mode="aspectFit" />
+            <view>
+              <view class="route-title">今日学习路线</view>
+              <view class="route-sub">更新时间 {{routeUpdatedAtText}}</view>
+            </view>
+          </view>
+          <view class="route-actions">
+            <view class="route-plan-btn" bindtap="adjustPlan">
+              <image class="route-plan-btn-icon" src="../../images/home/icon-study-plan-clipboard-jelly.png" mode="aspectFit" />
+              <text>学习计划</text>
+            </view>
+          </view>
+        </view>
+        <view class="route-bar-row">
+          <image class="route-bar-whistle" src="{{routeBarWhistleUrl}}" mode="aspectFit" />
+          <view class="route-bar">
+            <view class="route-bar-fill" style="width: {{stepPercent}}%;"></view>
+          </view>
+          <image class="route-bar-flag" src="{{routeBarFlagUrl}}" mode="aspectFit" />
+        </view>
+
+        <view class="seg seg-{{level.levelState}} {{level.locked ? 'seg-locked' : ''}}" wx:for="{{targetLevels}}" wx:for-item="level" wx:key="key">
+          <block wx:if="{{level.locked}}">
+            <view class="locked-card" bindtap="goMembership">
+              <view class="seg-marker seg-marker-locked">{{level.levelNo}}</view>
+              <image class="locked-card-monster" src="{{lockedMonsterUrl}}" mode="aspectFit" />
+              <view class="locked-card-copy">
+                <view class="locked-card-kicker">后面还有</view>
+                <view class="locked-card-title">{{level.title}}</view>
+              </view>
+              <view class="locked-card-btn">
+                <image class="locked-card-lock" src="../../images/home/task-lock.png" mode="aspectFit" />
+                <text>会员</text>
+              </view>
+            </view>
+          </block>
+
+          <!-- 已完成 / 下一关：折叠成一行，点击展开 -->
+          <view
+            wx:elif="{{level.collapsible && !level.expanded}}"
+            class="seg-fold seg-fold-{{level.levelState}}"
+            data-key="{{level.key}}"
+            bindtap="toggleLevel"
+          >
+            <view class="seg-marker seg-marker-{{level.levelState}}">
+              <image class="seg-marker-monster" src="{{level.markerMonsterUrl}}" mode="aspectFit" />
+            </view>
+            <view class="seg-fold-copy">
+              <view class="seg-fold-title-row">
+                <text wx:if="{{level.isReview}}" class="seg-badge">复习</text>
+                <text class="seg-fold-title">{{level.title}}</text>
+                <view wx:if="{{level.levelState === 'completed'}}" class="seg-stage-stars">
+                  <image
+                    class="seg-stage-star"
+                    wx:for="{{level.stageStars}}"
+                    wx:for-item="stageDone"
+                    wx:key="index"
+                    src="{{stageDone ? '../../images/home/stage-star-filled.png' : '../../images/home/stage-star-empty.png'}}"
+                    mode="aspectFit"
+                  />
+                </view>
+                <view wx:if="{{level.showReport}}" class="seg-report-pill" data-key="{{level.key}}" catchtap="goLevelReport">
+                  <image class="seg-report-icon" src="../../images/home/icon-report-pill.png" mode="aspectFit" />
+                  <text>报告</text>
+                </view>
+              </view>
+              <text class="seg-fold-sub">{{level.foldStatusText}}</text>
+            </view>
+            <view class="seg-fold-action">
+              <text>展开</text>
+              <text class="ui-caret ui-caret-down"></text>
+            </view>
+          </view>
+
+          <block wx:else>
+            <view
+              class="seg-head {{level.collapsible ? 'seg-head-foldable' : ''}}"
+              data-key="{{level.key}}"
+              bindtap="{{level.collapsible ? 'toggleLevel' : 'noop'}}"
+            >
+              <view class="seg-marker seg-marker-{{level.levelState}}">
+                <view wx:if="{{level.levelState === 'current'}}" class="seg-marker-pk">
+                  <frame-animation
+                    url="{{pkSpriteUrl}}"
+                    count="7"
+                    width="178"
+                    height="104"
+                    duration="{{pkSpriteDuration}}"
+                    state="running"
+                  />
+                </view>
+                <image wx:else class="seg-marker-monster" src="{{level.markerMonsterUrl}}" mode="aspectFit" />
+              </view>
+              <view class="seg-sign">
+                <view class="seg-title-row">
+                  <text wx:if="{{level.isReview}}" class="seg-badge">复习</text>
+                  <text class="seg-title">{{level.title}}</text>
+                  <view wx:if="{{level.levelState === 'completed'}}" class="seg-stage-stars">
+                    <image
+                      class="seg-stage-star"
+                      wx:for="{{level.stageStars}}"
+                      wx:for-item="stageDone"
+                      wx:key="index"
+                      src="{{stageDone ? '../../images/home/stage-star-filled.png' : '../../images/home/stage-star-empty.png'}}"
+                      mode="aspectFit"
+                    />
+                  </view>
+                  <view wx:if="{{level.showReport}}" class="seg-report-pill" data-key="{{level.key}}" catchtap="goLevelReport">
+                    <image class="seg-report-icon" src="../../images/home/icon-report-pill.png" mode="aspectFit" />
+                    <text>报告</text>
+                  </view>
+                </view>
+                <text class="seg-state">{{level.levelStatusText}}</text>
+              </view>
+              <view wx:if="{{level.collapsible}}" class="seg-fold-action">
+                <text>收起</text>
+                <text class="ui-caret ui-caret-up"></text>
+              </view>
+              <text wx:elif="{{level.isFreeTrial}}" class="seg-free">免费体验</text>
+            </view>
+
+            <view class="seg-steps">
+              <view class="seg-rail"></view>
+              <view
+                class="step step-{{task.stepState}}"
+                wx:for="{{level.tasks}}"
+                wx:for-item="task"
+                wx:key="type"
+                data-key="{{level.key}}"
+                data-task-type="{{task.type}}"
+                bindtap="tapTask"
+              >
+                <view class="step-dot step-dot-{{task.stepState}}" style="{{task.stepIconWrapStyle}}">
+                  <image class="step-dot-icon" src="{{task.stepIcon}}" mode="aspectFit" />
+                </view>
+
+                <view wx:if="{{task.isCurrent}}" class="spot">
+                  <image class="spot-pin" src="../../images/home/icon-today-pin-jelly.png" mode="aspectFit" />
+                  <view class="spot-copy">
+                    <view class="spot-eyebrow-row">
+                      <view class="spot-eyebrow-pill">
+                        <text class="spot-eyebrow">现在做</text>
+                      </view>
+                      <text class="spot-progress">{{task.progressText}}</text>
+                    </view>
+                    <view class="spot-title">{{task.label}}</view>
+                    <view class="spot-hint">{{task.hint}}</view>
+                  </view>
+                  <view class="spot-btn-wrap">
+                    <view class="spot-btn spot-btn-{{spotBtnTheme}}">开始</view>
+                    <view wx:if="{{todayRouteGuideFingerVisible}}" class="spot-guide-finger">
+                      <view class="spot-guide-finger-ring"></view>
+                      <view class="spot-guide-finger-ring spot-guide-finger-ring-2"></view>
+                      <image class="spot-guide-finger-img" src="/images/listen/listen-guide-tap-finger.png" mode="aspectFit" />
+                    </view>
+                  </view>
+                </view>
+
+                <view wx:else class="step-row step-row-{{task.stepState}}">
+                  <text class="step-name">{{task.label}}</text>
+                  <view class="step-status step-status-{{task.stepState}}">
+                    <text class="step-status-ico">{{task.stepState === 'completed' ? '✓' : '○'}}</text>
+                    <text>{{task.statusText}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <!-- 全部完成时的庆祝卡 -->
+      <view wx:elif="{{allDone}}" class="done-card">
+        <view class="done-emoji">🎉</view>
+        <view class="done-title">今日任务全部完成</view>
+        <view class="done-sub">明天继续保持，给孩子一个小奖励吧</view>
+        <view class="app-btn app-btn-secondary done-btn" bindtap="adjustPlan">调整学习计划</view>
+      </view>
+
+      <view wx:else class="done-card">
+        <view class="done-emoji">📚</view>
+        <view class="done-title">今日任务整理中</view>
+        <view class="done-sub">去成长页看看完整闯关地图</view>
+        <view class="app-btn app-btn-secondary done-btn" bindtap="goGrowth">去成长页</view>
+      </view>
+
+    </block>
+  </block>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{showVipFloatingGuide}}" class="vip-floating-guide" bindtap="goMembership">
+    <image class="vip-floating-banner" src="{{vipFloatingUnlockUrl}}" mode="widthFix" />
+    <view class="vip-floating-close-hit" catchtap="closeVipFloatingGuide"></view>
+  </view>
+
+  <view wx:if="{{monsterHint.visible}}" class="monster-hint">
+    <view class="monster-hint-box">
+      <image class="monster-hint-icon" src="/images/home/toast-hint.png" mode="aspectFit" />
+      <text class="monster-hint-text">{{monsterHint.text}}</text>
+    </view>
+  </view>
+
+  <!-- 已完成环节再练确认弹窗（与成长页同款交互） -->
+  <view class="reprac-mask" wx:if="{{showRepracticePopup}}" bindtap="cancelReprac" catchtouchmove="noop">
+    <view class="reprac-card" catchtap="noop">
+      <view class="reprac-title">再练一次「{{repracticeLabel}}」？</view>
+      <view class="reprac-desc">这个环节已经练过啦。再次练习<text class="reprac-strong">只有刷出更好的成绩才会更新</text>，原成绩不会被拉低，放心练。</view>
+
+      <view class="reprac-remind" bindtap="toggleDontRemind" hover-class="reprac-remind-hover">
+        <view class="reprac-check {{dontRemindReprac ? 'reprac-check-on' : ''}}">
+          <text wx:if="{{dontRemindReprac}}" class="reprac-check-mark">✓</text>
+        </view>
+        <text class="reprac-remind-text">不再提醒</text>
+      </view>
+
+      <view class="reprac-actions">
+        <view class="reprac-btn reprac-btn-ghost" bindtap="cancelReprac" hover-class="reprac-btn-hover">取消</view>
+        <view class="reprac-btn reprac-btn-primary" bindtap="confirmReprac" hover-class="reprac-btn-hover">去练习</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新手引导后：入门测推荐弹窗 -->
+  <view class="entry-exam-mask" wx:if="{{showEntryExamPrompt}}" bindtap="skipEntryExamPrompt" catchtouchmove="noop">
+    <view class="entry-exam-card" catchtap="noop">
+      <image class="entry-exam-hero" src="{{entryExamPromptHeroUrl}}" mode="aspectFill" />
+      <view class="entry-exam-body">
+        <view class="entry-exam-title">先来做个入门测？</view>
+        <view class="entry-exam-desc">开学前花几分钟摸底，帮你更清楚地安排学习节奏</view>
+        <view class="entry-exam-benefits">
+          <view class="entry-exam-benefit">
+            <text class="entry-exam-dot">✓</text>
+            <text>了解当前单词和句子水平</text>
+          </view>
+          <view class="entry-exam-benefit">
+            <text class="entry-exam-dot">✓</text>
+            <text>生成专属测评报告，薄弱点一目了然</text>
+          </view>
+          <view class="entry-exam-benefit">
+            <text class="entry-exam-dot">✓</text>
+            <text>结业后可对比进步，看见真实提升</text>
+          </view>
+        </view>
+        <view class="entry-exam-actions">
+          <view class="entry-exam-btn entry-exam-btn-ghost" bindtap="skipEntryExamPrompt" hover-class="entry-exam-btn-hover">稍后再说</view>
+          <view class="entry-exam-btn entry-exam-btn-primary" bindtap="startEntryExam" hover-class="entry-exam-btn-hover">开始入门测</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+</view>

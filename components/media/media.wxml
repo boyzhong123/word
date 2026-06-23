@@ -14,11 +14,11 @@
     <image class="bad media-action-icon" wx:elif="{{media_state == 3}}" src="../../images/cry_playing.png" />
     <image class="bad media-action-icon" wx:else src="../../images/cry_paused.png" />
   </view>
-  <view class="recording" catchtap="record" wx:if="{{media_state == 2 && !_overlayRecord}}">
+  <view class="recording" catchtap="record" wx:if="{{media_state == 2 && !overlayRecord}}">
     <wave-line wx:key="ws-{{waveSession}}" id="recording-wave" class="recording-wave"></wave-line>
     <text class="stop-record-tip">点击波纹，结束录音</text>
   </view>
-  <view class="recording" wx:elif="{{media_state == 4 && !_overlayRecord}}">
+  <view class="recording" wx:elif="{{media_state == 4 && !overlayRecord}}">
     <text class="stop-record-tip">评分中...</text>
   </view>
 </view>

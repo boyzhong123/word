@@ -23,7 +23,7 @@
     <view class="mini-info">
       <text class="mini-title">{{miniTitle}}</text>
       <view class="mini-sub-row">
-        <text class="mini-sub">随身听</text>
+        <text class="mini-sub">伴读</text>
         <view wx:if="{{miniPlaying}}" class="mini-eq" aria-hidden="true">
           <view class="mini-eq-bar"></view>
           <view class="mini-eq-bar"></view>
@@ -49,21 +49,27 @@
 <canvas type="2d" id="miniColorCanvas" class="mini-color-canvas"></canvas>
 
 <view wx:if="{{!hidden}}" class="bottom-nav">
-  <view class="bottom-nav-item {{selected === 0 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
+  <view class="bottom-nav-item {{selected === 0 ? 'bottom-nav-active' : ''}}" data-path="/pages/today/today" bindtap="switchTab">
     <view class="bottom-nav-icon-wrap">
-      <image class="bottom-nav-icon" src="{{selected === 0 ? '/images/home/nav-study-jelly-active.png' : '/images/home/nav-study-jelly.png'}}" mode="aspectFit" />
+      <image class="bottom-nav-icon" src="{{selected === 0 ? '/images/home/nav-today-jelly-active.png' : '/images/home/nav-today-jelly.png'}}" mode="aspectFit" />
     </view>
-    <text>学习</text>
+    <text>今日</text>
+  </view>
+  <view class="bottom-nav-item {{selected === 1 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
+    <view class="bottom-nav-icon-wrap">
+      <image class="bottom-nav-icon" src="{{selected === 1 ? '/images/home/nav-study-jelly-active.png' : '/images/home/nav-study-jelly.png'}}" mode="aspectFit" />
+    </view>
+    <text>成长</text>
   </view>
   <view class="bottom-nav-item {{miniPlaying ? 'bottom-nav-active' : ''}}" bindtap="goListen">
     <view class="bottom-nav-icon-wrap {{miniPlaying ? 'bottom-nav-icon-playing' : ''}}">
       <image class="bottom-nav-icon" src="{{miniPlaying ? '/images/home/nav-listen-jelly-active.png' : '/images/home/nav-listen-jelly.png'}}" mode="aspectFit" />
     </view>
-    <text>随身听</text>
+    <text>伴读</text>
   </view>
-  <view class="bottom-nav-item {{selected === 1 ? 'bottom-nav-active' : ''}}" data-path="/pages/me/me" bindtap="switchTab">
+  <view class="bottom-nav-item {{selected === 2 ? 'bottom-nav-active' : ''}}" data-path="/pages/me/me" bindtap="switchTab">
     <view class="bottom-nav-icon-wrap">
-      <image class="bottom-nav-icon" src="{{selected === 1 ? '/images/home/nav-me-jelly-active.png' : '/images/home/nav-me-jelly.png'}}" mode="aspectFit" />
+      <image class="bottom-nav-icon" src="{{selected === 2 ? '/images/home/nav-me-jelly-active.png' : '/images/home/nav-me-jelly.png'}}" mode="aspectFit" />
     </view>
     <text>我的</text>
   </view>

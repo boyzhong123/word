@@ -3,6 +3,7 @@
   "usingComponents": {
     "frame-animation": "../frame-animation/frame-animation",
     "media": "../media/media",
-    "dialog": "../dialog/dialog"
+    "dialog": "../dialog/dialog",
+    "wave-line": "../wave/wave"
   }
 }

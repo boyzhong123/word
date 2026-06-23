@@ -1,7 +1,7 @@
 <view class="page">
   <navigation class="title-box" background="#fbfcff">
     <view class="ad-nav-title-wrap">
-      <view class="ad-nav-title">{{name || '教材详情'}}</view>
+      <view class="ad-nav-title">购买VIP会员</view>
     </view>
   </navigation>
 
@@ -13,17 +13,21 @@
 
     <view class="book-card">
       <view class="book-main">
-        <view class="book-cover-frame">
-          <image class="book-cover" src="{{bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
+        <view class="book-art-frame">
+          <image class="book-art" src="{{vipFloatingUnlockUrl}}" mode="aspectFit" />
+          <view class="book-art-glow"></view>
         </view>
         <view class="book-meta">
-          <text class="book-name">{{name}}</text>
-          <view wx:if="{{press}}" class="press-pill">
+          <text class="book-name">{{vipCardTitle}}</text>
+          <view class="press-pill">
             <image class="press-pill-icon" src="{{imageBaseUrl}}/images/home/ad/icon-press-jelly.png" mode="aspectFit" />
-            <text class="press-pill-text">{{press}}</text>
+            <text class="press-pill-text">低至 ¥{{minPrice}} 起</text>
           </view>
-          <view wx:else class="book-pills">
-            <view wx:for="{{gradeTags}}" wx:key="*this" class="grade-pill">{{item}}</view>
+          <text class="vip-subtitle">{{vipCardSubtitle}}</text>
+          <view class="vip-benefits">
+            <view class="vip-benefit-chip" wx:for="{{heroBenefitTags}}" wx:key="*this">
+              <text>{{item}}</text>
+            </view>
           </view>
         </view>
       </view>
@@ -137,7 +141,7 @@
   </scroll-view>
 
   <view class="purchase-bar" style="padding-bottom: {{safeAreaBottom}}px;">
-    <view wx:if="{{unlocked}}" class="purchase-button purchase-button-owned">已购买</view>
+    <view wx:if="{{unlocked}}" class="purchase-button purchase-button-owned">已开通会员</view>
     <block wx:else>
       <view class="purchase-price">
         <view class="purchase-price-row">
@@ -147,13 +151,19 @@
         </view>
         <text class="purchase-price-note">{{skuCount}} 种规格可选</text>
       </view>
-      <view class="purchase-button purchase-button-buy" bindtap="openSkuSheet">立即购买</view>
+      <view class="purchase-button purchase-button-buy" bindtap="openSkuSheet">购买 VIP 会员</view>
     </block>
   </view>
 
   <view wx:if="{{skuSheetVisible}}" class="sku-mask" bindtap="closeSkuSheet">
     <view class="sku-sheet" catchtap="noop">
       <view class="sku-handle"></view>
+      <view class="sku-close" catchtap="closeSkuSheet">✕</view>
+
+      <view class="sku-head">
+        <text class="sku-head-title">购买 VIP 会员</text>
+        <text class="sku-head-sub">选规格开通，解锁全部关卡 · 随身听 · 学习报告</text>
+      </view>
 
       <view class="sku-book">
         <image class="sku-cover" src="{{bookCover}}" mode="aspectFill" binderror="onBookCoverError" />
@@ -162,64 +172,49 @@
           <text class="sku-book-stats">{{wordCountText}} 词 · {{proverbCountText}} 条句子 · {{totalText}} 个单元</text>
           <text wx:if="{{press}}" class="sku-book-press">{{press}}</text>
         </view>
-        <view class="sku-close" catchtap="closeSkuSheet">✕</view>
       </view>
 
       <scroll-view scroll-y class="sku-body" enhanced show-scrollbar="{{false}}">
-        <view class="sku-title">词典有效期</view>
-        <view class="sku-options">
+        <view class="sku-group-label">选择会员时长</view>
+        <view class="sku-tiers">
           <view
-            wx:for="{{validityOptions}}"
+            wx:for="{{membershipTiers}}"
             wx:key="id"
-            class="sku-option {{selectedValidity === item.id ? 'sku-option-active' : ''}}"
+            class="sku-tier {{selectedTierId === item.id ? 'sku-tier-active' : ''}}"
             data-id="{{item.id}}"
-            bindtap="selectValidity"
+            bindtap="selectTier"
           >
-            <view wx:if="{{selectedValidity === item.id}}" class="sku-tick">✓</view>
-            <view class="sku-option-head">
-              <text class="sku-option-name">{{item.name}}</text>
-              <text wx:if="{{item.tag}}" class="sku-pill">{{item.tag}}</text>
+            <view wx:if="{{item.tag}}" class="sku-tier-tag">{{item.tag}}</view>
+            <text class="sku-tier-name">{{item.name}}</text>
+            <view class="sku-tier-price">
+              <text class="sku-tier-currency">¥</text>
+              <text class="sku-tier-amount">{{item.price}}</text>
             </view>
-            <text class="sku-option-desc">{{item.summary}}</text>
-          </view>
-        </view>
-
-        <view class="sku-title">套餐</view>
-        <view class="sku-options">
-          <view
-            wx:for="{{packages}}"
-            wx:key="id"
-            class="sku-option {{selectedPackage === item.id ? 'sku-option-active' : ''}}"
-            data-id="{{item.id}}"
-            bindtap="selectPackage"
-          >
-            <view wx:if="{{selectedPackage === item.id}}" class="sku-tick">✓</view>
-            <view class="sku-option-head">
-              <text class="sku-option-name">{{item.name}}</text>
-              <text wx:if="{{item.tag}}" class="sku-pill">{{item.tag}}</text>
-            </view>
-            <text class="sku-option-desc">{{item.summary}}</text>
+            <text class="sku-tier-sub">{{item.sub}}</text>
           </view>
         </view>
 
         <view class="sku-includes">
-          <view class="sku-includes-title">「{{currentPackage.name}}」包含</view>
-          <view class="sku-includes-item" wx:for="{{currentPackageItems}}" wx:key="*this">
-            <text class="sku-check">✓</text>
-            <text class="sku-includes-text">{{item}}</text>
+          <view class="sku-includes-title">会员权益包含</view>
+          <view class="sku-benefit" wx:for="{{vipBenefits}}" wx:key="title">
+            <image class="sku-benefit-icon" src="{{item.icon}}" mode="aspectFit" />
+            <view class="sku-benefit-copy">
+              <text class="sku-benefit-title">{{item.title}}</text>
+              <text class="sku-benefit-desc">{{item.desc}}</text>
+            </view>
           </view>
         </view>
       </scroll-view>
 
       <view class="sku-actions">
         <view class="sku-foot-price">
-          <text class="sku-foot-label">{{currentSku.skuLabel}}</text>
+          <text class="sku-foot-label">{{currentTier.name}}会员</text>
           <view class="sku-foot-amount-row">
             <text class="sku-foot-currency">¥</text>
-            <text class="sku-foot-amount">{{currentSku.price}}</text>
+            <text class="sku-foot-amount">{{currentTier.price}}</text>
           </view>
         </view>
-        <view class="sku-confirm" bindtap="confirmPurchase">确认购买</view>
+        <view class="sku-confirm" bindtap="confirmPurchase">立即开通</view>
       </view>
     </view>
   </view>

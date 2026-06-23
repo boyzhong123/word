@@ -13,122 +13,27 @@
     bindscrolltolower="loadMoreUnits"
   >
     <view id="home-top-anchor"></view>
-    <view class="hero-section" style="{{heroSectionStyle}}">
-      <image class="hero-image" src="{{heroImageUrl}}" mode="widthFix" />
-
-      <view class="hero-copy" style="{{heroCopyStyle}}">
-        <view class="hero-title">
-          <text>Hi，</text>
-          <block wx:if="{{canUseUserProfile}}">
-            <text wx:if="{{nickName}}" class="hero-name-tap" bindtap="getUserProfile">{{nickName}}</text>
-            <text wx:else class="hero-name-placeholder hero-name-tap" bindtap="getUserProfile">点击授权</text>
-          </block>
-          <block wx:else>
-            <text
-              wx:if="{{nickName && !nicknameEditing}}"
-              class="hero-name-tap"
-              bindtap="getUserProfile"
-            >{{nickName}}</text>
-            <input
-              wx:else
-              class="hero-name-input"
-              type="nickname"
-              value="{{nickName}}"
-              focus="{{nicknameFocus}}"
-              maxlength="10"
-              placeholder="设置昵称"
-              placeholder-style="color: rgba(255,255,255,0.82);"
-              bindinput="nickNameChange"
-              bindblur="nickNameBlur"
-            />
-          </block>
-        </view>
-        <view class="hero-subtitle">每天进步一点点，词汇量大大！</view>
+    <view class="hero-section">
+      <view class="hero-image-clip" style="{{heroClipStyle}}">
+        <image class="hero-image" src="{{heroImageUrl}}" mode="widthFix" />
       </view>
 
-      <view class="book-card" style="{{bookCardStyle}}">
-        <block wx:if="{{loading}}">
-          <view class="book-cover-column">
-            <view class="book-cover sk-block"></view>
-            <view class="switch-book switch-book-cover sk-block"></view>
-          </view>
-          <view class="book-summary">
-            <view class="book-title-row">
-              <view class="sk-block sk-line" style="width: 56%;"></view>
-            </view>
-            <view class="sk-block sk-line" style="width: 42%; margin-top: 22rpx;"></view>
-            <view class="sk-block sk-line" style="width: 100%; height: 12rpx; margin-top: 16rpx;"></view>
-            <view class="book-metrics">
-              <view class="book-metric sk-block"></view>
-              <view class="book-metric sk-block"></view>
-              <view class="book-metric sk-block"></view>
-            </view>
-          </view>
-        </block>
-        <block wx:else>
-          <view class="book-cover-column" bindtap="switchBook">
-            <image class="book-cover" src="{{book.bookCover}}" mode="aspectFill" binderror="onMainBookCoverError" />
-            <view class="switch-book switch-book-cover">
-              <image class="switch-icon" src="../../images/home/icon-switch-book.svg" mode="aspectFit" />
-              <text>切换教材</text>
-            </view>
-          </view>
-          <view class="book-summary">
-            <view class="book-title-row">
-              <text class="book-title">{{book.name}}</text>
-              <view class="checkin-calendar-button" bindtap="goCheckinCalendar">
-                <image src="../../images/home/icon-checkin-calendar-jelly.png" mode="aspectFit" />
-                <text>打卡日历</text>
-              </view>
-            </view>
-
-            <view class="book-progress-copy">
-              <text class="book-progress-label">解锁单词：</text>
-              <text>{{learnedWordCount}} / {{book.wordCount}}</text>
-            </view>
-            <view class="book-progress-track">
-              <view class="book-progress-fill" style="{{bookProgressStyle}}"></view>
-            </view>
-
-            <view class="book-metrics">
-              <view class="book-metric metric-streak" bindtap="goCheckinCalendar">
-                <view class="metric-icon">
-                  <image src="../../images/home/icon-checkin-streak-jelly.png" mode="aspectFit" />
-                </view>
-                <view class="metric-copy">
-                  <view class="metric-number">{{checkin.continuousDays}}<text>天</text></view>
-                  <view class="metric-label">连续打卡</view>
-                </view>
-              </view>
-              <view class="book-metric" bindtap="goCheckinCalendar">
-                <view class="metric-icon">
-                  <image src="../../images/home/icon-checkin-total-jelly.png" mode="aspectFit" />
-                </view>
-                <view class="metric-copy">
-                  <view class="metric-number">{{checkin.totalDays}}<text>天</text></view>
-                  <view class="metric-label">累计打卡</view>
-                </view>
-              </view>
-              <view class="book-metric metric-today {{checkin.todayDone >= checkin.todayGoal ? 'metric-today-done' : ''}}" bindtap="goCheckinCalendar">
-                <view class="metric-icon">
-                  <image src="../../images/home/icon-checkin-today-jelly.png" mode="aspectFit" />
-                </view>
-                <view class="metric-copy">
-                  <view class="metric-number">{{checkin.todayDone}}<text>/{{checkin.todayGoal}}关</text></view>
-                  <view class="metric-label">{{checkin.todayDone >= checkin.todayGoal ? '已完成' : '今日任务'}}</view>
-                </view>
-              </view>
-            </view>
-          </view>
-        </block>
+      <view class="hero-copy" style="{{heroCopyStyle}}">
+        <view class="hero-slogan-line">开口跟读有记录，</view>
+        <view class="hero-slogan-line">学习进步看得见</view>
       </view>
     </view>
 
     <view class="learning-section">
       <view class="section-heading">
-        <view class="section-heading-title">
+        <view class="section-heading-copy">
           <image class="target-icon" src="../../images/home/icon-path-target-jelly.png" mode="aspectFit" />
-          <text>本书学习路径</text>
+          <view class="section-heading-text">
+            <view class="section-heading-title">
+              <text>本书学习路径</text>
+            </view>
+            <text wx:if="{{book.name}}" class="section-heading-subtitle">{{book.name}}</text>
+          </view>
         </view>
         <view class="study-plan" bindtap="goStudyPlan">
           <image class="plan-icon" src="../../images/home/icon-study-plan-clipboard-jelly.png" mode="aspectFit" />
@@ -160,7 +65,7 @@
         <view wx:if="{{group.today}}" id="today-group" class="today-group">
           <view class="today-group-head">
             <view class="today-group-title">
-              <image class="today-group-flag" src="../../images/home/icon-today-pin-jelly.png" mode="aspectFit" />
+              <image class="today-group-flag" src="../../images/home/icon-today-textbook-sync.png" mode="aspectFit" />
               <text>今日要学</text>
             </view>
             <text class="today-group-count">{{checkin.todayDone}}/{{checkin.todayGoal}} 关</text>
@@ -511,7 +416,7 @@
 
       <view class="book-picker-body">
         <!-- 左侧版本分类栏：「推荐」为接口返回的词书，整行可点切换分类 -->
-        <scroll-view scroll-y class="book-picker-side" show-scrollbar="{{false}}">
+        <scroll-view scroll-y enhanced class="book-picker-side" show-scrollbar="{{false}}">
           <view
             class="book-picker-side-item {{item.id === pickerCategoryId ? 'book-picker-side-item-active' : ''}}"
             wx:for="{{pickerCategories}}"
@@ -523,8 +428,8 @@
           </view>
         </scroll-view>
 
-        <!-- 右侧封面网格：整张卡片可点，未解锁的跳购买页 -->
-        <scroll-view scroll-y class="book-picker-list" show-scrollbar="{{false}}">
+        <!-- 右侧封面网格：整张卡片都用于切换教材，锁定只影响后续关卡门禁 -->
+        <scroll-view scroll-y enhanced class="book-picker-list" show-scrollbar="{{false}}">
           <view wx:if="{{!pickerBooks.length}}" class="book-picker-empty">
             <text class="book-picker-empty-title">该版本教材整理中</text>
             <text class="book-picker-empty-tip">可先在「推荐」里选择词书</text>
@@ -535,27 +440,21 @@
               wx:for="{{pickerBooks}}"
               wx:key="resBookId"
             >
-              <!-- 封面：点击进详情；底部条「切换/当前」叠在封面上 -->
+              <!-- 封面与底部条都用于切换教材；当前教材显示状态文案 -->
               <view class="book-picker-cover-wrap" data-res-book-id="{{item.resBookId}}" catchtap="goBookDetail">
                 <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" data-res-book-id="{{item.resBookId}}" binderror="onPickerBookCoverError" />
                 <view wx:if="{{item.locked}}" class="book-picker-cover-mask">
                   <image class="book-picker-cover-lock" src="../../images/home/icon-picker-lock.svg" mode="aspectFit" />
                 </view>
-                <view wx:if="{{item.newStandard}}" class="book-picker-tag-new">新课标</view>
+                <view wx:if="{{item.newStandard}}" class="tag-new-standard book-picker-tag-new">新课标</view>
 
                 <view
                   wx:if="{{item.resBookId === book.resBookId}}"
                   class="book-picker-switch book-picker-switch-current"
                 >当前使用</view>
                 <view
-                  wx:elif="{{item.locked}}"
-                  class="book-picker-switch book-picker-switch-buy"
-                  data-res-book-id="{{item.resBookId}}"
-                  catchtap="goBuyFromPicker"
-                >去购买</view>
-                <view
                   wx:else
-                  class="book-picker-switch"
+                  class="book-picker-switch {{item.locked ? 'book-picker-switch-buy' : ''}}"
                   data-res-book-id="{{item.resBookId}}"
                   catchtap="switchBookUse"
                 >切换使用</view>

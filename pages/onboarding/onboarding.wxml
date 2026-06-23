@@ -1,0 +1,214 @@
+<!--pages/onboarding/onboarding.wxml-->
+<view class="page onboard">
+  <view class="onboard-nav" style="height: {{navBarHeightRpx}}rpx;">
+    <view
+      wx:if="{{showBackButton}}"
+      class="onboard-back-btn"
+      style="top: {{navBackTopRpx}}rpx; width: {{navBackSizeRpx}}rpx; height: {{navBackSizeRpx}}rpx;"
+      hover-class="onboard-back-btn-hover"
+      bindtap="prevOnboardingStep"
+    >
+      <view class="onboard-back-icon"></view>
+    </view>
+  </view>
+
+  <scroll-view class="onboard-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="onboard-panel">
+      <!-- step 0: 欢迎 -->
+      <block wx:if="{{onboardingStep === 0}}">
+        <view class="onboard-step-banner onboard-step-banner--intro">
+          <image class="onboard-step-banner-img" src="{{onboardHeroSrc}}" mode="aspectFill" />
+          <view class="onboard-step-banner-fade"></view>
+          <view class="onboard-step-badge">同步教材 · 每天 10 分钟</view>
+        </view>
+
+        <view class="onboard-intro-card">
+          <view class="onboard-intro-brand">
+            <image class="onboard-logo" src="{{appLogoSrc}}" mode="aspectFit" />
+            <view class="onboard-intro-copy">
+              <view class="onboard-app-name">{{appName}}</view>
+              <view class="onboard-intro-title">让孩子爱上词句练习</view>
+            </view>
+          </view>
+
+          <view class="onboard-sub onboard-intro-sub">同步课堂教材，跟读即时纠错，每天 10 分钟稳步积累</view>
+
+          <view class="onboard-intro-points">
+            <view class="onboard-intro-point">教材同步</view>
+            <view class="onboard-intro-point">即时纠音</view>
+            <view class="onboard-intro-point">闯关积累</view>
+          </view>
+        </view>
+
+        <view class="onboard-highlights-card">
+          <view class="onboard-highlights-head">
+            <view class="onboard-highlights-badge">
+              <image class="onboard-highlights-badge-icon" src="/images/home/icon-today-textbook-sync.png" mode="aspectFit" />
+            </view>
+            <view class="onboard-highlights-head-copy">
+              <view class="onboard-highlights-kicker">课本同步学</view>
+              <view class="onboard-highlights-title">四大场景，一站搞定词句</view>
+            </view>
+          </view>
+
+          <view class="onboard-features">
+            <view
+              wx:for="{{featureHighlights}}"
+              wx:for-index="index"
+              wx:key="title"
+              class="onboard-feature-card onboard-feature-card--{{index}}"
+            >
+              <view class="onboard-feature-badge">
+                <view class="onboard-feature-badge-inner">
+                  <image class="onboard-feature-icon" src="{{item.icon}}" mode="aspectFit" />
+                </view>
+              </view>
+              <view class="onboard-feature-copy">
+                <view class="onboard-feature-title-row">
+                  <view class="onboard-feature-title">{{item.title}}</view>
+                  <view wx:if="{{item.tag}}" class="onboard-feature-tag">{{item.tag}}</view>
+                </view>
+                <view class="onboard-feature-desc">{{item.desc}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="onboard-start-tip">先用 3 步完成设置，再开始今天的学习</view>
+      </block>
+
+      <!-- step 1-3 -->
+      <block wx:else>
+        <view class="onboard-step-banner onboard-step-banner--form">
+          <image class="onboard-step-banner-img" src="{{onboardHeroSrc}}" mode="aspectFill" />
+          <view class="onboard-step-banner-fade"></view>
+        </view>
+
+        <view class="onboard-head">
+          <view class="onboard-kicker">首次设置</view>
+          <view class="onboard-title">{{stepCopy.title}}</view>
+          <view class="onboard-sub">{{stepCopy.sub}}</view>
+        </view>
+
+        <view class="onboard-steps">
+          <view class="onboard-dot {{onboardingStep >= 1 ? 'on' : ''}}">1</view>
+          <view class="onboard-line {{onboardingStep >= 2 ? 'on' : ''}}"></view>
+          <view class="onboard-dot {{onboardingStep >= 2 ? 'on' : ''}}">2</view>
+          <view class="onboard-line {{onboardingStep >= 3 ? 'on' : ''}}"></view>
+          <view class="onboard-dot {{onboardingStep >= 3 ? 'on' : ''}}">3</view>
+        </view>
+
+        <!-- step 1: 年级 + 学期 -->
+        <view wx:if="{{onboardingStep === 1}}" class="onboard-body onboard-form-card">
+          <view class="onboard-section">
+            <view class="onboard-section-label">就读年级</view>
+            <view class="stage-row">
+              <view
+                wx:for="{{gradeGroups}}"
+                wx:key="stage"
+                class="stage-chip {{selectedStage === item.stage ? 'sel' : ''}}"
+                data-stage="{{item.stage}}"
+                bindtap="selectStage"
+              >{{item.stageName}}</view>
+            </view>
+            <view class="grade-picker-panel">
+              <view class="grade-picker-hint">选择年级</view>
+              <view class="grade-grid">
+                <view
+                  wx:for="{{visibleGrades}}"
+                  wx:key="id"
+                  class="grade-chip {{selectedGradeId === item.id ? 'sel' : ''}}"
+                  data-id="{{item.id}}"
+                  bindtap="selectGrade"
+                >{{item.name}}</view>
+              </view>
+            </view>
+          </view>
+
+          <view class="onboard-section">
+            <view class="onboard-section-label">当前学期</view>
+            <view class="semester-inline">
+              <view
+                wx:for="{{semesters}}"
+                wx:key="id"
+                class="semester-chip {{selectedSemesterId === item.id ? 'sel' : ''}}"
+                data-id="{{item.id}}"
+                bindtap="selectSemester"
+              >
+                <view class="semester-chip-name">{{item.name}}</view>
+                <view class="semester-chip-tag">{{item.id === 'first' ? '上册' : '下册'}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- step 2: 教材 -->
+        <view wx:if="{{onboardingStep === 2}}" class="onboard-body onboard-form-card">
+          <view class="onboard-hint" wx:if="{{!selectedGradeId}}">请先在上一步选择年级</view>
+          <view class="version-grid">
+            <view
+              wx:for="{{versions}}"
+              wx:key="*this"
+              class="version-chip {{selectedVersion === item ? 'sel' : ''}}"
+              data-version="{{item}}"
+              bindtap="selectVersion"
+            >{{item}}</view>
+          </view>
+        </view>
+
+        <!-- step 3: 选填 -->
+        <view wx:if="{{onboardingStep === 3 && !editMode}}" class="onboard-body onboard-form-card">
+          <view class="onboard-section">
+            <view class="onboard-section-label">学习形象（选填）</view>
+            <view class="gender-row">
+              <view
+                class="gender-chip {{selectedChildGender === 'boy' ? 'sel' : ''}}"
+                data-gender="boy"
+                bindtap="selectChildGender"
+              >男孩</view>
+              <view
+                class="gender-chip {{selectedChildGender === 'girl' ? 'sel' : ''}}"
+                data-gender="girl"
+                bindtap="selectChildGender"
+              >女孩</view>
+            </view>
+            <view class="onboard-tip">用于首页和学习场景中的角色形象</view>
+          </view>
+
+          <view class="onboard-section onboard-section--phone">
+            <view class="onboard-section-label">手机号（选填）</view>
+            <view class="phone-card">
+              <view class="phone-card-copy">
+                <view class="phone-card-title">授权微信手机号</view>
+                <view class="phone-card-desc">便于推荐学习资料，账号更安全</view>
+                <view wx:if="{{phoneVerified}}" class="phone-card-status">已授权 {{maskedPhone}}</view>
+              </view>
+              <view class="phone-card-action">
+                <button
+                  wx:if="{{!phoneVerified}}"
+                  class="phone-auth-btn"
+                  plain
+                  hover-class="none"
+                  open-type="getPhoneNumber"
+                  bindgetphonenumber="handleGetPhoneNumber"
+                >去授权</button>
+                <view wx:else class="phone-auth-done">已完成</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view class="onboard-footer">
+    <view class="app-btn app-btn-primary onboard-next" bindtap="nextOnboardingStep">
+      {{primaryButtonText}}
+    </view>
+    <view
+      wx:if="{{showSkipButton}}"
+      class="onboard-skip-link"
+      bindtap="skipOptionalStep"
+    >跳过，先开始学习</view>
+  </view>
+</view>

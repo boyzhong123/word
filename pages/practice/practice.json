@@ -1,6 +1,7 @@
 {
   "backgroundColor": "#e7e1f0",
   "usingComponents": {
-    "media": "/components/media/media"
+    "media": "/components/media/media",
+    "wave-line": "/components/wave/wave"
   }
 }

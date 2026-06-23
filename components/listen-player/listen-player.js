@@ -9,9 +9,14 @@ const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-c
 const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
 const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
 const LOADING_MASCOT_SPRITE = imageUrl('/images/listen/loading-mascot-sprite.png')
+const {
+  syncRecordingOverlay,
+  hideRecordingOverlay
+} = require('../../utils/recording-overlay')
 
 // 与 wxss 里 listen-slide-down 动画时长一致
 const ANIM_OUT_MS = 300
+const ANIM_IN_MS = 360
 
 Component({
   options: {
@@ -27,6 +32,7 @@ Component({
     visible: false,
     dialog: { type: '' },
     pageAnimState: 'listen-page-preenter',
+    pageSettled: false,
     statusBarHeight: wx.getStorageSync('statusBarHeight') || 0,
     navigationBarHeight: wx.getStorageSync('navigationBarHeight') || 0,
     safeAreaBottom: Math.max((wx.getStorageSync('windowHeight') || 0) - ((wx.getStorageSync('safeArea') || {}).bottom || wx.getStorageSync('windowHeight') || 0), 0),
@@ -62,6 +68,7 @@ Component({
     trackScores: {},
     // 课文滚动位置（受控 scroll-top）。激活/展开时只在必要时滚动，不再贴顶
     scrollTop: 0,
+    followRecordingOverlay: { active: false, top: 0, left: 0, width: 0, height: 0, waveSession: 0 },
     // 进入页/加载完成且已在播放时，唱臂直接落盘，不做 0.9s 抬起动画
     tonearmInstant: false
   },
@@ -79,6 +86,20 @@ Component({
   methods: {
     /* ----------------------------- 开合 ----------------------------- */
 
+    markListenPageSettled() {
+      if (this._listenSettleTimer) {
+        clearTimeout(this._listenSettleTimer)
+        this._listenSettleTimer = null
+      }
+      this._listenSettleTimer = setTimeout(() => {
+        this._listenSettleTimer = null
+        if (this.closing || !this.data.visible) {
+          return
+        }
+        this.setData({ pageSettled: true })
+      }, ANIM_IN_MS)
+    },
+
     open(opts) {
       opts = opts || {}
       if (this.data.visible && !this.closing) {
@@ -91,7 +112,8 @@ Component({
       this.setData({
         visible: true,
         bookCover,
-        pageAnimState: 'listen-page-preenter'
+        pageAnimState: 'listen-page-preenter',
+        pageSettled: false
       }, () => {
         this.measureSeekBar()
         setTimeout(() => {
@@ -99,6 +121,7 @@ Component({
             return
           }
           this.setData({ pageAnimState: 'listen-page-enter' })
+          this.markListenPageSettled()
         }, 20)
       })
       // subscribe 自带去重并立即推送一次快照
@@ -126,7 +149,8 @@ Component({
         this.setData({
           visible: false,
           expandedIndex: -1,
-          pageAnimState: 'listen-page-preenter'
+          pageAnimState: 'listen-page-preenter',
+          pageSettled: false
         })
       }, ANIM_OUT_MS)
     },
@@ -188,6 +212,7 @@ Component({
       const index = Number(e.currentTarget.dataset.index)
       // 再次点击已展开的句子：收起
       if (this.data.expandedIndex === index) {
+        this.hideFollowRecordingOverlay()
         this.setData({ expandedIndex: -1 })
         return
       }
@@ -203,10 +228,38 @@ Component({
 
     /* ----------------------------- 跟读测评（复用 media 组件 / 驰声引擎） ----------------------------- */
 
+    syncFollowRecordingOverlay(options) {
+      syncRecordingOverlay(this, {
+        positionOnly: !!(options && options.positionOnly),
+        overlayKey: 'followRecordingOverlay',
+        mediaSelector: '.follow-media',
+        fallbackSelector: '.follow-recite-panel',
+        topOffsetRpx: 20,
+        canSync: () => this.data.expandedIndex >= 0
+      })
+    },
+
+    hideFollowRecordingOverlay() {
+      hideRecordingOverlay(this, { overlayKey: 'followRecordingOverlay' })
+    },
+
+    onFollowRecordingOverlayTap() {
+      const media = this.selectComponent('.follow-media')
+      if (media && typeof media.record === 'function') {
+        media.record()
+      }
+    },
+
     // 跟读/试听/录音时暂停随身听示范音，避免与跟读音重叠
     onMediaStateChange(e) {
       if (e.detail.state !== 0 && this.data.playing) {
         player.pause()
+      }
+      if (e.detail.state === 2) {
+        setTimeout(() => this.syncFollowRecordingOverlay(), 120)
+        setTimeout(() => this.syncFollowRecordingOverlay({ positionOnly: true }), 360)
+      } else {
+        this.hideFollowRecordingOverlay()
       }
     },
 

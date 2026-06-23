@@ -1,6 +1,7 @@
 <!-- 随身听全屏覆盖层：挂在 custom-tab-bar 内，不走页面路由，
      打开/关闭都是纯 CSS 上滑/下滑（页面路由的系统转场是横向 push，盖不掉） -->
-<view wx:if="{{visible}}" class="listen-page {{pageAnimState}}">
+<block wx:if="{{visible}}">
+<view class="listen-page {{pageAnimState}} {{pageSettled ? 'listen-page-settled' : ''}}">
   <!-- 自建导航条：navigation 组件在页面栈长度为 1（tab 页）时会把返回钮
        变成"回首页"，覆盖层场景下行为不对，这里直接绑 close -->
   <view class="listen-nav" style="padding-top: {{statusBarHeight}}px;">
@@ -49,7 +50,7 @@
 
     <!-- 第二页：课文（单词列表） -->
     <swiper-item>
-      <scroll-view class="lyrics" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
+      <scroll-view class="lyrics" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation catchtouchmove="{{followRecordingOverlay.active ? 'noop' : ''}}">
         <wxs src='/pages/paint.wxs' module="paintHandler"></wxs>
         <view class="lyrics-pad"></view>
         <view
@@ -82,7 +83,6 @@
           </view>
           <view wx:if="{{item.translation}}" class="lyric-cn">{{item.translation}}</view>
 
-          <!-- 跟读测评：点击句子直接展开（样式对齐小测卡片） -->
           <view wx:if="{{expandedIndex == index}}" class="follow-panel" catchtap="noop">
             <view class="follow-card">
               <view class="follow-recite-panel">
@@ -90,6 +90,7 @@
                   class="follow-media"
                   _index="{{index}}"
                   _autoplay="{{true}}"
+                  overlay-record="{{true}}"
                   _audio="{{item.audio}}"
                   _refText="{{item.refText || item.content}}"
                   _coreType="{{item.type == 'word' ? 'en.word.score' : 'en.sent.score'}}"
@@ -209,3 +210,14 @@
   <!-- 标记说明弹窗 -->
   <dialog dialog="{{dialog}}"></dialog>
 </view>
+
+<view
+  wx:if="{{followRecordingOverlay.active}}"
+  class="follow-recording-overlay follow-recording-overlay-root"
+  style="top: {{followRecordingOverlay.top}}px; left: {{followRecordingOverlay.left}}px; width: {{followRecordingOverlay.width}}px; height: {{followRecordingOverlay.height}}px;"
+  catchtap="onFollowRecordingOverlayTap"
+>
+  <wave-line wx:key="frw-{{followRecordingOverlay.waveSession}}" class="follow-recording-wave" />
+  <text class="follow-recording-tip">点击波纹，结束录音</text>
+</view>
+</block>

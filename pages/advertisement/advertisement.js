@@ -3,7 +3,12 @@ const {
   refreshHomePage
 } = require('../../utils/util')
 const { isDevPurchased } = require('../../utils/dev-books')
-const { IMAGE_BASE_URL } = require('../../utils/image-host')
+const {
+  MEMBERSHIP_TIERS,
+  DEFAULT_TIER_ID,
+  getTier
+} = require('../../utils/membership')
+const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 
 const systemInfo = wx.getSystemInfoSync()
@@ -146,59 +151,25 @@ function buildReviewTags(reviews) {
 const REVIEW_TAGS = buildReviewTags(REVIEWS)
 const REVIEW_COUNT = REVIEWS.length
 
-const VALIDITY_OPTIONS = [
-  {
-    id: '6m',
-    name: '6个月',
-    summary: '适合短期备考或试学'
-  },
-  {
-    id: 'forever',
-    name: '永久有效',
-    tag: '推荐',
-    summary: '一次购买，长期使用'
-  }
+const VIP_BENEFITS = [
+  { icon: imageUrl('/images/home/icon-benefit-unlock.svg'), title: '全部关卡解锁', desc: '免费版仅开放第 1 关' },
+  { icon: imageUrl('/images/home/icon-benefit-listen.svg'), title: '随身听全开', desc: '所有关卡音频随时磨耳朵' },
+  { icon: imageUrl('/images/home/icon-benefit-report.svg'), title: '学习报告与复习', desc: '记忆曲线安排科学复习' },
+  { icon: imageUrl('/images/home/icon-benefit-speaking.svg'), title: '跟读评分纠音', desc: '逐音反馈，发音更标准' }
 ]
-
-const PACKAGE_OPTIONS = [
-  {
-    id: 'full',
-    name: '词典+智能学习卡',
-    tag: '推荐',
-    summary: '词典 + 智能学习卡，听说读写测完整闭环',
-    items: [
-      '电子词典全部词汇与谚语',
-      '智能学习卡：单词新学 / 跟读 / 测验',
-      '记忆曲线安排科学复习',
-      '朗读评分与即时纠音反馈',
-      '打卡激励与学习进度追踪'
-    ]
-  },
-  {
-    id: 'book',
-    name: '仅词典',
-    tag: '',
-    summary: '仅含词典内容，适合查阅与自主背诵',
-    items: [
-      '电子词典全部词汇与谚语',
-      '单词释义、例句与发音示范',
-      '谚语查阅与朗读音频',
-      '不含智能学习卡与复习计划'
-    ]
-  }
+const VIP_CARD_TITLE = '词句刷刷刷 VIP 会员'
+const VIP_CARD_SUBTITLE = '开通后解锁全部词句关卡、随身听、AI 跟读纠音和学习报告等完整刷词刷句内容'
+const VIP_CARD_STATS = [
+  { value: '无限', unit: '', label: '词句刷刷' },
+  { value: '全开', unit: '', label: '随身听' },
+  { value: '逐音', unit: '', label: '纠音反馈' }
 ]
+const HERO_BENEFIT_TAGS = ['词句全解锁', '学习报告', 'AI 跟读纠音']
 
-const SKU_PRICES = {
-  'book-6m': 29,
-  'book-forever': 48,
-  'full-6m': 68,
-  'full-forever': 98
-}
-
-const MIN_PRICE = Object.keys(SKU_PRICES).reduce((min, key) => Math.min(min, SKU_PRICES[key]), Infinity)
-const SKU_COUNT = Object.keys(SKU_PRICES).length
+const MIN_PRICE = MEMBERSHIP_TIERS.reduce((min, tier) => Math.min(min, tier.price), Infinity)
+const SKU_COUNT = MEMBERSHIP_TIERS.length
 const DEFAULT_BOOK_COVER = getFallbackBookCover()
-const DEFAULT_GRADE_TAGS = ['初中']
+const DEFAULT_GRADE_TAGS = []
 const FEATURE_CARDS = [
   {
     mark: '词',
@@ -228,16 +199,11 @@ const METHOD_STEPS = [
 ]
 const COMPARE_PLANS = [
   {
-    id: 'book',
-    name: '仅词典',
-    priceFrom: Math.min(SKU_PRICES['book-6m'], SKU_PRICES['book-forever'])
-  },
-  {
-    id: 'full',
-    name: '词典+智能学习卡',
+    id: 'vip',
+    name: 'VIP 会员',
     tag: '推荐',
     highlight: true,
-    priceFrom: Math.min(SKU_PRICES['full-6m'], SKU_PRICES['full-forever'])
+    priceFrom: MIN_PRICE
   }
 ]
 const COMPARE_ROWS = [
@@ -278,33 +244,6 @@ function decodeQueryValue(value) {
   }
 }
 
-function getPackageById(packageId) {
-  return PACKAGE_OPTIONS.find(item => item.id === packageId) || PACKAGE_OPTIONS[0]
-}
-
-function getValidityById(validityId) {
-  return VALIDITY_OPTIONS.find(item => item.id === validityId) || VALIDITY_OPTIONS[0]
-}
-
-function getSkuPrice(packageId, validityId) {
-  return SKU_PRICES[packageId + '-' + validityId] || MIN_PRICE
-}
-
-function buildCurrentSku(packageId, validityId) {
-  const currentPackage = getPackageById(packageId)
-  const currentValidity = getValidityById(validityId)
-  const price = getSkuPrice(currentPackage.id, currentValidity.id)
-  return {
-    packageId: currentPackage.id,
-    validityId: currentValidity.id,
-    packageName: currentPackage.name,
-    validityName: currentValidity.name,
-    skuLabel: currentPackage.name + ' · ' + currentValidity.name,
-    price,
-    items: currentPackage.items
-  }
-}
-
 function resolveUnlocked(options) {
   if (options.unlocked === '1') {
     return true
@@ -319,9 +258,8 @@ function applyBookDetail(page, book, unlocked) {
   const learningUnits = book.learningInfo && book.learningInfo.book
     ? book.learningInfo.book.learningUnits
     : 0
-  const selectedPackage = page.data.selectedPackage || 'full'
-  const selectedValidity = page.data.selectedValidity || 'forever'
-  const currentSku = buildCurrentSku(selectedPackage, selectedValidity)
+  const selectedTierId = page.data.selectedTierId || DEFAULT_TIER_ID
+  const currentTier = getTier(selectedTierId) || getTier(DEFAULT_TIER_ID)
   const total = Number(book.total || learningUnits || 0)
   const wordCount = Number(book.wordCount || 0)
   const proverbCount = Number(book.proverbCount || 0)
@@ -332,27 +270,6 @@ function applyBookDetail(page, book, unlocked) {
     book.grades || book.grade || book.gradeTags || book.applyGrades || book.applicableGrades
   )
   const displayGradeTags = gradeTags.length ? gradeTags : DEFAULT_GRADE_TAGS
-  const contentStats = [
-    {
-      value: wordCountText,
-      unit: '个',
-      label: '收录单词',
-      iconKey: 'word'
-    },
-    {
-      value: proverbCountText,
-      unit: '条',
-      label: '实用句子',
-      iconKey: 'proverb'
-    },
-    {
-      value: totalText,
-      unit: '个',
-      label: '学习单元',
-      iconKey: 'review'
-    }
-  ]
-
   page.resBookId = book.resBookId || ''
   page.setData({
     name: book.name || '',
@@ -366,17 +283,16 @@ function applyBookDetail(page, book, unlocked) {
     press: book.press || '',
     gradeTags: displayGradeTags,
     bookSummary: wordCountText + ' 词 · ' + proverbCountText + ' 句 · ' + totalText + ' 单元',
-    contentStats,
+    contentStats: VIP_CARD_STATS,
     featureCards: FEATURE_CARDS,
     methodSteps: METHOD_STEPS,
     intro: book.intro || '',
     unlocked: !!unlocked,
-    packages: PACKAGE_OPTIONS,
-    validityOptions: VALIDITY_OPTIONS,
-    selectedValidity,
-    currentSku,
-    currentPackage: getPackageById(selectedPackage),
-    currentPackageItems: currentSku.items,
+    membershipTiers: MEMBERSHIP_TIERS,
+    selectedTierId: currentTier.id,
+    currentTier,
+    vipBenefits: VIP_BENEFITS,
+    minPrice: MIN_PRICE,
     skuCount: SKU_COUNT
   })
 }
@@ -384,6 +300,9 @@ function applyBookDetail(page, book, unlocked) {
 Page({
   data: {
     imageBaseUrl: IMAGE_BASE_URL,
+    vipFloatingUnlockUrl: imageUrl('/images/home/vip-floating-unlock.png'),
+    vipCardTitle: VIP_CARD_TITLE,
+    vipCardSubtitle: VIP_CARD_SUBTITLE,
     name: '',
     bookCover: '',
     total: 0,
@@ -414,13 +333,11 @@ Page({
     intro: '',
     unlocked: false,
     skuSheetVisible: false,
-    selectedPackage: 'full',
-    selectedValidity: 'forever',
-    packages: PACKAGE_OPTIONS,
-    validityOptions: VALIDITY_OPTIONS,
-    currentSku: buildCurrentSku('full', 'forever'),
-    currentPackage: PACKAGE_OPTIONS[0],
-    currentPackageItems: PACKAGE_OPTIONS[0].items,
+    membershipTiers: MEMBERSHIP_TIERS,
+    selectedTierId: DEFAULT_TIER_ID,
+    currentTier: getTier(DEFAULT_TIER_ID),
+    vipBenefits: VIP_BENEFITS,
+    heroBenefitTags: HERO_BENEFIT_TAGS,
     scrollHeight,
     safeAreaBottom,
     actionHeight: purchaseBarHeight
@@ -431,12 +348,12 @@ Page({
     const pendingBook = app.globalData.pendingBookDetail
     const resBookId = decodeQueryValue(options.resBookId)
     const unlocked = resolveUnlocked(options)
-    const selectedPackage = decodeQueryValue(options.packageId) || 'full'
-    const selectedValidity = decodeQueryValue(options.validityId) || 'forever'
+    const tierId = decodeQueryValue(options.tierId) || DEFAULT_TIER_ID
+    const currentTier = getTier(tierId) || getTier(DEFAULT_TIER_ID)
 
     this.setData({
-      selectedPackage: getPackageById(selectedPackage).id,
-      selectedValidity: getValidityById(selectedValidity).id
+      selectedTierId: currentTier.id,
+      currentTier
     })
 
     if (pendingBook && pendingBook.resBookId === resBookId) {
@@ -508,49 +425,44 @@ Page({
     this.setData({ bookCover: getFallbackBookCover() })
   },
 
-  updateSkuSelection(packageId, validityId) {
-    const currentPackage = getPackageById(packageId)
-    const currentValidity = getValidityById(validityId)
-    const currentSku = buildCurrentSku(currentPackage.id, currentValidity.id)
-    this.setData({
-      selectedPackage: currentPackage.id,
-      selectedValidity: currentValidity.id,
-      currentPackage,
-      currentSku,
-      currentPackageItems: currentSku.items
-    })
+  selectTier(event) {
+    const tierId = event.currentTarget.dataset.id
+    const tier = getTier(tierId)
+    if (!tier) {
+      return
+    }
+    this.setData({ selectedTierId: tierId, currentTier: tier })
   },
 
-  selectPackage(event) {
-    this.updateSkuSelection(event.currentTarget.dataset.id, this.data.selectedValidity)
-  },
-
-  selectValidity(event) {
-    this.updateSkuSelection(this.data.selectedPackage, event.currentTarget.dataset.id)
-  },
-
+  // 选完时长后跳转确认订单页（可输入兑换码、完成支付）。
   confirmPurchase() {
+    const tier = this.data.currentTier || getTier(DEFAULT_TIER_ID)
     this.setData({ skuSheetVisible: false })
-    this.goVip()
-  },
 
-  goVip() {
-    const currentSku = buildCurrentSku(this.data.selectedPackage, this.data.selectedValidity)
+    const query = {
+      resBookId: this.resBookId || '',
+      name: this.data.name,
+      bookCover: this.data.bookCover,
+      press: this.data.press,
+      tierId: tier.id,
+      price: tier.price
+    }
+
     wx.navigateTo({
-      url: '../vip/vip?resBookId=' + encodeURIComponent(this.resBookId || '')
-        + '&name=' + encodeURIComponent(this.data.name || '')
-        + '&bookCover=' + encodeURIComponent(this.data.bookCover || '')
-        + '&press=' + encodeURIComponent(this.data.press || '')
-        + '&packageId=' + encodeURIComponent(currentSku.packageId)
-        + '&packageName=' + encodeURIComponent(currentSku.packageName)
-        + '&validityId=' + encodeURIComponent(currentSku.validityId)
-        + '&validityName=' + encodeURIComponent(currentSku.validityName)
-        + '&price=' + encodeURIComponent(currentSku.price || 0),
+      url: '/pages/vip/vip?' + Object.keys(query)
+        .filter((key) => query[key] != null && query[key] !== '')
+        .map((key) => key + '=' + encodeQueryValue(query[key]))
+        .join('&'),
       events: {
         vip: () => {
           this.setData({ unlocked: true })
           refreshHomePage()
-          wx.navigateBack()
+          const channel = typeof this.getOpenerEventChannel === 'function'
+            ? this.getOpenerEventChannel()
+            : null
+          if (channel && typeof channel.emit === 'function') {
+            channel.emit('vip')
+          }
         }
       }
     })
@@ -568,8 +480,7 @@ Page({
       intro: this.data.intro,
       resBookId: this.resBookId,
       unlocked: this.data.unlocked ? '1' : '0',
-      packageId: this.data.selectedPackage,
-      validityId: this.data.selectedValidity
+      tierId: this.data.selectedTierId
     }
 
     return {

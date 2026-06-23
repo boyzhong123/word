@@ -13,9 +13,11 @@ page {
   background-color: #fbfbfc;
 } 
 ::-webkit-scrollbar {
+  display: none;
   width: 0;
   height: 0;
   color: transparent;
+  background: transparent;
 }
 /* 导航返回/关闭图标：统一 32 方框内等比缩放，避免 heightFix + max-width 把下箭头拉扁 */
 .nav-action-icon {
@@ -65,4 +67,27 @@ page {
 .app-btn-primary:active,
 .app-btn-secondary:active {
   opacity: 0.88;
+}
+
+/* 新课标：金色标签，各页通过定位类叠在封面/教材名旁 */
+.tag-new-standard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 34rpx;
+  padding: 0 14rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #fff8dc 0%, #ffe08a 36%, #f5c842 68%, #e3a318 100%);
+  border: 1rpx solid rgba(255, 220, 130, 0.95);
+  box-shadow:
+    0 4rpx 12rpx rgba(196, 132, 12, 0.24),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.72);
+  color: #8a5a00;
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1rpx;
+  white-space: nowrap;
+  pointer-events: none;
 }

@@ -47,18 +47,36 @@ function loadAdvertisementPage(options, preStorage) {
   return page
 }
 
-test('advertisement detail exposes validity and package sku selectors', () => {
-  assert.match(adTemplate, /词典有效期/)
-  assert.match(adTemplate, /validityOptions/)
-  assert.match(adTemplate, /selectValidity/)
-  assert.match(adTemplate, /sku-group-label">套餐/)
-  assert.match(adTemplate, /selectPackage/)
-  assert.match(adScript, /name: '6个月'/)
-  assert.match(adScript, /name: '永久有效'/)
-  assert.match(adScript, /name: '仅词典'/)
-  assert.match(adScript, /name: '词典\+智能学习卡'/)
-  assert.match(adScript, /VALIDITY_OPTIONS/)
-  assert.match(adScript, /SKU_PRICES/)
+test('advertisement sku sheet exposes membership duration tiers', () => {
+  assert.match(adTemplate, /选择会员时长/)
+  assert.match(adTemplate, /membershipTiers/)
+  assert.match(adTemplate, /selectTier/)
+  assert.match(adTemplate, /立即开通/)
+  assert.match(adScript, /MEMBERSHIP_TIERS/)
+  assert.match(adScript, /selectTier/)
+  assert.match(adScript, /\/pages\/vip\/vip/)
+  assert.doesNotMatch(adTemplate, /词典有效期/)
+  assert.doesNotMatch(adTemplate, /selectPackage/)
+})
+
+test('advertisement confirm purchase navigates to vip order page with selected tier', () => {
+  let navigatedUrl = ''
+  const page = loadAdvertisementPage({
+    resBookId: 'book-2',
+    name: 'Locked Book',
+    unlocked: '0'
+  })
+  page.resBookId = 'book-2'
+  page.data.name = '初中英语词汇格言谚语词典'
+  page.data.currentTier = { id: 'm2', name: '2个月', price: 59 }
+  global.wx.navigateTo = ({ url }) => { navigatedUrl = url }
+
+  page.confirmPurchase()
+
+  assert.match(navigatedUrl, /\/pages\/vip\/vip\?/)
+  assert.match(navigatedUrl, /tierId=m2/)
+  assert.match(navigatedUrl, /price=59/)
+  assert.equal(page.data.skuSheetVisible, false)
 })
 
 test('advertisement respects unlocked=0 even when dev purchase storage exists', () => {
@@ -83,20 +101,18 @@ test('advertisement keeps owned state when unlocked=1 is passed', () => {
   assert.equal(page.data.unlocked, true)
 })
 
-test('advertisement sku price updates when validity and package change', () => {
+test('advertisement sku price updates when membership tier changes', () => {
   const page = loadAdvertisementPage({
     resBookId: 'book-2',
     name: 'Locked Book',
     unlocked: '0'
   })
 
-  page.selectPackage({ currentTarget: { dataset: { id: 'book' } } })
-  page.selectValidity({ currentTarget: { dataset: { id: '6m' } } })
+  page.selectTier({ currentTarget: { dataset: { id: 'm1' } } })
 
-  assert.equal(page.data.selectedPackage, 'book')
-  assert.equal(page.data.selectedValidity, '6m')
-  assert.equal(page.data.currentSku.price, 29)
-  assert.equal(page.data.currentSku.skuLabel, '仅词典 · 6个月')
+  assert.equal(page.data.selectedTierId, 'm1')
+  assert.equal(page.data.currentTier.price, 39)
+  assert.equal(page.data.currentTier.name, '1个月')
 })
 
 test('mock textbooks are locked so catalog items can preview purchase flow', () => {

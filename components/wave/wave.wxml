@@ -1,1 +1,3 @@
-<canvas wx:if="{{canvasReady}}" type="2d" class="wave-canvas"></canvas>
+<view class="wave-canvas-viewport">
+  <canvas wx:if="{{canvasReady}}" type="2d" class="wave-canvas"></canvas>
+</view>

@@ -136,6 +136,14 @@
       },
       {
         "type": "glob",
+        "value": "images/home/hero-campus-jelly-v5-pk.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/hero-campus-jelly-v5-pk-girl.png"
+      },
+      {
+        "type": "glob",
         "value": "images/listen/loading-mascot.png"
       },
       {
@@ -293,6 +301,14 @@
       {
         "type": "glob",
         "value": "images/home/fab-today-locate-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/vip-floating-guide-banner.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/vip-floating-unlock.png"
       },
       {
         "type": "glob",

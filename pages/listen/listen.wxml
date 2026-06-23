@@ -1,4 +1,4 @@
-<view class="listen-page {{quizMode ? 'listen-quiz-shell' : pageAnimState}}">
+<view class="listen-page {{quizMode ? 'listen-quiz-shell' : pageAnimState}} {{pageSettled ? 'listen-page-settled' : ''}}">
   <!-- 小测：对齐新词学习页自定义导航 -->
   <block wx:if="{{quizMode}}">
     <view class="listen-quiz-nav">
@@ -169,7 +169,7 @@
     <!-- 第一页：封面 -->
     <swiper-item>
       <view class="cover-page">
-        <view class="player-card" bindtap="togglePlay">
+        <view class="player-card" bindtap="{{listenGuideActive && listenGuideStep === 'swipe' ? 'noop' : 'togglePlay'}}">
           <view class="turntable">
             <image class="disc-tray" src="/images/listen/disc-tray.png" />
             <view class="disc-stack {{playing ? 'spinning' : ''}}">
@@ -183,13 +183,13 @@
             <image class="tonearm-img" src="/images/listen/tonearm-arm.png" />
           </view>
         </view>
-        <view class="cover-hint">向左滑动可查看课文</view>
+        <view wx:if="{{!(listenGuideActive && listenGuideStep === 'swipe')}}" class="cover-hint">向左滑动可查看课文</view>
       </view>
     </swiper-item>
 
     <!-- 第二页：课文（单词列表） -->
     <swiper-item>
-      <scroll-view class="lyrics" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
+      <scroll-view class="lyrics" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation catchtouchmove="{{followRecordingOverlay.active ? 'noop' : ''}}">
         <wxs src='/pages/paint.wxs' module="paintHandler"></wxs>
         <view class="lyrics-pad"></view>
         <view
@@ -229,12 +229,14 @@
                   class="follow-media"
                   _index="{{index}}"
                   _autoplay="{{true}}"
+                  overlay-record="{{true}}"
                   _audio="{{item.audio}}"
                   _refText="{{item.refText || item.content}}"
                   _coreType="{{item.type == 'word' ? 'en.word.score' : 'en.sent.score'}}"
                   score="{{trackScores[index] && trackScores[index].score != undefined ? trackScores[index].score : ''}}"
                   bindresult="onMediaResult"
                   bindmediaStateChange="onMediaStateChange"
+                  bindaudioEnd="onFollowMediaAudioEnd"
                   bindunauthorized="onMediaUnauthorized"
                 ></media>
               </view>
@@ -245,6 +247,89 @@
       </scroll-view>
     </swiper-item>
   </swiper>
+
+  <!-- 第一步滑动引导：独立全屏浮层，统一压暗整页 -->
+  <view
+    wx:if="{{listenGuideActive && listenGuideStep === 'swipe'}}"
+    class="listen-guide-swipe-overlay"
+  >
+    <view class="listen-guide-swipe-dim"></view>
+    <view class="listen-guide-swipe-content">
+      <view class="listen-guide-swipe-stage">
+        <image class="listen-guide-swipe-chev-img" src="/images/listen/listen-guide-swipe-chevrons-white.png" mode="aspectFit" />
+        <view class="listen-guide-swipe-hand">
+          <view class="listen-guide-swipe-trail"></view>
+          <view class="listen-guide-swipe-trail listen-guide-swipe-trail-2"></view>
+          <image class="listen-guide-swipe-hand-img" src="/images/listen/listen-guide-swipe-hand.png" mode="aspectFit" />
+        </view>
+      </view>
+      <view class="listen-guide-coach listen-guide-coach-static">
+        <image class="listen-guide-coach-mascot" src="/images/listen/listen-guide-coach-mascot.png" mode="aspectFit" />
+        <view class="listen-guide-coach-bubble">
+          <view class="listen-guide-coach-arrow"></view>
+          <view class="listen-guide-coach-title">向左滑，看课文</view>
+          <view class="listen-guide-coach-sub">滑到课文页，点句子就能跟读评分</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 跟读引导遮罩：聚光高亮 + 麦克风点按涟漪 + 吉祥物教练气泡（游戏化引导） -->
+  <view
+    wx:if="{{listenGuideActive && listenGuideStep === 'sentence' && listenGuideSpot.width > 0}}"
+    class="listen-guide-mask"
+  >
+    <view
+      class="listen-guide-spotlight listen-guide-spotlight-sentence"
+      style="top: {{listenGuideSpot.top}}px; left: {{listenGuideSpot.left}}px; width: {{listenGuideSpot.width}}px; height: {{listenGuideSpot.height}}px;"
+    ></view>
+    <view
+      class="listen-guide-coach listen-guide-coach-{{listenGuideSpot.placement}}"
+      style="top: {{listenGuideSpot.calloutTop}}px;"
+    >
+      <image class="listen-guide-coach-mascot" src="/images/listen/listen-guide-coach-mascot.png" mode="aspectFit" />
+      <view class="listen-guide-coach-bubble">
+        <view class="listen-guide-coach-arrow"></view>
+        <view class="listen-guide-coach-title">点这句，开始跟读</view>
+        <view class="listen-guide-coach-sub">先点开这个句子，再听标准音开始练</view>
+      </view>
+    </view>
+  </view>
+
+  <view
+    wx:if="{{listenGuideActive && (listenGuideStep === 'evaluate' || listenGuideStep === 'record') && listenGuideSpot.width > 0}}"
+    class="listen-guide-mask"
+  >
+    <view
+      class="listen-guide-spotlight"
+      style="top: {{listenGuideSpot.top}}px; left: {{listenGuideSpot.left}}px; width: {{listenGuideSpot.width}}px; height: {{listenGuideSpot.height}}px;"
+    ></view>
+    <!-- 麦克风点按涟漪 + 手指 -->
+    <view class="listen-guide-tap" style="left: {{listenGuideSpot.micX}}px; top: {{listenGuideSpot.micY}}px;">
+      <view class="listen-guide-tap-ring"></view>
+      <view class="listen-guide-tap-ring listen-guide-tap-ring-2"></view>
+      <image class="listen-guide-tap-finger-img" src="/images/listen/listen-guide-tap-finger.png" mode="aspectFit" />
+    </view>
+    <!-- 吉祥物教练气泡 -->
+    <view
+      class="listen-guide-coach listen-guide-coach-{{listenGuideSpot.placement}}"
+      style="top: {{listenGuideSpot.calloutTop}}px;"
+    >
+      <image class="listen-guide-coach-mascot" src="/images/listen/listen-guide-coach-mascot.png" mode="aspectFit" />
+      <view class="listen-guide-coach-bubble">
+        <view class="listen-guide-coach-arrow"></view>
+        <view class="listen-guide-coach-title">{{listenGuideStep === 'record' ? '开始跟读吧！' : '先听一遍标准音'}}</view>
+        <view class="listen-guide-coach-sub">{{listenGuideStep === 'record' ? '对着麦克风大声读，读完点波纹结束' : '听完标准音后，会自动开始录音'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view
+    wx:if="{{listenGuideActive && listenGuideStep === 'swipe'}}"
+    class="listen-guide-controls-block"
+    catchtap="noop"
+    catchtouchmove="noop"
+  ></view>
 
   <!-- 底部控制区 -->
   <view class="controls" style="padding-bottom: {{safeAreaBottom + 16}}px;">
@@ -311,7 +396,7 @@
         <view
           wx:for="{{units}}"
           wx:key="unitId"
-          class="sheet-item {{index == unitIndex ? 'sheet-item-active' : ''}}"
+          class="sheet-item {{index == unitIndex ? 'sheet-item-active' : ''}} {{!item.isUnlockedForListen ? 'sheet-item-locked' : ''}}"
           data-index="{{index}}"
           bindtap="onUnitTap"
         >
@@ -319,7 +404,7 @@
             <text class="sheet-item-name">{{'关卡' + (item.sort || index + 1)}}</text>
             <text wx:if="{{item.wordTotal}}" class="sheet-item-sub">{{item.wordTotal}} 词</text>
           </view>
-          <view wx:if="{{item.needVip}}" class="sheet-vip">会员</view>
+          <view wx:if="{{!item.isUnlockedForListen || item.needVip}}" class="sheet-vip">会员</view>
           <view wx:elif="{{index == unitIndex}}" class="sheet-playing">播放中</view>
         </view>
       </scroll-view>
@@ -340,10 +425,21 @@
           state="running"
         />
       </view>
-      <view class="loading-title">{{quizMode ? '正在准备关卡小测' : '正在准备随身听'}}</view>
+      <view class="loading-title">{{quizMode ? '正在准备关卡小测' : '正在准备伴读'}}</view>
       <view class="loading-sub">{{quizMode ? '随机生成填空中' : '马上开始播放'}}</view>
     </view>
   </view>
 
   <dialog dialog="{{dialog}}"></dialog>
+</view>
+
+<!-- 录音波纹浮层挂在 listen-page 外：页面有 transform 入场动画时，内部 fixed 会错位 -->
+<view
+  wx:if="{{followRecordingOverlay.active}}"
+  class="follow-recording-overlay follow-recording-overlay-root"
+  style="top: {{followRecordingOverlay.top}}px; left: {{followRecordingOverlay.left}}px; width: {{followRecordingOverlay.width}}px; height: {{followRecordingOverlay.height}}px;"
+  catchtap="onFollowRecordingOverlayTap"
+>
+  <wave-line wx:key="frw-{{followRecordingOverlay.waveSession}}" class="follow-recording-wave" />
+  <text class="follow-recording-tip">点击波纹，结束录音</text>
 </view>

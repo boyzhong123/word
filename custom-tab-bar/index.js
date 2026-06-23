@@ -1,4 +1,8 @@
 const { player } = require('../utils/player')
+const { login } = require('../utils/login')
+const { hasStudentProfile } = require('../utils/student-profile')
+const { ensureActiveBook } = require('../utils/book-select')
+const { normalizeBookCover } = require('../utils/book-cover')
 
 function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255
@@ -101,7 +105,7 @@ Component({
       this.setData({
         miniActive: s.active,
         miniPlaying: s.playing,
-        miniTitle: (track && track.content) || s.unitName || '随身听',
+        miniTitle: (track && track.content) || s.unitName || '伴读',
         miniCover: s.bookCover,
         miniProgress: s.progress
       })
@@ -173,17 +177,18 @@ Component({
 
     switchTab(event) {
       const path = event.currentTarget.dataset.path
+      if (!hasStudentProfile()) {
+        wx.reLaunch({ url: '/pages/onboarding/onboarding' })
+        return
+      }
       wx.switchTab({ url: path })
     },
 
     // 进入随身听：压栈打开真正的随身听页。
     // tab 页里只保留迷你播放条，避免全屏播放器 DOM 污染首页/我的页。
     openListen() {
-      const resBookId = player.active
-        ? player.resBookId
-        : ((getApp().globalData && getApp().globalData.book) || {}).resBookId
-      if (!resBookId) {
-        wx.showToast({ title: '内容待补充', icon: 'none' })
+      if (!hasStudentProfile()) {
+        wx.reLaunch({ url: '/pages/onboarding/onboarding' })
         return
       }
 
@@ -193,8 +198,42 @@ Component({
         return
       }
 
-      wx.navigateTo({
-        url: '/pages/listen/listen?resBookId=' + resBookId
+      const openPage = (book) => {
+        const resBookId = book && book.resBookId
+        if (!resBookId) {
+          wx.showToast({ title: '内容待补充', icon: 'none' })
+          return
+        }
+        const bookCover = normalizeBookCover(book.bookCover)
+        login().then(() => player.start({
+          resBookId,
+          bookCover,
+          targetUnitId: ''
+        }))
+        wx.navigateTo({
+          url: '/pages/listen/listen?resBookId=' + encodeURIComponent(resBookId) +
+            '&name=' + encodeURIComponent(book.name || '')
+        })
+      }
+
+      if (player.active && player.resBookId) {
+        const book = (getApp().globalData && getApp().globalData.book) || { resBookId: player.resBookId }
+        openPage(book)
+        return
+      }
+
+      const cached = (getApp().globalData && getApp().globalData.book) || {}
+      if (cached.resBookId) {
+        openPage(cached)
+        return
+      }
+
+      ensureActiveBook().then(book => {
+        if (!book || !book.resBookId) {
+          wx.showToast({ title: '内容待补充', icon: 'none' })
+          return
+        }
+        openPage(book)
       })
     },
 

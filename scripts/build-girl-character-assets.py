@@ -19,7 +19,7 @@ from flood_key_white_bg import flood_key_white
 PROJECT_ROOT = SCRIPT_DIR.parent
 PARTS_DIR = PROJECT_ROOT / "assets/pk-build/pk-parts"
 HOME_DIR = PROJECT_ROOT / "images/home"
-HERO_SIZE = (1536, 1024)
+HERO_SIZE = (1536, 640)
 BOOK_CARD_SPLICE_Y = 640
 STUDENT_FOOT_SCAN_X = (80, 420)
 
@@ -168,7 +168,7 @@ def main():
     parser.add_argument(
         "--hero-source",
         default=str(PROJECT_ROOT / "assets/hero-campus-jelly-v5-girl-source.png"),
-        help="ImageGen girl hero source; should match boy v5 framing (1536x1024).",
+        help="ImageGen girl hero source; should match boy v5 framing (1536x640).",
     )
     args = parser.parse_args()
 

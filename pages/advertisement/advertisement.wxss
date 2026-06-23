@@ -317,28 +317,47 @@ page {
   gap: 28rpx;
 }
 
-.book-cover-frame {
+.book-art-frame {
+  position: relative;
   flex: none;
-  width: 168rpx;
-  height: 238rpx;
-  margin-top: -66rpx;
-  padding: 8rpx;
-  border-radius: 16rpx;
-  background: #ffffff;
-  box-shadow: 0 20rpx 36rpx rgba(169, 118, 14, 0.22), 0 4rpx 10rpx rgba(24, 35, 49, 0.08);
+  width: 176rpx;
+  height: 248rpx;
+  margin-top: -72rpx;
+  padding: 10rpx;
+  border-radius: 30rpx;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.96) 0, rgba(255, 255, 255, 0.74) 24%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #fffaf0 0%, #ffe8bf 100%);
+  box-shadow: 0 22rpx 38rpx rgba(169, 118, 14, 0.2), 0 4rpx 10rpx rgba(24, 35, 49, 0.06);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-.book-cover {
+.book-art {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 12rpx;
+  border-radius: 22rpx;
+  background: #1a1410;
+}
+
+.book-art-glow {
+  position: absolute;
+  left: 18rpx;
+  right: 18rpx;
+  bottom: 12rpx;
+  height: 48rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 191, 71, 0.26);
+  filter: blur(12rpx);
 }
 
 .book-meta {
   flex: 1;
   min-width: 0;
+  padding: 22rpx 0 24rpx;
 }
 
 .book-pills {
@@ -394,16 +413,46 @@ page {
   line-height: 32rpx;
 }
 
+.vip-subtitle {
+  display: block;
+  margin-top: 14rpx;
+  color: #6b7a8c;
+  font-size: 23rpx;
+  line-height: 34rpx;
+}
+
+.vip-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-top: 18rpx;
+}
+
+.vip-benefit-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(180deg, #f4f8ff 0%, #edf4ff 100%);
+  border: 1rpx solid rgba(23, 64, 111, 0.08);
+  color: #35577d;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 30rpx;
+}
+
 .book-name {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   color: #17406f;
-  font-size: 36rpx;
+  font-size: 34rpx;
   font-weight: 700;
-  line-height: 50rpx;
-  letter-spacing: -0.5rpx;
+  line-height: 48rpx;
+  letter-spacing: -0.4rpx;
 }
 
 /* ---------- Stat strip ---------- */
@@ -919,6 +968,7 @@ page {
 }
 
 .sku-sheet {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -950,6 +1000,27 @@ page {
   background: rgba(18, 47, 75, 0.12);
 }
 
+.sku-head {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  padding: 18rpx 32rpx 4rpx;
+}
+
+.sku-head-title {
+  color: #102a47;
+  font-size: 34rpx;
+  font-weight: 800;
+  line-height: 46rpx;
+}
+
+.sku-head-sub {
+  color: #7e8b9c;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
 .sku-book {
   position: relative;
   flex: none;
@@ -962,7 +1033,8 @@ page {
 
 .sku-close {
   position: absolute;
-  top: 18rpx;
+  z-index: 2;
+  top: 24rpx;
   right: 24rpx;
   width: 48rpx;
   height: 48rpx;
@@ -1022,12 +1094,139 @@ page {
   line-height: 30rpx;
 }
 
-.sku-title {
+.sku-group-label {
   padding: 26rpx 32rpx 16rpx;
   color: #102a47;
   font-size: 28rpx;
   font-weight: 800;
   line-height: 40rpx;
+}
+
+.sku-tiers {
+  display: flex;
+  gap: 16rpx;
+  padding: 0 32rpx;
+}
+
+.sku-tier {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28rpx 12rpx 24rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid rgba(18, 47, 75, 0.1);
+  background: #ffffff;
+  text-align: center;
+  transition: all 0.18s ease;
+}
+
+.sku-tier-active {
+  border-color: #ff7a18;
+  background: #fff8f0;
+  box-shadow: 0 10rpx 28rpx rgba(255, 122, 24, 0.16);
+}
+
+.sku-tier:active {
+  transform: scale(0.98);
+}
+
+.sku-tier-tag {
+  position: absolute;
+  top: -2rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2rpx 14rpx;
+  border-radius: 0 0 12rpx 12rpx;
+  background: linear-gradient(135deg, #ffa11c 0%, #ff7a18 100%);
+  color: #ffffff;
+  font-size: 18rpx;
+  font-weight: 700;
+  line-height: 28rpx;
+  white-space: nowrap;
+}
+
+.sku-tier-name {
+  margin-top: 8rpx;
+  color: #1f344d;
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 38rpx;
+}
+
+.sku-tier-active .sku-tier-name {
+  color: #c45a00;
+}
+
+.sku-tier-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-top: 10rpx;
+}
+
+.sku-tier-currency {
+  color: #ff6a3d;
+  font-size: 22rpx;
+  font-weight: 800;
+  line-height: 32rpx;
+}
+
+.sku-tier-amount {
+  margin-left: 2rpx;
+  color: #ff6a3d;
+  font-size: 40rpx;
+  font-weight: 800;
+  line-height: 46rpx;
+  font-variant-numeric: tabular-nums;
+}
+
+.sku-tier-sub {
+  margin-top: 8rpx;
+  color: #7e8b9c;
+  font-size: 20rpx;
+  line-height: 28rpx;
+}
+
+.sku-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 14rpx;
+  margin-top: 14rpx;
+}
+
+.sku-benefit:first-of-type {
+  margin-top: 0;
+}
+
+.sku-benefit-icon {
+  flex: none;
+  width: 44rpx;
+  height: 44rpx;
+  margin-top: 2rpx;
+}
+
+.sku-benefit-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.sku-benefit-title {
+  display: block;
+  color: #1c324c;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 34rpx;
+}
+
+.sku-benefit-desc {
+  display: block;
+  margin-top: 4rpx;
+  color: #6b7a8c;
+  font-size: 21rpx;
+  line-height: 30rpx;
 }
 
 .sku-options {

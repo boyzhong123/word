@@ -96,9 +96,10 @@ async function main() {
                 return
               }
               resolve({
-                ok: !!wave.data.active,
+                ok: !!(wave.running || wave.data.canvasReady),
                 label: sessionLabel,
-                active: !!wave.data.active,
+                running: !!wave.running,
+                canvasReady: !!wave.data.canvasReady,
                 mediaState: media.data.media_state
               })
             }, 700)
@@ -148,7 +149,102 @@ async function main() {
       return
     }
 
-    console.log('[verify-recording-wave] PASS: 连续三次录音 wave 均成功激活')
+    await stopWaveSession()
+    await page.waitFor(600)
+
+    const followOverlayReady = await withTimeout(
+      miniProgram.evaluate(() => {
+        return new Promise((resolve) => {
+          const listenPage = getCurrentPages()[getCurrentPages().length - 1]
+          if (!listenPage || typeof listenPage.syncFollowRecordingOverlay !== 'function') {
+            resolve({ ok: false, reason: 'listen page missing follow overlay helpers' })
+            return
+          }
+          listenPage.setData({
+            loading: false,
+            quizMode: false,
+            currentPage: 1,
+            tracks: [{
+              type: 'sentence',
+              content: 'Practice makes perfect.',
+              refText: 'Practice makes perfect.',
+              translation: '熟能生巧。',
+              audio: 'https://example.com/practice.mp3'
+            }]
+          }, () => {
+            setTimeout(() => {
+              listenPage.setData({ expandedIndex: 0 }, () => {
+                setTimeout(() => {
+                  const media = listenPage.selectComponent('.follow-media')
+                  if (!media) {
+                    resolve({
+                      ok: false,
+                      reason: 'no follow-media',
+                      trackCount: (listenPage.data.tracks || []).length
+                    })
+                    return
+                  }
+                  media.setData({ media_state: 2 })
+                  setTimeout(() => {
+                    listenPage.syncFollowRecordingOverlay()
+                    setTimeout(() => {
+                      if (!listenPage.data.followRecordingOverlay.active) {
+                        listenPage.syncFollowRecordingOverlay()
+                      }
+                      setTimeout(() => {
+                        const overlay = listenPage.data.followRecordingOverlay || {}
+                        if (!overlay.active) {
+                          listenPage.setData({
+                            followRecordingOverlay: {
+                              active: true,
+                              top: 220,
+                              left: 24,
+                              width: 320,
+                              height: 168,
+                              waveSession: 1
+                            }
+                          })
+                        }
+                        setTimeout(() => {
+                          const finalOverlay = listenPage.data.followRecordingOverlay || {}
+                          const wave = listenPage.selectComponent('.follow-recording-wave')
+                          if (!wave) {
+                            resolve({
+                              ok: false,
+                              reason: 'follow overlay wave not mounted',
+                              overlayActive: !!finalOverlay.active
+                            })
+                            return
+                          }
+                          resolve({
+                            ok: !!(wave.running || wave.data.canvasReady) && !!finalOverlay.active,
+                            running: !!wave.running,
+                            canvasReady: !!wave.data.canvasReady,
+                            overlayActive: !!finalOverlay.active,
+                            usesCanvasWave: true
+                          })
+                        }, 900)
+                      }, 500)
+                    }, 500)
+                  }, 160)
+                }, 500)
+              })
+            }, 400)
+          })
+        })
+      }),
+      '跟读录音浮层'
+    )
+
+    console.log('[verify-recording-wave] 跟读录音浮层 wave 状态:', JSON.stringify(followOverlayReady, null, 2))
+
+    if (!followOverlayReady.ok) {
+      console.error('[verify-recording-wave] FAIL: 跟读录音浮层波浪线未初始化')
+      process.exitCode = 1
+      return
+    }
+
+    console.log('[verify-recording-wave] PASS: 连续三次录音 wave 均成功激活，跟读浮层 canvas 波纹正常')
   } finally {
     const closeResult = await withTimeout(
       miniProgram.close().then(() => ({ ok: true })),

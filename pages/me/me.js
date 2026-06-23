@@ -14,6 +14,36 @@ const {
   getOfficialAccountFollowed,
   markOfficialAccountFollowed
 } = require('../../utils/official-account')
+const { redirectToOnboardingIfNeeded } = require('../../utils/onboarding-guard')
+const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
+const { pickActiveBook } = require('../../utils/book-select')
+const { normalizeCheckedDates, buildDemoCheckedDates, DEMO_CONTINUOUS_DAYS } = require('../checkin/calendar-data')
+const { getMembership } = require('../../utils/membership')
+const { navigateToVipPurchase } = require('../../utils/vip-purchase')
+const { getStudentProfile, getProfileChipParts } = require('../../utils/student-profile')
+
+function countCheckinDates(info) {
+  const candidates = [
+    info.checkInDates,
+    info.signDates,
+    info.calendar,
+    info.records
+  ]
+  for (let i = 0; i < candidates.length; i++) {
+    const dates = normalizeCheckedDates(candidates[i])
+    if (dates.length) {
+      return dates.length
+    }
+  }
+  return 0
+}
+
+function buildDemoCheckinMetrics() {
+  return {
+    continuousDays: DEMO_CONTINUOUS_DAYS,
+    totalDays: buildDemoCheckedDates(new Date()).length
+  }
+}
 
 function getSafeArea() {
   const systemInfo = wx.getSystemInfoSync()
@@ -158,6 +188,9 @@ Page({
   data: {
     imageBaseUrl: IMAGE_BASE_URL,
     profileHeaderBg: imageUrl('/images/home/me-profile-header-monster-v2.png'),
+    vipNameBadgeUrl: imageUrl('/images/home/vip-name-badge.png'),
+    vipNameBadgeInactiveUrl: imageUrl('/images/home/vip-name-badge-inactive.png'),
+    membership: { active: false },
     safeAreaTop: 0,
     safeAreaBottom: 0,
     logined: false,
@@ -169,8 +202,15 @@ Page({
     officialAccountStatusType: 'pending',
     stats: {
       checkInDays: 0,
+      totalCheckInDays: 0,
       learnedWords: 0,
       studyMinutes: 0
+    },
+    checkin: {
+      continuousDays: 0,
+      totalDays: 0,
+      todayDone: 0,
+      todayGoal: 2
     },
     menus: [
       {
@@ -188,7 +228,9 @@ Page({
         action: 'contact'
       }
     ],
-    settings: buildSettings('', false, false, GENDER_BOY)
+    settings: buildSettings('', false, false, GENDER_BOY),
+    profileGradeSemester: '',
+    profileVersion: ''
   },
 
   onLoad() {
@@ -198,18 +240,44 @@ Page({
       settings: buildSettings('', false, false, getCharacterGender())
     })
     this.refreshOfficialAccountStatus()
+    this.refreshMembership()
+    this.refreshStudentProfile()
     this.loadProfile()
   },
 
   onShow() {
+    if (redirectToOnboardingIfNeeded()) {
+      return
+    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 })
+      this.getTabBar().setData({ selected: 2 })
     }
     if (this.refresh) {
       this.refresh = false
       this.loadProfile()
     }
     this.refreshOfficialAccountStatus()
+    this.refreshMembership()
+    this.refreshStudentProfile()
+    this.loadCheckin()
+  },
+
+  refreshStudentProfile() {
+    const parts = getProfileChipParts(getStudentProfile())
+    this.setData({
+      profileGradeSemester: parts.gradeSemesterText,
+      profileVersion: parts.versionText
+    })
+  },
+
+  editProfile() {
+    wx.navigateTo({ url: '/pages/onboarding/onboarding?edit=1' })
+  },
+
+  refreshMembership() {
+    this.setData({
+      membership: getMembership()
+    })
   },
 
   refreshOfficialAccountStatus() {
@@ -282,17 +350,50 @@ Page({
   loadStats() {
     getUserInfo().then(data => {
       data = data || {}
+      const continuousDays = pickNumber(data.continuousDays, data.checkInDays, data.signDays)
+      const totalDays = countCheckinDates(data) || continuousDays
+      const demo = (!continuousDays && !totalDays) ? buildDemoCheckinMetrics() : null
       this.setData({
-        'stats.checkInDays': pickNumber(data.continuousDays, data.checkInDays, data.signDays),
-        'stats.studyMinutes': pickNumber(data.studyMinutes, data.learnMinutes)
+        'stats.checkInDays': continuousDays,
+        'stats.totalCheckInDays': totalDays || (demo && demo.totalDays) || 0,
+        'stats.studyMinutes': pickNumber(data.studyMinutes, data.learnMinutes),
+        'checkin.continuousDays': continuousDays || (demo && demo.continuousDays) || 0,
+        'checkin.totalDays': totalDays || (demo && demo.totalDays) || 0
       })
     }).catch(() => {})
 
     getUserBooks().then(books => {
+      const list = Array.isArray(books) ? books : []
+      const book = pickActiveBook(list) || {}
+      const resBookId = book.resBookId || ''
       this.setData({
-        'stats.learnedWords': sumLearnedWords(books)
+        'stats.learnedWords': sumLearnedWords(books),
+        'checkin.todayDone': getTodayDone(resBookId),
+        'checkin.todayGoal': getDailyGoal(resBookId)
       })
     }).catch(() => {})
+  },
+
+  loadCheckin() {
+    if (!this.data.logined) {
+      const demo = buildDemoCheckinMetrics()
+      this.setData({
+        'checkin.continuousDays': demo.continuousDays,
+        'checkin.totalDays': demo.totalDays
+      })
+      return
+    }
+    this.loadStats()
+  },
+
+  goMembership() {
+    navigateToVipPurchase(null, { locked: true })
+  },
+
+  goCheckinCalendar() {
+    wx.navigateTo({
+      url: '/pages/checkin/calendar'
+    })
   },
 
   handleLogin() {
@@ -386,8 +487,9 @@ Page({
         return
       }
       saveUserInfo({ nickName: value }).then(userInfo => {
+        const nickName = pickNickName(userInfo) || value
         this.setData({
-          'userInfo.nickName': pickNickName(userInfo) || value
+          'userInfo.nickName': nickName
         })
       }).catch(error => {
         console.log('[me] save nickname failed', error)

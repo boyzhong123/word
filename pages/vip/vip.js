@@ -1,7 +1,6 @@
 // pages/vip/vip.js 确认订单页：测试环境使用模拟支付完成购买闭环
 const { markDevPurchased } = require('../../utils/dev-books')
-const { requestSubscribeForEvent } = require('../../utils/subscribe')
-
+const { getTier, activateMembership } = require('../../utils/membership')
 const systemInfo = wx.getSystemInfoSync()
 const safeArea = wx.getStorageSync('safeArea') || systemInfo.safeArea || {
   bottom: systemInfo.windowHeight
@@ -28,6 +27,9 @@ function decodeQueryValue(value) {
 
 Page({
   data: {
+    orderMode: 'package',
+    tierId: '',
+    orderPill: '',
     resBookId: '',
     name: '',
     bookCover: '',
@@ -47,6 +49,27 @@ Page({
   },
 
   onLoad(options) {
+    const tierId = decodeQueryValue(options.tierId)
+    const tier = tierId ? getTier(tierId) : null
+
+    if (tier) {
+      const price = tier.price
+      this.setData({
+        orderMode: 'membership',
+        tierId: tier.id,
+        resBookId: decodeQueryValue(options.resBookId),
+        name: decodeQueryValue(options.name),
+        bookCover: decodeQueryValue(options.bookCover),
+        press: decodeQueryValue(options.press),
+        packageName: 'VIP 会员',
+        validityName: tier.name,
+        orderPill: tier.name + '会员',
+        price,
+        payPrice: price
+      })
+      return
+    }
+
     const price = Number(options.price) || 0
     this.setData({
       resBookId: decodeQueryValue(options.resBookId),
@@ -123,7 +146,9 @@ Page({
       wx.hideLoading()
       wx.showModal({
         title: '模拟微信支付',
-        content: '支付 ¥' + this.data.payPrice + ' 购买「' + this.data.packageName + '」。测试环境不会真实扣款。',
+        content: this.data.orderMode === 'membership'
+          ? '支付 ¥' + this.data.payPrice + ' 开通「' + this.data.validityName + '会员」。测试环境不会真实扣款。'
+          : '支付 ¥' + this.data.payPrice + ' 购买「' + this.data.packageName + '」。测试环境不会真实扣款。',
         confirmText: '支付成功',
         cancelText: '取消支付',
         success: (res) => {
@@ -141,10 +166,14 @@ Page({
   },
 
   onPaySuccess() {
-    markDevPurchased(this.data.resBookId)
-    requestSubscribeForEvent('subscribePref_payment')
+    if (this.data.tierId) {
+      activateMembership(this.data.tierId)
+    }
+    if (this.data.resBookId) {
+      markDevPurchased(this.data.resBookId)
+    }
     this.setData({ paid: true })
-    wx.showToast({ title: this.data.redeemApplied ? '兑换成功' : '购买成功', icon: 'success' })
+    wx.showToast({ title: this.data.redeemApplied ? '兑换成功' : (this.data.orderMode === 'membership' ? '开通成功' : '购买成功'), icon: 'success' })
 
     setTimeout(() => {
       const channel = typeof this.getOpenerEventChannel === 'function'

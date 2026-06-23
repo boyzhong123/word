@@ -6,7 +6,7 @@
   <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="intro-card">
       <view class="intro-title">学习提醒订阅</view>
-      <view class="intro-desc">打卡提醒可累计订阅次数；支付成功和学习报告会在事件发生时询问订阅。</view>
+      <view class="intro-desc">打卡提醒可累计订阅次数；支付成功、学习报告不再自动弹窗询问订阅。</view>
     </view>
 
     <block wx:if="{{hasTemplates}}">
