@@ -148,6 +148,10 @@ page {
   background: #fff6ec;
 }
 
+.review-tag-on {
+  background: #ff8200;
+}
+
 .review-tag-label {
   font-size: 24rpx;
   color: #c2691a;
@@ -156,6 +160,11 @@ page {
 .review-tag-count {
   font-size: 22rpx;
   color: #e0a878;
+}
+
+.review-tag-on .review-tag-label,
+.review-tag-on .review-tag-count {
+  color: #ffffff;
 }
 
 .review-item {

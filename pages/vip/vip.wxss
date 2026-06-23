@@ -169,6 +169,97 @@ page {
   font-variant-numeric: tabular-nums;
 }
 
+.order-row-discount {
+  color: #ff5a1c;
+  font-weight: 700;
+}
+
+/* ---------- 兑换码 ---------- */
+.redeem-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.redeem-label {
+  flex: none;
+  color: #17406f;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 38rpx;
+}
+
+.redeem-input {
+  flex: 1;
+  min-width: 0;
+  height: 64rpx;
+  font-size: 26rpx;
+  color: #17406f;
+}
+
+.redeem-placeholder {
+  color: #b6bdc8;
+  font-size: 26rpx;
+}
+
+.redeem-btn {
+  flex: none;
+  padding: 0 32rpx;
+  height: 64rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #ffa11c 0%, #ff7a18 100%);
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 64rpx;
+  text-align: center;
+}
+
+.redeem-btn:active {
+  opacity: 0.9;
+}
+
+.redeem-applied {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.redeem-applied-code {
+  color: #17406f;
+  font-size: 28rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.redeem-applied-tag {
+  flex: none;
+  padding: 2rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 90, 28, 0.12);
+  color: #ff5a1c;
+  font-size: 20rpx;
+  line-height: 30rpx;
+}
+
+.redeem-remove {
+  flex: none;
+  padding: 0 8rpx;
+  color: #9aa3b2;
+  font-size: 24rpx;
+  line-height: 38rpx;
+}
+
+.redeem-error {
+  display: block;
+  margin-top: 12rpx;
+  color: #ff5a1c;
+  font-size: 22rpx;
+  line-height: 30rpx;
+}
+
 .order-tip {
   margin: 24rpx 29rpx 0;
   padding: 18rpx 22rpx;

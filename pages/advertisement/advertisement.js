@@ -30,20 +30,11 @@ const DETAIL_IMAGES = [
 
 // 宝贝评价（淘宝风：文字 + 买家秀，买家秀图复用仓库截图/场景图裁成方图）
 const REVIEW_SUMMARY = {
-  countLabel: '600+',
   recent: '近 3 个月好评率高达 98.9%'
 }
 
-// 评价标签（带计数，横向可滑）
-const REVIEW_TAGS = [
-  { label: '发音标准', count: 145 },
-  { label: '孩子爱学', count: 123 },
-  { label: '内容实用', count: 111 },
-  { label: '效果明显', count: 97 },
-  { label: '界面好看', count: 63 },
-  { label: '性价比高', count: 46 },
-  { label: '客服态度好', count: 36 }
-]
+// 评价分类（标签筛选用，顺序即展示顺序；计数由 REVIEWS 自动统计）
+const REVIEW_CATEGORIES = ['发音标准', '孩子爱学', '内容实用', '效果明显', '界面好看', '性价比高', '客服态度好']
 
 const REVIEWS = [
   {
@@ -53,6 +44,7 @@ const REVIEWS = [
     rating: 5,
     date: '2026-06-18',
     spec: '终生+卡 · 词典+智能学习卡',
+    tags: ['发音标准', '效果明显'],
     text: '孩子三年级，跟读评分太实用了，发音不准会逐音纠正，比我教得标准。坚持两周，明显愿意开口读了。',
     images: ['/images/home/ad/reviews/r-recite.png', '/images/home/ad/reviews/r-finish-today.png']
   },
@@ -63,6 +55,7 @@ const REVIEWS = [
     rating: 5,
     date: '2026-06-15',
     spec: '终生版 · 小程序学习权益',
+    tags: ['性价比高', '孩子爱学'],
     text: '冲着永久版买的，一次付费长期用很划算。每关学完都有评星和报告，孩子像闯关一样停不下来。',
     images: ['/images/home/ad/reviews/r-home-map.png', '/images/home/ad/reviews/r-finish-word.png']
   },
@@ -73,6 +66,7 @@ const REVIEWS = [
     rating: 4,
     date: '2026-06-12',
     spec: '6个月版 · 小程序学习权益',
+    tags: ['内容实用'],
     text: '内容跟教材同步，听力小测和单词新学的闭环设计不错。就是希望后面能多更新几个单元。',
     images: ['/images/home/ad/reviews/r-quiz.png']
   },
@@ -83,6 +77,7 @@ const REVIEWS = [
     rating: 5,
     date: '2026-06-10',
     spec: '6个月+卡 · 小程序+纸质词卡',
+    tags: ['效果明显', '孩子爱学'],
     text: '学习报告每天能看到进度和正确率，做家长心里有数。现在孩子自己会主动打卡，不用催了。',
     images: ['/images/home/ad/reviews/r-finish-today.png', '/images/home/ad/reviews/r-checkin.png']
   },
@@ -93,6 +88,7 @@ const REVIEWS = [
     rating: 5,
     date: '2026-06-08',
     spec: '终生+卡 · 小程序+纸质词卡',
+    tags: ['内容实用', '孩子爱学'],
     text: '带卡版到了，纸质词卡扫码就能进对应内容，线上线下联动，仪式感很强，孩子特别喜欢。',
     images: ['/images/home/ad/reviews/r-loop.png']
   },
@@ -103,6 +99,7 @@ const REVIEWS = [
     rating: 5,
     date: '2026-06-05',
     spec: '终生版 · 小程序学习权益',
+    tags: ['发音标准', '内容实用'],
     text: '随身听零碎时间磨耳朵，上下学路上放着听。语音评测说是跟中高考同源，练口语更有底气了。',
     images: ['/images/home/ad/reviews/r-player.png', '/images/home/ad/reviews/r-word.png']
   },
@@ -113,6 +110,7 @@ const REVIEWS = [
     rating: 5,
     date: '2026-06-03',
     spec: '6个月版 · 小程序学习权益',
+    tags: ['效果明显'],
     text: '以前单词背了就忘，这个 AI 记忆加反复练，记得住多了。这周报告掌握率到九十多，挺惊喜。',
     images: ['/images/home/ad/reviews/r-finish-recite.png']
   },
@@ -123,10 +121,30 @@ const REVIEWS = [
     rating: 5,
     date: '2026-05-30',
     spec: '终生版 · 小程序学习权益',
-    text: '微信打开就能用，不用下载 App，很方便。学习计划能按孩子节奏定，省心，已经推荐给同学家长了。',
+    tags: ['界面好看', '性价比高', '客服态度好'],
+    text: '微信打开就能用，不用下载 App，客服也回得快。学习计划能按孩子节奏定，省心，已经推荐给同学家长了。',
     images: ['/images/home/ad/reviews/r-plan.png', '/images/home/ad/reviews/r-family.png']
   }
 ]
+
+// 由 REVIEWS 自动统计分类计数，count=0 的分类不展示；首项「全部」
+function buildReviewTags(reviews) {
+  const counts = {}
+  REVIEW_CATEGORIES.forEach((c) => { counts[c] = 0 })
+  reviews.forEach((r) => {
+    (r.tags || []).forEach((t) => {
+      if (counts[t] != null) { counts[t] += 1 }
+    })
+  })
+  const tags = [{ key: 'all', label: '全部', count: reviews.length }]
+  REVIEW_CATEGORIES.forEach((c) => {
+    if (counts[c] > 0) { tags.push({ key: c, label: c, count: counts[c] }) }
+  })
+  return tags
+}
+
+const REVIEW_TAGS = buildReviewTags(REVIEWS)
+const REVIEW_COUNT = REVIEWS.length
 
 const VALIDITY_OPTIONS = [
   {
@@ -383,8 +401,11 @@ Page({
     activeTab: 'detail',
     detailImages: DETAIL_IMAGES,
     reviewSummary: REVIEW_SUMMARY,
+    reviewCount: REVIEW_COUNT,
     reviewTags: REVIEW_TAGS,
+    activeReviewTag: 'all',
     reviews: REVIEWS,
+    filteredReviews: REVIEWS,
     reviewsExpanded: false,
     featureCards: FEATURE_CARDS,
     methodSteps: METHOD_STEPS,
@@ -448,6 +469,19 @@ Page({
 
   toggleReviews() {
     this.setData({ reviewsExpanded: !this.data.reviewsExpanded })
+  },
+
+  filterReviews(event) {
+    const key = event.currentTarget.dataset.key
+    if (!key || key === this.data.activeReviewTag) {
+      return
+    }
+    const list = key === 'all' ? REVIEWS : REVIEWS.filter((r) => (r.tags || []).indexOf(key) > -1)
+    this.setData({
+      activeReviewTag: key,
+      filteredReviews: list,
+      reviewsExpanded: false
+    })
   },
 
   previewReviewImage(event) {

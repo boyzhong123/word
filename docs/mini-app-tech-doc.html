@@ -553,7 +553,7 @@
               <tr><td><code>pages/home/home</code></td><td>首页</td><td>闯关列表/地图、教材弹窗、打卡摘要、测评 Banner、报告 pill</td><td>user/info, user-books, book-units, switch-default-book, info-update</td><td><span class="badge partial">部分</span></td><td>goUnitReport→unit-report；exam→exam-paper</td></tr>
               <tr><td><code>pages/plan/plan</code></td><td>首页</td><td>每日目标关数、关卡预览（含单词）、打卡预告、强度小怪兽</td><td>book-units, unit-words；study-plan（待实现，当前 Storage）</td><td><span class="badge partial">部分</span></td><td>groupsPerDay 改 study-plan 接口；活动文案读 user/info</td></tr>
               <tr><td><code>pages/advertisement/advertisement</code></td><td>商品</td><td>词书详情、规格对比表、SKU 弹层</td><td>book-product-list（待接）</td><td><span class="badge partial">部分</span></td><td>comparePlans/compareRows/products</td></tr>
-              <tr><td><code>pages/vip/vip</code></td><td>商品</td><td>确认订单、微信支付</td><td>order, order/status（待接）</td><td><span class="badge partial">部分</span></td><td>替换 markDevPurchased</td></tr>
+              <tr><td><code>pages/vip/vip</code></td><td>商品</td><td>确认订单、微信支付、兑换码抵扣</td><td>order, order/status, redeem-code（待接）</td><td><span class="badge partial">部分</span></td><td>替换 markDevPurchased + 硬编码 REDEEM_CODES</td></tr>
               <tr><td><code>pages/practice/practice</code></td><td>核心</td><td>单词新学 / 跟读背诵 / 复习关</td><td>unit-words；word-mark/recitation-score 待接</td><td><span class="badge partial">部分</span></td><td>逐词上报；word-info 后续</td></tr>
               <tr><td><code>pages/listen/listen</code></td><td>核心/随身听</td><td>播放器、课文跟读、关卡小测</td><td>book-units, unit-words, listening-quiz-result；listen-duration 待接</td><td><span class="badge partial">部分</span></td><td>跟读不上分；小测已封装</td></tr>
               <tr><td><code>pages/finish/today</code></td><td>核心</td><td>环节完成、打卡成功卡</td><td>save-learning-record（仅 unitId）；check-in 待接</td><td><span class="badge partial">部分</span></td><td>补 taskType/durationSeconds</td></tr>
@@ -734,6 +734,12 @@
           ③ <code>wx.requestPayment(payParams)</code><br/>
           ④ 微信异步通知后端（<code>POST /mini-app/pay-notify</code> 或等价回调，服务端实现）→ 更新订单 paid + user-books.unlocked=1<br/>
           ⑤ 前端支付成功后可轮询 <code>GET order/status</code>（待实现）或重新拉 user-books 确认解锁
+        </div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong style="color:var(--amber)">兑换码（vip 页新增，当前前端硬编码，待接后端）</strong><br/>
+          vip 页支付区上方新增<strong>兑换码输入框</strong>：输入码 → 「使用」<code>applyRedeem</code> 校验 → 命中则<strong>抵扣全额（payPrice=0）</strong>并显示已抵扣金额，可「移除」<code>removeRedeem</code> 还原价格。<br/>
+          支付时若 <code>payPrice ≤ 0</code> → <strong>跳过微信支付</strong>，走「正在兑换」直接 <code>onPaySuccess</code> 解锁（toast 显示「兑换成功」而非「购买成功」）。<br/>
+          <strong>现状缺口</strong>：有效码<strong>前端硬编码</strong> <code>REDEEM_CODES=['2818M32','2818M21']</code>（大小写不敏感，测试环境用），解锁仍走本地 <code>markDevPurchased</code>。<strong>联调须改为后端校验+核销</strong>：见下方 <code>redeem-code</code> 接口，校验通过后由后端置 user-books.unlocked=1，前端删硬编码常量。
         </div>
         <div class="api-detail-grid" id="commerceSchema"></div>
         <div class="cards" id="commercePages"></div>
@@ -1354,6 +1360,18 @@
             callers: "vip.js onPaySuccess 待接（当前 markDevPurchased 本地解锁）",
             fields: "requestPayment success 只代表用户完成支付动作，最终以 notify 或本接口为准。",
             render: "支付成功 / navigateBack 前刷新解锁态"
+          }
+        },
+        {
+          id: "redeem-code", module: "商品购买", moduleId: "commerce", page: "vip · 兑换码抵扣解锁", status: "missing",
+          endpoints: [{ method: "POST", path: "/mini-app/redeem-code", note: "待实现" }],
+          summary: "校验并核销兑换码，命中即免支付解锁词书",
+          detail: {
+            request: "{ code, resBookId, orderProductId? }",
+            response: '{ valid: true, unlocked: true, resBookId, discountCents?, packageName? } 或 { valid: false, reason: "invalid"|"used"|"expired"|"mismatch" }',
+            callers: "pages/vip/vip.js applyRedeem（当前比对硬编码 REDEEM_CODES，不调接口）；removeRedeem 还原价格；命中后 pay 跳过支付直接 onPaySuccess",
+            fields: "【现状·待替换】有效码前端硬编码 <code>REDEEM_CODES=['2818M32','2818M21']</code>（normalizeCode 去空格+转大写，<strong>大小写不敏感</strong>），抵扣后 payPrice=0、解锁走本地 markDevPurchased。【后端口径】① 校验码有效性（存在/未过期/未被用/与该 resBookId 或套餐匹配）；② <strong>一次性核销，须幂等且防并发重复使用</strong>；③ 命中后由后端置 user-books.unlocked=1（等价 pay-notify 的解锁结果），前端删除硬编码常量、解锁态以重新拉 user-books 为准；④ 区分全额兑换（payPrice=0 免支付）与部分抵扣（discountCents>0 仍需走 order 支付差额，前端当前仅支持全额）。【提示文案】无效→『兑换码无效或已使用』；空→『请输入兑换码』；成功 toast『兑换成功』。",
+            render: "vip 页兑换码输入框 + 使用/移除 + 抵扣金额；payPrice≤0 时支付按钮走『正在兑换』"
           }
         },
         {

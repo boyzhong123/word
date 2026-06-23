@@ -53,7 +53,7 @@
         data-tab="review"
         bindtap="switchTab"
       >
-        <text class="detail-tab-text">评价 {{reviewSummary.countLabel}}</text>
+        <text class="detail-tab-text">评价 {{reviewCount}}</text>
         <view class="detail-tab-bar"></view>
       </view>
     </view>
@@ -71,18 +71,24 @@
 
     <view wx:else class="reviews">
       <view class="reviews-head">
-        <text class="reviews-title">用户评价 · {{reviewSummary.countLabel}}</text>
+        <text class="reviews-title">用户评价 · {{reviewCount}}</text>
         <text class="reviews-recent">{{reviewSummary.recent}}</text>
       </view>
 
       <scroll-view scroll-x class="review-tags" enhanced show-scrollbar="{{false}}">
-        <view class="review-tag" wx:for="{{reviewTags}}" wx:key="label">
+        <view
+          class="review-tag {{activeReviewTag === item.key ? 'review-tag-on' : ''}}"
+          wx:for="{{reviewTags}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="filterReviews"
+        >
           <text class="review-tag-label">{{item.label}}</text>
           <text class="review-tag-count">{{item.count}}</text>
         </view>
       </scroll-view>
 
-      <block wx:for="{{reviews}}" wx:key="name" wx:for-item="rv">
+      <block wx:for="{{filteredReviews}}" wx:key="name" wx:for-item="rv">
         <view wx:if="{{reviewsExpanded || index < 3}}" class="review-item">
           <view class="review-top">
             <view class="review-avatar" style="background:{{rv.avatarBg}}">{{rv.avatarText}}</view>
@@ -122,8 +128,8 @@
         </view>
       </block>
 
-      <view class="review-more" bindtap="toggleReviews">
-        {{reviewsExpanded ? '收起评价' : '查看全部评价'}}
+      <view wx:if="{{filteredReviews.length > 3}}" class="review-more" bindtap="toggleReviews">
+        {{reviewsExpanded ? '收起评价' : '查看全部评价（' + filteredReviews.length + '）'}}
       </view>
     </view>
 
