@@ -17,10 +17,15 @@ const {
 const { redirectToOnboardingIfNeeded } = require('../../utils/onboarding-guard')
 const { getTodayDone, getDailyGoal } = require('../../utils/checkin-progress')
 const { pickActiveBook } = require('../../utils/book-select')
+const { sumLearnedWords } = require('../../utils/learned-progress')
 const { normalizeCheckedDates, buildDemoCheckedDates, DEMO_CONTINUOUS_DAYS } = require('../checkin/calendar-data')
 const { getMembership } = require('../../utils/membership')
 const { navigateToVipPurchase } = require('../../utils/vip-purchase')
 const { getStudentProfile, getProfileChipParts } = require('../../utils/student-profile')
+const {
+  dismissVipFloatingGuide,
+  shouldShowVipFloatingGuide
+} = require('../../utils/vip-floating-guide')
 
 function countCheckinDates(info) {
   const candidates = [
@@ -63,16 +68,6 @@ function pickNumber() {
     }
   }
   return 0
-}
-
-function sumLearnedWords(books) {
-  if (!Array.isArray(books)) {
-    return 0
-  }
-  return books.reduce((total, book) => {
-    const info = (book.learningInfo && book.learningInfo.book) || {}
-    return total + pickNumber(info.learningWords, info.wordCount, book.learningWords)
-  }, 0)
 }
 
 function pickAvatarUrl(data) {
@@ -190,6 +185,8 @@ Page({
     profileHeaderBg: imageUrl('/images/home/me-profile-header-monster-v2.png'),
     vipNameBadgeUrl: imageUrl('/images/home/vip-name-badge.png'),
     vipNameBadgeInactiveUrl: imageUrl('/images/home/vip-name-badge-inactive.png'),
+    vipFloatingUnlockUrl: imageUrl('/images/home/vip-floating-guide-banner.png'),
+    showVipFloatingGuide: false,
     membership: { active: false },
     safeAreaTop: 0,
     safeAreaBottom: 0,
@@ -215,8 +212,8 @@ Page({
     menus: [
       {
         id: 'book',
-        label: '我的教材',
-        desc: '查看当前学习内容',
+        label: '已学书本',
+        desc: '查看已学完第一关的书本',
         url: '/pages/me/book',
         action: 'book'
       },
@@ -249,6 +246,14 @@ Page({
     if (redirectToOnboardingIfNeeded()) {
       return
     }
+    const globalData = getApp().globalData || {}
+    if (globalData.membershipUpdatedAt) {
+      this.setData({
+        membership: getMembership(),
+        showVipFloatingGuide: false
+      })
+      delete globalData.membershipUpdatedAt
+    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 2 })
     }
@@ -275,8 +280,10 @@ Page({
   },
 
   refreshMembership() {
+    const membership = getMembership()
     this.setData({
-      membership: getMembership()
+      membership,
+      showVipFloatingGuide: shouldShowVipFloatingGuide(membership)
     })
   },
 
@@ -388,6 +395,11 @@ Page({
 
   goMembership() {
     navigateToVipPurchase(null, { locked: true })
+  },
+
+  closeVipFloatingGuide() {
+    dismissVipFloatingGuide()
+    this.setData({ showVipFloatingGuide: false })
   },
 
   goCheckinCalendar() {

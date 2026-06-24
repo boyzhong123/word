@@ -18,7 +18,7 @@
   <view class="menu-arrow">›</view>
 </template>
 
-<view class="me-page">
+<view class="me-page {{showVipFloatingGuide ? 'me-page-vip-floating' : ''}}">
   <scroll-view class="me-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="profile-header" style="padding-top: {{safeAreaTop}}px;">
       <image class="profile-header-bg" src="{{profileHeaderBg}}" mode="aspectFill" />
@@ -249,4 +249,9 @@
 
     <view class="scroll-spacer"></view>
   </scroll-view>
+
+  <view wx:if="{{showVipFloatingGuide}}" class="vip-floating-guide" bindtap="goMembership">
+    <image class="vip-floating-banner" src="{{vipFloatingUnlockUrl}}" mode="widthFix" />
+    <view class="vip-floating-close-hit" catchtap="closeVipFloatingGuide"></view>
+  </view>
 </view>

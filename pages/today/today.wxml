@@ -66,15 +66,12 @@
           <view class="ov-book-cover-wrap">
             <image class="ov-book-cover" src="{{book.bookCover}}" mode="aspectFill" />
             <view wx:if="{{book.newStandard}}" class="tag-new-standard ov-book-cover-tag">新课标</view>
+            <view class="ov-book-switch inline-action" catchtap="switchBook">
+              <text class="ov-book-switch-text">更换教材</text>
+              <text class="ui-caret ui-caret-right ov-book-switch-caret"></text>
+            </view>
           </view>
           <view class="ov-book-main">
-            <view class="ov-book-kicker">
-              <text>我的教材</text>
-              <view class="ov-book-switch inline-action" catchtap="switchBook">
-                <text>切换</text>
-                <text class="ui-caret ui-caret-right"></text>
-              </view>
-            </view>
             <view class="ov-book-title-row">
               <view class="ov-book-name">{{book.name}}</view>
             </view>
@@ -104,36 +101,6 @@
                 <view class="ov-highlight-desc">{{item.desc}}</view>
               </view>
             </view>
-          </view>
-        </view>
-      </view>
-
-      <view class="ov-stats" bindtap="showTodayProgressHint">
-        <view class="ov-stat">
-          <image class="ov-stat-icon" src="../../images/home/icon-today-learned-word.png" mode="aspectFit" />
-          <view class="ov-stat-copy">
-            <view class="ov-stat-num">
-              {{todayWords}}<text class="ov-stat-unit">词</text>
-            </view>
-            <view class="ov-stat-label">今日单词</view>
-          </view>
-        </view>
-        <view class="ov-stat">
-          <image class="ov-stat-icon" src="../../images/home/icon-today-learned-sentence.png" mode="aspectFit" />
-          <view class="ov-stat-copy">
-            <view class="ov-stat-num">
-              {{todaySentences}}<text class="ov-stat-unit">句</text>
-            </view>
-            <view class="ov-stat-label">今日句子</view>
-          </view>
-        </view>
-        <view class="ov-stat">
-          <image class="ov-stat-icon" src="../../images/home/icon-today-streak.png" mode="aspectFit" />
-          <view class="ov-stat-copy">
-            <view class="ov-stat-num">
-              {{todayDone}}<text class="ov-stat-unit">关</text>
-            </view>
-            <view class="ov-stat-label">今日闯关</view>
           </view>
         </view>
       </view>
@@ -224,7 +191,12 @@
             <image class="route-flag" src="{{routeIconUrl}}" mode="aspectFit" />
             <view>
               <view class="route-title">今日学习路线</view>
-              <view class="route-sub">更新时间 {{routeUpdatedAtText}}</view>
+              <view class="route-progress">
+                <view class="route-progress-track">
+                  <view class="route-progress-fill" style="width: {{stepPercent}}%;"></view>
+                </view>
+                <text class="route-progress-text">{{doneSteps}}/{{totalSteps}}</text>
+              </view>
             </view>
           </view>
           <view class="route-actions">
@@ -234,16 +206,9 @@
             </view>
           </view>
         </view>
-        <view class="route-bar-row">
-          <image class="route-bar-whistle" src="{{routeBarWhistleUrl}}" mode="aspectFit" />
-          <view class="route-bar">
-            <view class="route-bar-fill" style="width: {{stepPercent}}%;"></view>
-          </view>
-          <image class="route-bar-flag" src="{{routeBarFlagUrl}}" mode="aspectFit" />
-        </view>
 
-        <view class="seg seg-{{level.levelState}} {{level.locked ? 'seg-locked' : ''}}" wx:for="{{targetLevels}}" wx:for-item="level" wx:key="key">
-          <block wx:if="{{level.locked}}">
+        <view class="seg seg-{{level.levelState}} {{level.locked && level.isReview ? 'seg-locked' : ''}}" wx:for="{{targetLevels}}" wx:for-item="level" wx:key="key">
+          <block wx:if="{{level.locked && level.isReview}}">
             <view class="locked-card" bindtap="goMembership">
               <view class="seg-marker seg-marker-locked">{{level.levelNo}}</view>
               <image class="locked-card-monster" src="{{lockedMonsterUrl}}" mode="aspectFit" />
@@ -339,7 +304,7 @@
                 <text>收起</text>
                 <text class="ui-caret ui-caret-up"></text>
               </view>
-              <text wx:elif="{{level.isFreeTrial}}" class="seg-free">免费体验</text>
+              <text wx:elif="{{level.showFreeTrialBadge}}" class="seg-free">免费体验</text>
             </view>
 
             <view class="seg-steps">
@@ -405,6 +370,28 @@
         <view class="done-title">今日任务整理中</view>
         <view class="done-sub">去成长页看看完整闯关地图</view>
         <view class="app-btn app-btn-secondary done-btn" bindtap="goGrowth">去成长页</view>
+      </view>
+
+      <!-- 今日小结：把今天的三类收获汇总到页面底部，作为回顾收尾 -->
+      <view wx:if="{{book}}" class="today-summary" bindtap="showTodayProgressHint">
+        <view class="summary-head">
+          <image class="summary-head-icon" src="../../images/home/icon-today-streak.png" mode="aspectFit" />
+          <text class="summary-head-title">今日小结</text>
+        </view>
+        <view class="summary-stats">
+          <view class="summary-stat summary-stat--word">
+            <view class="summary-stat-num">{{todayWords}}<text class="summary-stat-unit">词</text></view>
+            <view class="summary-stat-label">今日单词</view>
+          </view>
+          <view class="summary-stat summary-stat--sentence">
+            <view class="summary-stat-num">{{todaySentences}}<text class="summary-stat-unit">句</text></view>
+            <view class="summary-stat-label">今日句子</view>
+          </view>
+          <view class="summary-stat summary-stat--level">
+            <view class="summary-stat-num">{{todayDone}}<text class="summary-stat-unit">关</text></view>
+            <view class="summary-stat-label">今日闯关</view>
+          </view>
+        </view>
       </view>
 
     </block>

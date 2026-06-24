@@ -30,12 +30,11 @@ function toCanvasImageSrc(src) {
   return src ? src.replace(/^\.\.\/\.\.\//, '/') : src
 }
 
-// 累计掌握词数（与首页 getLearnedWordCount 同口径，书目信息缺失时取演示值）
+const { getLearnedWordCount } = require('../../utils/learned-progress')
+// 累计已学词数（与首页同口径，书目信息缺失时取演示值）
 function pickLearnedWords(book) {
-  const learningInfo = (book && book.learningInfo) || {}
-  const bookProgress = learningInfo.book || {}
-  const learned = Number(bookProgress.learningWords || bookProgress.wordCount)
-  if (Number.isFinite(learned) && learned > 0) {
+  const learned = getLearnedWordCount(book)
+  if (learned > 0) {
     return learned
   }
   const total = Number(book && book.wordCount)

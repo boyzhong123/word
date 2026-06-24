@@ -19,8 +19,6 @@ test('primary action buttons across pages use black fill and white text', () => 
   const checks = [
     ['pages/plan/plan.wxss', /\.save-btn\s*{[^}]*background:\s*#111318/s],
     ['pages/checkin/calendar.wxss', /\.power-button\s*{[^}]*background:\s*#111318/s],
-    ['pages/advertisement/advertisement.wxss', /\.purchase-button\s*{[^}]*background:\s*#111318/s],
-    ['pages/catalogue/catalogue.wxss', /\.vip-btn\s*{[^}]*background:\s*#111318/s],
     ['components/book-content/book-content.wxss', /\.btn\s*{[^}]*background:\s*#111318/s],
     ['pages/finish/today.wxss', /\.btn\s*{[^}]*background:\s*#111318/s],
   ]

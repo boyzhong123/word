@@ -59,12 +59,6 @@ SAFE_TOP="CRITICAL LAYOUT — STATUS BAR SAFE ZONE: deliver a wide 2:1 banner (1
 BANNER_STYLE="Wide horizontal 2:1 landscape mobile onboarding BANNER edge to edge. Soft pink-blue gradient sky like Chinese study app. Character and props spread across the lower band — large mascot on left or center-left, scenery extending to right edge. NO tiny centered subject on huge empty margins, NO square composition, NO watermark, NO text."
 
 python3 "$COMPOSE" edit \
-  -p "Onboarding welcome banner — extend reference scene taller with extra sky headroom. $SAFE_TOP $BANNER_STYLE $JELLY_IDENTITY Scene in lower band: jelly mascot waving hello on the left, holding blue vocabulary book with yellow star; on the right floating orange and light-blue rounded tiles (blank), tiny golden stars and small upward orange growth chart. Friendly welcoming mood. Match reference composition but recomposed vertically." \
-  -i "$OUT_DIR/onboard-intro-hero.png" -i "$JELLY_CROP" -i "$PK_HERO" -i "$IDENTITY" \
-  -o "$ASSET_DIR/onboard-intro-hero-raw.png" \
-  --size 3840x2160
-
-python3 "$COMPOSE" edit \
   -p "Onboarding grade-step banner — extend reference scene taller with extra sky headroom. $SAFE_TOP $BANNER_STYLE $JELLY_IDENTITY Scene in lower band: jelly mascot with yellow school backpack on the left, three wooden directional signposts with colorful arrow boards (orange, green, blue) stretching to the right. Small grass and flowers along bottom. Theme: choosing grade path. Match reference but recomposed vertically." \
   -i "$OUT_DIR/onboard-step-grade.png" -i "$JELLY_CROP" -i "$IDENTITY" \
   -o "$ASSET_DIR/onboard-step-grade-raw.png" \
@@ -82,14 +76,17 @@ python3 "$COMPOSE" edit \
   -o "$ASSET_DIR/onboard-step-textbook-raw.png" \
   --size 3840x2160
 
-for name in intro-hero step-grade step-semester step-textbook; do
+for name in step-grade step-semester step-textbook; do
   crop_banner "$ASSET_DIR/onboard-${name}-raw.png" "$ASSET_DIR/onboard-${name}-source.png"
 done
 
-cp "$ASSET_DIR/onboard-intro-hero-source.png" "$OUT_DIR/onboard-intro-hero.png"
 cp "$ASSET_DIR/onboard-step-grade-source.png" "$OUT_DIR/onboard-step-grade.png"
 cp "$ASSET_DIR/onboard-step-semester-source.png" "$OUT_DIR/onboard-step-semester.png"
 cp "$ASSET_DIR/onboard-step-textbook-source.png" "$OUT_DIR/onboard-step-textbook.png"
 
-echo "Built onboarding banners (${BANNER_W}x${BANNER_H}):"
-ls -lh "$OUT_DIR"/*.png
+echo "Built onboarding step banners (${BANNER_W}x${BANNER_H}):"
+ls -lh "$OUT_DIR"/onboard-step-*.png
+
+echo ""
+echo "Tip: run scripts/generate-onboarding-intro-hero.sh for welcome hero."
+echo "Tip: run scripts/generate-onboarding-first-screen-icons.sh for pain + proof stickers."

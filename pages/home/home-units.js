@@ -2,8 +2,8 @@ const DISPLAY_BATCH_SIZE = 20
 const { imageUrl } = require('../../utils/image-host')
 // 临时放开顺序解锁，方便联调跟读背诵 / 听力小测；测完改回 false。
 const UNLOCK_ALL_TASKS_FOR_DEV = false
-// 演示：第一关视为已通关（三星 + 报告 + 小怪兽 defeated）；上线前改回 false。
-const DEMO_FIRST_UNIT_COMPLETED = true
+// 演示：第一关视为已通关（三星 + 报告 + 小怪兽 defeated）。已关闭，按真实进度展示。
+const DEMO_FIRST_UNIT_COMPLETED = false
 const LEARNING_SAYINGS = require('./learning-sayings')
 const MAP_POSITIONS = ['left', 'right', 'center']
 const MAP_LANES = ['center', 'left', 'right', 'left', 'center', 'right', 'left', 'right']

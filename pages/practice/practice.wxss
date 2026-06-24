@@ -785,11 +785,13 @@ page {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2rpx;
+  gap: 8rpx;
 }
 
 .wn-choice-word-row {
   flex: none;
+  height: 36rpx;
+  line-height: 36rpx;
 }
 
 .wn-choice-word {
@@ -828,22 +830,23 @@ page {
 
 .wn-choice-meaning:not(.wn-choice-meaning-inline) {
   flex: none;
+  min-height: 36rpx;
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  align-items: center;
 }
 
 .wn-choice-meaning-inline {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
+  min-height: 36rpx;
   gap: 8rpx;
 }
 
 .wn-choice-pos,
 .wn-choice-pos-text {
   font-size: 31rpx;
-  line-height: 32rpx;
+  line-height: 36rpx;
 }
 
 .wn-choice-term,
@@ -861,6 +864,8 @@ page {
 .wn-choice-pos-text,
 .wn-choice-term-text {
   display: block;
+  height: 36rpx;
+  line-height: 36rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

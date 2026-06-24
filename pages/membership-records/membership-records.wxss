@@ -1,0 +1,247 @@
+page {
+  height: 100%;
+  overflow: hidden;
+  background: #e7e1f0;
+  color: #263f45;
+}
+
+.page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    linear-gradient(150deg, rgba(251, 86, 50, 0.09), rgba(251, 86, 50, 0) 27%),
+    linear-gradient(215deg, rgba(80, 125, 235, 0.18), rgba(80, 125, 235, 0) 42%),
+    linear-gradient(180deg, #e7e1f0 0%, #d9dcf4 30%, #a8c6f6 100%);
+  font-family: PingFang SC, PingFangSC-Regular, sans-serif;
+}
+
+.records-nav {
+  flex: none;
+  position: relative;
+  z-index: 10;
+}
+
+.nav-title-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.nav-title-text {
+  color: #263f45;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.records-scroll {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+}
+
+.records-content {
+  padding: 16rpx 28rpx 48rpx;
+}
+
+.profile-card {
+  padding: 24rpx;
+  border-radius: 26rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1rpx solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 12rpx 28rpx rgba(73, 105, 172, 0.1);
+}
+
+.profile-avatar-shell {
+  width: 100rpx;
+  height: 100rpx;
+  padding: 5rpx;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.84);
+  border: 2rpx solid rgba(255, 255, 255, 0.94);
+  box-sizing: border-box;
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.profile-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.profile-name {
+  max-width: 280rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #111318;
+  font-size: 32rpx;
+  font-weight: 750;
+}
+
+.profile-vip {
+  width: 112rpx;
+  height: 44rpx;
+  flex: none;
+}
+
+.profile-expire {
+  display: block;
+  margin-top: 7rpx;
+  color: rgba(38, 63, 69, 0.62);
+  font-size: 23rpx;
+  line-height: 32rpx;
+}
+
+.records-title-row {
+  margin: 30rpx 4rpx 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.records-title {
+  color: #263f45;
+  font-size: 30rpx;
+  font-weight: 750;
+}
+
+.records-count {
+  color: rgba(38, 63, 69, 0.52);
+  font-size: 21rpx;
+}
+
+.empty-card {
+  min-height: 420rpx;
+  padding: 48rpx 28rpx;
+  border-radius: 26rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1rpx solid rgba(255, 255, 255, 0.68);
+  box-sizing: border-box;
+}
+
+.empty-image {
+  width: 190rpx;
+  height: 190rpx;
+  border-radius: 34rpx;
+}
+
+.empty-title {
+  margin-top: 22rpx;
+  color: #151923;
+  font-size: 29rpx;
+  font-weight: 750;
+}
+
+.empty-desc {
+  max-width: 500rpx;
+  margin-top: 9rpx;
+  color: rgba(47, 67, 78, 0.56);
+  font-size: 22rpx;
+  line-height: 32rpx;
+  text-align: center;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.order-card {
+  padding: 22rpx 24rpx;
+  border-radius: 26rpx;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 10rpx 24rpx rgba(73, 105, 172, 0.09);
+}
+
+.order-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.order-name {
+  color: #151923;
+  font-size: 29rpx;
+  font-weight: 750;
+}
+
+.order-method {
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  background: rgba(63, 149, 129, 0.12);
+  color: #2f846f;
+  font-size: 19rpx;
+  font-weight: 650;
+}
+
+.order-price {
+  color: #fb5632;
+  font-size: 34rpx;
+  font-weight: 750;
+}
+
+.order-divider {
+  height: 1rpx;
+  margin: 18rpx 0 10rpx;
+  background: rgba(91, 126, 195, 0.1);
+}
+
+.order-row {
+  min-height: 54rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  color: rgba(47, 67, 78, 0.58);
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.order-row > text:last-child {
+  color: #263f45;
+  text-align: right;
+}
+
+.order-id {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  color: #263f45;
+}
+
+.copy-text {
+  color: #5e8ff0;
+  font-size: 20rpx;
+  font-weight: 650;
+}

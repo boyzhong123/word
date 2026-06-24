@@ -24,8 +24,8 @@
 }
 
 .nav-action-icon {
-  height: 32rpx;
-  width: 32rpx;
+  height: 26rpx;
+  width: 26rpx;
 }
 
 .nav-home-icon {

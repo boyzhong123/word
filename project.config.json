@@ -104,27 +104,27 @@
       },
       {
         "type": "folder",
-        "value": "images/home/ad/.jelly-build"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/.jelly-build/**"
-      },
-      {
-        "type": "folder",
-        "value": "images/home/ad/.build"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/.build/**"
-      },
-      {
-        "type": "folder",
         "value": "images/word-new/.build"
       },
       {
         "type": "glob",
         "value": "images/word-new/.build/**"
+      },
+      {
+        "type": "glob",
+        "value": "images/**/.build/**"
+      },
+      {
+        "type": "glob",
+        "value": "images/**/.jelly-build/**"
+      },
+      {
+        "type": "glob",
+        "value": "*-preview.html"
+      },
+      {
+        "type": "glob",
+        "value": ".*-preview.html"
       },
       {
         "type": "glob",
@@ -181,38 +181,6 @@
       {
         "type": "glob",
         "value": "images/checkin/share-bg-today-monster-light.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/product-hero-clean.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/product-hero-purchase.jpg"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/product-hero-purchase-v2.jpg"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/product-hero-purchase-v3.jpg"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/icon-press-jelly.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/icon-proverb-jelly.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/icon-review-jelly.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/home/ad/icon-word-jelly.png"
       },
       {
         "type": "glob",
@@ -312,42 +280,6 @@
       },
       {
         "type": "glob",
-        "value": "images/pet/high-focus-cat.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/high-mentor-owl.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/high-planner-dog.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/middle-audio-cat.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/middle-explorer-dog.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/middle-note-fox.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/primary-reader-cat.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/primary-scarf-dog.png"
-      },
-      {
-        "type": "glob",
-        "value": "images/pet/primary-star-bunny.png"
-      },
-      {
-        "type": "glob",
         "value": "images/home/hero-campus-jelly-sprite.png"
       },
       {
@@ -409,6 +341,198 @@
       {
         "type": "glob",
         "value": "images/study-record/hero-mascot-home-header-monster.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-step-semester.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-step-textbook-v2-raw.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-step-grade.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-step-textbook.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-step-grade-v2-raw.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/hero-campus-jelly-v5-trio.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-step-textbook-v2.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-intro-hero.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/exam-entry-prompt-hero.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-step-grade-v2.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-panel-01.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-panel-02.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-panel-03.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/plan/jelly-defeated-preview-raw.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/plan/jelly-defeated-checker-preview.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/membership-family-hero-v2.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/plan/jelly-defeated-preview-grey.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/**/*backup*"
+      },
+      {
+        "type": "glob",
+        "value": "images/**/*draft*"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-pain-*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/onboarding/onboard-proof-*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/checkin/share-poster-logo.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/mascot-exam-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/exam-report-header-v3.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/today-route-guide-mascot.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/icon-learning-loop.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/icon-book-picker-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/book-auth-stamp-green.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/book-new-standard-stamp-green.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/study-record/icon-detail-review-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/study-record/icon-stat-new-words-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/icon-checkin-calendar-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/icon-checkin-today-jelly.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/word-new/thumb-*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/word-new/mark-*.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/icon_route.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/icon-today-learned-sentence.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/home/icon-today-learned-word.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/audio_small.png"
+      },
+      {
+        "type": "glob",
+        "value": ".DS_Store"
+      },
+      {
+        "type": "glob",
+        "value": "**/.DS_Store"
+      },
+      {
+        "type": "glob",
+        "value": "README.md"
+      },
+      {
+        "type": "glob",
+        "value": "design-qa.md"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/membership-family-hero.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/listen/listen-guide-swipe-chevrons.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/listen/recording-wave-css-frames.svg"
+      },
+      {
+        "type": "glob",
+        "value": "images/recording-wave-smooth.svg"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/membership-success.jpg"
       }
     ],
     "include": []

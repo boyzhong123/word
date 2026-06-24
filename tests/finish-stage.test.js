@@ -39,6 +39,17 @@ test('finish stage continue urls route to the next learning step', () => {
   )
 })
 
+test('finish stage continue urls preserve return tab', () => {
+  const url = buildContinueUrl({
+    taskType: 'word',
+    resBookId: 'book-1',
+    unitId: '42',
+    bookName: '小学英语',
+    returnTab: 'today'
+  })
+  assert.match(url, /returnTab=today/)
+})
+
 test('finish stage hides continue when listening has no next unit', () => {
   assert.equal(hasContinueAction('word', null), true)
   assert.equal(hasContinueAction('recitation', null), true)

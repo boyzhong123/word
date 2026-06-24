@@ -24,6 +24,7 @@ const {
   syncRecordingOverlay,
   hideRecordingOverlay
 } = require('../../utils/recording-overlay')
+const { appendReturnTabQuery } = require('../../utils/return-tab')
 
 const PRONUNCIATION_TIPS = [
   '先发 /æ/ 音，嘴巴张大，舌尖抵下齿背',
@@ -260,6 +261,7 @@ Page({
       this.resBookId = options.resBookId
       this.resBookName = options.name
       this.unitId = options.unitId
+      this.returnTab = options.returnTab || ''
       // 错词复习模式：review=1，reviewUnitIds 为覆盖的关卡 id 列表。
       // 待后端提供错词接口后，可据此把内容收敛到这些关卡里做错的词。
       this.review = options.review === '1' || options.review === 1
@@ -825,14 +827,16 @@ Page({
     const scoreRate = this.data.isWordNewMode
       ? computeWordNewScoreRate(this.data.contents)
       : computePracticeScoreRate(this.data.contents)
-    wx.navigateTo({
-      url: '../finish/today?unitId=' + this.unitId +
+    const url = appendReturnTabQuery(
+      '../finish/today?unitId=' + this.unitId +
         '&unitSort=' + this.unitSort +
         '&taskType=' + (this.data.taskType || 'recitation') +
         '&resBookId=' + encodeURIComponent(this.resBookId || '') +
         '&name=' + encodeURIComponent(this.resBookName || '') +
-        '&scoreRate=' + scoreRate
-    })
+        '&scoreRate=' + scoreRate,
+      this.returnTab
+    )
+    wx.navigateTo({ url })
   },
   getNavMeta(item, index, total) {
     const wordTotal = total || this.getPracticeWordTotal()
@@ -1137,14 +1141,16 @@ Page({
 
     if (!this.wordId) {
       const scoreRate = computeWordNewScoreRate(this.data.contents)
-      wx.navigateTo({
-        url: '../finish/today?unitId=' + this.unitId +
+      const url = appendReturnTabQuery(
+        '../finish/today?unitId=' + this.unitId +
           '&unitSort=' + this.unitSort +
           '&taskType=word' +
           '&resBookId=' + encodeURIComponent(this.resBookId || '') +
           '&name=' + encodeURIComponent(this.resBookName || '') +
-          '&scoreRate=' + scoreRate
-      })
+          '&scoreRate=' + scoreRate,
+        this.returnTab
+      )
+      wx.navigateTo({ url })
     }
   },
   playTranslationAudio(e) {

@@ -53,7 +53,7 @@ test('me secondary pages provide real page content', () => {
   const contactPage = read('pages/me/contact.wxml')
   const privacyPage = read('pages/me/privacy.wxml')
 
-  assert.match(bookPage, /已购买/)
+  assert.match(bookPage, /已学书本/)
   assert.match(bookPage, /继续学习/)
   assert.match(bookPage, /bindtap="continueStudy"/)
   assert.match(bookPage, /class="book-count"/)
@@ -117,13 +117,12 @@ test('subscribe templates distinguish accumulated checkin from event preferences
 })
 
 test('event subscribe prompts are not auto-requested at payment and report completion', () => {
-  const vipScript = read('pages/vip/vip.js')
   const practiceScript = read('pages/practice/practice.js')
   const listenScript = read('pages/listen/listen.js')
   const examScript = read('pages/exam/exam.js')
   const membershipScript = read('pages/membership/membership.js')
 
-  for (const script of [vipScript, practiceScript, listenScript, examScript, membershipScript]) {
+  for (const script of [practiceScript, listenScript, examScript, membershipScript]) {
     assert.doesNotMatch(script, /requestSubscribeForEvent/)
   }
 })

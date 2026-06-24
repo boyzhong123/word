@@ -14,7 +14,7 @@ function isFreeLevel(sort) {
   return toSort(sort) === FREE_LEVEL_SORT
 }
 
-// 该关卡当前是否解锁：免费关卡或已开通会员
+// 该关卡当前是否解锁：免费关卡（第 1 关）或已开通会员
 function isLevelUnlocked(sort) {
   return isFreeLevel(sort) || isMember()
 }

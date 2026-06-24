@@ -14,7 +14,10 @@ from pathlib import Path
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from monster_frame_config import PK_FRAME_H, PK_FRAME_W
+from monster_frame_config import PK_EXPORT_SCALE, PK_FRAME_H, PK_FRAME_W
+
+# Nudge the VS badge left on the 148×84 rpx display canvas.
+VS_X_NUDGE = 3 * PK_EXPORT_SCALE
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MONSTER_DIR = PROJECT_ROOT / "images/home/map/monsters"
@@ -89,7 +92,7 @@ def compose_frames(gender="boy"):
     vs_h = round(88 * LAYOUT)
     student_x = round(40 * LAYOUT)
     monster_x = PK_FRAME_W - round(40 * LAYOUT)
-    vs_x = PK_FRAME_W // 2
+    vs_x = PK_FRAME_W // 2 - VS_X_NUDGE
     vs_y = round(8 * LAYOUT)
 
     frames = []

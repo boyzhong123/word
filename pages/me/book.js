@@ -2,6 +2,11 @@ const { getUserBooks, toggleBook } = require('../../utils/api')
 const { login } = require('../../utils/login')
 const { withTestBook, isDevTestBook, isDevPurchased } = require('../../utils/dev-books')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
+const {
+  hasLearnedBook,
+  getLearnedWordCount,
+  getLearnedPercent
+} = require('../../utils/learned-progress')
 
 const FALLBACK_COVER = getFallbackBookCover()
 
@@ -37,8 +42,8 @@ function normalizeBook(book, currentId) {
   const learningInfo = source.learningInfo || {}
   const progress = learningInfo.book || {}
   const totalWords = pickNumber(source.totalWords, source.wordCount, progress.totalWords, progress.wordCount)
-  const learnedWords = pickNumber(progress.learningWords, source.learningWords)
-  const percent = totalWords ? Math.min(Math.round(learnedWords * 100 / totalWords), 100) : 0
+  const learnedWords = getLearnedWordCount(source)
+  const percent = getLearnedPercent(Object.assign({}, source, { wordCount: totalWords || source.wordCount }))
   const resBookId = source.resBookId || source.id || ''
 
   return {
@@ -93,10 +98,17 @@ Page({
       if (!Array.isArray(books)) {
         return
       }
-      const normalized = withTestBook(books).map(item => normalizeBook(item))
-      const purchased = normalized.filter(item => !item.locked)
-      const selectedBook = purchased.find(item => item.current) || purchased[0] || null
-      const ownedBooks = purchased.map(item => Object.assign({}, item, {
+      const sources = withTestBook(books)
+      const normalized = sources.map(item => normalizeBook(item))
+      const studiedBooks = sources
+        .map((source, index) => Object.assign({}, normalized[index], {
+          learnedWords: getLearnedWordCount(source),
+          percent: getLearnedPercent(source),
+          progressStyle: 'width: ' + getLearnedPercent(source) + '%;'
+        }))
+        .filter((item, index) => hasLearnedBook(sources[index]))
+      const selectedBook = studiedBooks.find(item => item.current) || studiedBooks[0] || null
+      const ownedBooks = studiedBooks.map(item => Object.assign({}, item, {
         current: !!selectedBook && item.resBookId === selectedBook.resBookId
       }))
       const currentBook = ownedBooks.find(item => item.current) || null

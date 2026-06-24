@@ -1,3 +1,5 @@
+const { appendReturnTabQuery } = require('./return-tab')
+
 const STAGES = [
   {
     type: 'word',
@@ -103,25 +105,36 @@ function buildContinueUrl(options) {
   const bookName = encodeURIComponent(options.bookName || '')
   const unitId = options.unitId || ''
 
+  const returnTab = options.returnTab || ''
+
   if (stage.nextType === 'recitation') {
-    return '../practice/practice?resBookId=' + resBookId +
-      '&unitId=' + unitId +
-      '&name=' + bookName +
-      '&taskType=recitation'
+    return appendReturnTabQuery(
+      '../practice/practice?resBookId=' + resBookId +
+        '&unitId=' + unitId +
+        '&name=' + bookName +
+        '&taskType=recitation',
+      returnTab
+    )
   }
 
   if (stage.nextType === 'listening') {
-    return '/pages/listen/listen?resBookId=' + resBookId +
-      '&unitId=' + unitId +
-      '&mode=quiz' +
-      '&name=' + bookName
+    return appendReturnTabQuery(
+      '/pages/listen/listen?resBookId=' + resBookId +
+        '&unitId=' + unitId +
+        '&mode=quiz' +
+        '&name=' + bookName,
+      returnTab
+    )
   }
 
   if (stage.nextType === 'nextUnit' && options.nextUnitId) {
-    return '../practice/practice?resBookId=' + resBookId +
-      '&unitId=' + options.nextUnitId +
-      '&name=' + bookName +
-      '&taskType=word'
+    return appendReturnTabQuery(
+      '../practice/practice?resBookId=' + resBookId +
+        '&unitId=' + options.nextUnitId +
+        '&name=' + bookName +
+        '&taskType=word',
+      returnTab
+    )
   }
 
   return ''

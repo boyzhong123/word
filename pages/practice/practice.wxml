@@ -116,8 +116,9 @@
                       class="wn-choice-card {{item.wordChoiceSelectedIndex != null && option.isAnswer ? 'wn-choice-card-correct' : ''}} {{item.wordChoiceSelectedIndex != null && item.wordChoiceSelectedIndex == optionIndex && !option.isAnswer ? 'wn-choice-card-wrong' : ''}} {{item.wordChoiceSelectedIndex != null && item.wordChoiceSelectedIndex != optionIndex && !option.isAnswer ? 'wn-choice-card-muted' : ''}}"
                     >
                       <view class="wn-choice-card-body">
-                        <view wx:if="{{item.wordChoiceSelectedIndex != null}}" class="wn-choice-word-row">
-                          <text class="wn-choice-word">{{option.content}}</text>
+                        <view class="wn-choice-word-row">
+                          <text wx:if="{{item.wordChoiceSelectedIndex != null}}" class="wn-choice-word">{{option.content}}</text>
+                          <text wx:else class="wn-choice-pos wn-choice-pos-text">{{option.pos}}</text>
                         </view>
                         <view class="wn-choice-meaning {{item.wordChoiceSelectedIndex != null ? 'wn-choice-meaning-inline' : ''}}">
                           <block wx:if="{{item.wordChoiceSelectedIndex != null}}">
@@ -125,7 +126,6 @@
                             <text class="wn-choice-term wn-choice-term-text">{{option.termText}}</text>
                           </block>
                           <block wx:else>
-                            <text class="wn-choice-pos wn-choice-pos-text">{{option.pos}}</text>
                             <text class="wn-choice-term wn-choice-term-text">{{option.termText}}</text>
                           </block>
                         </view>

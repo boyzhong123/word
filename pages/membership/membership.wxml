@@ -1,58 +1,257 @@
-<!--pages/membership/membership.wxml-->
+<!-- pages/membership/membership.wxml -->
 <view class="page">
-  <view class="nav" style="padding-top: {{statusBarHeight}}px;">
-    <view class="nav-back" bindtap="back">
-      <text class="nav-back-arrow">‹</text>
+  <navigation class="membership-nav" background="#e7e1f0">
+    <view class="nav-title-wrap">
+      <view class="nav-title-text">{{membership.active ? '会员续费' : '开通会员'}}</view>
     </view>
-    <view class="nav-title">开通会员</view>
-  </view>
+  </navigation>
 
-  <scroll-view scroll-y class="scroll" style="padding-bottom: {{safeAreaBottom + 180}}rpx;">
-    <view class="hero">
-      <view class="hero-crown">👑</view>
-      <view class="hero-title">词句刷刷刷 会员</view>
-      <view class="hero-sub">一次开通，解锁全部关卡 · 随身听 · 学习报告</view>
-      <view wx:if="{{membership.active}}" class="hero-active">当前会员有效期至 {{membership.expireText}}</view>
-    </view>
-
-    <view class="benefits">
-      <view wx:for="{{benefits}}" wx:key="title" class="benefit">
-        <image class="benefit-icon" src="{{item.icon}}" mode="aspectFit" />
-        <view class="benefit-copy">
-          <view class="benefit-title">{{item.title}}</view>
-          <view class="benefit-desc">{{item.desc}}</view>
+  <scroll-view
+    class="scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="content">
+      <view class="member-card">
+        <view class="member-avatar-shell">
+          <image
+            class="member-avatar"
+            src="{{profileAvatar || fallbackAvatar}}"
+            mode="aspectFill"
+            binderror="onAvatarError"
+          />
+        </view>
+        <view class="member-copy">
+          <view class="member-title-row">
+            <text class="member-title">{{profileName}}</text>
+            <image
+              class="vip-badge-image"
+              src="{{membership.active ? vipBadgeActiveImage : vipBadgeInactiveImage}}"
+              mode="aspectFit"
+            />
+          </view>
+          <text class="member-sub">{{membership.active ? '会员有效，可续费延长使用期限' : '开通会员，解锁完整教材学习闭环'}}</text>
+          <text wx:if="{{membership.active}}" class="member-active">有效期至 {{membership.expireText}}</text>
         </view>
       </view>
-    </view>
 
-    <view class="tiers">
-      <view
-        wx:for="{{tiers}}"
-        wx:key="id"
-        class="tier {{selectedTierId === item.id ? 'tier-sel' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="selectTier"
-      >
-        <view wx:if="{{item.tag}}" class="tier-tag">{{item.tag}}</view>
-        <view class="tier-name">{{item.name}}</view>
-        <view class="tier-price"><text class="tier-unit">¥</text>{{item.price}}</view>
-        <view class="tier-sub">{{item.sub}}</view>
+      <view class="promo-hero">
+        <image
+          class="promo-hero-image"
+          src="{{membershipHeroImage}}"
+          mode="widthFix"
+        />
       </view>
-    </view>
 
-    <view class="redeem">
-      <input class="redeem-input" placeholder="有兑换码？输入后可免费开通" placeholder-class="redeem-ph" value="{{redeemInput}}" bindinput="onRedeemInput" />
-      <view class="redeem-btn {{redeemApplied ? 'redeem-ok' : ''}}" bindtap="applyRedeem">{{redeemApplied ? '已应用' : '使用'}}</view>
-    </view>
+      <view class="section loop-section">
+        <view class="section-title">
+          <text class="section-mark section-mark-blue">环</text>
+          <text>完整学习闭环</text>
+        </view>
+        <view class="loop-grid">
+          <view wx:for="{{learningSteps}}" wx:key="id" class="loop-card">
+            <image class="loop-image" src="{{item.image}}" mode="aspectFill" />
+            <view class="loop-copy">
+              <text class="loop-title">{{item.title}}</text>
+              <text class="loop-desc">{{item.desc}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
 
-    <view class="agreement">开通即视为同意《会员服务协议》，虚拟商品一经开通不支持退款。</view>
+      <view class="section">
+        <view class="section-title">
+          <text class="section-mark section-mark-gold">¥</text>
+          <text>选择时长</text>
+        </view>
+        <view class="tier-list">
+          <view
+            wx:for="{{tiers}}"
+            wx:key="id"
+            class="tier-card {{selectedTierId === item.id ? 'tier-card-active' : ''}} {{redeemApplied && redeemTierId !== item.id ? 'tier-card-disabled' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectTier"
+          >
+            <text wx:if="{{item.tag}}" class="tier-tag">{{item.tag}}</text>
+            <text class="tier-name">{{item.name}}</text>
+            <view class="tier-price">
+              <text class="tier-currency">¥</text>
+              <text class="tier-amount">{{item.price}}</text>
+            </view>
+            <text class="tier-sub">{{item.sub}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title">
+          <text class="section-mark section-mark-blue">学</text>
+          <text>真实学习路径</text>
+        </view>
+        <view class="path-card">
+          <view wx:for="{{pathSteps}}" wx:key="id" class="path-row">
+            <view class="path-index">{{index + 1}}</view>
+            <image class="path-image" src="{{item.image}}" mode="aspectFill" />
+            <view class="path-copy">
+              <text class="path-title">{{item.title}}</text>
+              <text class="path-desc">{{item.desc}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title">
+          <text class="section-mark section-mark-gold">权</text>
+          <text>会员权益</text>
+        </view>
+        <view class="benefit-card">
+          <view wx:for="{{benefits}}" wx:key="title" class="benefit-row">
+            <image class="benefit-icon" src="{{item.icon}}" mode="aspectFit" />
+            <view class="benefit-copy">
+              <text class="benefit-title">{{item.title}}</text>
+              <text class="benefit-desc">{{item.desc}}</text>
+            </view>
+            <text class="benefit-check">✓</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title">
+          <text class="section-mark section-mark-blue">比</text>
+          <text>免费版对比</text>
+        </view>
+        <view class="compare-card">
+          <view class="compare-row compare-head">
+            <text class="compare-name">学习权益</text>
+            <text class="compare-free">免费版</text>
+            <text class="compare-vip">VIP</text>
+          </view>
+          <view wx:for="{{compareRows}}" wx:key="label" class="compare-row">
+            <text class="compare-name">{{item.label}}</text>
+            <text class="compare-free">{{item.free}}</text>
+            <text class="compare-vip">{{item.vip}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section">
+        <view class="section-title section-title-between">
+          <view class="section-title-main">
+            <text class="section-mark section-mark-gold">记</text>
+            <text>购买记录</text>
+          </view>
+          <view class="section-action" bindtap="openRecords">查看全部 ›</view>
+        </view>
+        <view wx:if="{{!orders.length}}" class="record-empty">
+          <view class="record-empty-icon">记</view>
+          <view class="record-empty-copy">
+            <text class="record-empty-title">暂无购买记录</text>
+            <text class="record-empty-desc">开通成功后会展示套餐、时间和支付方式</text>
+          </view>
+        </view>
+        <view wx:else class="record-list">
+          <view wx:for="{{orders}}" wx:key="id" class="record-item">
+            <view class="record-main">
+              <text class="record-name">{{item.tierName}}</text>
+              <text class="record-time">{{item.createdAt}}</text>
+            </view>
+            <view class="record-side">
+              <text class="record-price">¥{{item.price}}</text>
+              <text class="record-method">{{item.method}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="scroll-footer-spacer" style="height: {{safeAreaBottom + 224}}rpx;"></view>
+    </view>
   </scroll-view>
 
-  <view class="footer" style="padding-bottom: {{safeAreaBottom + 24}}rpx;">
-    <view class="footer-price">
-      <text class="footer-amount">¥{{redeemApplied ? 0 : currentTier.price}}</text>
-      <text class="footer-tier">{{currentTier.name}}会员</text>
+  <view class="footer" style="padding-bottom: {{safeAreaBottom + 18}}rpx;">
+    <view class="footer-actions">
+      <view class="footer-redeem" data-mode="redeem" bindtap="openConfirm">
+        <text>{{redeemApplied ? '已应用' : '兑换码'}}</text>
+      </view>
+      <view class="footer-open" bindtap="openConfirm">
+        <text class="footer-price">¥{{redeemApplied ? 0 : currentTier.price}}</text>
+        <text class="footer-action-label">{{redeemApplied ? (membership.active ? '确认延期' : '确认兑换') : (membership.active ? '续费延期' : '开通')}}</text>
+      </view>
     </view>
-    <view class="footer-btn" bindtap="openMembership">{{redeemApplied ? '免费兑换开通' : '立即开通'}}</view>
+    <view class="agreement {{agreementAttention ? 'agreement-attention' : ''}}">
+      <view class="agreement-check {{agreementChecked ? 'agreement-check-on' : ''}}" bindtap="toggleAgreement">
+        <text wx:if="{{agreementChecked}}">✓</text>
+      </view>
+      <view class="agreement-text">
+        <text class="agreement-copy">{{membership.active ? '续费前' : '开通会员前'}}请阅读</text>
+        <text class="agreement-link" bindtap="openPaidAgreement">《用户付费协议》</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showConfirm}}" class="sheet-mask" bindtap="closeConfirm">
+    <view class="confirm-sheet" style="padding-bottom: {{safeAreaBottom + 26}}rpx;" catchtap="preventClose">
+      <view class="sheet-handle"></view>
+      <view class="sheet-head">
+        <text class="sheet-title">{{membership.active ? '确认续费' : '确认开通'}}</text>
+        <view class="sheet-close" bindtap="closeConfirm">×</view>
+      </view>
+
+      <text class="sheet-label">选择会员套餐</text>
+      <view class="sheet-tiers">
+        <view
+          wx:for="{{tiers}}"
+          wx:key="id"
+          class="sheet-tier {{selectedTierId === item.id ? 'sheet-tier-active' : ''}} {{redeemApplied && redeemTierId !== item.id ? 'sheet-tier-disabled' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectTier"
+        >
+          <text class="sheet-tier-name">{{item.name}}</text>
+          <text class="sheet-tier-price">¥{{item.price}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{!redeemApplied}}" class="sheet-redeem">
+        <text class="sheet-label">兑换码</text>
+        <view class="redeem-box">
+          <input
+            class="redeem-input"
+            value="{{redeemInput}}"
+            focus="{{redeemFocus}}"
+            maxlength="12"
+            placeholder="请输入兑换码"
+            placeholder-class="redeem-placeholder"
+            bindinput="onRedeemInput"
+            confirm-type="done"
+            bindconfirm="applyRedeem"
+          />
+          <view class="redeem-use" bindtap="applyRedeem">使用</view>
+        </view>
+        <text class="redeem-tip {{redeemError ? 'redeem-tip-error' : ''}}">
+          {{redeemError || '兑换码会自动匹配对应套餐'}}
+        </text>
+      </view>
+
+      <view wx:else class="redeem-applied">
+        <text class="redeem-applied-label">兑换码</text>
+        <view class="redeem-applied-value">
+          <text>{{appliedCode}}</text>
+          <view class="redeem-remove" bindtap="removeRedeem">删除</view>
+        </view>
+      </view>
+
+      <view class="sheet-summary">
+        <text>实付金额</text>
+        <text class="sheet-total">¥{{redeemApplied ? 0 : currentTier.price}}</text>
+      </view>
+
+      <view class="sheet-confirm" bindtap="confirmMembership">
+        {{redeemApplied ? (membership.active ? '确认延期' : '确认兑换') : '确认支付 ¥' + currentTier.price}}
+      </view>
+      <text class="sheet-note">
+        {{membership.active ? '确认后将按当前套餐延长会员有效期' : '确认后将按当前套餐开通会员'}}
+      </text>
+    </view>
   </view>
 </view>

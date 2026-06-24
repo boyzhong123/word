@@ -295,18 +295,11 @@ Component({
         console.log('onPlay')
       })
       this.data.innerAudioContext.onEnded(() => {
-        if (this.data.media_state == AUDIO_PLAYING && !wx.getStorageSync('anchor-record')) {
-          this.triggerEvent('audioEnd')
-        }
-        this.stopAni()
-        this.setData({
-          media_state: IDLE
-        })
-        this.data.innerAudioContext.stop()
+        this.handleAudioPlaybackFinished()
       })
       this.data.innerAudioContext.onError(res => {
-        this.stopAni()
-        console.log(res)
+        console.warn('[media] standard audio playback failed:', JSON.stringify(res))
+        this.handleAudioPlaybackFinished()
       })
     },
     detached() {
@@ -319,6 +312,17 @@ Component({
     }
   },
   methods: {
+    handleAudioPlaybackFinished() {
+      const wasStandardAudio = this.data.media_state == AUDIO_PLAYING
+      this.stopAni()
+      this.setData({
+        media_state: IDLE
+      })
+      this.data.innerAudioContext.stop()
+      if (wasStandardAudio) {
+        this.triggerEvent('audioEnd')
+      }
+    },
     playAudio() {
       if (!this.stopAudio(AUDIO_PLAYING)) {
         if (this.data._audio) {

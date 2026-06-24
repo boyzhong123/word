@@ -1,9 +1,9 @@
 // 首页表头「今日任务」所需的本地进度工具。
 // 完成一个关卡时记录当天的 unitId（按天自动重置、按关卡去重），
-// 每日目标关卡数来自学习计划（studyPlan_<resBookId>），默认 2 关。
+// 每日目标关卡数来自学习计划（studyPlan_<resBookId>），默认 1 关（一天 1 关）。
 
 const LEVEL_SIZE = 10
-const DEFAULT_GROUPS = 2
+const DEFAULT_GROUPS = 1
 
 function pad(value) {
   return String(value).padStart(2, '0')

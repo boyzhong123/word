@@ -1,30 +1,30 @@
 <view class="sub-page">
   <navigation background="#fffdf8">
-    <view class="nav-title">我的教材</view>
+    <view class="nav-title">已学书本</view>
   </navigation>
 
   <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view wx:if="{{loading}}" class="state-card">正在读取教材...</view>
     <view wx:elif="{{empty}}" class="state-card">
-      <view class="state-title">还没有教材</view>
-      <view class="state-copy">购买后的教材会在这里显示。</view>
+      <view class="state-title">还没有已学书本</view>
+      <view class="state-copy">学完第一关后，书本会在这里显示。</view>
     </view>
 
     <block wx:else>
       <view class="library-summary">
         <view class="summary-copy">
           <view class="summary-kicker">教材库</view>
-          <view class="summary-title">我的教材</view>
+          <view class="summary-title">已学书本</view>
           <view class="summary-label">
             <text class="book-count">{{summary.bookCount}}</text>
-            <text> 本已购买教材</text>
+            <text> 本已学书本</text>
           </view>
         </view>
         <view class="summary-action" bindtap="continueStudy">继续学习</view>
       </view>
 
       <view class="section-head-out">
-        <view class="section-title-out">已购买</view>
+        <view class="section-title-out">已学书本</view>
         <view class="section-note">共 {{summary.bookCount}} 本</view>
       </view>
       <view class="book-list">

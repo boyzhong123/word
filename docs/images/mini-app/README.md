@@ -10,7 +10,10 @@
 
 | 文件名 | 对应页面 | 建议截取内容 |
 | --- | --- | --- |
-| `01-home-level-list.png` | 首页 · 闯关列表 | 词书卡片 + 关卡分类列表（含今日标记） |
+| `07-today-route.png` | 今日 · 学习路线 | 今日 Tab 任务关卡与进度 |
+| `07-onboarding.png` | 新手引导 | 年级/学期/教材采集步骤 |
+| `07-membership.png` | 开通会员 | 套餐选择与兑换码（替换 06-vip） |
+| `01-home-level-list.png` | 成长 · 闯关列表 | 词书卡片 + 关卡分类列表 |
 | `01-home-map.png` | 首页 · 地图视图 | 地图闯关 trail + 小怪兽节点 |
 | `01-home-book-picker.png` | 首页 · 切换教材 | 学段/版本/词书选择弹窗 |
 | `02-checkin-calendar.png` | 打卡日历 | 月历 + 连续打卡天数 + 奖励进度 |
@@ -23,8 +26,8 @@
 | `05-practice-word.png` | 单词新学 | 单词卡片 + 详情 Tab |
 | `05-practice-recite.png` | 跟读背诵 | 例句跟读 + 评分反馈 |
 | `06-finish-today.png` | 关卡完成 | 今日进度 + 继续学习 |
-| `06-advertisement.png` | 商品详情 | 套餐选择与购买入口 |
-| `06-vip.png` | 确认订单 | vip 页订单明细与支付按钮 |
+| `06-advertisement.png` | （已下线） | 历史词书商品详情截图，可保留作参考 |
+| `06-vip.png` | （已下线） | 历史确认订单截图，已由 membership 替代 |
 | `06-plan.png` | 学习计划 | 每日组数 + 预计完成天数 |
 
 | `06-finish-word.png` | 单词新学完成 | finish/today 环节 1/3 |

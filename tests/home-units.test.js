@@ -169,17 +169,17 @@ test('getNextVisibleCount adds one batch without exceeding total', () => {
   assert.equal(getNextVisibleCount(55, 55), 55)
 })
 
-test('demo treats the first level as fully completed with a defeated monster', () => {
+test('the first level starts as the active, not-yet-cleared step (demo off)', () => {
   const [unit] = buildDisplayUnits([
     { unitId: 'unit-1', sort: 1, wordTotal: 12, completed: false }
   ])
 
-  assert.equal(unit.mapState, 'completed')
-  assert.equal(unit.doneStages, 3)
-  assert.deepEqual(unit.stageStars, [true, true, true])
-  assert.equal(unit.cardMonsterState, 'defeated')
-  assert.equal(unit.cardMonsterSprite, '/images/home/map/monsters/jelly-defeated.png')
-  assert.deepEqual(unit.tasks.map(task => task.percent), [100, 100, 100])
+  assert.equal(unit.mapState, 'active')
+  assert.equal(unit.doneStages, 0)
+  assert.deepEqual(unit.stageStars, [false, false, false])
+  assert.equal(unit.cardMonsterState, 'fighting')
+  assert.equal(unit.cardMonsterSprite, '/images/home/map/monsters/jelly-fighting.png')
+  assert.deepEqual(unit.tasks.map(task => task.percent), [0, 0, 0])
 })
 
 test('map progress exposes completed, active, upcoming, and locked task states', (t) => {
@@ -292,13 +292,13 @@ test('a 5-card daily goal boxes up exactly 5 cards, review included as a slot', 
   const groups = groupListUnits(markTodayTasks(buildListUnits(units), goal))
 
   // Exactly one today box, holding the next five cards along the sequence with
-  // the review counted as the 3rd slot (unit-1 is demo-completed). The second
-  // review is out of reach and belongs to the next batch.
+  // the review counted as the 4th slot. With the demo first-level completion
+  // disabled, the box starts at unit-1; the second review belongs to the next batch.
   const todayGroups = groups.filter(group => group.today)
   assert.equal(todayGroups.length, 1)
   assert.deepEqual(
     todayGroups[0].units.map(unit => unit.isReview ? 'review' : unit.unitId),
-    ['unit-2', 'unit-3', 'review', 'unit-4', 'unit-5']
+    ['unit-1', 'unit-2', 'unit-3', 'review', 'unit-4']
   )
 })
 

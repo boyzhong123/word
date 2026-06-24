@@ -24,13 +24,20 @@ const { computeScrollTopToAlignTarget } = require('./home-scroll')
 const { withTestBook, applyDevPurchaseToBook, applyDevPurchaseToBooks, isDevPurchased } = require('../../utils/dev-books')
 const { getExitLockState } = require('../../utils/exam-data')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
+const { getLearnedWordCount, getLearnedPercent } = require('../../utils/learned-progress')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const { isTruthyFlag, isNewStandardBook } = require('../../utils/book-tags')
 const { isLevelUnlocked } = require('../../utils/level-access')
-const { navigateToVipPurchase } = require('../../utils/vip-purchase')
+const { getMembership } = require('../../utils/membership')
+const { navigateToVipPurchase, promptVipPurchase } = require('../../utils/vip-purchase')
 const { redirectToOnboardingIfNeeded } = require('../../utils/onboarding-guard')
 const { pickActiveBook } = require('../../utils/book-select')
+const { appendReturnTabQuery } = require('../../utils/return-tab')
+const {
+  dismissVipFloatingGuide,
+  shouldShowVipFloatingGuide
+} = require('../../utils/vip-floating-guide')
 const {
   buildCharacterImageUrls,
   pickGenderFromUserInfo,
@@ -58,7 +65,12 @@ function isBookLocked(book) {
   return isTruthyFlag(book.needVip)
 }
 
-function enrichPickerBooks(books) {
+function shouldShowBookLock(book, membership) {
+  const currentMembership = membership || getMembership()
+  return !currentMembership.active || isBookLocked(book)
+}
+
+function enrichPickerBooks(books, membership) {
   if (!Array.isArray(books)) {
     return []
   }
@@ -67,6 +79,7 @@ function enrichPickerBooks(books) {
     return Object.assign({}, source, {
       bookCover: normalizeBookCover(source.bookCover || source.cover),
       locked: isBookLocked(book),
+      showLock: shouldShowBookLock(book, membership),
       newStandard: isNewStandardBook(book)
     })
   })
@@ -228,8 +241,32 @@ function getSafeAreaBottom() {
 }
 
 const TAB_BAR_BODY_RPX = 102
+const VIP_FLOATING_SPACER_EXTRA_RPX = 120
 // 1536×640 顶裁横幅：与 images/home/hero-campus-jelly-v5-trio.png 交付尺寸一致
 const HERO_IMAGE_HEIGHT_RPX = Math.ceil(750 * 640 / 1536)
+// 入门测 / 结业测横幅：与 images/home/exam-entry-banner-*.png 交付尺寸一致
+const EXAM_ENTRY_BANNER_HEIGHT_RPX = Math.ceil(750 * 276 / 1384)
+const EXAM_EXIT_BANNER_HEIGHT_RPX = Math.ceil(750 * 296 / 1024)
+const EXAM_EXIT_LOCKED_BANNER_HEIGHT_RPX = Math.ceil(750 * 285 / 1024)
+
+function buildExamBannerClipStyle(heightRpx) {
+  return 'height: ' + heightRpx + 'rpx;'
+}
+
+function buildExamBannerLayout(examExitLocked) {
+  return {
+    examEntryBannerClipStyle: buildExamBannerClipStyle(EXAM_ENTRY_BANNER_HEIGHT_RPX),
+    examExitBannerClipStyle: buildExamBannerClipStyle(
+      examExitLocked ? EXAM_EXIT_LOCKED_BANNER_HEIGHT_RPX : EXAM_EXIT_BANNER_HEIGHT_RPX
+    )
+  }
+}
+
+function buildScrollSpacerStyle(scrollSpacerRpx, showVipFloatingGuide) {
+  const base = Number(scrollSpacerRpx) || 0
+  const extra = showVipFloatingGuide ? VIP_FLOATING_SPACER_EXTRA_RPX : 0
+  return 'height: ' + (base + extra) + 'rpx;'
+}
 
 function getHeroLayout() {
   const systemInfo = wx.getSystemInfoSync()
@@ -260,7 +297,7 @@ function getHeroLayout() {
     scrollViewStyle: 'height: ' + screenHeight + 'px;',
     heroClipStyle: 'height: ' + HERO_IMAGE_HEIGHT_RPX + 'rpx;',
     heroCopyStyle: 'top: ' + heroContentTop + 'rpx;',
-    scrollSpacerStyle: 'height: ' + scrollSpacerRpx + 'rpx;'
+    scrollSpacerStyle: buildScrollSpacerStyle(scrollSpacerRpx, false)
   }
 }
 
@@ -278,13 +315,6 @@ function unlockUnitsForOwnedBook(apiUnits, book) {
     return apiUnits
   }
   return apiUnits.map(unit => Object.assign({}, unit, { needVip: 0 }))
-}
-
-function getLearnedWordCount(book) {
-  const learningInfo = book.learningInfo || {}
-  const bookProgress = learningInfo.book || {}
-  const learned = Number(bookProgress.learningWords || bookProgress.wordCount)
-  return Number.isFinite(learned) ? learned : Math.min(1413, book.wordCount)
 }
 
 const FALLBACK_LIST_UNITS = markTodayTasks(
@@ -314,6 +344,9 @@ Page({
       todayDone: 0,
       todayGoal: 2
     },
+    membership: { active: false },
+    showVipFloatingGuide: false,
+    vipFloatingUnlockUrl: imageUrl('/images/home/vip-floating-guide-banner.png'),
     levelViewMode: 'category',
     selectedMapUnitIndex: -1,
     // 入门测 / 结业测入口（插在关卡列表首尾）
@@ -324,6 +357,7 @@ Page({
     examEntryBannerUrl: '',
     examExitBannerUrl: '',
     examExitLockedBannerUrl: '',
+    ...buildExamBannerLayout(true),
     examLockPopup: false,
     examLockPopupText: '',
     units: buildDisplayUnits([], FALLBACK_UNITS),
@@ -365,6 +399,11 @@ Page({
     if (redirectToOnboardingIfNeeded()) {
       return
     }
+    const globalData = getApp().globalData || {}
+    if (globalData.membershipUpdatedAt) {
+      this.setData({ showVipFloatingGuide: false })
+      delete globalData.membershipUpdatedAt
+    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
         selected: 1,
@@ -372,8 +411,9 @@ Page({
       })
     }
     this.applyCharacterAssets()
-    if (getApp().globalData.openBookPicker) {
-      getApp().globalData.openBookPicker = false
+    this.refreshMembership()
+    if (globalData.openBookPicker) {
+      globalData.openBookPicker = false
       this.pendingOpenPicker = true
       // 从「今日」页过来选教材，切换成功后应回到今日页。
       this.returnToTodayAfterBookSwitch = true
@@ -399,6 +439,19 @@ Page({
 
   applyCharacterAssets() {
     this.setData(buildCharacterImageUrls(this.data.imageBaseUrl))
+  },
+
+  refreshMembership() {
+    const membership = getMembership()
+    const showVipFloatingGuide = shouldShowVipFloatingGuide(membership)
+    const allBooks = enrichPickerBooks(this.data.allBooks, membership)
+    this.setData({
+      membership,
+      allBooks,
+      pickerBooks: filterPickerBooks(allBooks, this.data.pickerStageId, this.data.pickerCategoryId),
+      showVipFloatingGuide,
+      scrollSpacerStyle: buildScrollSpacerStyle(this.data.scrollSpacerRpx, showVipFloatingGuide)
+    })
   },
 
   // 「今日任务」依赖本地进度（完成关卡、保存计划后会变化），每次返回首页都刷新。
@@ -459,7 +512,7 @@ Page({
       let otherBook = books.find(item => item.resBookId !== selectedBook.resBookId) || {}
       selectedBook = normalizeBook(selectedBook)
 
-      this.setData({ allBooks: enrichPickerBooks(books) })
+      this.setData({ allBooks: enrichPickerBooks(books, this.data.membership) })
       this.updateBook(selectedBook, otherBook)
       getApp().globalData.book = selectedBook
       this.loadUnits(selectedBook.resBookId)
@@ -471,10 +524,8 @@ Page({
   },
 
   updateBook(book, otherBook) {
-    const learnedWordCount = getLearnedWordCount(book)
-    const progressPercent = book.wordCount
-      ? Math.min(Math.round(learnedWordCount * 100 / book.wordCount), 100)
-      : 0
+    const learnedWordCount = getLearnedWordCount(book, this.allUnits)
+    const progressPercent = getLearnedPercent(book, this.allUnits)
 
     this.setData({
       loading: false,
@@ -512,7 +563,11 @@ Page({
       examBookName: (this.data.book && this.data.book.name) || '',
       examExitLocked: exitLock.locked,
       examExitLockReason: exitLock.reason,
-      showExamExitBanner: visibleCount >= allUnits.length
+      showExamExitBanner: visibleCount >= allUnits.length,
+      ...buildExamBannerLayout(exitLock.locked),
+      learnedWordCount: getLearnedWordCount(this.data.book, allUnits),
+      progressPercent: getLearnedPercent(this.data.book, allUnits),
+      bookProgressStyle: buildBookProgressStyle(getLearnedPercent(this.data.book, allUnits))
     })
     this.updateTodayLocateFab()
   },
@@ -788,6 +843,12 @@ Page({
       return
     }
 
+    // 会员门禁优先：非会员点击需开通会员的关卡（第 1 关之外），先弹「开通会员」确认框，
+    // 不再因为「还没轮到」只提示请先完成上一项。
+    if (this.blockByMembership(unit)) {
+      return
+    }
+
     const task = getTaskByType(unit, taskType)
     if (task && task.mapState === 'locked') {
       this.showLocked()
@@ -858,7 +919,13 @@ Page({
 
   handleReviewTaskTap(unit, taskType) {
     if (unit.locked) {
-      this.showMonsterHint('完成前面的关卡后解锁复习')
+      // 会员门禁优先：非会员（或复习聚合了付费关卡）先弹「开通会员」确认框；
+      // 已是会员才提示先完成前面的关卡。
+      if (unit.lockedByVip || !getMembership().active) {
+        promptVipPurchase(this.data.book)
+      } else {
+        this.showMonsterHint('完成前面的关卡后解锁复习')
+      }
       return
     }
 
@@ -881,12 +948,15 @@ Page({
     }
 
     wx.navigateTo({
-      url: '../practice/practice?resBookId=' + book.resBookId +
-        '&unitId=' + unitIds[0] +
-        '&name=' + encodeURIComponent(book.name) +
-        '&taskType=' + (taskType === 'word' ? 'word' : 'recitation') +
-        '&review=1' +
-        '&reviewUnitIds=' + encodeURIComponent(unitIds.join(','))
+      url: appendReturnTabQuery(
+        '../practice/practice?resBookId=' + book.resBookId +
+          '&unitId=' + unitIds[0] +
+          '&name=' + encodeURIComponent(book.name) +
+          '&taskType=' + (taskType === 'word' ? 'word' : 'recitation') +
+          '&review=1' +
+          '&reviewUnitIds=' + encodeURIComponent(unitIds.join(',')),
+        'growth'
+      )
     })
   },
 
@@ -899,11 +969,14 @@ Page({
     }
 
     wx.navigateTo({
-      url: '/pages/listen/listen?resBookId=' + book.resBookId +
-        '&unitId=' + unitIds[0] +
-        '&mode=quiz' +
-        '&review=1' +
-        '&reviewUnitIds=' + encodeURIComponent(unitIds.join(','))
+      url: appendReturnTabQuery(
+        '/pages/listen/listen?resBookId=' + book.resBookId +
+          '&unitId=' + unitIds[0] +
+          '&mode=quiz' +
+          '&review=1' +
+          '&reviewUnitIds=' + encodeURIComponent(unitIds.join(',')),
+        'growth'
+      )
     })
   },
 
@@ -963,11 +1036,11 @@ Page({
     this.navigateToPracticeUnit(unit, taskType)
   },
 
-  // 会员门禁：第 1 关免费，其余关卡需开通会员。命中拦截则跳 VIP 购买页并返回 true。
+  // 会员门禁：第 1 关免费，其余关卡需开通会员。命中拦截则弹「开通会员」确认框并返回 true。
   blockByMembership(unit) {
     const sort = Number(unit && unit.sort)
     if (Number.isFinite(sort) && sort > 0 && !isLevelUnlocked(sort)) {
-      navigateToVipPurchase(this.data.book, { locked: true })
+      promptVipPurchase(this.data.book)
       return true
     }
     return false
@@ -991,9 +1064,12 @@ Page({
     }
 
     wx.navigateTo({
-      url: '/pages/listen/listen?resBookId=' + book.resBookId +
-        '&unitId=' + unitId +
-        '&mode=quiz'
+      url: appendReturnTabQuery(
+        '/pages/listen/listen?resBookId=' + book.resBookId +
+          '&unitId=' + unitId +
+          '&mode=quiz',
+        'growth'
+      )
     })
   },
 
@@ -1015,10 +1091,13 @@ Page({
     }
 
     wx.navigateTo({
-      url: '../practice/practice?resBookId=' + book.resBookId +
-        '&unitId=' + unitId +
-        '&name=' + encodeURIComponent(book.name) +
-        '&taskType=' + (taskType || 'recitation')
+      url: appendReturnTabQuery(
+        '../practice/practice?resBookId=' + book.resBookId +
+          '&unitId=' + unitId +
+          '&name=' + encodeURIComponent(book.name) +
+          '&taskType=' + (taskType || 'recitation'),
+        'growth'
+      )
     })
   },
 
@@ -1165,10 +1244,22 @@ Page({
   },
 
   showLocked() {
-    this.showMonsterHint('开通会员后解锁')
+    promptVipPurchase(this.data.book)
   },
 
   showPending() {
     this.showMonsterHint('内容待补充')
+  },
+
+  goMembership() {
+    navigateToVipPurchase(this.data.book, { locked: true })
+  },
+
+  closeVipFloatingGuide() {
+    dismissVipFloatingGuide()
+    this.setData({
+      showVipFloatingGuide: false,
+      scrollSpacerStyle: buildScrollSpacerStyle(this.data.scrollSpacerRpx, false)
+    })
   }
 })

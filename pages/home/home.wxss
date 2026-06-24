@@ -1198,6 +1198,43 @@ page {
   flex: none;
 }
 
+.vip-floating-guide {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: auto;
+  bottom: calc(102rpx + env(safe-area-inset-bottom));
+  z-index: 110;
+  margin: 0;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  background: transparent;
+  overflow: hidden;
+  border-radius: 20rpx 20rpx 0 0;
+}
+
+.vip-floating-guide:active {
+  transform: none;
+}
+
+.vip-floating-banner {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 1;
+  vertical-align: top;
+}
+
+.vip-floating-close-hit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 98rpx;
+  height: 92rpx;
+}
+
 /* 加载骨架屏 */
 .sk-block,
 .sk-line {
@@ -1545,39 +1582,44 @@ page {
   color: #7a8798;
 }
 
-/* 切换/当前 条：贴满封面底边 */
+/* 切换/当前按钮：做成更贴合封面的轻胶囊 CTA */
 .book-picker-switch {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 40rpx;
+  left: 14rpx;
+  right: 14rpx;
+  bottom: 14rpx;
+  height: 50rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  border-radius: 0;
+  border-radius: 999rpx;
   font-size: 20rpx;
-  font-weight: 600;
-  color: #111318;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(4px);
-  border-top: 1rpx solid rgba(17, 19, 24, 0.08);
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  color: #0f9b67;
+  background: linear-gradient(180deg, rgba(244, 255, 250, 0.98) 0%, rgba(231, 250, 241, 0.98) 100%);
+  border: 1rpx solid rgba(15, 155, 103, 0.18);
+  box-shadow: 0 8rpx 18rpx rgba(17, 19, 24, 0.14);
 }
 
 .book-picker-switch:active {
-  background: rgba(255, 255, 255, 1);
+  transform: translateY(1rpx) scale(0.985);
+  box-shadow: 0 5rpx 12rpx rgba(17, 19, 24, 0.1);
 }
 
 .book-picker-switch-current {
   color: #ffffff;
-  background: rgba(17, 19, 24, 0.92);
-  font-weight: 700;
+  background: linear-gradient(180deg, #22c79a 0%, #119e79 100%);
+  border-color: rgba(17, 158, 121, 0.24);
+  box-shadow: 0 10rpx 20rpx rgba(17, 158, 121, 0.28);
 }
 
 .book-picker-switch-buy {
-  color: #e86f00;
-  font-weight: 700;
+  color: #d56a11;
+  border-color: rgba(213, 106, 17, 0.18);
+  background: linear-gradient(180deg, rgba(255, 249, 242, 0.98) 0%, rgba(255, 241, 223, 0.98) 100%);
+  box-shadow: 0 8rpx 18rpx rgba(213, 106, 17, 0.14);
 }
 
 .home-monster-hint {
@@ -1640,7 +1682,7 @@ page {
   }
 }
 
-/* 入门测 / 结业测入口横幅：与关卡卡统一 14rpx 间距、27rpx 圆角 */
+/* 入门测 / 结业测入口横幅：固定高度裁剪，避免 widthFix 远程图加载前撑出大块空白 */
 .exam-entry-banner {
   margin-top: 14rpx;
   width: 100%;

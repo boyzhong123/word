@@ -56,7 +56,7 @@
       <block wx:else>
       <block wx:if="{{levelViewMode === 'category'}}">
       <!-- 入门测：关卡列表最前面 -->
-      <view class="exam-entry-banner" bindtap="goExamEntry">
+      <view class="exam-entry-banner" style="{{examEntryBannerClipStyle}}" bindtap="goExamEntry">
         <image class="exam-entry-banner-image" src="{{examEntryBannerUrl}}" mode="widthFix" />
       </view>
 
@@ -292,7 +292,7 @@
       </block>
 
       <!-- 结业测：全部关卡加载完后再显示，避免分页中间误以为是列表底部 -->
-      <view wx:if="{{showExamExitBanner}}" class="exam-entry-banner" bindtap="goExamExit">
+      <view wx:if="{{showExamExitBanner}}" class="exam-entry-banner" style="{{examExitBannerClipStyle}}" bindtap="goExamExit">
         <image
           class="exam-entry-banner-image"
           src="{{examExitLocked ? examExitLockedBannerUrl : examExitBannerUrl}}"
@@ -384,6 +384,11 @@
     <image class="today-locate-fab-image" src="{{imageBaseUrl}}/images/home/fab-today-locate-jelly.png" mode="aspectFit" />
   </view>
 
+  <view wx:if="{{showVipFloatingGuide}}" class="vip-floating-guide" bindtap="goMembership">
+    <image class="vip-floating-banner" src="{{vipFloatingUnlockUrl}}" mode="widthFix" />
+    <view class="vip-floating-close-hit" catchtap="closeVipFloatingGuide"></view>
+  </view>
+
   <!-- 切换教材弹窗：点击「切换教材」后弹出，选择某本教材才真正切换 -->
   <view wx:if="{{bookPickerVisible}}" class="book-picker-mask" bindtap="closeBookPicker">
     <view class="book-picker" catchtap="noop">
@@ -436,14 +441,14 @@
           </view>
           <view class="book-picker-grid">
             <view
-              class="book-picker-cell {{item.resBookId === book.resBookId ? 'book-picker-cell-active' : ''}} {{item.locked ? 'book-picker-cell-locked' : ''}}"
+              class="book-picker-cell {{item.resBookId === book.resBookId ? 'book-picker-cell-active' : ''}} {{item.showLock ? 'book-picker-cell-locked' : ''}}"
               wx:for="{{pickerBooks}}"
               wx:key="resBookId"
             >
               <!-- 封面与底部条都用于切换教材；当前教材显示状态文案 -->
               <view class="book-picker-cover-wrap" data-res-book-id="{{item.resBookId}}" catchtap="goBookDetail">
                 <image class="book-picker-cover" src="{{item.bookCover}}" mode="aspectFill" data-res-book-id="{{item.resBookId}}" binderror="onPickerBookCoverError" />
-                <view wx:if="{{item.locked}}" class="book-picker-cover-mask">
+                <view wx:if="{{item.showLock}}" class="book-picker-cover-mask">
                   <image class="book-picker-cover-lock" src="../../images/home/icon-picker-lock.svg" mode="aspectFit" />
                 </view>
                 <view wx:if="{{item.newStandard}}" class="tag-new-standard book-picker-tag-new">新课标</view>
@@ -451,13 +456,13 @@
                 <view
                   wx:if="{{item.resBookId === book.resBookId}}"
                   class="book-picker-switch book-picker-switch-current"
-                >当前使用</view>
+                >使用中</view>
                 <view
                   wx:else
                   class="book-picker-switch {{item.locked ? 'book-picker-switch-buy' : ''}}"
                   data-res-book-id="{{item.resBookId}}"
                   catchtap="switchBookUse"
-                >切换使用</view>
+                >切换</view>
               </view>
               <text class="book-picker-name">{{item.name}}</text>
               <view class="book-picker-meta">

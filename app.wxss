@@ -19,10 +19,33 @@ page {
   color: transparent;
   background: transparent;
 }
-/* 导航返回/关闭图标：统一 32 方框内等比缩放，避免 heightFix + max-width 把下箭头拉扁 */
+/* 导航返回/关闭图标：统一方框内等比缩放，避免 heightFix + max-width 把下箭头拉扁 */
 .nav-action-icon {
-  width: 32rpx;
-  height: 32rpx;
+  width: 26rpx;
+  height: 26rpx;
+}
+
+/* 折叠/展开等 CSS 箭头：向下、向上、向右 */
+.ui-caret {
+  flex: none;
+  width: 11rpx;
+  height: 11rpx;
+  box-sizing: border-box;
+  border-right: 2rpx solid currentColor;
+  border-bottom: 2rpx solid currentColor;
+  transform-origin: 50% 50%;
+}
+.ui-caret-down {
+  transform: rotate(45deg);
+  margin-top: -3rpx;
+}
+.ui-caret-up {
+  transform: rotate(225deg);
+  margin-top: 3rpx;
+}
+.ui-caret-right {
+  transform: rotate(-45deg);
+  margin-left: -1rpx;
 }
 
 .nav-title {

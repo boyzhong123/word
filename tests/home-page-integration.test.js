@@ -17,7 +17,8 @@ function loadHomePage() {
   const calls = {
     navigateTo: [],
     switchTab: [],
-    showToast: []
+    showToast: [],
+    showModal: []
   }
   const globalData = {
     BASE_URL: 'https://example.test',
@@ -45,6 +46,7 @@ function loadHomePage() {
     },
     switchTab: options => calls.switchTab.push(options),
     showToast: options => calls.showToast.push(options),
+    showModal: options => { calls.showModal.push(options) },
     hideTabBar: () => {},
     showTabBar: () => {},
     createSelectorQuery: () => ({
@@ -279,7 +281,8 @@ test('frame animation advances sprite frames with js timing for mini program pla
 
 test('home page blocks recitation navigation for locked units', () => {
   assert.match(homeScript, /if \(unit\.locked\)/)
-  assert.match(homeScript, /showMonsterHint\('开通会员后解锁'\)/)
+  // 锁定关卡点击：弹「开通会员」确认框（确认后跳会员页），不再只是怪兽气泡提示。
+  assert.match(homeScript, /showLocked\(\)\s*{\s*promptVipPurchase\(this\.data\.book\)/)
 })
 
 test('home page renders 20 units initially and appends the remaining batches', () => {
@@ -381,6 +384,8 @@ test('tapping a review listening task opens the listen quiz in review mode', () 
 
 test('a locked review level prompts the learner to finish earlier levels first', () => {
   const { page, calls } = loadHomePage()
+  // 会员场景：VIP 门禁已过，复习被锁只因前面关卡未完成，才提示先完成前面的关卡。
+  wx.setStorageSync('membership', { tierId: 'y1', expireAt: Date.now() + 86400000 })
   page.resetVisibleUnits([
     { unitId: 'unit-1', sort: 1, wordTotal: 12, completed: true },
     { unitId: 'unit-2', sort: 2, wordTotal: 12, completed: false },
@@ -398,7 +403,26 @@ test('a locked review level prompts the learner to finish earlier levels first',
   assert.equal(page.data.monsterHint.text, '完成前面的关卡后解锁复习')
 })
 
-test('locked recitation shows an unlock toast instead of navigating', () => {
+test('non-member tapping a locked review prompts vip first, not "finish previous"', () => {
+  const { page, calls } = loadHomePage()
+  // 无 membership → 非会员：复习聚合了付费关卡，先弹「开通会员」，不提示完成前面关卡。
+  page.resetVisibleUnits([
+    { unitId: 'unit-1', sort: 1, wordTotal: 12, completed: true },
+    { unitId: 'unit-2', sort: 2, wordTotal: 12, completed: false },
+    { unitId: 'unit-3', sort: 3, wordTotal: 12, completed: false }
+  ])
+
+  const reviewIndex = page.data.listUnits.findIndex(unit => unit.isReview)
+  page.handleListTaskTap({
+    currentTarget: { dataset: { taskType: 'word', unitIndex: reviewIndex } }
+  })
+
+  assert.equal(calls.navigateTo.length, 0)
+  assert.equal(calls.showModal.length, 1)
+  assert.equal(page.data.monsterHint.visible, false)
+})
+
+test('locked recitation prompts a vip purchase dialog instead of navigating', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book' }
   page.data.units = [{ unitId: 'unit-1', locked: true }]
@@ -412,9 +436,36 @@ test('locked recitation shows an unlock toast instead of navigating', () => {
     }
   })
 
+  // 点击锁定关卡：先弹「开通会员」确认框，确认前不跳练习页。
   assert.equal(calls.navigateTo.length, 0)
-  assert.equal(page.data.monsterHint.visible, true)
-  assert.equal(page.data.monsterHint.text, '开通会员后解锁')
+  assert.equal(calls.showModal.length, 1)
+  assert.match(calls.showModal[0].content, /会员/)
+})
+
+test('non-member tapping a not-yet-reached paid level prompts vip instead of "finish previous"', () => {
+  const { page, calls } = loadHomePage()
+  // 无 membership storage → 非会员；第 2 关需开通会员。
+  page.data.book = { resBookId: 'book-1', name: 'Book' }
+  page.data.listUnits = [{
+    unitId: 'unit-2',
+    sort: 2,
+    isReview: false,
+    tasks: [{ type: 'word', mapState: 'upcoming' }]
+  }]
+
+  page.handleListTaskTap({
+    currentTarget: {
+      dataset: {
+        taskType: 'word',
+        unitIndex: 0
+      }
+    }
+  })
+
+  // 会员门禁优先于「请先完成上一项任务」：直接弹「开通会员」确认框，不跳练习页。
+  assert.equal(calls.navigateTo.length, 0)
+  assert.equal(calls.showModal.length, 1)
+  assert.equal(page.data.monsterHint.visible, false)
 })
 
 test('purchased demo books unlock vip-gated units on the home page', () => {
@@ -502,7 +553,7 @@ test('map level taps reveal details and start the selected unit', () => {
   assert.match(calls.navigateTo[0].url, /unitId=unit-7/)
 })
 
-test('locked map levels show an unlock toast instead of navigating', () => {
+test('locked map levels prompt a vip purchase dialog instead of navigating', () => {
   const { page, calls } = loadHomePage()
   page.data.book = { resBookId: 'book-1', name: 'Book Name' }
   page.data.units = [{ unitId: 'unit-locked', locked: true }]
@@ -516,8 +567,8 @@ test('locked map levels show an unlock toast instead of navigating', () => {
   })
 
   assert.equal(calls.navigateTo.length, 0)
-  assert.equal(page.data.monsterHint.visible, true)
-  assert.equal(page.data.monsterHint.text, '开通会员后解锁')
+  assert.equal(calls.showModal.length, 1)
+  assert.match(calls.showModal[0].content, /会员/)
 })
 
 test('word tasks navigate to the word new detail mode', () => {

@@ -1,4 +1,7 @@
 // 开发 / 体验环境：任意教材统一使用这套演示关卡与词表，不依赖后端 book-units。
+// 已关闭：改为按用户选择的图书加载真实关卡（仍保留 FALLBACK_UNITS 作为兜底）。
+// 如需重新启用整套演示词表，将 ENABLE_DEMO_UNITS 置回 true 即可。
+const ENABLE_DEMO_UNITS = false
 const { buildVoiceUrl } = require('./voice-url')
 const DEMO_UNIT_PREFIX = 'demo-unit-'
 
@@ -48,6 +51,9 @@ const DEMO_UNIT_WORDS = {
 }
 
 function isDemoUnitsEnabled() {
+  if (!ENABLE_DEMO_UNITS) {
+    return false
+  }
   try {
     return wx.getAccountInfoSync().miniProgram.envVersion !== 'release'
   } catch (error) {

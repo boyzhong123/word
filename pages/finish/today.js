@@ -13,10 +13,7 @@ const {
   normalizeScoreRate,
   headerImageForScoreRate
 } = require('../../utils/finish-stars')
-const {
-  awardStudyCoins,
-  getPetFeatureEnabled
-} = require('../../utils/pet-system')
+const { normalizeReturnTab, returnTabUrl } = require('../../utils/return-tab')
 
 const STREAK_REWARD_DAYS = 30
 
@@ -39,11 +36,7 @@ Page({
     summarySub: '',
     showContinue: true,
     headerImage: headerImageForScoreRate(0),
-    scoreRate: 0,
-    petReward: {
-      show: false,
-      amount: 0
-    }
+    scoreRate: 0
   },
 
   onLoad(options) {
@@ -52,6 +45,7 @@ Page({
     this.unitId = options.unitId || ''
     this.taskType = normalizeTaskType(options.taskType)
     this.resBookId = options.resBookId || (this.book && this.book.resBookId) || ''
+    this.returnTab = normalizeReturnTab(options.returnTab)
     this.bookName = options.name
       ? decodeURIComponent(options.name)
       : (this.book && this.book.name) || ''
@@ -75,14 +69,6 @@ Page({
       unitCount: this.book.unitCount
     })
     const scoreRate = normalizeScoreRate(options.scoreRate)
-    const petReward = getPetFeatureEnabled()
-      ? awardStudyCoins({
-        unitId: options.unitId,
-        taskType: this.taskType,
-        dailyGoalCompleted: justCheckedIn
-      })
-      : { awarded: 0 }
-
     this.setData({
       unitSort: options.unitSort,
       unitCount: this.book.unitCount,
@@ -100,12 +86,7 @@ Page({
       summaryTitle: stageProgress.summaryTitle,
       summarySub: stageProgress.summarySub,
       scoreRate,
-      headerImage: headerImageForScoreRate(scoreRate),
-      petReward: {
-        // 金币卡片暂不展示（产品需求：先不要）。奖励仍照常发放，仅隐藏入口卡片。
-        show: false && petReward.awarded > 0,
-        amount: petReward.awarded || 0
-      }
+      headerImage: headerImageForScoreRate(scoreRate)
     })
 
     saveRecord(options.unitId).then(data => {
@@ -124,7 +105,8 @@ Page({
       resBookId: this.resBookId,
       unitId: this.unitId,
       bookName: this.bookName,
-      nextUnitId: this.nextUnitId
+      nextUnitId: this.nextUnitId,
+      returnTab: this.returnTab
     })
 
     if (!url) {
@@ -141,6 +123,6 @@ Page({
 
   finish() {
     refreshHomePage()
-    wx.switchTab({ url: '/pages/home/home' })
+    wx.switchTab({ url: returnTabUrl(this.returnTab) })
   }
 })

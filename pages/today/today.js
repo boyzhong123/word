@@ -13,15 +13,17 @@ const { withTestBook, applyDevPurchaseToBooks } = require('../../utils/dev-books
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { normalizeBookCover, getFallbackBookCover } = require('../../utils/book-cover')
 const { isNewStandardBook } = require('../../utils/book-tags')
+const { appendReturnTabQuery } = require('../../utils/return-tab')
 const { LEVEL_SIZE, getDailyGoal, getTodayDone } = require('../../utils/checkin-progress')
-const { getMembership } = require('../../utils/membership')
-const { navigateToVipPurchase } = require('../../utils/vip-purchase')
-const { isLevelUnlocked } = require('../../utils/level-access')
+const { getMembership, isMember } = require('../../utils/membership')
+const { navigateToVipPurchase, promptVipPurchase } = require('../../utils/vip-purchase')
+const { isLevelUnlocked, isFreeLevel } = require('../../utils/level-access')
 const {
   getStudentProfile,
   describeProfile
 } = require('../../utils/student-profile')
 const { redirectToOnboardingIfNeeded } = require('../../utils/onboarding-guard')
+const { getLearnedWordCount } = require('../../utils/learned-progress')
 const {
   dismissEntryExamPrompt,
   shouldShowEntryExamPrompt
@@ -39,11 +41,16 @@ const {
 const { FALLBACK_UNITS } = require('../../utils/fallback-units')
 const { pickActiveBook } = require('../../utils/book-select')
 
-// 今日页演示态：固定展示 3 个关卡，并把当前进度落在第 2 个关卡。
-const DEMO_TODAY_ROUTE = true
+// 今日页演示态：固定展示 3 个关卡，并把当前进度落在第 2 个关卡。已关闭，按真实进度展示。
+// 注意 DEMO_ACTIVE_LEVEL_INDEX 在演示开关外也会把「靠前的关卡」强制标成已完成，
+// 故一并置 0，避免关闭演示后仍残留「第一关已通关」的假进度。
+const DEMO_TODAY_ROUTE = false
 const DEMO_TODAY_GOAL = 3
-const DEMO_ACTIVE_LEVEL_INDEX = 1
-const VIP_FLOATING_DISMISSED_KEY = 'home_vip_floating_dismissed_v1'
+const DEMO_ACTIVE_LEVEL_INDEX = 0
+const {
+  dismissVipFloatingGuide,
+  shouldShowVipFloatingGuide
+} = require('../../utils/vip-floating-guide')
 const TODAY_SPOT_BUTTON_THEME = 'green'
 // 与「成长」页共用同一把「不再提醒」开关：任一处勾过，再练确认弹窗都不再弹。
 const REPRACTICE_SKIP_KEY = 'reprac_skip_confirm'
@@ -85,8 +92,7 @@ function pickNumber() {
 }
 
 function getLearnedWords(book) {
-  const info = (book && book.learningInfo && book.learningInfo.book) || {}
-  return pickNumber(info.learningWords, info.wordCount, book && book.learningWords)
+  return getLearnedWordCount(book)
 }
 
 function getLearnedSentences(book) {
@@ -198,6 +204,16 @@ function activateTasks(rawTasks) {
   })
 }
 
+// 非会员的后续付费关卡只限制进入，不使用锁定视觉：已完成保持 completed，
+// 其余环节按 VIP 用户看到的普通 upcoming/active 状态展示。
+function presentPaidTasks(rawTasks) {
+  return (Array.isArray(rawTasks) ? rawTasks : []).map(task => Object.assign({}, task, {
+    mapState: Number(task.percent) >= 100
+      ? 'completed'
+      : (task.mapState === 'active' ? 'active' : 'upcoming')
+  }))
+}
+
 function buildDemoRouteTasks(rawTasks, levelIndex) {
   const tasks = Array.isArray(rawTasks) ? rawTasks : []
   if (levelIndex < DEMO_ACTIVE_LEVEL_INDEX) {
@@ -303,7 +319,7 @@ Page({
     highlightsExpanded: false,
     todayWords: 0,
     todaySentences: 0,
-    todayGoal: 2,
+    todayGoal: 1,
     todayDone: 0,
     totalSteps: 0,
     doneSteps: 0,
@@ -356,6 +372,14 @@ Page({
   onShow() {
     if (redirectToOnboardingIfNeeded()) {
       return
+    }
+    const globalData = getApp().globalData || {}
+    if (globalData.membershipUpdatedAt) {
+      this.setData({
+        membership: getMembership(),
+        showVipFloatingGuide: false
+      })
+      delete globalData.membershipUpdatedAt
     }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0, hidden: false })
@@ -472,19 +496,29 @@ Page({
       // 的今日页永远有一个能开练的当前步骤（其余关卡仍需会员）。会员本就全解锁，
       // 故体验关只在「本应被锁」时生效，不会与会员的全局「现在练」冲突。
       const isFreeTrial = index === 0 && !reallyUnlocked && !completed
+      // 展示用：第 1 关本身永久免费，或今日首关的会员体验关，非会员且未完成时标「免费体验」。
+      const showFreeTrialBadge = !DEMO_TODAY_ROUTE && !isMember() && !completed && (
+        isFreeLevel(unit.sort) || isFreeTrial
+      )
       const unlocked = reallyUnlocked || isFreeTrial
-      const locked = !unlocked
+      const requiresVip = !unit.isReview && !reallyUnlocked && !isFreeTrial
+      // 普通付费关卡只在点击具体环节时拦截，不使用锁定卡样式；
+      // 复习关仍保留原有的会员/学习进度锁定语义。
+      const locked = unit.isReview ? !unlocked : false
       const cardState = locked ? 'locked' : (completed ? 'completed' : 'active')
-      // 会员锁住的关卡：子环节统一按 locked 呈现，避免全局「现在练」误落在锁定关卡上。
+      // 非会员后续付费关卡使用普通任务视觉，但不会误标为「现在练」；
+      // 复习锁定关卡仍统一按 locked 呈现。
       // 免费体验关：子环节状态由后端下发的 mapState（locked）改为按顺序重算，
       // 让第一个未完成的子环节成为「现在练」。
       let baseTasks
       if (DEMO_TODAY_ROUTE) {
         baseTasks = buildDemoRouteTasks(rawTasks, index)
-      } else if (locked) {
-        baseTasks = rawTasks.map(task => Object.assign({}, task, { mapState: 'locked' }))
       } else if (isFreeTrial) {
         baseTasks = activateTasks(rawTasks)
+      } else if (requiresVip) {
+        baseTasks = presentPaidTasks(rawTasks)
+      } else if (locked) {
+        baseTasks = rawTasks.map(task => Object.assign({}, task, { mapState: 'locked' }))
       } else {
         baseTasks = rawTasks
       }
@@ -545,7 +579,10 @@ Page({
         tasks,
         completed,
         locked: DEMO_TODAY_ROUTE ? false : locked,
+        requiresVip: DEMO_TODAY_ROUTE ? false : requiresVip,
+        lockedByVip: !!unit.lockedByVip,
         isFreeTrial: DEMO_TODAY_ROUTE ? false : isFreeTrial,
+        showFreeTrialBadge: DEMO_TODAY_ROUTE ? false : showFreeTrialBadge,
         cardState,
         levelState,
         levelStatusText,
@@ -564,7 +601,7 @@ Page({
     const allDone = targetLevels.length > 0 && targetLevels.every(level => level.completed)
     const currentLevel = targetLevels.find(level => level.levelState === 'current') || targetLevels[0] || {}
     const membership = getMembership()
-    const showVipFloatingGuide = !membership.active && !wx.getStorageSync(VIP_FLOATING_DISMISSED_KEY)
+    const showVipFloatingGuide = shouldShowVipFloatingGuide(membership)
 
     this.setData({
       loading: false,
@@ -715,9 +752,24 @@ Page({
     if (!level) {
       return
     }
+    if (level.requiresVip && !getMembership().active) {
+      promptVipPurchase(this.book || this.data.book)
+      return
+    }
+    // 复习关：非会员一律先弹开通会员确认框，不走「请先完成上一项任务」顺序提示。
+    if (level.isReview && !getMembership().active) {
+      promptVipPurchase(this.book || this.data.book)
+      return
+    }
     if (level.locked) {
+      // 会员门禁优先：复习被锁多因聚合了付费关卡，非会员先弹「开通会员」确认框；
+      // 已是会员才提示先完成前面的关卡。普通关卡锁定一律走开通会员。
       if (level.isReview) {
-        this.showMonsterHint('完成前面的关卡后解锁复习')
+        if (level.lockedByVip || !getMembership().active) {
+          promptVipPurchase(this.book || this.data.book)
+        } else {
+          this.showMonsterHint('完成前面的关卡后解锁复习')
+        }
       } else {
         this.showLocked()
       }
@@ -812,16 +864,22 @@ Page({
       }
       if (taskType === 'listening') {
         wx.navigateTo({
-          url: '/pages/listen/listen?resBookId=' + book.resBookId +
-            '&unitId=' + unitIds[0] + '&mode=quiz&review=1&reviewUnitIds=' + encodeURIComponent(unitIds.join(','))
+          url: appendReturnTabQuery(
+            '/pages/listen/listen?resBookId=' + book.resBookId +
+              '&unitId=' + unitIds[0] + '&mode=quiz&review=1&reviewUnitIds=' + encodeURIComponent(unitIds.join(',')),
+            'today'
+          )
         })
       } else {
         wx.navigateTo({
-          url: '/pages/practice/practice?resBookId=' + book.resBookId +
-            '&unitId=' + unitIds[0] +
-            '&name=' + encodeURIComponent(book.name) +
-            '&taskType=' + (taskType === 'word' ? 'word' : 'recitation') +
-            '&review=1&reviewUnitIds=' + encodeURIComponent(unitIds.join(','))
+          url: appendReturnTabQuery(
+            '/pages/practice/practice?resBookId=' + book.resBookId +
+              '&unitId=' + unitIds[0] +
+              '&name=' + encodeURIComponent(book.name) +
+              '&taskType=' + (taskType === 'word' ? 'word' : 'recitation') +
+              '&review=1&reviewUnitIds=' + encodeURIComponent(unitIds.join(',')),
+            'today'
+          )
         })
       }
       return
@@ -836,16 +894,22 @@ Page({
     const trialParam = level.isFreeTrial ? '&trial=1' : ''
     if (taskType === 'listening') {
       wx.navigateTo({
-        url: '/pages/listen/listen?resBookId=' + book.resBookId +
-          '&unitId=' + level.unitId + '&mode=quiz' + trialParam
+        url: appendReturnTabQuery(
+          '/pages/listen/listen?resBookId=' + book.resBookId +
+            '&unitId=' + level.unitId + '&mode=quiz' + trialParam,
+          'today'
+        )
       })
       return
     }
     wx.navigateTo({
-      url: '/pages/practice/practice?resBookId=' + book.resBookId +
-        '&unitId=' + level.unitId +
-        '&name=' + encodeURIComponent(book.name) +
-        '&taskType=' + (taskType || 'word') + trialParam
+      url: appendReturnTabQuery(
+        '/pages/practice/practice?resBookId=' + book.resBookId +
+          '&unitId=' + level.unitId +
+          '&name=' + encodeURIComponent(book.name) +
+          '&taskType=' + (taskType || 'word') + trialParam,
+        'today'
+      )
     })
   },
 
@@ -885,7 +949,7 @@ Page({
   },
 
   closeVipFloatingGuide() {
-    wx.setStorageSync(VIP_FLOATING_DISMISSED_KEY, true)
+    dismissVipFloatingGuide()
     this.setData({ showVipFloatingGuide: false })
   },
 
@@ -931,7 +995,7 @@ Page({
   },
 
   showLocked() {
-    this.showMonsterHint('开通会员后解锁')
+    promptVipPurchase(this.book || this.data.book)
   },
 
   showPending() {

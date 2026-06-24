@@ -36,8 +36,8 @@ page {
 
 .nav-action-icon,
 .nav-icon {
-  width: 32rpx;
-  height: 32rpx;
+  width: 26rpx;
+  height: 26rpx;
 }
 
 .nav-actions {
@@ -355,8 +355,8 @@ page {
 }
 
 .month-btn image {
-  width: 28rpx;
-  height: 28rpx;
+  width: 22rpx;
+  height: 22rpx;
 }
 
 .weekday-row,

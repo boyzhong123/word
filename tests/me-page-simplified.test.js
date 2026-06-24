@@ -10,7 +10,7 @@ const meStyle = fs.readFileSync(path.join(projectRoot, 'pages/me/me.wxss'), 'utf
 
 test('me page keeps the menu focused on common actions', () => {
   assert.match(meTemplate, /class="menu-label">学习记录</)
-  assert.match(meScript, /label: '我的教材'/)
+  assert.match(meScript, /label: '已学书本'/)
   assert.match(meScript, /label: '联系客服'/)
   assert.match(meScript, /label: '隐私与协议'/)
 
@@ -58,7 +58,8 @@ test('me page uses a message and official-account center instead of duplicated p
 })
 
 test('me page uses the jelly monster header and clean card stack', () => {
-  assert.match(meTemplate, /me-profile-header-monster-v2\.png/)
+  assert.match(meTemplate, /profileHeaderBg/)
+  assert.match(meScript, /me-profile-header-monster-v2\.png/)
   assert.match(meTemplate, /class="section-title">常用/)
   assert.match(meTemplate, /class="section-title">账号设置/)
   assert.match(meTemplate, /class="menu-copy"/)

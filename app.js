@@ -1,4 +1,5 @@
 const { getSubscribeTmplIds } = require('./utils/subscribe')
+const { resetVipFloatingGuideDismissed } = require('./utils/vip-floating-guide')
 
 const baseUrl = wx.getAccountInfoSync().miniProgram.envVersion === 'release' ? 'https://pb10.91tszx.com' : 'https://pb10.91tszx.com'
 
@@ -11,6 +12,7 @@ function updateNetworkStatus(networkType) {
 
 App({
   onLaunch() {
+    resetVipFloatingGuideDismissed()
     wx.setInnerAudioOption({
         obeyMuteSwitch: false,
         success: () => {
@@ -84,6 +86,7 @@ App({
     book: {},
     BASE_URL: baseUrl,
     token: '',
+    vipFloatingGuideDismissed: false,
     // 订阅消息模板 ID，真实 ID 在 utils/subscribe.js 配置
     subscribeTmplIds: getSubscribeTmplIds()
   }

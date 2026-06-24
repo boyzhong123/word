@@ -32,10 +32,6 @@ PLAN = {
     ".level-badge": "600",
     ".level-count": "500",
   },
-  "pages/vip/vip.wxss": {
-    ".vip-content2": "500",
-    ".tip": "500",
-  },
   "pages/finish/today.wxss": {
     ".periodical": "600",
     ".info": "500",
@@ -50,9 +46,6 @@ PLAN = {
     ".quiz-card-label": "500",
     ".quiz-result": "600",
     ".loop-label": "500",
-  },
-  "pages/catalogue/catalogue.wxss": {
-    ".content": "500",
   },
   "components/searchbar/searchbar.wxss": {
     ".cagetgory-item": "500",

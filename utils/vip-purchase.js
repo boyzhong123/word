@@ -1,4 +1,4 @@
-// 统一跳转 VIP 购买详情页（advertisement），替代旧的 membership 黑金页。
+// 统一跳转会员购买页，保证首页、今日、我的和学习门禁使用同一套购买流程。
 function getCurrentBook() {
   const app = getApp()
   return (app && app.globalData && app.globalData.book) || {}
@@ -35,7 +35,7 @@ function buildVipPurchaseQuery(book, options = {}) {
 function navigateToVipPurchase(book, options = {}) {
   const query = buildVipPurchaseQuery(book, options)
   const navigateOptions = {
-    url: '/pages/advertisement/advertisement?' + query
+    url: '/pages/membership/membership?' + query
   }
   if (options.events) {
     navigateOptions.events = options.events
@@ -48,8 +48,25 @@ function navigateToVipPurchase(book, options = {}) {
   wx.navigateTo(navigateOptions)
 }
 
+// 非会员点击被锁内容（关卡 / 伴读 / 图书）时：先弹确认框提示「未开通会员」，
+// 用户点「去开通」再跳会员购买页；点取消则不打扰。options 透传给 navigateToVipPurchase。
+function promptVipPurchase(book, options = {}) {
+  wx.showModal({
+    title: options.title || '会员专享内容',
+    content: options.content || '你还不是会员，开通会员后可解锁全部关卡与伴读内容。',
+    confirmText: options.confirmText || '去开通',
+    cancelText: options.cancelText || '再想想',
+    success(res) {
+      if (res.confirm) {
+        navigateToVipPurchase(book, Object.assign({ locked: true }, options))
+      }
+    }
+  })
+}
+
 module.exports = {
   getCurrentBook,
   buildVipPurchaseQuery,
-  navigateToVipPurchase
+  navigateToVipPurchase,
+  promptVipPurchase
 }

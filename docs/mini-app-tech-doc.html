@@ -261,7 +261,7 @@
           <span class="brand-mark">词</span>
           <span>词句刷刷刷 · 技术文档</span>
         </div>
-        <div class="date">MINI APP API · v1.0.8 · 交付版 · 2026-06-18</div>
+        <div class="date">MINI APP API · v1.0.9 · 交付版 · 2026-06-24</div>
       </header>
 
       <section class="hero">
@@ -269,16 +269,18 @@
           <div class="eyebrow">WeChat Mini Program</div>
           <h1>接口文档、页面说明与截图索引</h1>
           <p class="hero-copy">
-            面向后端与联调同学：按「首页闯关列表 → 打卡 → 随身听 → 我的」四大模块梳理页面职责、
-            已接后端接口、请求/响应字段约定。搜索查词等已下线能力不再收录。
+            面向后端与联调同学：按「新手引导 → 今日 → 成长 → 伴读 → 我的」梳理页面职责、
+            已接后端接口、请求/响应字段约定。底栏 Tab 为<strong>今日 / 伴读 / 成长 / 我的</strong>（<code>custom-tab-bar</code>）。
+            搜索查词等已下线能力不再收录。
           </p>
           <div class="scope-note">
-            <strong>待后端实现的接口口径（截至 v1.0.8）</strong>
+            <strong>待后端实现的接口口径（截至 v1.0.9）</strong>
             <span>
-              <strong>① 复习关</strong>（新）：<code>review-words</code> <strong>必出且至少 10 词</strong> —— 真错词（mastery&lt;70）≥10 用真错词；不足则从已掌握词池按 mastery 升序补 <code>consolidate</code> 凑满 10（全 100 分也强补）。每词带 <code>source</code>（wrong/consolidate），巩固词不写回种子/不改 mastery。详见 <code>docs/level-score-review-spec.md §6.4</code>。<br/>
-              <strong>② 商品详情</strong>：<code>book-product-list</code> 需含 <code>comparePlans/compareRows</code>（规格对比表 + SKU 弹层）。<br/>
-              <strong>③ 打卡领取</strong>：「立即领取」仍为本地演示，待 <code>gift-claim</code>。<br/>
-              <strong>④ 订阅额度</strong>：上报预留 <code>POST subscribe-message/report</code>（<code>SUBSCRIBE_REPORT_ENABLED=false</code>，当前仅本地计数）；模板 ID 在 <code>utils/subscribe.js</code>。
+              <strong>① 会员制</strong>（新）：<code>GET/POST membership/*</code> 替换 <code>utils/membership.js</code> 本地 Storage；第 1 关免费，会员解锁全部关卡与伴读。<br/>
+              <strong>② 学生档案</strong>（新）：<code>POST student-profile</code>（或扩展 <code>user/info-update</code>）同步 onboarding 采集的年级/学期/教材版本。<br/>
+              <strong>③ 复习关</strong>：<code>review-words</code> <strong>必出且至少 10 词</strong> —— 详见 <code>docs/level-score-review-spec.md §6.4</code>。<br/>
+              <strong>④ 打卡领取</strong>：「立即领取」仍为本地演示，待 <code>gift-claim</code>。<br/>
+              <strong>⑤ 订阅额度</strong>：上报预留 <code>POST subscribe-message/report</code>（<code>SUBSCRIBE_REPORT_ENABLED=false</code>）；模板 ID 在 <code>utils/subscribe.js</code>。
             </span>
           </div>
           <div class="scope-note" style="margin-top:10px">
@@ -294,7 +296,7 @@
         <aside class="hero-side">
           <div>
             <div class="eyebrow">Quick Count</div>
-            <p class="side-note" style="margin-top:12px">含测评/学习记录等待接 API；全局 search 不做；单词分析（word-info）后续见跟读背诵页。</p>
+            <p class="side-note" style="margin-top:12px">v1.0.9 新增今日/引导/会员页；待接 membership/*、student-profile；测评/学习记录/report 仍 Mock。</p>
           </div>
           <div class="stats" id="stats"></div>
         </aside>
@@ -328,7 +330,7 @@
           </article>
           <article class="api-box">
             <h3>needVip 字段（历史命名）</h3>
-            <p>接口与代码里仍叫 <code>needVip</code>，<strong>业务含义不是会员 VIP，而是「是否已购买该词书 / 内容是否解锁」</strong>。优先用 <code>unlocked</code>（已购=1）表达词书态；<code>needVip=1</code> 表示未购锁定。详见 book-units / unit-words 各行说明。</p>
+            <p>接口与代码里仍叫 <code>needVip</code>，在 <code>user-books</code> / <code>book-units</code> 中表示<strong>词书购买态</strong>（<code>needVip=1</code> 未购）。<strong>关卡/伴读解锁</strong>已改为<strong>会员制</strong>：第 1 关（<code>sort=1</code>）免费，其余须 <code>membership.active=true</code>（见 <code>utils/level-access.js</code>），与单本词书 <code>unlocked</code> 解耦。</p>
           </article>
           <article class="api-box">
             <h3>封装函数 vs 路径</h3>
@@ -339,8 +341,9 @@
             <p>首页搜索栏（<code>search</code>）已移除，<strong>不做全局搜词</strong>。</p>
             <p style="margin-top:8px"><strong>分析单个词</strong>（<code>word-info</code> 或等价接口）：<strong>后续要做</strong>，入口页面<strong>未定</strong>，产品倾向放在 <code>practice</code> <strong>跟读背诵</strong>环节（非首页搜索）。当前 <code>practice?id=</code> + <code>getWordInfo</code> 为遗留/占位，分享路径仍带 <code>id</code>，联调前需与最终入口统一。</p>
             <p style="margin-top:8px"><strong>删除学习记录</strong>（<code>delete-learning-record</code>）：<strong>产品确认不做</strong>，小程序无入口；<code>utils/api.js</code> 中 <code>deleteRecord</code> 为历史封装，联调时可删。</p>
-            <p style="margin-top:8px"><strong>宠物 / 金币</strong>（<code>pages/me/pet</code>、<code>utils/pet-system.js</code>）：<strong>纯本地 Storage，不上后端</strong>，换机不同步；finish 页金币奖励亦仅本地。</p>
-            <p style="margin-top:8px"><code>pages/index/index</code>：微信模板遗留页，<strong>非小程序入口</strong>（启动页为 <code>pages/home/home</code>），可忽略。</p>
+            <p style="margin-top:8px"><strong>宠物 / 金币</strong>（<code>pages/me/pet</code>、<code>utils/pet-system.js</code>）：<strong>已从 app.json 移除</strong>，历史纯本地演示，不上后端。</p>
+            <p style="margin-top:8px"><strong>启动链路</strong>：<code>pages/onboarding/onboarding</code>（首访采集年级/学期/教材）→ Tab「今日」<code>pages/today/today</code>；未完善档案时 <code>onboarding-guard</code> 重定向引导页。</p>
+            <p style="margin-top:8px"><code>pages/advertisement</code>、<code>pages/vip</code>、<code>pages/index/index</code>：<strong>已下线</strong>；购买改 <code>pages/membership/membership</code>。</p>
             <p style="margin-top:8px"><code>GET /mini-app/today-proverb</code>（<code>getSentence</code>）：已封装，<strong>当前无页面调用</strong>；首页 skeleton 曾有「今日谚语」占位，可不实现或后续再接。</p>
           </article>
         </div>
@@ -550,35 +553,37 @@
           <table>
             <thead><tr><th>路由</th><th>模块</th><th>职责</th><th>主要接口</th><th>状态</th><th>联调待办</th></tr></thead>
             <tbody>
-              <tr><td><code>pages/home/home</code></td><td>首页</td><td>闯关列表/地图、教材弹窗、打卡摘要、测评 Banner、报告 pill</td><td>user/info, user-books, book-units, switch-default-book, info-update</td><td><span class="badge partial">部分</span></td><td>goUnitReport→unit-report；exam→exam-paper</td></tr>
-              <tr><td><code>pages/plan/plan</code></td><td>首页</td><td>每日目标关数、关卡预览（含单词）、打卡预告、强度小怪兽</td><td>book-units, unit-words；study-plan（待实现，当前 Storage）</td><td><span class="badge partial">部分</span></td><td>groupsPerDay 改 study-plan 接口；活动文案读 user/info</td></tr>
-              <tr><td><code>pages/advertisement/advertisement</code></td><td>商品</td><td>词书详情、规格对比表、SKU 弹层</td><td>book-product-list（待接）</td><td><span class="badge partial">部分</span></td><td>comparePlans/compareRows/products</td></tr>
-              <tr><td><code>pages/vip/vip</code></td><td>商品</td><td>确认订单、微信支付、兑换码抵扣</td><td>order, order/status, redeem-code（待接）</td><td><span class="badge partial">部分</span></td><td>替换 markDevPurchased + 硬编码 REDEEM_CODES</td></tr>
+              <tr><td><code>pages/onboarding/onboarding</code></td><td>引导</td><td>首访：产品介绍 → 年级/学期/教材 → 形象/手机号（选填）</td><td>student-profile（待接）；phone-number；login</td><td><span class="badge partial">部分</span></td><td>档案现 Storage；联调改 POST student-profile</td></tr>
+              <tr><td><code>pages/today/today</code></td><td>今日</td><td>Tab 首页：今日路线、任务关卡、教材胶囊、会员引导、入门测提示</td><td>user/info, user-books, book-units, info-update, exam-result(entry)</td><td><span class="badge partial">部分</span></td><td>今日路线/目标关后端下发；会员读本地 membership</td></tr>
+              <tr><td><code>pages/home/home</code></td><td>成长</td><td>Tab「成长」：闯关列表/地图、教材弹窗、打卡摘要、测评 Banner、报告 pill</td><td>user/info, user-books, book-units, switch-default-book, info-update</td><td><span class="badge partial">部分</span></td><td>goUnitReport→unit-report；exam→exam-paper；会员门禁</td></tr>
+              <tr><td><code>pages/plan/plan</code></td><td>成长</td><td>每日目标关数、关卡预览（含单词）、打卡预告、强度小怪兽</td><td>book-units, unit-words；study-plan（待实现，当前 Storage）</td><td><span class="badge partial">部分</span></td><td>groupsPerDay 改 study-plan 接口；活动文案读 user/info</td></tr>
+              <tr><td><code>pages/membership/membership</code></td><td>会员</td><td>开通/续费：三档套餐、兑换码、模拟支付、付费协议</td><td>membership/*（待接）；subscribe-message/report</td><td><span class="badge partial">部分</span></td><td>替换 activateMembership + 硬编码 REDEEM_CODE_TIERS</td></tr>
+              <tr><td><code>pages/membership-success/membership-success</code></td><td>会员</td><td>开通/续费成功页</td><td>membership/orders（待接）</td><td><span class="badge partial">部分</span></td><td>订单详情读本地 membership_orders</td></tr>
+              <tr><td><code>pages/membership-records/membership-records</code></td><td>会员</td><td>会员订单记录列表</td><td>membership/orders（待接）；user/info</td><td><span class="badge partial">部分</span></td><td>readOrders 本地 Storage</td></tr>
               <tr><td><code>pages/practice/practice</code></td><td>核心</td><td>单词新学 / 跟读背诵 / 复习关</td><td>unit-words；word-mark/recitation-score 待接</td><td><span class="badge partial">部分</span></td><td>逐词上报；word-info 后续</td></tr>
-              <tr><td><code>pages/listen/listen</code></td><td>核心/随身听</td><td>播放器、课文跟读、关卡小测</td><td>book-units, unit-words, listening-quiz-result；listen-duration 待接</td><td><span class="badge partial">部分</span></td><td>跟读不上分；小测已封装</td></tr>
+              <tr><td><code>pages/listen/listen</code></td><td>核心/伴读</td><td>播放器、课文跟读、关卡小测；底栏「伴读」入口</td><td>book-units, unit-words, listening-quiz-result；listen-duration 待接</td><td><span class="badge partial">部分</span></td><td>跟读不上分；小测已封装</td></tr>
               <tr><td><code>pages/finish/today</code></td><td>核心</td><td>环节完成、打卡成功卡</td><td>save-learning-record（仅 unitId）；check-in 待接</td><td><span class="badge partial">部分</span></td><td>补 taskType/durationSeconds</td></tr>
               <tr><td><code>pages/checkin/calendar</code></td><td>打卡</td><td>月历、礼品、规则弹窗、打卡提醒订阅、分享海报</td><td>user/info；subscribe-message/report（待接）；gift-claim 待接</td><td><span class="badge partial">部分</span></td><td>claimReward→gift-claim；提醒次数本地 Storage</td></tr>
               <tr><td><code>pages/report/report</code></td><td>报告</td><td>关卡/小测学习报告</td><td>unit-report（待接）</td><td><span class="badge partial">部分</span></td><td>buildReport Mock→API；读 resBookId+unitId</td></tr>
               <tr><td><code>pages/exam/exam</code></td><td>测评</td><td>入门/结业测答题</td><td>exam-paper/submit（待接，现 Storage）</td><td><span class="badge partial">部分</span></td><td>替换 exam-data.js</td></tr>
               <tr><td><code>pages/exam/exam-report</code></td><td>报告</td><td>测评报告</td><td>exam-result（待接）</td><td><span class="badge partial">部分</span></td><td>—</td></tr>
               <tr><td><code>pages/study-record/record</code></td><td>报告</td><td>按日学习统计、测评入口</td><td>study-records（待接，现 demo）</td><td><span class="badge partial">部分</span></td><td>—</td></tr>
-              <tr><td><code>pages/me/me</code></td><td>我的</td><td>资料、消息区入口→notify、学习形象</td><td>user/info, info-update, phone-number, upload-avatar</td><td><span class="badge partial">部分</span></td><td>学习形象角色图改 user/info 下发，替换 character-gender.js 预设图</td></tr>
-              <tr><td><code>pages/me/book</code></td><td>我的</td><td>已购教材列表</td><td>user-books, switch-default-book</td><td><span class="badge ok">已接</span></td><td>—</td></tr>
+              <tr><td><code>pages/me/me</code></td><td>我的</td><td>资料、会员态、消息区→notify、学习形象、档案编辑入口</td><td>user/info, info-update, phone-number, upload-avatar</td><td><span class="badge partial">部分</span></td><td>会员/角色图改后端下发</td></tr>
+              <tr><td><code>pages/me/book</code></td><td>我的</td><td>已购/可用教材列表</td><td>user-books, switch-default-book</td><td><span class="badge ok">已接</span></td><td>—</td></tr>
               <tr><td><code>pages/me/notify</code></td><td>我的</td><td>消息授权状态：三类模板、累计次数、提醒开关、预览</td><td>wx.requestSubscribeMessage；subscribe-message/report（待接）</td><td><span class="badge partial">部分</span></td><td>偏好/次数现本地 Storage；联调开 report</td></tr>
+              <tr><td><code>pages/me/paid-agreement</code></td><td>我的</td><td>用户付费协议（会员开通前必读）</td><td>无（静态文案）</td><td><span class="badge missing">无后端</span></td><td>可选 CMS 下发协议正文</td></tr>
               <tr><td><code>pages/me/contact</code></td><td>我的</td><td>FAQ、微信客服</td><td>无</td><td><span class="badge missing">无后端</span></td><td>—</td></tr>
               <tr><td><code>pages/me/privacy</code></td><td>我的</td><td>隐私协议</td><td>无</td><td><span class="badge missing">无后端</span></td><td>—</td></tr>
               <tr><td><code>pages/me/web-src</code></td><td>我的</td><td>公众号文章 web-view</td><td>无（URL query）</td><td><span class="badge missing">无后端</span></td><td>—</td></tr>
-              <tr><td><code>pages/me/pet</code></td><td>我的</td><td>宠物认领/喂食</td><td>无（pet-system.js 本地）</td><td><span class="badge missing">无后端</span></td><td>产品确认不做</td></tr>
-              <tr><td><code>pages/index/index</code></td><td>—</td><td>模板遗留，非入口（仍残留 getUserInfo 调用）</td><td>user/info（遗留）</td><td><span class="badge missing">可删</span></td><td>非启动页，建议删除</td></tr>
-              <tr><td><code>custom-tab-bar</code> + <code>listen-player</code></td><td>组件</td><td>底栏 Tab、全局迷你播放条</td><td>同 listen/player</td><td><span class="badge partial">部分</span></td><td>listen-duration</td></tr>
-              <tr><td><code>checkin/share-poster</code></td><td>打卡</td><td>海报 Canvas（内嵌 calendar）：背景图 + 文案 + 数据</td><td>share-poster-config（待接）；user/info</td><td><span class="badge partial">部分</span></td><td>背景图/二维码/励志语/数据均后端下发，替换预设 share-bg-*.png</td></tr>
+              <tr><td><code>custom-tab-bar</code> + <code>listen-player</code></td><td>组件</td><td>底栏四 Tab（今日/伴读/成长/我的）+ 全局迷你播放条</td><td>同 listen/player；student-profile（首访判断）</td><td><span class="badge partial">部分</span></td><td>listen-duration</td></tr>
+              <tr><td><code>checkin/share-poster</code></td><td>打卡</td><td>海报 Canvas（内嵌 calendar）：背景图 + 文案 + 数据</td><td>share-poster-config（待接）；user/info</td><td><span class="badge partial">部分</span></td><td>背景图/二维码/励志语/数据均后端下发</td></tr>
             </tbody>
           </table>
         </div>
         <div class="callout warn" style="margin-top:14px">
           <strong style="color:var(--amber)">截图缺口（交付前可补）</strong><br/>
-          已有：home / practice / listen / checkin / me / advertisement / vip / plan / finish。<br/>
-          待补：<code>exam</code>、<code>exam-report</code>、<code>report</code>（关卡报告）、<code>study-record</code> — 运行 <code>npm run doc:screenshots</code> 后更新 <code>docs/images/mini-app/</code> 与 SCREENSHOTS 常量。
+          已有：home / practice / listen / checkin / me / plan / finish / 旧版 vip·advertisement。<br/>
+          待补：<code>today</code>、<code>onboarding</code>、<code>membership</code>（替换 06-vip）、<code>exam</code>、<code>exam-report</code>、<code>report</code>、<code>study-record</code> — 运行 <code>npm run doc:screenshots</code> 后更新 <code>docs/images/mini-app/</code> 与 SCREENSHOTS 常量。
         </div>
       </section>
 
@@ -652,25 +657,41 @@
         <div class="cards" id="coreFlowPages"></div>
       </section>
 
-      <section class="section" id="module-home">
-        <div class="section-head"><div><h2>① 首页闯关列表</h2><p class="section-desc">Tab「学习」· 路由 <code>pages/home/home</code></p></div></div>
-        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>展示当前词书、学习进度、打卡摘要；提供地图/分类两种关卡视图；每关含「单词新学 → 跟读背诵 → 关卡小测」三任务；支持<strong>切换教材弹窗</strong>、错词复习关、入门测/结业测 Banner、单关报告入口、学习计划。</div>
+      <section class="section" id="module-today">
+        <div class="section-head"><div><h2>⓪ 新手引导 · 今日</h2><p class="section-desc">首访 <code>pages/onboarding/onboarding</code> → Tab「今日」<code>pages/today/today</code></p></div></div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>新手引导 onboarding</strong><br/>
+          四步：产品介绍长图 → 年级+学期 → 教材版本 → 学习形象/手机号（选填）。完成后写 <code>studentProfile</code> 到 Storage（<code>utils/student-profile.js</code>），并标记入门测提示待展示。<br/>
+          手机号走 <code>POST user/phone-number</code>；年级/学期/版本<strong>待接</strong> <code>POST student-profile</code>（或扩展 <code>user/info-update</code>）。编辑模式从「我的」进入，可只改档案不回 Tab。
+        </div>
         <div class="callout tip" style="margin-bottom:14px">
-          <strong style="color:var(--blue)">教材选择 · 三处入口</strong><br/>
+          <strong style="color:var(--blue)">今日页 today</strong><br/>
+          Tab 默认落地页：展示<strong>今日学习路线</strong>（目标关 + 当前进度关卡卡片）、教材胶囊、连续打卡摘要、产品亮点、会员浮层引导。<br/>
+          数据：<code>user-books</code> + <code>book-units</code> 拼今日任务；<code>checkin-progress</code> 本地算今日 x/y 关；会员态读 <code>membership</code> Storage；入门测完成态读 <code>exam-data</code> Storage。<br/>
+          切换教材：跳 Tab「成长」并拉起选择教材弹层（<code>globalData.openBookPicker</code>）。开通会员：<code>navigateToVipPurchase</code> → <code>pages/membership/membership</code>。
+        </div>
+        <div class="cards" id="todayPages"></div>
+      </section>
+
+      <section class="section" id="module-home">
+        <div class="section-head"><div><h2>① 成长 · 闯关列表</h2><p class="section-desc">Tab「成长」· 路由 <code>pages/home/home</code></p></div></div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>展示当前词书、学习进度、打卡摘要；提供地图/分类两种关卡视图；每关含「单词新学 → 跟读背诵 → 关卡小测」三任务；支持<strong>切换教材弹窗</strong>、错词复习关、入门测/结业测 Banner、单关报告入口、学习计划。非会员仅第 1 关可学，其余关卡弹会员引导。</div>
+        <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">教材选择 · 两处入口</strong><br/>
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">界面</th><th style="text-align:left;padding:6px 8px">路由/组件</th><th style="text-align:left;padding:6px 8px">范围</th><th style="text-align:left;padding:6px 8px">主要动作</th></tr>
-            <tr><td style="padding:6px 8px"><strong>选择教材弹窗</strong></td><td><code>home</code> 内嵌 bottom-sheet</td><td>全量目录（含未购）</td><td>学段/版本筛选 · 封面进详情 · 切换/去购买</td></tr>
-            <tr><td style="padding:6px 8px">我的教材</td><td><code>pages/me/book</code></td><td>仅已购</td><td>列表切换当前 · 继续学习回首页</td></tr>
-            <tr><td style="padding:6px 8px">商品详情</td><td><code>pages/advertisement/advertisement</code></td><td>单本详情+SKU</td><td>选套餐 → vip 支付</td></tr>
+            <tr><td style="padding:6px 8px"><strong>选择教材弹窗</strong></td><td><code>home</code> 内嵌 bottom-sheet</td><td>全量目录</td><td>学段/版本筛选 · 封面/按钮均为「切换使用」→ switch-default-book</td></tr>
+            <tr><td style="padding:6px 8px">今日页教材胶囊</td><td><code>today</code> → 跳 home 拉起弹层</td><td>同上</td><td>浏览/切换当前教材</td></tr>
+            <tr><td style="padding:6px 8px">我的教材</td><td><code>pages/me/book</code></td><td>已购/可用子集</td><td>列表切换当前 · 继续学习回成长 Tab</td></tr>
           </table>
-          弹窗数据来自 <code>GET user-books</code>（须含未购词书）；非 release 环境前端追加 <code>mock-textbooks.js</code> 演示目录。切换已购词书调 <code>switch-default-book</code> 并刷新 <code>book-units</code>。
+          弹窗数据来自 <code>GET user-books</code>；非 release 环境前端追加 <code>mock-textbooks.js</code> 演示目录。切换词书调 <code>switch-default-book</code> 并刷新 <code>book-units</code>。<strong>不再跳转词书商品详情页</strong>，内容解锁统一走会员。
         </div>
         <div class="api-detail-grid" id="bookPickerSchema"></div>
         <div class="cards" id="homePages"></div>
       </section>
 
       <section class="section" id="module-checkin">
-        <div class="section-head"><div><h2>② 打卡</h2><p class="section-desc">路由 <code>pages/checkin/calendar</code>，从首页日历按钮进入</p></div></div>
+        <div class="section-head"><div><h2>② 打卡</h2><p class="section-desc">路由 <code>pages/checkin/calendar</code>，从今日/成长页日历入口进入</p></div></div>
         <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>月历展示每日打卡状态、连续天数、礼品/奖励进度（30 天 VIP 等）。<strong>打卡记录、连续天数、礼品活动配置、达标状态、兑换码、是否已领取均由后端存储并在 user/info（+ study-plan）返回</strong>；前端只读展示。点击「复制兑换码」仅把后端下发的码写入剪贴板，<strong>不自行生成兑换码</strong>；领取落库需 claim 接口。</div>
         <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">活动文案 · 应接口下发（当前多处写死）</strong><br/>
@@ -693,7 +714,7 @@
       </section>
 
       <section class="section" id="module-listen">
-        <div class="section-head"><div><h2>③ 随身听</h2><p class="section-desc">路由 <code>pages/listen/listen</code>，底栏中间 Tab + 迷你播放条</p></div></div>
+        <div class="section-head"><div><h2>③ 伴读（随身听）</h2><p class="section-desc">底栏「伴读」Tab + <code>pages/listen/listen</code> + 迷你播放条</p></div></div>
         <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>按单元播放单词+例句混排列表；支持倍速、<strong>单期循环 / 整本书循环</strong>；列表统一显示「关卡N」（不展示后端 <code>unitName</code> 如「第N期」）；课文页可展开跟读（Chivox 评测，<strong>仅本地练、不上报分数</strong>）；<code>mode=quiz</code> 时进入关卡小测（听音填空 + 背诵评测，支持「立即跳过」倒计时），结果上报 <code>listening-quiz-result</code>。</div>
         <div class="cards" id="listenPages"></div>
       </section>
@@ -707,7 +728,7 @@
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">模板</th><th style="text-align:left;padding:6px 8px">模式</th><th style="text-align:left;padding:6px 8px">用户操作</th><th style="text-align:left;padding:6px 8px">触发页面</th></tr>
             <tr><td style="padding:6px 8px">打卡提醒</td><td><code>accumulate</code> 累计型</td><td>notify / calendar「再订阅一次」；开关 <code>subscribePref_checkin</code></td><td><code>notify</code>、<code>calendar</code></td></tr>
-            <tr><td style="padding:6px 8px">支付成功通知</td><td><code>event</code> 事件型</td><td>开关 <code>subscribePref_payment</code>；支付成功时就地弹授权</td><td><code>vip.onPaySuccess</code></td></tr>
+            <tr><td style="padding:6px 8px">支付成功通知</td><td><code>event</code> 事件型</td><td>开关 <code>subscribePref_payment</code>；支付成功时就地弹授权</td><td><code>membership</code> 开通成功</td></tr>
             <tr><td style="padding:6px 8px">学习报告通知</td><td><code>event</code> 事件型</td><td>开关 <code>subscribePref_report</code>；环节/测评完成时就地弹授权</td><td><code>practice</code>、<code>listen</code>（小测报告）、<code>exam</code>（交卷）</td></tr>
           </table>
           用户同意订阅后前端调 <code>reportSubscribeMessageQuota</code>（<code>api.js</code>，当前 <strong>未发请求</strong>）；累计次数 <code>checkinRemindCount</code> 与各 pref 存 Storage，换机不同步，建议后端在 <code>user/info</code> 或独立接口回传。
@@ -717,29 +738,28 @@
       </section>
 
       <section class="section" id="module-commerce">
-        <div class="section-head"><div><h2>⑤ 商品购买（待对接）</h2><p class="section-desc"><code>pages/advertisement/advertisement</code> → <code>pages/vip/vip</code></p></div></div>
+        <div class="section-head"><div><h2>⑤ 会员开通（待对接）</h2><p class="section-desc"><code>pages/membership/membership</code> → <code>membership-success</code> / <code>membership-records</code></p></div></div>
         <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">购买入口</strong><br/>
-          首页「选择教材」弹窗 · 封面点击 / 「去购买」→ <code>advertisement</code>（当前 URL query 传参，联调后改 <code>book-product-list</code>）→ <code>vip</code> 确认订单 → 支付成功后 <code>user-books.unlocked=1</code>，弹窗与关卡 needVip 解锁。
+          今日页会员浮层 / 成长页关卡锁 / 伴读锁 / 我的页「开通会员」→ <code>membership</code>（<code>utils/vip-purchase.js</code> 统一跳转）→ 模拟微信支付或兑换码 → 本地 <code>activateMembership</code> 写 Storage → 成功页 <code>membership-success</code>。
         </div>
         <div class="callout" style="margin-bottom:14px">
-          <strong>现状（v1.0.4 页面结构）</strong><br/>
-          详情页已改版：<strong>规格对比表</strong>（仅词典 vs 词典+智能学习卡，含功能矩阵 <code>compareRows</code>）+ 底栏「¥xx 起 / 立即购买」→ <strong>SKU 底部弹层</strong>选有效期+套餐后跳转 vip。<br/>
-          套餐、有效期、价格、对比表仍来自前端常量 <code>COMPARE_PLANS</code> / <code>COMPARE_ROWS</code> / <code>PACKAGE_OPTIONS</code> / <code>VALIDITY_OPTIONS</code> / <code>SKU_PRICES</code>；<code>getBookProucts</code> 尚未接入。<strong>联调时 book-product-list 须返回 book{} + products[] + comparePlans/compareRows（或可由 products 聚合）。</strong>
+          <strong>现状（v1.0.9）</strong><br/>
+          三档套餐前端常量：<code>m1</code> 1个月 ¥39 · <code>m2</code> 2个月 ¥59 · <code>y1</code> 1年 ¥109（<code>utils/membership.js</code>）。支付为<strong>模拟弹窗</strong>，订单记 <code>membership_orders</code> Storage。<br/>
+          兑换码硬编码 <code>REDEEM_CODE_TIERS</code>（2818M32→m1，2818M21→m2），命中后跳过支付直接开通。<br/>
+          开通前须勾选付费协议 → <code>pages/me/paid-agreement</code>（静态页）。
         </div>
         <div class="callout tip" style="margin-bottom:14px">
-          <strong style="color:var(--blue)">购买链路（前端 + 后端）</strong><br/>
-          ① advertisement onLoad → <code>GET book-product-list?resBookId=</code> 拉词书详情 + 规格对比 + SKU 列表<br/>
-          ② 用户浏览对比表 → 点「立即购买」→ 弹层选套餐/有效期 → vip 页 → <code>GET order?orderProductId=</code> 拿 payParams<br/>
-          ③ <code>wx.requestPayment(payParams)</code><br/>
-          ④ 微信异步通知后端（<code>POST /mini-app/pay-notify</code> 或等价回调，服务端实现）→ 更新订单 paid + user-books.unlocked=1<br/>
-          ⑤ 前端支付成功后可轮询 <code>GET order/status</code>（待实现）或重新拉 user-books 确认解锁
+          <strong style="color:var(--blue)">会员链路（前端 + 后端）</strong><br/>
+          ① <code>GET membership</code> 拉当前会员态（active / expireAt / tierId）<br/>
+          ② 用户选套餐 → <code>POST membership/order</code> 创建订单 + 返回 <code>payParams</code><br/>
+          ③ <code>wx.requestPayment(payParams)</code>（或兑换码走 <code>POST membership/redeem</code> 免支付）<br/>
+          ④ 微信异步通知（<code>POST membership/pay-notify</code>，服务端）→ 延长 <code>expireAt</code><br/>
+          ⑤ 前端成功后可轮询 <code>GET membership/order/status</code> 或重新拉 membership；订单列表 <code>GET membership/orders</code>
         </div>
         <div class="callout" style="margin-bottom:14px">
-          <strong style="color:var(--amber)">兑换码（vip 页新增，当前前端硬编码，待接后端）</strong><br/>
-          vip 页支付区上方新增<strong>兑换码输入框</strong>：输入码 → 「使用」<code>applyRedeem</code> 校验 → 命中则<strong>抵扣全额（payPrice=0）</strong>并显示已抵扣金额，可「移除」<code>removeRedeem</code> 还原价格。<br/>
-          支付时若 <code>payPrice ≤ 0</code> → <strong>跳过微信支付</strong>，走「正在兑换」直接 <code>onPaySuccess</code> 解锁（toast 显示「兑换成功」而非「购买成功」）。<br/>
-          <strong>现状缺口</strong>：有效码<strong>前端硬编码</strong> <code>REDEEM_CODES=['2818M32','2818M21']</code>（大小写不敏感，测试环境用），解锁仍走本地 <code>markDevPurchased</code>。<strong>联调须改为后端校验+核销</strong>：见下方 <code>redeem-code</code> 接口，校验通过后由后端置 user-books.unlocked=1，前端删硬编码常量。
+          <strong style="color:var(--amber)">与旧词书购买接口的关系</strong><br/>
+          历史 <code>book-product-list</code> / <code>order</code> / <code>redeem-code</code>（按 resBookId 解锁）<strong>当前页面未调用</strong>，产品已切会员制全站解锁。若后端保留按本购书能力，可并存；前端联调以 <code>membership/*</code> 为准。
         </div>
         <div class="api-detail-grid" id="commerceSchema"></div>
         <div class="cards" id="commercePages"></div>
@@ -921,10 +941,12 @@
 
     <script>
       const MODULES = [
+        { id: "today", label: "⓪ 今日/引导", anchor: "module-today", pages: "onboarding · today" },
         { id: "core", label: "★ 核心三环节", anchor: "module-core-flow", pages: "practice → listen → finish" },
-        { id: "home", label: "① 首页闯关列表", anchor: "module-home", pages: "home · 选择教材 · plan" },
+        { id: "home", label: "① 成长闯关", anchor: "module-home", pages: "home · 选择教材 · plan" },
         { id: "checkin", label: "② 打卡", anchor: "module-checkin", pages: "pages/checkin/calendar" },
-        { id: "listen", label: "③ 随身听", anchor: "module-listen", pages: "pages/listen/listen" },
+        { id: "listen", label: "③ 伴读", anchor: "module-listen", pages: "listen · mini-player" },
+        { id: "commerce", label: "⑤ 会员", anchor: "module-commerce", pages: "membership · records" },
         { id: "me", label: "④ 我的", anchor: "module-me", pages: "me · notify · book · contact" },
         { id: "exam", label: "⑥ 测评/报告", anchor: "module-exam-record", pages: "入门测 · 结业测 · 报告" }
       ];
@@ -954,17 +976,13 @@
         {
           group: "业务模块",
           items: [
+            { id: "module-today", label: "⓪ 今日/引导" },
             { id: "module-core-flow", label: "★ 核心三环节" },
-            { id: "module-home", label: "① 首页闯关" },
+            { id: "module-home", label: "① 成长闯关" },
             { id: "module-checkin", label: "② 打卡" },
-            { id: "module-listen", label: "③ 随身听" },
+            { id: "module-listen", label: "③ 伴读" },
             { id: "module-me", label: "④ 我的" },
-            { id: "module-commerce", label: "⑤ 商品购买" }
-          ]
-        },
-        {
-          group: "测评 · 报告",
-          items: [
+            { id: "module-commerce", label: "⑤ 会员开通" },
             { id: "module-exam-record", label: "⑥ 测评/报告" }
           ]
         },
@@ -978,20 +996,21 @@
       ];
 
       const SCREENSHOTS = [
-        { id: "home-list", module: "home", title: "闯关列表", file: "images/mini-app/01-home-level-list.png", apis: ["book-units", "user-books", "user/info"] },
-        { id: "home-map", module: "home", title: "地图闯关", file: "images/mini-app/01-home-map.png", apis: ["book-units"] },
-        { id: "home-book-picker", module: "home", title: "选择教材", file: "images/mini-app/01-home-book-picker.png", apis: ["user-books", "switch-default-book", "book-product-list"] },
+        { id: "today-route", module: "today", title: "今日 · 学习路线", file: "images/mini-app/07-today-route.png", apis: ["user-books", "book-units", "user/info", "membership 待接"] },
+        { id: "onboarding", module: "today", title: "新手引导", file: "images/mini-app/07-onboarding.png", apis: ["student-profile 待接", "phone-number"] },
+        { id: "home-list", module: "home", title: "成长 · 闯关列表", file: "images/mini-app/01-home-level-list.png", apis: ["book-units", "user-books", "user/info"] },
+        { id: "home-map", module: "home", title: "成长 · 地图闯关", file: "images/mini-app/01-home-map.png", apis: ["book-units"] },
+        { id: "home-book-picker", module: "home", title: "选择教材", file: "images/mini-app/01-home-book-picker.png", apis: ["user-books", "switch-default-book"] },
         { id: "practice-word", module: "core", title: "环节1 · 单词新学", file: "images/mini-app/05-practice-word.png", apis: ["unit-words", "word-mark"] },
         { id: "practice-recite", module: "core", title: "环节2 · 跟读背诵", file: "images/mini-app/05-practice-recite.png", apis: ["unit-words", "recitation-score"] },
         { id: "listen-quiz", module: "core", title: "环节3 · 关卡小测", file: "images/mini-app/03-listen-quiz.png", apis: ["listening-quiz-result"] },
         { id: "finish", module: "core", title: "环节完成", file: "images/mini-app/06-finish-today.png", apis: ["save-learning-record"] },
         { id: "finish-word", module: "core", title: "单词新学完成", file: "images/mini-app/06-finish-word.png", apis: ["save-learning-record"] },
         { id: "checkin", module: "checkin", title: "打卡日历", file: "images/mini-app/02-checkin-calendar.png", apis: ["user/info"] },
-        { id: "listen", module: "listen", title: "随身听播放", file: "images/mini-app/03-listen-player.png", apis: ["book-units", "unit-words"] },
-        { id: "me", module: "me", title: "我的", file: "images/mini-app/04-me-profile.png", apis: ["user/info", "user-books"] },
+        { id: "listen", module: "listen", title: "伴读播放", file: "images/mini-app/03-listen-player.png", apis: ["book-units", "unit-words"] },
+        { id: "me", module: "me", title: "我的", file: "images/mini-app/04-me-profile.png", apis: ["user/info", "user-books", "membership 待接"] },
         { id: "me-book", module: "me", title: "我的教材", file: "images/mini-app/04-me-book.png", apis: ["user-books", "switch-default-book"] },
-        { id: "advertisement", module: "home", title: "商品详情", file: "images/mini-app/06-advertisement.png", apis: ["book-product-list", "order"] },
-        { id: "vip", module: "home", title: "确认订单", file: "images/mini-app/06-vip.png", apis: ["order", "order/status"] },
+        { id: "membership", module: "commerce", title: "开通会员", file: "images/mini-app/07-membership.png", apis: ["membership/order", "membership/redeem 待接"] },
         { id: "plan", module: "home", title: "学习计划", file: "images/mini-app/06-plan.png", apis: ["book-units", "unit-words", "study-plan 待实现"] }
       ];
 
@@ -1015,9 +1034,9 @@
           detail: {
             request: "{}",
             response: "data 含用户基础字段 + 打卡/礼品字段（均由后端存储返回）",
-            callers: "pages/home/home.js, pages/checkin/calendar.js, pages/me/me.js",
-            fields: "【打卡·后端存储】① 每日状态：checkInDates / signDates / calendar / records[]。② 连续天数：continuousDays / checkInDays / signDays。③ 礼品/奖励（全部由后端给）：gifts[] 或 streakReward 对象，含 giftId、title、<strong>thresholdDays/rewardDay</strong>、<strong>rewardDesc/rewardSubtitle/shortRewardCopy</strong>（供 plan/日历/完成页展示）、是否达标 giftUnlocked/rewardEligible、是否已领取 giftClaimed/rewardStatus、<strong>兑换码 streakRewardCode / vipRedeemCode / rewardCode</strong>。④ <strong>活动规则文案</strong>：checkInRules[]（打卡规则弹窗三条）或 gifts[].ruleCopy；可选 checkInHints（电力提示卡）。无码时前端演示兜底 STREAK_REWARD_CODE，联调后必须删掉。⑤ 学习时长：studyMinutes / learnMinutes。⑥ <strong>【已定：角色图后端下发】学习形象/宠物角色图</strong>：建议返回 characterAssets{ heroUrl, pkSpriteUrl, profileHeaderUrl, ... }（按 characterGender boy/girl），替换 character-gender.js 预设本地图；运营换形象不发版。",
-            render: "首页连续打卡摘要；打卡页月历+礼品进度条+规则弹窗+领取弹窗；我的页统计 + 学习形象角色图；plan/finish 活动预告（待接文案字段）"
+            callers: "pages/today/today.js, pages/home/home.js, pages/checkin/calendar.js, pages/me/me.js, pages/membership/membership.js",
+            fields: "【打卡·后端存储】① 每日状态：checkInDates / signDates / calendar / records[]。② 连续天数：continuousDays / checkInDays / signDays。③ 礼品/奖励（全部由后端给）：gifts[] 或 streakReward 对象，含 giftId、title、<strong>thresholdDays/rewardDay</strong>、<strong>rewardDesc/rewardSubtitle/shortRewardCopy</strong>（供 plan/日历/完成页展示）、是否达标 giftUnlocked/rewardEligible、是否已领取 giftClaimed/rewardStatus、<strong>兑换码 streakRewardCode / vipRedeemCode / rewardCode</strong>。④ <strong>活动规则文案</strong>：checkInRules[]（打卡规则弹窗三条）或 gifts[].ruleCopy；可选 checkInHints（电力提示卡）。无码时前端演示兜底 STREAK_REWARD_CODE，联调后必须删掉。⑤ 学习时长：studyMinutes / learnMinutes。⑥ <strong>【已定：角色图后端下发】学习形象/宠物角色图</strong>：建议返回 characterAssets{ heroUrl, pkSpriteUrl, profileHeaderUrl, ... }（按 characterGender boy/girl），替换 character-gender.js 预设本地图；运营换形象不发版。⑦ <strong>【建议扩展】学生档案</strong>：studentProfile{ gradeId, semesterId, version, gradeName, semesterName, stage }，供今日/我的展示，替换 Storage。⑧ <strong>【建议扩展】会员摘要</strong>：membership{ active, expireAt, tierId, tierName }，或改独立 GET membership。",
+            render: "今日页连续打卡/档案标签；成长页连续打卡摘要；打卡页月历+礼品；我的页统计+会员态+学习形象；plan/finish 活动预告（待接文案字段）"
           }
         },
         {
@@ -1027,7 +1046,7 @@
           detail: {
             request: "无 query",
             response: "data: Book[] — resBookId, name, bookCover, defaultBook, wordCount, proverbCount, needVip/unlocked, learningInfo, press, stage/grades, newStandard…",
-            callers: "home.js loadHomeData（allBooks+弹窗）, me/book.js（仅已购子集）, me.js loadStats",
+            callers: "today.js loadHomeData, home.js loadHomeData（allBooks+弹窗）, me/book.js（已购子集）, me.js loadStats",
             fields: "【目录·弹窗】须返回<strong>全部可售词书</strong>（含未购 needVip=1），供首页「选择教材」弹窗展示；me/book 前端 filter !locked 只显示已购。【分类字段】stage/grades（小学/初中/高中）、press（出版社/版本，如人教版/牛津译林版）、newStandard（新课标角标）、wordCount。【购买态】locked=unlocked=0 或 needVip=1；defaultBook=true 为当前教材。【演示】非 release 注入 mock-textbooks.js 占位目录。",
             render: "首页 Hero 封面+进度；选择教材弹窗网格；我的教材已购列表"
           }
@@ -1039,7 +1058,7 @@
           detail: {
             request: "resBookId, page=1, rows=2000",
             response: "data: { list: Unit[], pageInfo: { total } }。Unit 核心字段：unitId, sort, wordTotal, unitName, needVip, completed, tasks[]",
-            callers: "home.js loadUnits, listen.js loadUnits, utils/player.js, plan.js fetchAllLevels（学习计划关卡预览全量列表）",
+            callers: "today.js loadUnits, home.js loadUnits, listen.js loadUnits, utils/player.js, plan.js fetchAllLevels（学习计划关卡预览全量列表）",
             fields: "【进度·后端存储】completed / 星级 / tasks[]（type/current/total/percent）均由后端返回。unit.wrongWords=该关错词数（供复习关卡片展示）。列表读 completed；地图读 tasks[].percent。【购买态】unit.needVip=1 未购锁定。【展示】listen/player 列表统一渲染「关卡{sort}」，<code>unitName</code> 字段前端不用于 UI。",
             render: "首页地图/分类卡片上的任务进度、星级、解锁态；随身听顶部期切换"
           }
@@ -1063,8 +1082,8 @@
           detail: {
             request: "resBookId",
             response: "更新后的用户词书状态",
-            callers: "home.js switchBookUse（弹窗底部「切换使用」）, pages/me/book.js switchBook",
-            fields: "演示词书 demo=true 时前端本地切换不调接口。弹窗交互：封面点击 goBookDetail→advertisement；未购「去购买」goBuyFromPicker；已购「切换使用」调本接口后 reload book-units。",
+            callers: "today.js switchBook flow→home, home.js switchBookUse（弹窗底部「切换使用」）, pages/me/book.js switchBook",
+            fields: "演示词书 demo=true 时前端本地切换不调接口。弹窗交互：封面/按钮统一「切换使用」调本接口后 reload book-units；不再跳转商品详情。",
             render: "切换后 reload book-units + 刷新 globalData.book + 关闭弹窗"
           }
         },
@@ -1076,7 +1095,7 @@
             request: "unitId",
             response: "data: Item[] — 每项 { word, proverb?, unit, needVip, isReview? }；word 含 content, translation, audio, senses…",
             callers: "practice.js fetchUnitData, listen.js loadUnit, player.js, plan.js enrichLevelWords（按 unitId 懒加载，展开关卡时分批请求）",
-            fields: "【needVip 用在哪】① practice：若数组中任一条 item.needVip 为真 → 整页弹「去购买」dialog（getDialogObject），跳转 advertisement/vip，不是按「单条词」分别锁 UI。② listen/player：实际在 loadUnit 前读的是 book-units 的 unit.needVip，不逐条读 unit-words。③ 业务语义：历史字段名 needVip，含义=未购买该词书（同 book.unlocked/needVip），不是会员 VIP。建议后端与 book-units 保持一致：未购时 unit-words 条目 needVip=1 或已购全为 0。",
+            fields: "【门禁】practice/listen 非会员且 sort>1 时弹会员引导（promptVipPurchase → membership），不再跳 advertisement。unit-words 的 needVip 与 book-units 词书态字段保持一致即可。",
             render: "practice 滑动学词；listen 生成 tracks + quizQuestions；plan 关卡预览每关 word.content 用 · 拼接展示"
           }
         },
@@ -1237,9 +1256,24 @@
           detail: {
             request: "{ phoneCode / code, … }",
             response: "phoneNumber, phoneVerified",
-            callers: "pages/me/me.js bindPhoneNumber",
+            callers: "pages/me/me.js bindPhoneNumber, pages/onboarding/onboarding.js bindPhone（选填）",
             fields: "phone-number 404 时回退 info-update",
             render: "设置项「手机号验证」状态文案"
+          }
+        },
+        {
+          id: "student-profile", module: "引导/今日/我的", moduleId: "today", page: "onboarding · today · me 档案标签", status: "partial",
+          endpoints: [
+            { method: "POST", path: "/mini-app/student-profile", note: "待实现" },
+            { method: "POST", path: "/mini-app/user/info-update", note: "可扩展同写字段" }
+          ],
+          summary: "首访采集年级/学期/教材版本，供推荐与展示",
+          detail: {
+            request: '{ "gradeId": "g3", "semesterId": "first|second", "version": "人教版PEP", "characterGender"?: "boy|girl" }',
+            response: "ack + 规范化 studentProfile（含 stage, gradeName, semesterName）",
+            callers: "pages/onboarding/onboarding.js finishOnboarding/saveStudentProfile；today.js describeProfile 展示；me.js 编辑入口回 onboarding",
+            fields: "【现状】utils/student-profile.js 全本地 Storage，换机不同步。【门槛】hasStudentProfile 为 gradeId+semesterId+version 三者齐全；tab-bar 首访无档案会引导 onboarding。【不写死教材】采集版本后不自动 switch-default-book，默认词书仍为后端 defaultBook。",
+            render: "今日页教材胶囊副标题「三年级上册 · 人教版」；我的页头部年级标签"
           }
         },
         {
@@ -1285,7 +1319,7 @@
           detail: {
             request: '{ "tmplId": "wIiz5RXz…", "delta": 1, "total"?: 6, "source"?: "accumulate"|"event" }',
             response: "ack；建议返回 { total, tmplId } 便于多端同步",
-            callers: "notify.subscribeOne、calendar.subscribeCheckinRemind、subscribe.requestSubscribeForEvent（vip 支付成功 / 环节完成 / 小测报告 / 测评交卷）→ api.reportSubscribeMessageQuota",
+            callers: "notify.subscribeOne、calendar.subscribeCheckinRemind、subscribe.requestSubscribeForEvent（membership 开通成功 / 环节完成 / 小测报告 / 测评交卷）→ api.reportSubscribeMessageQuota",
             fields: "【分工】微信一次性订阅无剩余次数查询 API；后端须按 userId+tmplId 维护 quota，发送打卡提醒时扣 1。【accumulate】打卡提醒：用户每点一次「再订阅」delta=1，可带 total=前端累计值。【event】支付/报告：source=event，delta=1，为当次事件囤 1 次额度。【开关】subscribePref_* 与 checkinRemindCount 当前仅 Storage；建议 user/info 扩展 subscribePrefs{checkin,payment,report}、checkinRemindCount，或 GET/POST subscribe-message/preferences。【发送】打卡提醒由后端定时任务按 study-plan + 用户时区触发，须校验 pref 开启且 quota>0。api.js SUBSCRIBE_REPORT_ENABLED=false 时前端不调本接口。",
             render: "notify 页「已累计 N 次」；calendar 电力卡提醒开关"
           }
@@ -1315,27 +1349,79 @@
           }
         },
         {
-          id: "book-product", module: "商品购买", moduleId: "commerce", page: "advertisement 商品详情 · SKU 选择", status: "partial",
-          endpoints: [{ method: "GET", path: "/mini-app/book-product-list" }],
-          summary: "词书详情 + 可售 SKU 列表（替换 URL 传参和本地常量）",
+          id: "membership-status", module: "会员", moduleId: "commerce", page: "全局会员态 · 关卡/伴读门禁", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/membership", note: "待实现" }],
+          summary: "查询当前会员是否有效及到期时间",
           detail: {
-            request: "resBookId",
-            response: "建议 data: { resBookId, book{}, products[], comparePlans[]?, compareRows[]? }。book=详情页上半区；comparePlans/compareRows=规格对比表；products[]=套餐×有效期 SKU",
-            callers: "utils/api.js getBookProucts（待接 advertisement.js onLoad；当前从 URL query / pendingBookDetail / 本地 COMPARE_* + PACKAGE/SKU 常量渲染）",
-            fields: "【book 详情】name, bookCover, press, grades[], intro, wordCount, proverbCount, unitCount/total, unlocked?。【comparePlans[]】packageId, name, tag?, highlight?, priceFrom（对比表列头「¥xx 起」）。【compareRows[]】label, cells[]（boolean 功能矩阵，列顺序与 comparePlans 一致）。【products[] SKU】orderProductId, packageId, packageName, validityId, validityName, price, priceCents?, tag, summary, items[], enabled, sort。featureCards/methodSteps 可前端写死。",
-            render: "封面/统计/规格对比表 + 底栏最低价 + SKU 弹层选规格"
+            request: "无（token 识别用户）",
+            response: '{ "active": true, "expireAt": 1735689600000, "tierId": "y1", "tierName": "1年", "expireText": "2025-01-01" }',
+            callers: "utils/membership.js getMembership（全站）；level-access.isLevelUnlocked；today/home/me 展示会员态",
+            fields: "【门禁】sort=1 免费关永远可学；其余关卡/伴读须 active=true。【续费】新购从 max(now, expireAt) 叠加 tier.months。【现状】全本地 Storage membership 键。",
+            render: "我的页会员徽章+有效期；今日/成长页浮层引导；关卡锁标"
           }
         },
         {
-          id: "order", module: "商品购买", moduleId: "commerce", page: "vip 确认订单 · 微信支付", status: "partial",
-          endpoints: [{ method: "GET", path: "/mini-app/order" }],
-          summary: "创建预支付订单，返回 wx.requestPayment 参数",
+          id: "membership-order", module: "会员", moduleId: "commerce", page: "membership · 开通/续费支付", status: "partial",
+          endpoints: [
+            { method: "POST", path: "/mini-app/membership/order", note: "待实现" },
+            { method: "GET", path: "/mini-app/membership/order/status", note: "待实现" },
+            { method: "POST", path: "/mini-app/membership/pay-notify", note: "服务端·微信回调" }
+          ],
+          summary: "创建会员订单并返回微信支付参数",
           detail: {
-            request: "orderProductId（book-product-list 选中 SKU）",
-            response: "data: { orderId, orderProductId, resBookId, packageName, validityName, price, priceCents, status: pending|paid|closed, payParams }",
-            callers: "utils/api.js getOrder（待接 vip.js pay；当前模拟弹窗 + markDevPurchased）",
-            fields: "payParams：timeStamp, nonceStr, package, signType, paySign，可直接 spread 进 wx.requestPayment。",
-            render: "vip 页品名/套餐/价格/支付按钮"
+            request: 'POST { "tierId": "y1|m2|m1", "resBookId"?: "上下文词书" }',
+            response: '{ "orderId", "tierId", "tierName", "price", "priceCents", "payParams": { timeStamp, nonceStr, package, signType, paySign } }',
+            callers: "pages/membership/membership.js confirmMembership → 模拟 wx.requestPayment",
+            fields: "档位：m1 ¥39/1月 · m2 ¥59/2月 · y1 ¥109/12月。notify 幂等延长 expireAt。status 轮询 paid 后刷新 membership。",
+            render: "membership 页确认开通/续费弹层 → 支付成功 → membership-success"
+          }
+        },
+        {
+          id: "membership-redeem", module: "会员", moduleId: "commerce", page: "membership · 兑换码开通", status: "partial",
+          endpoints: [{ method: "POST", path: "/mini-app/membership/redeem", note: "待实现" }],
+          summary: "校验兑换码并开通对应档位会员（免支付）",
+          detail: {
+            request: '{ "code": "2818M32", "tierId"?: "m1" }',
+            response: '{ "valid": true, "tierId": "m1", "membership": { active, expireAt, tierName } } 或 { valid: false, reason }',
+            callers: "pages/membership/membership.js applyRedeem（当前比对 REDEEM_CODE_TIERS 硬编码）",
+            fields: "【现状】2818M32→m1，2818M21→m2，大小写不敏感。命中后跳过支付 activateMembership。【后端】一次性核销+幂等；返回更新后 membership。",
+            render: "membership 页兑换码输入 → 确认兑换/延期"
+          }
+        },
+        {
+          id: "membership-orders", module: "会员", moduleId: "commerce", page: "membership-records · 订单列表", status: "partial",
+          endpoints: [{ method: "GET", path: "/mini-app/membership/orders", note: "待实现" }],
+          summary: "会员开通/续费/兑换订单历史",
+          detail: {
+            request: "page?, rows?",
+            response: "data.orders[] — id, tierId, tierName, price, method(微信支付|兑换码), code?, createdAt, expireText",
+            callers: "pages/membership-records/membership-records.js readOrders；membership-success 展示最近一单",
+            fields: "【现状】membership_orders Storage，最多 20 条。联调后以后端为准，本地仅缓存。",
+            render: "membership-records 列表；复制订单号"
+          }
+        },
+        {
+          id: "book-product", module: "商品购买（遗留）", moduleId: "commerce", page: "（页面已下线）", status: "missing",
+          endpoints: [{ method: "GET", path: "/mini-app/book-product-list" }],
+          summary: "词书 SKU 详情 — 当前无页面调用，产品已切会员制",
+          detail: {
+            request: "resBookId",
+            response: "建议 data: { resBookId, book{}, products[], comparePlans[]?, compareRows[]? }",
+            callers: "utils/api.js getBookProucts — <strong>无页面引用</strong>（advertisement 已删）",
+            fields: "若后端仍需按本售书可保留；前端解锁以 membership 为准。",
+            render: "—"
+          }
+        },
+        {
+          id: "order", module: "商品购买（遗留）", moduleId: "commerce", page: "（vip 页已下线）", status: "missing",
+          endpoints: [{ method: "GET", path: "/mini-app/order" }],
+          summary: "按词书 SKU 创建订单 — 封装保留，当前无页面调用",
+          detail: {
+            request: "orderProductId",
+            response: "data: { orderId, payParams, … }",
+            callers: "utils/api.js getOrder — 无页面引用",
+            fields: "会员支付改 membership/order。",
+            render: "—"
           }
         },
         {
@@ -1357,21 +1443,21 @@
           detail: {
             request: "orderId",
             response: '{ "status": "paid"|"pending"|"closed", "unlocked": true, "resBookId": "xxx" }',
-            callers: "vip.js onPaySuccess 待接（当前 markDevPurchased 本地解锁）",
+            callers: "membership.js onSuccess 待接（当前 activateMembership 本地写 Storage）",
             fields: "requestPayment success 只代表用户完成支付动作，最终以 notify 或本接口为准。",
             render: "支付成功 / navigateBack 前刷新解锁态"
           }
         },
         {
-          id: "redeem-code", module: "商品购买", moduleId: "commerce", page: "vip · 兑换码抵扣解锁", status: "missing",
-          endpoints: [{ method: "POST", path: "/mini-app/redeem-code", note: "待实现" }],
-          summary: "校验并核销兑换码，命中即免支付解锁词书",
+          id: "redeem-code", module: "商品购买（遗留）", moduleId: "commerce", page: "（vip 页已下线）", status: "missing",
+          endpoints: [{ method: "POST", path: "/mini-app/redeem-code", note: "遗留·按词书解锁" }],
+          summary: "按 resBookId 核销兑换码 — 已改 membership/redeem",
           detail: {
-            request: "{ code, resBookId, orderProductId? }",
-            response: '{ valid: true, unlocked: true, resBookId, discountCents?, packageName? } 或 { valid: false, reason: "invalid"|"used"|"expired"|"mismatch" }',
-            callers: "pages/vip/vip.js applyRedeem（当前比对硬编码 REDEEM_CODES，不调接口）；removeRedeem 还原价格；命中后 pay 跳过支付直接 onPaySuccess",
-            fields: "【现状·待替换】有效码前端硬编码 <code>REDEEM_CODES=['2818M32','2818M21']</code>（normalizeCode 去空格+转大写，<strong>大小写不敏感</strong>），抵扣后 payPrice=0、解锁走本地 markDevPurchased。【后端口径】① 校验码有效性（存在/未过期/未被用/与该 resBookId 或套餐匹配）；② <strong>一次性核销，须幂等且防并发重复使用</strong>；③ 命中后由后端置 user-books.unlocked=1（等价 pay-notify 的解锁结果），前端删除硬编码常量、解锁态以重新拉 user-books 为准；④ 区分全额兑换（payPrice=0 免支付）与部分抵扣（discountCents>0 仍需走 order 支付差额，前端当前仅支持全额）。【提示文案】无效→『兑换码无效或已使用』；空→『请输入兑换码』；成功 toast『兑换成功』。",
-            render: "vip 页兑换码输入框 + 使用/移除 + 抵扣金额；payPrice≤0 时支付按钮走『正在兑换』"
+            request: "{ code, resBookId }",
+            response: "{ valid, unlocked, resBookId }",
+            callers: "无页面调用；会员兑换见 membership/redeem",
+            fields: "历史按本购书口径；当前产品用会员制全站解锁。",
+            render: "—"
           }
         },
         {
@@ -1449,6 +1535,10 @@
       ];
 
       const PAGE_CARDS = {
+        today: [
+          { title: "onboarding 新手引导", desc: "首访四步采集档案；手机号可选 bindPhoneNumber；完成后 redirectTo Tab 今日。", paths: ["pages/onboarding/onboarding"], apis: ["student-profile 待接", "phone-number", "login"] },
+          { title: "today 今日", desc: "Tab 落地页：今日路线关卡、教材胶囊、打卡摘要、会员浮层、入门测提示 Banner。", paths: ["pages/today/today"], apis: ["user/info", "user-books", "book-units", "info-update", "membership 待接"] }
+        ],
         coreFlow: [
           { title: "环节1 · 单词新学", desc: "practice?taskType=word。标记认识/不认识/记错 → POST word-mark（含 timeSpentSeconds/durationSeconds）。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark"] },
           { title: "环节2 · 跟读背诵", desc: "practice?taskType=recitation。Chivox 评分 → recitation-score。【后续】「分析这个词」可能在本页，调 word-info。", paths: ["pages/practice/practice", "components/media"], apis: ["unit-words", "recitation-score", "word-info 后续", "Chivox sig"] },
@@ -1457,15 +1547,17 @@
           { title: "复习关", desc: "每3关插入。GET review-words 拉错词；三任务同样上报各环节 durationSeconds。", paths: ["home-units", "practice?review=1", "listen?review=1"], apis: ["review-words", "book-units.wrongWords"] }
         ],
         home: [
-          { title: "home 首页", desc: "词书 Hero、打卡入口、地图/列表、切换教材弹窗、学习计划、入门/结业测 Banner（未解锁自定义弹窗）、单关报告 pill（三环节完成可点，仍 Mock 报告）。", paths: ["pages/home/home"], apis: ["user/info", "user-books", "book-units", "switch-default-book", "info-update", "unit-report 待接"] },
-          { title: "选择教材弹窗", desc: "home 内嵌 bottom-sheet：顶部学段（小学/初中/高中）+ 左侧版本栏（推荐/人教版/外研版…）+ 右侧封面网格。封面点击→商品详情；未购「去购买」；已购「切换使用」→ switch-default-book。", paths: ["home.wxml book-picker", "home.js switchBook/selectBookStage"], apis: ["user-books", "switch-default-book", "book-product-list"] },
-          { title: "practice 练习", desc: "三环节主战场：word 单词新学（word-mark）、recitation 跟读（recitation-score）；review 模式走 review-words。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark", "recitation-score", "review-words"] },
+          { title: "home 成长", desc: "词书 Hero、打卡入口、地图/列表、切换教材弹窗、学习计划、入门/结业测 Banner、单关报告 pill；非会员仅第 1 关可进。", paths: ["pages/home/home"], apis: ["user/info", "user-books", "book-units", "switch-default-book", "info-update", "unit-report 待接", "membership 待接"] },
+          { title: "选择教材弹窗", desc: "home 内嵌 bottom-sheet：学段+版本+封面网格；统一「切换使用」→ switch-default-book；今日页可跳转拉起。", paths: ["home.wxml book-picker", "today.switchBook"], apis: ["user-books", "switch-default-book"] },
+          { title: "practice 练习", desc: "三环节主战场：word 单词新学（word-mark）、recitation 跟读（recitation-score）；review 模式走 review-words；非会员锁关弹会员引导。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark", "recitation-score", "review-words"] },
           { title: "finish 完成", desc: "每环节结束页；save-learning-record 更新 tasks[]；今日达标触发本地打卡计数（待接 check-in）。", paths: ["pages/finish/today"], apis: ["save-learning-record", "check-in 待实现"] },
-          { title: "plan 学习计划", desc: "设置 groupsPerDay（待接 study-plan，当前 Storage）；book-units 拉全量关卡 + unit-words 懒加载单词预览（默认 5 关，可展开全部）；1–2/3–4/≥5 组对应首页 mascot-sleep/progress/alert 强度反馈；打卡预告 N 关来自 groupsPerDay，30天/VIP 应读 user/info.gifts[]。", paths: ["pages/plan/plan", "home.goStudyPlan", "utils/plan-preview.js"], apis: ["book-units", "unit-words", "study-plan 待实现", "user/info.gifts[]"] }
+          { title: "plan 学习计划", desc: "设置 groupsPerDay（待接 study-plan，当前 Storage）；book-units 拉全量关卡 + unit-words 懒加载单词预览。", paths: ["pages/plan/plan", "home.goStudyPlan", "today 入口"], apis: ["book-units", "unit-words", "study-plan 待实现", "user/info.gifts[]"] }
         ],
         commerce: [
-          { title: "advertisement 商品详情", desc: "v1.0.4：规格对比表 + 底栏「立即购买」→ SKU 弹层。onLoad 应调 book-product-list（当前 URL query + COMPARE/PACKAGE/SKU 常量）。", paths: ["pages/advertisement/advertisement", "home.goBuyBook"], apis: ["book-product-list"] },
-          { title: "vip 确认订单", desc: "展示选中 SKU/有效期/价格；pay 调 order 拿 payParams → wx.requestPayment；测试环境 markDevPurchased 模拟解锁。", paths: ["pages/vip/vip"], apis: ["order", "order/status", "pay-notify(服务端)"] }
+          { title: "membership 开通会员", desc: "三档套餐 + 兑换码 + 模拟支付；勾选 paid-agreement 后开通/续费。", paths: ["pages/membership/membership", "utils/vip-purchase.js"], apis: ["membership/order", "membership/redeem 待接"] },
+          { title: "membership-success", desc: "支付/兑换成功页；回今日 Tab；可进订单记录。", paths: ["pages/membership-success/membership-success"], apis: ["membership/orders 待接"] },
+          { title: "membership-records", desc: "会员订单列表；复制订单号。", paths: ["pages/membership-records/membership-records"], apis: ["membership/orders 待接", "user/info"] },
+          { title: "paid-agreement", desc: "用户付费协议静态页；membership 开通前链接跳转。", paths: ["pages/me/paid-agreement"], apis: ["无"] }
         ],
         checkin: [
           { title: "calendar 打卡日历", desc: "连续天/月历/礼品态读 user/info；? 规则弹窗文案写死；「立即领取」<strong>claimReward 当前仅本地演示</strong>，联调改 gift-claim。电力卡含<strong>打卡提醒</strong>：开关 +「再订阅一次」→ wx.requestSubscribeMessage + report（待接）。含「奖励状态预览」演示切换。", paths: ["pages/checkin/calendar"], apis: ["user/info", "subscribe-message/report 待接", "gift-claim 待实现"] },
@@ -1479,18 +1571,17 @@
           { title: "关卡小测", desc: "fill 听音填空 → recite 背诵；倒计时可「立即跳过」；POST listening-quiz-result。", paths: ["listen?mode=quiz"], apis: ["unit-words", "listening-quiz-result"] }
         ],
         me: [
-          { title: "me 个人中心", desc: "登录、头像昵称、studyMinutes；消息区「开启学习提醒」→ <code>pages/me/notify</code>；公众号引导 web-src。", paths: ["pages/me/me"], apis: ["user/info", "user-books", "info-update", "phone-number", "upload-avatar"] },
-          { title: "book 我的教材", desc: "仅展示已购词书（filter !locked）；列表切换当前→switch-default-book；「继续学习」回首页 Tab。", paths: ["pages/me/book"], apis: ["user-books", "switch-default-book"] },
-          { title: "notify 消息授权状态", desc: "三类模板卡片：累计型显示次数+「再订阅一次」；事件型显示「提醒时机」开关。预览弹窗读 subscribe.js previewFields；底部「管理微信消息授权」→ wx.openSetting(withSubscriptions)。", paths: ["pages/me/notify", "utils/subscribe.js"], apis: ["subscribe-message/report 待接", "wx.requestSubscribeMessage"] },
-          { title: "订阅触发点（事件型）", desc: "用户开启对应 pref 后，在业务完成瞬间就地弹授权：vip 支付成功→支付成功通知；practice 进 finish→学习报告；listen 生成小测报告、exam 交卷→学习报告。", paths: ["pages/vip/vip.js", "pages/practice/practice.js", "pages/listen/listen.js", "pages/exam/exam.js"], apis: ["subscribe-message/report 待接"] },
+          { title: "me 个人中心", desc: "登录、头像昵称、会员态、studyMinutes；消息区「开启学习提醒」→ notify；档案编辑→onboarding。", paths: ["pages/me/me"], apis: ["user/info", "user-books", "info-update", "phone-number", "upload-avatar", "membership 待接"] },
+          { title: "book 我的教材", desc: "展示可用词书；切换当前→switch-default-book；「继续学习」回成长 Tab。", paths: ["pages/me/book"], apis: ["user-books", "switch-default-book"] },
+          { title: "notify 消息授权状态", desc: "三类模板卡片：累计型显示次数+「再订阅一次」；事件型显示「提醒时机」开关。", paths: ["pages/me/notify", "utils/subscribe.js"], apis: ["subscribe-message/report 待接", "wx.requestSubscribeMessage"] },
+          { title: "订阅触发点（事件型）", desc: "会员开通成功→支付成功通知；practice 进 finish→学习报告；listen 小测报告、exam 交卷→学习报告。", paths: ["pages/membership/membership.js", "pages/practice/practice.js", "pages/listen/listen.js", "pages/exam/exam.js"], apis: ["subscribe-message/report 待接"] },
           { title: "web-src 公众号", desc: "me 页「去关注」打开 web-view 加载公众号文章 URL，无后端。", paths: ["pages/me/web-src", "utils/official-account.js"], apis: ["无"] },
-          { title: "contact 联系客服", desc: "FAQ + 微信客服入口；教材切换/页码标识等说明。", paths: ["pages/me/contact"], apis: ["无"] },
+          { title: "contact 联系客服", desc: "FAQ + 微信客服入口。", paths: ["pages/me/contact"], apis: ["无"] },
           { title: "privacy 隐私协议", desc: "账号安全与数据使用说明。", paths: ["pages/me/privacy"], apis: ["无"] },
-          { title: "pet 我的宠物", desc: "认领/喂食/金币 — 全本地 pet-system.js，【已确认】无后端接口，换机不同步。", paths: ["pages/me/pet", "utils/pet-system.js"], apis: ["无"] },
-          { title: "study-record 学习记录", desc: "从 me 或首页进入；按日/区间统计；待接 study-records。", paths: ["pages/study-record/record"], apis: ["study-records"] }
+          { title: "study-record 学习记录", desc: "从 me 或成长页进入；按日/区间统计；待接 study-records。", paths: ["pages/study-record/record"], apis: ["study-records"] }
         ],
         examRecord: [
-          { title: "入门测 entry", desc: "首页 Banner 固定样式 → exam?type=entry。是否已做仅在 exam intro 读 exam-paper.entryCompleted。", paths: ["home.goExamEntry", "pages/exam/exam"], apis: ["exam-paper", "exam-submit", "exam-result"] },
+          { title: "入门测 entry", desc: "成长页关卡列表最前 Banner；today 页也可提示。intro 读 exam-paper.entryCompleted。", paths: ["home.goExamEntry", "today 入门测提示", "pages/exam/exam"], apis: ["exam-paper", "exam-submit", "exam-result"] },
           { title: "结业测 exit", desc: "列表最后 Banner；全关≥2星解锁 → exam?type=exit；未解锁时 home 自定义弹窗提示。", paths: ["home.goExamExit", "pages/exam/exam"], apis: ["exam-paper", "book-units", "exam-submit"] },
           { title: "入门测报告", desc: "总正确率、单词/句子模块、题型分布、错题；<strong>durationSeconds/minutes</strong>=测评练习用时；<strong>reportGeneratedAt</strong>=报告生成时间。type=entry。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=entry"] },
           { title: "结业测报告", desc: "同上 + 与入门测对比 Δ（含用时对比 entryCompare.durationSeconds / reportGeneratedAt）。type=exit。", paths: ["pages/exam/exam-report"], apis: ["exam-result?type=exit"] },
@@ -1511,10 +1602,10 @@
         },
         {
           phase: "第二期",
-          title: "购买 + 打卡 + 计划",
-          goal: "词书解锁、月历打卡、学习计划同步",
-          apis: ["book-product-list", "order", "pay-notify", "order/status", "study-plan", "check-in", "gift-claim", "subscribe-message/report"],
-          notes: "advertisement/vip 替换本地 SKU 常量；打卡写入闭环（finish 达标 → 后端 check-in 或 save-learning-record 触发）。订阅消息：report 记账 + 打卡提醒定时下发；prefs/次数建议并入 user/info。",
+          title: "会员 + 打卡 + 计划",
+          goal: "会员开通/续费、月历打卡、学习计划与学生档案同步",
+          apis: ["membership/*", "student-profile", "study-plan", "check-in", "gift-claim", "subscribe-message/report"],
+          notes: "membership 替换本地 Storage；onboarding 档案上云；打卡写入闭环。订阅消息：report 记账 + 打卡提醒定时下发。",
           status: "待启动"
         },
         {
@@ -1534,9 +1625,10 @@
         { title: "三环节逐词上报", desc: "word-mark / recitation-score / listening-quiz-result 当前未调；save-learning-record 须带 taskType + durationSeconds。" },
         { title: "listen-duration 双源", desc: "player→audioMinutes；follow-read→listenPracticeCount+用时；study-record 演示仍用 listenAssessCount，须对齐字段名。" },
         { title: "打卡活动文案", desc: "plan 预告卡、calendar 规则弹窗/礼品弹窗、finish 成功卡 — 30天/VIP/规则三条均写死 wxml；应对接 user/info checkInRules[] + gifts[] + study-plan.groupsPerDay。" },
+        { title: "membership 本地模拟", desc: "membership.js / membership-orders.js 改调 membership/*；删除 REDEEM_CODE_TIERS 硬编码。" },
+        { title: "student-profile 上云", desc: "onboarding 采集的年级/学期/版本改 POST student-profile，替换 Storage。" },
         { title: "gift-claim 本地领取", desc: "calendar claimReward 仅 setData 演示，须改 POST gift-claim 后再展示兑换码。" },
-        { title: "商品/支付", desc: "book-product-list（含 comparePlans/compareRows）+ order 替换 advertisement 本地常量与 markDevPurchased。" },
-        { title: "订阅消息上报", desc: "reportSubscribeMessageQuota 已封装但 SUBSCRIBE_REPORT_ENABLED=false；联调后开开关，后端维护 quota 并负责打卡提醒下发。" },
+        { title: "订阅消息上报", desc: "reportSubscribeMessageQuota 已封装但 SUBSCRIBE_REPORT_ENABLED=false；联调后开开关。" },
         { title: "单词分析 word-info", desc: "后续做；入口未定，倾向跟读背诵页；不做首页 search。" }
       ];
 
@@ -1753,10 +1845,10 @@
       }
 
       function renderBookPickerSchema() {
-        const pickerFlow = `首页 · 选择教材弹窗（home.wxml book-picker）
+        const pickerFlow = `成长 · 选择教材弹窗（home.wxml book-picker）
 
-【入口】Hero 区「切换教材」→ switchBook()
-【数据源】GET user-books → allBooks → enrichPickerBooks（locked/newStandard）
+【入口】成长 Hero「切换教材」→ switchBook()；今日页教材胶囊 → 跳成长 Tab 并 globalData.openBookPicker=true
+【数据源】GET user-books → allBooks → enrichPickerBooks（showLock 按会员态）
          非 release 追加 mock-textbooks.js 演示目录
 
 【布局】
@@ -1765,14 +1857,13 @@
   右侧网格：封面 + 新课标角标 + 词数 + 底部操作条
 
 【交互】
-  封面点击           → goBookDetail → advertisement?resBookId=…（已购/未购均进详情）
-  未购「去购买」     → goBuyFromPicker → advertisement（forced locked）
-  已购「切换使用」   → switchBookUse → switch-default-book → reload book-units
+  封面/底部按钮     → switchBookUse → switch-default-book → reload book-units
   当前教材           → 显示「当前使用」不可再切
   空分类             → 「该版本教材整理中，可先在推荐里选择」
+  内容解锁           → 非会员仅第 1 关可学；弹层只负责切换教材，购买走 membership
 
 【与 me/book 区别】
-  弹窗 = 全量目录（含未购）；me/book = 仅已购子集，无购买入口`;
+  弹窗 = 全量目录；me/book = 可用子集列表`;
         const userBooksPicker = `GET /mini-app/user-books  →  弹窗所需字段
 
 {
@@ -1790,129 +1881,55 @@
       "unlocked": 1,
       "needVip": 0,
       "learningInfo": { "book": { "learningWords": 320 } }
-    },
-    {
-      "resBookId": "rb_002",
-      "name": "(新)七年级上册",
-      "press": "人教版",
-      "stage": "初中",
-      "newStandard": 1,
-      "unlocked": 0,
-      "needVip": 1
     }
   ]
 }
 
 // stage/press/newStandard 供前端分类；后端应全量返回可售词书`;
-        const goBuyQuery = `home.goBuyBook → advertisement 当前传参（待 book-product-list 替换）
-
-resBookId, name, bookCover, wordCount, proverbCount,
-press, grades, intro, unlocked=0|1`;
         $("#bookPickerSchema").innerHTML = [
           ["选择教材 · 弹窗结构与交互", pickerFlow],
-          ["user-books · 目录字段", userBooksPicker],
-          ["跳转商品详情 · query", goBuyQuery]
+          ["user-books · 目录字段", userBooksPicker]
         ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
       }
 
       function renderCommerceSchema() {
-        const localMap = `前端常量（pages/advertisement/advertisement.js）→ 后端字段
+        const tierMap = `前端常量（utils/membership.js MEMBERSHIP_TIERS）→ 后端 membership 档位
 
-COMPARE_PLANS[].id/name/tag/highlight/priceFrom → comparePlans[]
-COMPARE_ROWS[].label/cells[]              → compareRows[]（功能对比矩阵）
-PACKAGE_OPTIONS[].id                      → products[].packageId
-PACKAGE_OPTIONS[].name                    → products[].packageName
-PACKAGE_OPTIONS[].tag                     → products[].tag
-PACKAGE_OPTIONS[].summary                 → products[].summary
-PACKAGE_OPTIONS[].items[]                 → products[].items[]
-book.name / bookCover / press 等          → data.book{}（词书详情，非 SKU）
-VALIDITY_OPTIONS[].id                     → products[].validityId
-VALIDITY_OPTIONS[].name                   → products[].validityName
-SKU_PRICES["{pkg}-{valid}"]               → products[].price（元）
-组合键 full-forever 等                     → products[].orderProductId（下单主键）
+m1  → { id: "m1", name: "1个月", months: 1, price: 39 }
+m2  → { id: "m2", name: "2个月", months: 2, price: 59, tag: "超值" }
+y1  → { id: "y1", name: "1年", months: 12, price: 109, tag: "推荐" }
 
-// v1.0.4 UI：页面中部规格对比表 + 底栏 openSkuSheet 弹层选 SKU`;
-        const bookProductExample = `GET /mini-app/book-product-list?resBookId=xxx
+REDEEM_CODE_TIERS（membership.js 硬编码，待删）→ POST membership/redeem
+2818M32 → m1 · 2818M21 → m2`;
+        const membershipExample = `GET /mini-app/membership
 
 {
   "status": "success",
   "data": {
-    "resBookId": "xxx",
-    "book": {
-      "name": "人教版七年级上册",
-      "bookCover": "https://…/cover.jpg",
-      "press": "人民教育出版社",
-      "grades": ["初中", "七年级"],
-      "intro": "词书简介文案…",
-      "wordCount": 1200,
-      "proverbCount": 800,
-      "unitCount": 120,
-      "unlocked": false
-    },
-    "comparePlans": [
-      { "packageId": "book", "name": "仅词典", "priceFrom": 48 },
-      { "packageId": "full", "name": "词典+智能学习卡", "tag": "推荐", "highlight": true, "priceFrom": 68 }
-    ],
-    "compareRows": [
-      { "label": "全部词汇与谚语词典", "cells": [true, true] },
-      { "label": "释义 · 例句 · 发音示范", "cells": [true, true] },
-      { "label": "谚语查阅与朗读音频", "cells": [true, true] },
-      { "label": "智能学习卡（新学/跟读/测验）", "cells": [false, true] },
-      { "label": "记忆曲线科学复习", "cells": [false, true] },
-      { "label": "朗读评分与即时纠音", "cells": [false, true] },
-      { "label": "打卡激励与进度追踪", "cells": [false, true] }
-    ],
-    "products": [
-      {
-        "orderProductId": "prod_full_forever_001",
-        "packageId": "full",
-        "packageName": "词典+智能学习卡",
-        "validityId": "forever",
-        "validityName": "永久有效",
-        "price": 98,
-        "priceCents": 9800,
-        "tag": "推荐",
-        "summary": "词典 + 智能学习卡，听说读写测完整闭环",
-        "items": ["电子词典全部词汇与谚语", "智能学习卡：单词新学/跟读/测验", "…"],
-        "enabled": true,
-        "sort": 1
-      }
-    ]
-  }
-}`;
-        const orderExample = `GET /mini-app/order?orderProductId=prod_full_forever_001
-
-{
-  "status": "success",
-  "data": {
-    "orderId": "ord_20260616_001",
-    "orderProductId": "prod_full_forever_001",
-    "resBookId": "xxx",
-    "packageName": "词典+智能学习卡",
-    "validityName": "永久有效",
-    "price": 98,
-    "priceCents": 9800,
-    "status": "pending",
-    "payParams": {
-      "timeStamp": "…",
-      "nonceStr": "…",
-      "package": "prepay_id=…",
-      "signType": "RSA",
-      "paySign": "…"
-    }
+    "active": true,
+    "expireAt": 1735689600000,
+    "tierId": "y1",
+    "tierName": "1年",
+    "expireText": "2025-01-01"
   }
 }
 
-// 服务端（无前端调用）
-POST /mini-app/pay-notify  ← 微信异步通知，验签后 order.status=paid，解锁词书
+POST /mini-app/membership/order
+{ "tierId": "y1" }
+→ { orderId, price, payParams: { timeStamp, nonceStr, package, signType, paySign } }
 
-// 前端支付成功后（待实现）
-GET /mini-app/order/status?orderId=ord_20260616_001
-→ { "status": "paid", "unlocked": true, "resBookId": "xxx" }`;
+POST /mini-app/membership/redeem
+{ "code": "2818M32" }
+→ { valid: true, tierId: "m1", membership: { active, expireAt, … } }
+
+GET /mini-app/membership/orders
+→ { orders: [{ id, tierName, price, method, createdAt, expireText }] }
+
+// 服务端
+POST /mini-app/membership/pay-notify  ← 微信回调，延长 expireAt`;
         $("#commerceSchema").innerHTML = [
-          ["book-product-list · 词书详情 + SKU", bookProductExample],
-          ["order / pay-notify / order-status", orderExample],
-          ["本地常量 → 后端字段", localMap]
+          ["membership · 会员态与下单", membershipExample],
+          ["档位常量 → 后端字段", tierMap]
         ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
       }
 
@@ -2239,6 +2256,7 @@ POST { "groupsPerDay": 3 }
       renderGallery();
       renderRows();
       renderPageCards("coreFlow", "#coreFlowPages");
+      renderPageCards("today", "#todayPages");
       renderPageCards("home", "#homePages");
       renderPageCards("checkin", "#checkinPages");
       renderPageCards("listen", "#listenPages");

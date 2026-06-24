@@ -121,17 +121,17 @@ page {
   display: inline-block;
   visibility: hidden;
   max-width: 100%;
-  min-height: 48rpx;
-  font-size: 33rpx;
-  line-height: 48rpx;
+  min-height: 40rpx;
+  font-size: 28rpx;
+  line-height: 40rpx;
   font-weight: 700;
   white-space: pre;
   box-sizing: border-box;
 }
 
 .nickname {
-  font-size: 33rpx;
-  line-height: 43rpx;
+  font-size: 28rpx;
+  line-height: 40rpx;
   font-weight: 700;
   color: #17406f;
   text-shadow: 0 4rpx 10rpx rgba(255, 255, 255, 0.72);
@@ -142,9 +142,11 @@ page {
 
 .profile-vip-badge {
   flex-shrink: 0;
-  width: 78rpx;
-  height: 32rpx;
-  margin-left: 2rpx;
+  width: 112rpx;
+  height: 44rpx;
+  margin-left: 6rpx;
+  margin-top: -7rpx;
+  align-self: center;
 }
 
 .profile-vip-expire {
@@ -162,8 +164,8 @@ page {
   left: 0;
   top: 0;
   width: 100%;
-  height: 48rpx;
-  min-height: 48rpx;
+  height: 40rpx;
+  min-height: 40rpx;
   padding: 0;
   text-align: left;
   background: transparent;
@@ -173,7 +175,7 @@ page {
 
 .profile-sub {
   margin-top: 8rpx;
-  font-size: 23rpx;
+  font-size: 22rpx;
   line-height: 32rpx;
   color: #111318;
   text-shadow: 0 3rpx 8rpx rgba(255, 255, 255, 0.78);
@@ -310,23 +312,23 @@ page {
 
 .checkin-metric .metric-number {
   color: #101010;
-  font-size: 24rpx;
-  line-height: 28rpx;
+  font-size: 28rpx;
+  line-height: 36rpx;
   font-weight: 800;
   white-space: nowrap;
 }
 
 .checkin-metric .metric-number text {
   margin-left: 1rpx;
-  font-size: 16rpx;
+  font-size: 22rpx;
   font-weight: 600;
 }
 
 .checkin-metric .metric-label {
   margin-top: 2rpx;
   color: #6b7280;
-  font-size: 14rpx;
-  line-height: 16rpx;
+  font-size: 22rpx;
+  line-height: 32rpx;
   white-space: nowrap;
 }
 
@@ -358,8 +360,8 @@ page {
 .section-title {
   margin: 0 0 17rpx 4rpx;
   color: #51545c;
-  font-size: 24rpx;
-  line-height: 32rpx;
+  font-size: 28rpx;
+  line-height: 40rpx;
   font-weight: 700;
 }
 
@@ -412,7 +414,7 @@ page {
   align-items: center;
   justify-content: center;
   color: #7a5200;
-  font-size: 23rpx;
+  font-size: 22rpx;
   font-weight: 800;
   background: #fff4d6;
 }
@@ -424,7 +426,7 @@ page {
 
 .message-row-title {
   font-size: 28rpx;
-  line-height: 36rpx;
+  line-height: 40rpx;
   font-weight: 500;
   color: #1a1a1a;
 }
@@ -444,7 +446,7 @@ page {
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 23rpx;
+  font-size: 22rpx;
   font-weight: 700;
   background: #111318;
   border-radius: 28rpx;
@@ -510,7 +512,7 @@ page {
 }
 
 .menu-status-text {
-  font-size: 21rpx;
+  font-size: 22rpx;
   line-height: 42rpx;
   font-weight: 700;
 }
@@ -621,7 +623,7 @@ page {
 
 .menu-label {
   font-size: 28rpx;
-  line-height: 36rpx;
+  line-height: 40rpx;
   font-weight: 500;
   color: #1a1a1a;
   overflow: hidden;
@@ -648,7 +650,7 @@ page {
   align-items: center;
   justify-content: center;
   border-radius: 22rpx;
-  font-size: 21rpx;
+  font-size: 22rpx;
   line-height: 42rpx;
   font-weight: 700;
   white-space: nowrap;
@@ -668,11 +670,52 @@ page {
   flex: none;
   margin-left: 10rpx;
   color: #c4c4c4;
-  font-size: 38rpx;
-  line-height: 38rpx;
+  font-size: 28rpx;
+  line-height: 28rpx;
 }
 
 .scroll-spacer {
   /* 102rpx = 自定义 tabBar 主体高度，避免「隐私与协议」被底栏遮挡 */
   height: calc(102rpx + 36rpx + env(safe-area-inset-bottom));
+}
+
+.me-page-vip-floating .scroll-spacer {
+  height: calc(102rpx + 156rpx + env(safe-area-inset-bottom));
+}
+
+.vip-floating-guide {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: auto;
+  bottom: calc(102rpx + env(safe-area-inset-bottom));
+  z-index: 110;
+  margin: 0;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  background: transparent;
+  overflow: hidden;
+  border-radius: 20rpx 20rpx 0 0;
+}
+
+.vip-floating-guide:active {
+  transform: none;
+}
+
+.vip-floating-banner {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 1;
+  vertical-align: top;
+}
+
+.vip-floating-close-hit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 98rpx;
+  height: 92rpx;
 }

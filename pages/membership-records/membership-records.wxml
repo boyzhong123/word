@@ -1,0 +1,73 @@
+<view class="page">
+  <navigation class="records-nav" background="#e7e1f0">
+    <view class="nav-title-wrap">
+      <view class="nav-title-text">购买记录</view>
+    </view>
+  </navigation>
+
+  <scroll-view class="records-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="records-content">
+      <view class="profile-card">
+        <view class="profile-avatar-shell">
+          <image
+            class="profile-avatar"
+            src="{{profileAvatar || fallbackAvatar}}"
+            mode="aspectFill"
+            binderror="onAvatarError"
+          />
+        </view>
+        <view class="profile-copy">
+          <view class="profile-name-row">
+            <text class="profile-name">{{profileName}}</text>
+            <image class="profile-vip" src="{{vipBadgeImage}}" mode="aspectFit" />
+          </view>
+          <text wx:if="{{membership.active}}" class="profile-expire">会员有效期至 {{membership.expireText}}</text>
+          <text wx:else class="profile-expire">当前尚未开通会员</text>
+        </view>
+      </view>
+
+      <view class="records-title-row">
+        <text class="records-title">开通记录</text>
+        <text class="records-count">共 {{orders.length}} 笔</text>
+      </view>
+
+      <view wx:if="{{!orders.length}}" class="empty-card">
+        <image class="empty-image" src="/images/vip/step-report.jpg" mode="aspectFill" />
+        <text class="empty-title">暂无购买记录</text>
+        <text class="empty-desc">开通会员后，套餐、时间和订单信息会保存在这里</text>
+      </view>
+
+      <view wx:else class="order-list">
+        <view wx:for="{{orders}}" wx:key="id" class="order-card">
+          <view class="order-head">
+            <view class="order-name-wrap">
+              <text class="order-name">{{item.tierName}}</text>
+              <text class="order-method">{{item.method}}</text>
+            </view>
+            <text class="order-price">¥{{item.price}}</text>
+          </view>
+          <view class="order-divider"></view>
+          <view class="order-row">
+            <text>开通时间</text>
+            <text>{{item.createdAt}}</text>
+          </view>
+          <view class="order-row">
+            <text>有效期至</text>
+            <text>{{item.expireText || '--'}}</text>
+          </view>
+          <view wx:if="{{item.code}}" class="order-row">
+            <text>兑换码</text>
+            <text>{{item.code}}</text>
+          </view>
+          <view class="order-row">
+            <text>订单编号</text>
+            <view class="order-id" data-id="{{item.id}}" bindtap="copyOrder">
+              <text>{{item.id}}</text>
+              <text class="copy-text">复制</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

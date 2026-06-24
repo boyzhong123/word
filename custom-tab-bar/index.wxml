@@ -55,17 +55,17 @@
     </view>
     <text>今日</text>
   </view>
-  <view class="bottom-nav-item {{selected === 1 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
-    <view class="bottom-nav-icon-wrap">
-      <image class="bottom-nav-icon" src="{{selected === 1 ? '/images/home/nav-study-jelly-active.png' : '/images/home/nav-study-jelly.png'}}" mode="aspectFit" />
-    </view>
-    <text>成长</text>
-  </view>
   <view class="bottom-nav-item {{miniPlaying ? 'bottom-nav-active' : ''}}" bindtap="goListen">
     <view class="bottom-nav-icon-wrap {{miniPlaying ? 'bottom-nav-icon-playing' : ''}}">
       <image class="bottom-nav-icon" src="{{miniPlaying ? '/images/home/nav-listen-jelly-active.png' : '/images/home/nav-listen-jelly.png'}}" mode="aspectFit" />
     </view>
     <text>伴读</text>
+  </view>
+  <view class="bottom-nav-item {{selected === 1 ? 'bottom-nav-active' : ''}}" data-path="/pages/home/home" bindtap="switchTab">
+    <view class="bottom-nav-icon-wrap">
+      <image class="bottom-nav-icon" src="{{selected === 1 ? '/images/home/nav-study-jelly-active.png' : '/images/home/nav-study-jelly.png'}}" mode="aspectFit" />
+    </view>
+    <text>成长</text>
   </view>
   <view class="bottom-nav-item {{selected === 2 ? 'bottom-nav-active' : ''}}" data-path="/pages/me/me" bindtap="switchTab">
     <view class="bottom-nav-icon-wrap">

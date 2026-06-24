@@ -41,6 +41,12 @@ test('media demo audio stops previous playback and emits beforeplay', () => {
   assert.match(mediaScript, /ctx\.stop\(\)/)
 })
 
+test('standard-audio download failures leave playback state and unblock auto-record', () => {
+  assert.match(mediaScript, /onError\(res\s*=>\s*{[\s\S]*handleAudioPlaybackFinished\(\)/)
+  assert.match(mediaScript, /handleAudioPlaybackFinished\(\)\s*{[\s\S]*media_state:\s*IDLE/)
+  assert.match(mediaScript, /handleAudioPlaybackFinished\(\)\s*{[\s\S]*triggerEvent\('audioEnd'\)/)
+})
+
 test('media scoring failures always leave marking state', () => {
   assert.match(mediaScript, /wsEngine\.stop\(\{[\s\S]*fail:\s*\(res\)\s*=>\s*{[\s\S]*resetMarkingState\(/)
   assert.match(mediaScript, /onErrorResult\(res\s*=>\s*{[\s\S]*resetMarkingState\(/)

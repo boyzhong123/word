@@ -55,7 +55,9 @@ test('word-new known and unknown answers route through the choice quiz flow', ()
 })
 
 test('word choice options reveal every matching word and keep two-line meanings after selection', () => {
-  assert.match(practiceTemplate, /wx:if="{{item\.wordChoiceSelectedIndex != null}}" class="wn-choice-word-row"/)
+  assert.match(practiceTemplate, /class="wn-choice-word-row"/)
+  assert.match(practiceTemplate, /wx:if="{{item\.wordChoiceSelectedIndex != null}}" class="wn-choice-word"/)
+  assert.match(practiceTemplate, /wx:else class="wn-choice-pos wn-choice-pos-text"/)
   assert.doesNotMatch(practiceTemplate, /item\.wordChoiceSelectedIndex != null && \(option\.isAnswer \|\| item\.wordChoiceSelectedIndex == optionIndex\)/)
   assert.match(practiceTemplate, /wx:if="{{option\.audio && playingSrc && playingSrc == option\.audio}}" class="wn-choice-audio"/)
   assert.match(practiceScript, /getChoiceOptionAudio/)

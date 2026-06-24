@@ -109,7 +109,6 @@ function makeShots(ctx) {
     unitSort,
     scoreRate: 85
   })
-  const adQuery = buildQuery({ resBookId, name: bookName })
 
   return [
     {
@@ -249,30 +248,6 @@ function makeShots(ctx) {
         await sleep(2000)
         return mp.navigateTo(`/pages/finish/today?${finishListenQuery}`)
       },
-      waitMs: 4000
-    },
-    {
-      key: 'ad',
-      file: '06-advertisement.png',
-      label: '商品详情',
-      navigate: (mp) => mp.navigateTo(`/pages/advertisement/advertisement?${adQuery}`),
-      waitMs: 4500
-    },
-    {
-      key: 'vip',
-      file: '06-vip.png',
-      label: '确认订单',
-      navigate: (mp) => mp.navigateTo(
-        `/pages/vip/vip?${buildQuery({
-          resBookId,
-          name: bookName,
-          packageId: 'full',
-          packageName: '词典+智能学习卡',
-          validityId: 'forever',
-          validityName: '永久有效',
-          price: 198
-        })}`
-      ),
       waitMs: 4000
     },
     {

@@ -1,0 +1,52 @@
+<view class="page">
+  <navigation
+    class="success-nav"
+    background="#e7e1f0"
+    back-inner="{{false}}"
+    bindback="returnToday"
+  >
+    <view class="nav-title-wrap">
+      <view class="nav-title-text">开通成功</view>
+    </view>
+  </navigation>
+
+  <scroll-view class="success-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="success-content">
+      <image class="success-image" src="{{successImage}}" mode="aspectFill" />
+      <text class="success-title">会员开通成功</text>
+      <text class="success-sub">100+ 本同步教材与完整学习闭环已解锁</text>
+
+      <view class="unlock-grid">
+        <view wx:for="{{unlocks}}" wx:key="label" class="unlock-item">
+          <image class="unlock-image" src="{{item.image}}" mode="aspectFill" />
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{order}}" class="success-order">
+        <view class="success-order-head">
+          <text>{{order.tierName}}</text>
+          <text class="success-order-price">¥{{order.price}}</text>
+        </view>
+        <view class="success-order-row">
+          <text>开通方式</text>
+          <text>{{order.method}}</text>
+        </view>
+        <view class="success-order-row">
+          <text>有效期至</text>
+          <text>{{order.expireText || membership.expireText}}</text>
+        </view>
+        <view class="success-order-row">
+          <text>订单编号</text>
+          <text>{{order.id}}</text>
+        </view>
+      </view>
+
+      <view class="records-link" bindtap="openRecords">查看购买记录 ›</view>
+    </view>
+  </scroll-view>
+
+  <view class="success-footer" style="padding-bottom: {{safeAreaBottom + 24}}rpx;">
+    <view class="success-button" bindtap="returnToday">返回今日学习</view>
+  </view>
+</view>

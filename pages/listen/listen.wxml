@@ -324,6 +324,31 @@
     </view>
   </view>
 
+  <!-- 第4步：录音授权引导（仅未授权时出现）。整层可点：拦截背景、按钮直接响应 -->
+  <view
+    wx:if="{{listenGuideActive && listenGuideStep === 'permission' && listenGuideSpot.width > 0}}"
+    class="listen-guide-mask listen-guide-mask-interactive"
+    catchtap="noop"
+    catchtouchmove="noop"
+  >
+    <view
+      class="listen-guide-spotlight"
+      style="top: {{listenGuideSpot.top}}px; left: {{listenGuideSpot.left}}px; width: {{listenGuideSpot.width}}px; height: {{listenGuideSpot.height}}px;"
+    ></view>
+    <view
+      class="listen-guide-coach listen-guide-coach-interactive listen-guide-coach-{{listenGuideSpot.placement}}"
+      style="top: {{listenGuideSpot.calloutTop}}px;"
+    >
+      <image class="listen-guide-coach-mascot" src="/images/listen/listen-guide-coach-mascot.png" mode="aspectFit" />
+      <view class="listen-guide-coach-bubble">
+        <view class="listen-guide-coach-arrow"></view>
+        <view class="listen-guide-coach-title">跟读需要麦克风</view>
+        <view class="listen-guide-coach-sub">需要录下你的发音进行评分。点击「继续」后，请在系统弹窗中选择「允许」。</view>
+        <view class="listen-guide-coach-btn" catchtap="onListenGuidePermissionAllow">继续</view>
+      </view>
+    </view>
+  </view>
+
   <view
     wx:if="{{listenGuideActive && listenGuideStep === 'swipe'}}"
     class="listen-guide-controls-block"

@@ -22,11 +22,12 @@ const { player, buildTracks } = require('../../utils/player')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const { isLevelUnlocked } = require('../../utils/level-access')
-const { navigateToVipPurchase } = require('../../utils/vip-purchase')
+const { promptVipPurchase } = require('../../utils/vip-purchase')
 const {
   syncRecordingOverlay,
   hideRecordingOverlay
 } = require('../../utils/recording-overlay')
+const { appendReturnTabQuery } = require('../../utils/return-tab')
 const {
   hasCompletedListenGuide,
   markListenGuideDone,
@@ -154,6 +155,7 @@ Page({
       ? decodeURIComponent(options.name)
       : (book.name || '')
     this.targetUnitId = options.unitId || ''
+    this.returnTab = options.returnTab || ''
     const quizMode = options.mode === 'quiz' || options.taskType === 'listening'
     // 错词复习模式：review=1，reviewUnitIds 为覆盖的关卡 id 列表。
     this.review = options.review === '1' || options.review === 1
@@ -378,12 +380,10 @@ Page({
     }
     // 第 1 关随身听免费，其余关卡需开通会员；今日页「免费体验关」（trial）放行。
     const unitSort = Number(unit.sort) || index + 1
-    if (!this.data.review && !this.trial && !isLevelUnlocked(unitSort)) {
-      navigateToVipPurchase(null, { locked: true })
-      return
-    }
-    if (unit.needVip && !this.trial) {
-      wx.showToast({ title: '该期为会员内容', icon: 'none' })
+    const lockedByVip = (!this.data.review && !this.trial && !isLevelUnlocked(unitSort)) ||
+      (unit.needVip && !this.trial)
+    if (lockedByVip) {
+      promptVipPurchase(null)
       return
     }
     this.setData({ loading: true })
@@ -834,14 +834,16 @@ Page({
     const unitSort = unit.sort || 1
     const total = this.data.quizQuestions.length || 0
     const scoreRate = computeQuizScoreRate(this.data.quizRecords, total)
-    wx.redirectTo({
-      url: '/pages/finish/today?unitId=' + unitId +
+    const url = appendReturnTabQuery(
+      '/pages/finish/today?unitId=' + unitId +
         '&unitSort=' + unitSort +
         '&taskType=listening' +
         '&resBookId=' + encodeURIComponent(this.resBookId || '') +
         '&name=' + encodeURIComponent(this.resBookName || '') +
-        '&scoreRate=' + scoreRate
-    })
+        '&scoreRate=' + scoreRate,
+      this.returnTab
+    )
+    wx.redirectTo({ url })
   },
 
   openQuizReport() {
@@ -1013,6 +1015,49 @@ Page({
       return
     }
     this.clearListenGuideRecordTimer()
+    this.gateListenGuideRecordPermission()
+  },
+
+  // 听完标准音后，先确认录音授权再进入跟读：
+  // 已授权→直接录音；从未询问→第4步弹「开启麦克风」；曾拒绝→第5步引导去设置。
+  // 把授权拆成显式引导步骤，既解释了用途，也避开了「刚授权就 start 抢跑」的首次失败。
+  gateListenGuideRecordPermission() {
+    wx.getSetting({
+      success: ({ authSetting }) => {
+        if (authSetting && authSetting['scope.record']) {
+          // 已授权：直接进入录音，不打断
+          this.enterListenGuideRecord()
+        } else {
+          // 未授权 / 曾拒绝：先展示解释气泡，由用户点按钮再走授权
+          this.showListenGuidePermissionStep('permission')
+        }
+      },
+      fail: () => {
+        this.enterListenGuideRecord()
+      }
+    })
+  },
+
+  showListenGuidePermissionStep(step) {
+    if (!this.data.listenGuideActive) {
+      return
+    }
+    this.setData({ listenGuideStep: step }, () => {
+      this.measureListenGuideSpot()
+    })
+  },
+
+  // 点「开启麦克风」：直接复用 media.startRecord 的成熟授权链路——
+  // 未授权会弹原生授权框、授权后录音；若被拒绝，media 抛 unauthorized，
+  // 由 onMediaUnauthorized 收掉引导并弹「去设置」。不再自己写 authorize，避免回调不稳卡死。
+  onListenGuidePermissionAllow() {
+    this.enterListenGuideRecord()
+  },
+
+  enterListenGuideRecord() {
+    if (!this.data.listenGuideActive) {
+      return
+    }
     this.setData({ listenGuideStep: 'record' }, () => {
       setTimeout(() => {
         this.measureListenGuideSpot()
@@ -1022,6 +1067,15 @@ Page({
         }
       }, 280)
     })
+    // 正常情况下录音进入 RECORDING 会由 onMediaStateChange 收掉引导；
+    // 兜底：若 4.5s 内没能开录（授权抢跑/引擎异常），也把引导收掉，避免卡死。
+    this.clearListenGuideRecordTimer()
+    this.listenGuideRecordTimer = setTimeout(() => {
+      this.listenGuideRecordTimer = null
+      if (this.data.listenGuideActive) {
+        this.finishListenGuide()
+      }
+    }, 4500)
   },
 
   syncFollowRecordingOverlay(options) {
@@ -1272,7 +1326,7 @@ Page({
     const unit = this.data.units[index]
     this.setData({ showPlaylist: false })
     if (!isListenUnitUnlocked(unit, index)) {
-      navigateToVipPurchase(null, { locked: true })
+      promptVipPurchase(null)
       return
     }
     player.selectUnit(index)

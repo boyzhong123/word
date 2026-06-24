@@ -19,33 +19,14 @@ const {
 const { bindPhoneNumber } = require('../../utils/api')
 const { login, fetchLoginCode } = require('../../utils/login')
 const { markEntryExamPromptPending } = require('../../utils/entry-exam-prompt')
+const { imageUrl } = require('../../utils/image-host')
 
-const FEATURE_HIGHLIGHTS = [
-  {
-    title: '听单词和例句',
-    desc: '原声音频伴读，课前预习路上磨耳朵',
-    icon: '/images/home/icon-today-feature-listen.png',
-    tag: ''
-  },
-  {
-    title: '跟读背诵',
-    desc: '开口跟读即时评分，发音问题看得见',
-    icon: '/images/home/icon-today-feature-read.png',
-    tag: 'AI 打分'
-  },
-  {
-    title: '单词新学',
-    desc: '按教材关卡推进新词，释义例句一起记',
-    icon: '/images/home/icon-today-feature-recite.png',
-    tag: ''
-  },
-  {
-    title: '关卡小测',
-    desc: '听音填空与错词巩固，学完马上检验',
-    icon: '/images/home/icon-today-feature-quiz.png',
-    tag: '错词复习'
-  }
-]
+// 首屏三张长图（定位 / 痛点+流程 / 亮点+坚持），底部按钮保留原生
+const INTRO_PANELS = [
+  '/images/onboarding/onboard-panel-01.jpg',
+  '/images/onboarding/onboard-panel-02.jpg',
+  '/images/onboarding/onboard-panel-03.jpg'
+].map(imageUrl)
 
 const ONBOARD_IMAGES = {
   intro: '/images/onboarding/onboard-intro-hero.png',
@@ -53,8 +34,39 @@ const ONBOARD_IMAGES = {
   semester: '/images/onboarding/onboard-step-semester.png',
   textbook: '/images/onboarding/onboard-step-textbook.png'
 }
+Object.keys(ONBOARD_IMAGES).forEach(key => {
+  ONBOARD_IMAGES[key] = imageUrl(ONBOARD_IMAGES[key])
+})
+
+// 教材版本首屏最多展示 3 行（2 列 × 3 行），超出后通过「查看更多」展开
+const VERSION_PREVIEW_COUNT = 6
+
+function mergeVersionPickerData(versions, selectedVersion, versionsExpanded) {
+  const list = Array.isArray(versions) ? versions : []
+  const selectedIndex = list.indexOf(selectedVersion)
+  const needToggle = list.length > VERSION_PREVIEW_COUNT
+  const expanded = needToggle && (versionsExpanded || selectedIndex >= VERSION_PREVIEW_COUNT)
+  const displayVersions = needToggle && !expanded
+    ? list.slice(0, VERSION_PREVIEW_COUNT)
+    : list
+  const hiddenCount = list.length - VERSION_PREVIEW_COUNT
+  return {
+    versions: list,
+    selectedVersion,
+    displayVersions,
+    versionsExpanded: expanded,
+    showVersionMoreToggle: needToggle,
+    versionMoreLabel: expanded
+      ? '收起'
+      : `查看更多教材${hiddenCount > 0 ? '（' + hiddenCount + '）' : ''}`
+  }
+}
 
 const STEP_COPY = {
+  0: {
+    title: '帮孩子把英语学扎实',
+    sub: '同步教材，听·读·背·测，每天10分钟记牢'
+  },
   1: {
     title: '孩子现在读几年级？',
     sub: '选好年级和学期，方便匹配同步教材'
@@ -67,6 +79,16 @@ const STEP_COPY = {
     title: '再补充一点信息',
     sub: '选填即可，方便推荐更适合的学习资料'
   }
+}
+
+function getStepKicker(step, editMode) {
+  if (step === 0) {
+    return '欢迎体验'
+  }
+  if (editMode) {
+    return '修改设置'
+  }
+  return '首次设置'
 }
 
 function getOnboardHeroSrc(step, images) {
@@ -145,11 +167,31 @@ function buildStepUi(step, editMode) {
   }
   return {
     stepCopy: STEP_COPY[step] || { title: '', sub: '' },
+    stepKicker: getStepKicker(step, editMode),
     showBackButton,
     showSkipButton,
     backButtonText,
     primaryButtonText
   }
+}
+
+function isPrimaryActionReady(data, step) {
+  const onboardingStep = typeof step === 'number' ? step : data.onboardingStep
+  const {
+    selectedGradeId,
+    selectedSemesterId,
+    selectedVersion
+  } = data || {}
+
+  if (onboardingStep === 1) {
+    return !!(selectedGradeId && selectedSemesterId)
+  }
+
+  if (onboardingStep === 2) {
+    return !!selectedVersion
+  }
+
+  return true
 }
 
 Page({
@@ -159,7 +201,7 @@ Page({
     navBarHeightRpx: 0,
     navBackTopRpx: 0,
     navBackSizeRpx: 56,
-    featureHighlights: FEATURE_HIGHLIGHTS,
+    introPanels: INTRO_PANELS,
     onboardImages: ONBOARD_IMAGES,
     onboardHeroSrc: getOnboardHeroSrc(0, ONBOARD_IMAGES),
     editMode: false,
@@ -169,6 +211,10 @@ Page({
     selectedStage: 'primary',
     visibleGrades: GRADE_GROUPS[0].grades,
     versions: [],
+    displayVersions: [],
+    versionsExpanded: false,
+    showVersionMoreToggle: false,
+    versionMoreLabel: '',
     selectedGradeId: '',
     selectedSemesterId: '',
     selectedVersion: '',
@@ -178,10 +224,12 @@ Page({
     maskedPhone: '',
     logined: false,
     stepCopy: { title: '', sub: '' },
+    stepKicker: '欢迎体验',
     showBackButton: false,
     showSkipButton: false,
     backButtonText: '上一步',
-    primaryButtonText: '开始设置'
+    primaryButtonText: '开始设置',
+    primaryButtonDisabled: false
   },
 
   onLoad(options) {
@@ -201,34 +249,47 @@ Page({
   },
 
   syncStepUi(step) {
-    this.setData(buildStepUi(step, this.data.editMode))
+    const editMode = this.data.editMode
+    this.setData(Object.assign(
+      buildStepUi(step, editMode),
+      { primaryButtonDisabled: !isPrimaryActionReady(this.data, step) }
+    ))
+  },
+
+  refreshPrimaryButtonState(nextData) {
+    const mergedData = Object.assign({}, this.data, nextData || {})
+    this.setData({
+      primaryButtonDisabled: !isPrimaryActionReady(mergedData, mergedData.onboardingStep)
+    })
   },
 
   setOnboardingStep(step, extra) {
-    const payload = Object.assign({
+    const editMode = extra && extra.editMode !== undefined ? extra.editMode : this.data.editMode
+    const mergedData = Object.assign({}, this.data, { onboardingStep: step }, extra || {})
+    this.setData(Object.assign({
       onboardingStep: step,
       onboardHeroSrc: getOnboardHeroSrc(step, this.data.onboardImages)
-    }, extra || {})
-    this.setData(payload)
-    this.syncStepUi(step)
+    }, buildStepUi(step, editMode), {
+      primaryButtonDisabled: !isPrimaryActionReady(mergedData, step)
+    }, extra || {}))
   },
 
   initFromProfile() {
     const profile = getStudentProfile() || {}
     const stage = getStageByGradeId(profile.gradeId) || 'primary'
     const phoneNumber = profile.phoneNumber || ''
-    this.setData({
+    const nextData = Object.assign({
       selectedGradeId: profile.gradeId || '',
       selectedSemesterId: profile.semesterId || '',
-      selectedVersion: profile.version || '',
       selectedChildGender: profile.childGender || getCharacterGender(),
       selectedStage: stage,
       visibleGrades: getGradesByStage(stage),
-      versions: getVersionsByStage(stage),
       phoneNumber,
       phoneVerified: !!profile.phoneVerified,
       maskedPhone: maskPhoneNumber(phoneNumber)
-    })
+    }, mergeVersionPickerData(getVersionsByStage(stage), profile.version || '', false))
+    this.setData(nextData)
+    this.refreshPrimaryButtonState(nextData)
   },
 
   selectStage(event) {
@@ -243,31 +304,52 @@ Page({
     }
     if (currentStage && currentStage !== stage) {
       payload.selectedGradeId = ''
-      payload.versions = []
-      payload.selectedVersion = ''
+      Object.assign(payload, mergeVersionPickerData([], '', false))
     }
     this.setData(payload)
+    this.refreshPrimaryButtonState(payload)
   },
 
   selectGrade(event) {
     const gradeId = event.currentTarget.dataset.id
     const stage = getStageByGradeId(gradeId)
     const versions = getVersionsByStage(stage)
-    this.setData({
+    const selectedVersion = versions.indexOf(this.data.selectedVersion) >= 0 ? this.data.selectedVersion : ''
+    const nextData = Object.assign({
       selectedStage: stage,
       visibleGrades: getGradesByStage(stage),
-      selectedGradeId: gradeId,
-      versions,
-      selectedVersion: versions.indexOf(this.data.selectedVersion) >= 0 ? this.data.selectedVersion : ''
-    })
+      selectedGradeId: gradeId
+    }, mergeVersionPickerData(versions, selectedVersion, false))
+    this.setData(nextData)
+    this.refreshPrimaryButtonState(nextData)
   },
 
   selectSemester(event) {
-    this.setData({ selectedSemesterId: event.currentTarget.dataset.id })
+    const nextData = { selectedSemesterId: event.currentTarget.dataset.id }
+    this.setData(nextData)
+    this.refreshPrimaryButtonState(nextData)
   },
 
   selectVersion(event) {
-    this.setData({ selectedVersion: event.currentTarget.dataset.version })
+    const nextData = mergeVersionPickerData(
+      this.data.versions,
+      event.currentTarget.dataset.version,
+      this.data.versionsExpanded
+    )
+    this.setData(nextData)
+    this.refreshPrimaryButtonState(nextData)
+  },
+
+  toggleVersionMore() {
+    const { versions, selectedVersion, versionsExpanded } = this.data
+    if (versionsExpanded) {
+      const selectedIndex = versions.indexOf(selectedVersion)
+      if (selectedIndex >= VERSION_PREVIEW_COUNT) {
+        return
+      }
+    }
+    const nextData = mergeVersionPickerData(versions, selectedVersion, !versionsExpanded)
+    this.setData(nextData)
   },
 
   selectChildGender(event) {
@@ -275,9 +357,11 @@ Page({
     if (!gender) {
       return
     }
-    this.setData({
+    const nextData = {
       selectedChildGender: gender === GENDER_GIRL ? GENDER_GIRL : GENDER_BOY
-    })
+    }
+    this.setData(nextData)
+    this.refreshPrimaryButtonState(nextData)
   },
 
   ensureLogin() {
@@ -330,11 +414,13 @@ Page({
         return
       }
       const phoneNumber = pickPhoneNumber(data)
-      this.setData({
+      const nextData = {
         phoneNumber,
         phoneVerified: true,
         maskedPhone: maskPhoneNumber(phoneNumber)
-      })
+      }
+      this.setData(nextData)
+      this.refreshPrimaryButtonState(nextData)
       wx.showToast({ title: '手机号已授权', icon: 'success' })
     }).catch(error => {
       wx.hideLoading()
@@ -347,13 +433,20 @@ Page({
   },
 
   nextOnboardingStep() {
-    const { onboardingStep, selectedGradeId, selectedSemesterId, selectedVersion, editMode } = this.data
+    const {
+      onboardingStep,
+      primaryButtonDisabled,
+      selectedGradeId,
+      selectedSemesterId,
+      selectedVersion,
+      editMode
+    } = this.data
     if (onboardingStep === 0) {
       this.setOnboardingStep(1)
       return
     }
     if (onboardingStep === 1) {
-      if (!selectedSemesterId) {
+      if (primaryButtonDisabled || !selectedSemesterId) {
         wx.showToast({ title: '请选择学期', icon: 'none' })
         return
       }
@@ -365,7 +458,7 @@ Page({
       return
     }
     if (onboardingStep === 2) {
-      if (!selectedVersion) {
+      if (primaryButtonDisabled || !selectedVersion) {
         wx.showToast({ title: '请选择教材版本', icon: 'none' })
         return
       }
@@ -376,7 +469,17 @@ Page({
       this.setOnboardingStep(3)
       return
     }
-    this.finishOnboarding()
+    if (onboardingStep === 3) {
+      if (!this.data.selectedChildGender) {
+        wx.showToast({ title: '请选择学习形象', icon: 'none' })
+        return
+      }
+      if (!this.data.phoneVerified) {
+        wx.showToast({ title: '请授权手机号', icon: 'none' })
+        return
+      }
+      this.finishOnboarding()
+    }
   },
 
   skipOptionalStep() {
