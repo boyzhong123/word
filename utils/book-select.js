@@ -1,5 +1,6 @@
-// 当前教材选择：首访档案（年级/学期/版本）只用于展示与推荐，不自动切换教材。
-// 默认学习书保持接口 defaultBook；若无标记则优先「格言谚语词典」。
+// 当前教材选择：新手引导完成时已按档案（年级/学期/版本）匹配并切默认词书（见 onboarding.applyRecommendedBook +
+// utils/book-match.js），结果通过 globalData.pendingBookId 传入；本模块只按 preferredResBookId / defaultBook 选当前书，
+// 不再二次按 studentProfile 匹配。默认学习书保持接口 defaultBook；若无标记则优先「格言谚语词典」。
 function isProverbsDictionaryBook(book) {
   if (!book) {
     return false

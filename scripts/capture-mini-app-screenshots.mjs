@@ -256,6 +256,79 @@ function makeShots(ctx) {
       label: '学习计划',
       navigate: (mp) => mp.navigateTo(`/pages/plan/plan?${buildQuery({ wordCount: 1413, resBookId, name: bookName })}`),
       waitMs: 4000
+    },
+    {
+      key: 'today',
+      file: '07-today-route.png',
+      label: '今日 · 学习路线',
+      navigate: (mp) => mp.switchTab('/pages/today/today'),
+      waitMs: 5500
+    },
+    {
+      key: 'onboarding',
+      file: '07-onboarding.png',
+      label: '新手引导 · 选年级',
+      navigate: (mp) => mp.navigateTo('/pages/onboarding/onboarding?edit=1'),
+      waitMs: 3500
+    },
+    {
+      key: 'membership',
+      file: '07-membership.png',
+      label: '开通会员',
+      navigate: (mp) => mp.navigateTo(`/pages/membership/membership?${buildQuery({ resBookId, name: bookName })}`),
+      waitMs: 4500
+    },
+    {
+      key: 'exam',
+      file: '07-exam-entry.png',
+      label: '入门测',
+      navigate: (mp) => mp.navigateTo(`/pages/exam/exam?${buildQuery({ type: 'entry', resBookId, name: bookName })}`),
+      waitMs: 4500
+    },
+    {
+      key: 'exam-report',
+      file: '07-exam-report.png',
+      label: '入门测报告',
+      navigate: (mp) => mp.navigateTo(`/pages/exam/exam-report?${buildQuery({ type: 'entry', resBookId, name: bookName })}`),
+      waitMs: 4000,
+      prepareBeforeNavigate: async (page, mp, ctx) => {
+        await mp.evaluate((bookId) => {
+          const key = `exam_result_${bookId || 'default'}_entry`
+          wx.setStorageSync(key, {
+            total: 20,
+            correct: 17,
+            accuracy: 85,
+            wordAccuracy: 88,
+            wordCorrect: 14,
+            wordTotal: 16,
+            sentenceAccuracy: 75,
+            sentenceCorrect: 3,
+            sentenceTotal: 4,
+            byType: [
+              { label: '词义选择', accuracy: 90, correct: 9, total: 10 },
+              { label: '听音选词', accuracy: 80, correct: 4, total: 5 }
+            ],
+            wrong: [],
+            practiceSeconds: 480,
+            practiceTimeText: '8分',
+            ts: Date.now()
+          })
+        }, ctx.resBookId)
+      }
+    },
+    {
+      key: 'report',
+      file: '07-unit-report.png',
+      label: '关卡学习报告',
+      navigate: (mp) => mp.navigateTo(`/pages/report/report?${buildQuery({ sort: unitSort || 1, words: 12, en: 'Practice makes perfect.', zh: '熟能生巧。' })}`),
+      waitMs: 4000
+    },
+    {
+      key: 'study-record',
+      file: '07-study-record.png',
+      label: '学习记录',
+      navigate: (mp) => mp.navigateTo('/pages/study-record/record'),
+      waitMs: 4500
     }
   ]
 }
@@ -263,11 +336,16 @@ function makeShots(ctx) {
 async function shot(miniProgram, item) {
   const dest = path.join(outDir, item.file)
   console.log(`→ ${item.label} (${item.file})`)
+  if (item.prepareBeforeNavigate) {
+    const page = await miniProgram.currentPage()
+    await item.prepareBeforeNavigate(page, miniProgram, item._ctx || {})
+  }
   await item.navigate(miniProgram)
   await sleep(item.waitMs || 3000)
   const page = await miniProgram.currentPage()
   if (item.prepare) {
-    await item.prepare(page)
+    const ctx = item._ctx || {}
+    await item.prepare(page, miniProgram, ctx)
   }
   await miniProgram.screenshot({ path: dest })
   const stat = fs.statSync(dest)
@@ -301,6 +379,7 @@ async function main() {
     }
 
     for (const item of shots) {
+      item._ctx = ctx
       try {
         await shot(miniProgram, item)
       } catch (err) {

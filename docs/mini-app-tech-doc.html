@@ -78,8 +78,42 @@
       .doc-toc-item:hover {
         border-left-color: rgba(100,228,189,0.7); background: rgba(100,228,189,0.09); color: #eafff8;
       }
+      .doc-toc-item.changed {
+        color: #ff9b9b;
+        font-weight: 650;
+      }
+      .doc-toc-item.changed::after {
+        margin-left: 6px;
+        color: #ff6b6b;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        content: "v1.1.5";
+      }
       .doc-toc-item.active {
         border-left-color: var(--brand); background: var(--brand-soft); color: #eafff8; font-weight: 680;
+      }
+      .doc-toc-item.active.changed { color: #ffd0d0; }
+      .nav-module.changed {
+        border-color: rgba(255, 107, 107, 0.42);
+        background: rgba(239, 68, 68, 0.08);
+      }
+      .nav-module.changed strong { color: #ff9b9b; }
+      .page-nav-item.changed { color: #ff9b9b; }
+      .section.changed-section {
+        border-color: rgba(255, 107, 107, 0.28);
+        box-shadow: 0 0 0 1px rgba(255, 107, 107, 0.08) inset;
+      }
+      .section.changed-section .section-head h2::after {
+        margin-left: 8px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(239, 68, 68, 0.16);
+        color: #ff9b9b;
+        font-size: 11px;
+        font-weight: 700;
+        vertical-align: middle;
+        content: "v1.1.5 有改动";
       }
       .doc-toc-fab {
         display: none; position: fixed; right: 16px; bottom: 20px; z-index: 8;
@@ -261,7 +295,7 @@
           <span class="brand-mark">词</span>
           <span>词句刷刷刷 · 技术文档</span>
         </div>
-        <div class="date">MINI APP API · v1.0.9 · 交付版 · 2026-06-24</div>
+        <div class="date">MINI APP API · v1.1.5 · 交付版 · 2026-06-24</div>
       </header>
 
       <section class="hero">
@@ -273,14 +307,33 @@
             已接后端接口、请求/响应字段约定。底栏 Tab 为<strong>今日 / 伴读 / 成长 / 我的</strong>（<code>custom-tab-bar</code>）。
             搜索查词等已下线能力不再收录。
           </p>
+          <div class="scope-note" style="margin-top:10px;border-color:rgba(100,180,255,.35);background:rgba(59,130,246,.1)">
+            <strong style="color:#93c5fd">v1.1.5 逻辑变更（目录中标红项）</strong>
+            <span>
+              <strong>① 关卡小测</strong>：每词由 2 题扩为 <strong>3 题（听音填空 + 背诵评测 + 单词拼写）</strong>，加权 <code>背0.4 / 听填0.3 / 拼写0.3</code>（见 <code>level-score-review-spec §5.6③</code>）。<br/>
+              <strong>② 今日页</strong>：新增<strong>今日小结</strong>（今日词/句/关）与<strong>再练一次</strong>确认弹窗（仅更好成绩才更新，可勾选不再提醒）。<br/>
+              <strong>③ 教材联动</strong>：onboarding 完成后前端 <code>utils/book-match.js</code> 过渡匹配推荐教材（待后端 <code>student-profile</code> 返回 <code>recommendedResBookId</code>）。<br/>
+              <strong>④ 题目下发</strong>：<code>listen-quiz</code> 优先读 <code>item.exercises</code>（听填/拼写），无则前端用 <code>unit-words</code> 现拼。
+            </span>
+          </div>
+          <div class="scope-note" style="margin-top:10px;border-color:rgba(255,107,107,.25);background:rgba(239,68,68,.06)">
+            <strong style="color:#ff9b9b">v1.1.4 逻辑变更（延续有效）</strong>
+            <span>
+              <strong>① 解锁模型</strong>：不再按单本词书购买解锁；<strong>第 1 关免费 + 会员解锁全站</strong>（<code>utils/level-access.js</code> + <code>membership</code>）。<br/>
+              <strong>② 信息架构</strong>：新增 Tab「今日」、新手引导 <code>onboarding</code>；底栏为今日/伴读/成长/我的；<code>advertisement</code>/<code>vip</code> 已删。<br/>
+              <strong>③ 会员购买</strong>：<code>pages/membership/*</code> 替代按书 SKU；待接 <code>membership/*</code>、<code>student-profile</code>。<br/>
+              <strong>④ 教材弹窗</strong>：仅切换当前词书（<code>switch-default-book</code>），不再跳转商品详情。
+            </span>
+          </div>
           <div class="scope-note">
-            <strong>待后端实现的接口口径（截至 v1.0.9）</strong>
+            <strong>待后端实现的接口口径（截至 v1.1.5）</strong>
             <span>
               <strong>① 会员制</strong>（新）：<code>GET/POST membership/*</code> 替换 <code>utils/membership.js</code> 本地 Storage；第 1 关免费，会员解锁全部关卡与伴读。<br/>
-              <strong>② 学生档案</strong>（新）：<code>POST student-profile</code>（或扩展 <code>user/info-update</code>）同步 onboarding 采集的年级/学期/教材版本。<br/>
-              <strong>③ 复习关</strong>：<code>review-words</code> <strong>必出且至少 10 词</strong> —— 详见 <code>docs/level-score-review-spec.md §6.4</code>。<br/>
-              <strong>④ 打卡领取</strong>：「立即领取」仍为本地演示，待 <code>gift-claim</code>。<br/>
-              <strong>⑤ 订阅额度</strong>：上报预留 <code>POST subscribe-message/report</code>（<code>SUBSCRIBE_REPORT_ENABLED=false</code>）；模板 ID 在 <code>utils/subscribe.js</code>。
+              <strong>② 学生档案 + 教材联动</strong>（新）：<code>POST student-profile</code>（或扩展 <code>user/info-update</code>）同步 onboarding 采集的年级/学期/教材版本，并<strong>按 version+gradeId+semesterId 匹配 user-books 中的真实教材，自动设为默认词书</strong>（返回 <code>recommendedResBookId</code>）。词书须带年级/学期标签；<strong>无学期标签的书按上学期处理</strong>。<br/>
+              <strong>③ 关卡小测题目</strong>（新）：扩展 <code>unit-words</code> 或新增 <code>GET unit-exercises</code>，每词下发听音填空 + 背诵 + <strong>单词拼写</strong>（<code>exercises.fill / recite / wordSpell</code>）；前端已支持读 <code>item.exercises</code>，缺省仍现拼。<br/>
+              <strong>④ 复习关</strong>：<code>review-words</code> <strong>必出且至少 10 词</strong> —— 详见 <code>docs/level-score-review-spec.md §6.4</code>。<br/>
+              <strong>⑤ 打卡领取</strong>：「立即领取」仍为本地演示，待 <code>gift-claim</code>。<br/>
+              <strong>⑥ 订阅额度</strong>：上报预留 <code>POST subscribe-message/report</code>（<code>SUBSCRIBE_REPORT_ENABLED=false</code>）；模板 ID 在 <code>utils/subscribe.js</code>。
             </span>
           </div>
           <div class="scope-note" style="margin-top:10px">
@@ -296,7 +349,7 @@
         <aside class="hero-side">
           <div>
             <div class="eyebrow">Quick Count</div>
-            <p class="side-note" style="margin-top:12px">v1.0.9 新增今日/引导/会员页；待接 membership/*、student-profile；测评/学习记录/report 仍 Mock。</p>
+            <p class="side-note" style="margin-top:12px">红标模块为 v1.1.5 逻辑变更区；截图含 <code>07-*</code> 系列，由 <code>npm run doc:screenshots</code> CLI 自动截取。</p>
           </div>
           <div class="stats" id="stats"></div>
         </aside>
@@ -310,7 +363,7 @@
         <div class="nav-modules" id="moduleNav"></div>
       </section>
 
-      <section class="section" id="conventions">
+      <section class="section changed-section" id="conventions">
         <div class="section-head"><div><h2>通用约定</h2><p class="section-desc">所有 <code>/mini-app/*</code> 接口共享</p></div></div>
         <div class="api-detail-grid">
           <article class="api-box">
@@ -369,7 +422,7 @@
           既然题目全部后端下发，<strong>现状有缺口</strong>：当前<strong>关卡小测、单词新学选择题</strong>是前端拿 <code>unit-words</code> 原始词表<strong>自己拼题</strong>的，与「全部后端下发」不符，需调整：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">场景</th><th style="text-align:left;padding:6px 8px">现状</th><th style="text-align:left;padding:6px 8px">改为</th></tr>
-            <tr><td style="padding:6px 8px">单词新学选择题 / 关卡小测（听音填空+背诵）</td><td>前端用 <code>unit-words</code> 现拼 <code>quizQuestions</code></td><td><strong>后端下发现成题目</strong>：扩展 <code>unit-words</code> 增加 <code>exercises[]</code>（每词带 新学选择题 + 听音填空挖好的空/字母块 + 背诵目标），或新增 <code>GET unit-exercises</code></td></tr>
+            <tr><td style="padding:6px 8px">单词新学选择题 / 关卡小测（听音填空+背诵+单词拼写）</td><td>前端用 <code>unit-words</code> 现拼 <code>quizQuestions</code></td><td><strong>后端下发现成题目</strong>：扩展 <code>unit-words</code> 增加 <code>exercises[]</code>（每词带 新学选择题 + 听音填空挖好的空/字母块 + 背诵目标 + 单词拼写抽段/字母段），或新增 <code>GET unit-exercises</code></td></tr>
             <tr><td style="padding:6px 8px">入门测 / 结业测</td><td>已是后端 <code>exam-paper</code> 返回 <code>questions[]</code> ✓</td><td>口径不变，仅<strong>补题型</strong>（见三、八：增 听音 / 句子挖空）</td></tr>
             <tr><td style="padding:6px 8px">复习关</td><td><code>review-words</code> 返回词表</td><td>同理建议返回<strong>现成题目</strong>而非仅词表（或复用 unit-exercises 结构）</td></tr>
           </table>
@@ -381,7 +434,7 @@
           内容系统按「图书 → 单元 → 单词 / 句子」三层组织；单词与句子是最小素材，各带标准音与汉语意思。
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">层级</th><th style="text-align:left;padding:6px 8px">关键字段</th><th style="text-align:left;padding:6px 8px">说明</th></tr>
-            <tr><td style="padding:6px 8px"><strong>图书 Book</strong></td><td><code>bookId</code> · 书名 · 学段 · 版本 · 封面</td><td>一本书 = 小程序一份「词书 / 教材」</td></tr>
+            <tr><td style="padding:6px 8px"><strong>图书 Book</strong></td><td><code>bookId</code> · 书名 · 学段 · <strong>版本</strong> · <strong>年级 gradeId</strong> · <strong>学期 semesterId</strong> · 封面</td><td>一本书 = 小程序一份「词书 / 教材」；版本/年级/学期供新手引导<strong>按档匹配推荐教材</strong>（见 ⓪ 新手引导章）</td></tr>
             <tr><td style="padding:6px 8px"><strong>单元 Unit</strong></td><td><code>unitId</code> · 序号 · 所属 bookId · 单词[] · 句子[]</td><td>一个单元 = 小程序一个「关卡」，内含若干单词 + 若干句子</td></tr>
             <tr><td style="padding:6px 8px"><strong>单词 Word</strong></td><td><code>word</code> 拼写 · <code>phonetic</code> 音标 · <code>audioUrl</code> 标准音 · <code>meaning</code> 汉语意思 · <code>pos</code> 词性</td><td>新词学习 / 选择题 / 听音题 / 跟读 的素材</td></tr>
             <tr><td style="padding:6px 8px"><strong>句子 Sentence</strong></td><td><code>text</code> 原文 · <code>audioUrl</code> 标准音 · <code>trans</code> 汉语意思 · <code>wordRefs</code> 含哪些单词</td><td>跟读 / 句子挖空 / 随身听混排 的素材</td></tr>
@@ -425,14 +478,15 @@
 
         <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">三、各环节形态总览（对齐算分规范）</strong><br/>
-          后端按场景生成下列形态并下发现成题目对象。<strong>口径以 <code>docs/level-score-review-spec.md</code> 为准</strong>：选择题在<strong>单词新学</strong>做验证；<strong>关卡小测 = 每词 2 题（听音填空 + 背诵评测）</strong>，不含选择题；选择题 / 听音 / 句子题集中在<strong>入门测 / 结业测</strong>。下表列「下发什么」，生成规则见第四~八节。
+          后端按场景生成下列形态并下发现成题目对象。<strong>口径以 <code>docs/level-score-review-spec.md</code> 为准</strong>：选择题在<strong>单词新学</strong>做验证；<strong>关卡小测 = 每词 3 题（听音填空 + 背诵评测 + 单词拼写）</strong>，不含选择题；选择题 / 听音 / 句子题集中在<strong>入门测 / 结业测</strong>。下表列「下发什么」，生成规则见第四~八节。
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">场景</th><th style="text-align:left;padding:6px 8px">形态</th><th style="text-align:left;padding:6px 8px">素材</th><th style="text-align:left;padding:6px 8px">题干 / 展示</th><th style="text-align:left;padding:6px 8px">答案</th><th style="text-align:left;padding:6px 8px">选项 / 来源</th></tr>
             <tr><td rowspan="2" style="padding:6px 8px;vertical-align:top">practice 环节1<br/><strong>单词新学</strong></td><td>学习卡（非题）</td><td>Word</td><td>拼写 + 音标 + 标准音 + 汉语意思 + 词性</td><td>—（自评 认识/不认识）</td><td>—</td></tr>
             <tr><td>选择题验证（1 题）</td><td>Word</td><td>显示 <code>word</code> + 播标准音</td><td>该词 <code>meaning</code></td><td>同单元其余词 <code>meaning</code> 抽 3（见四）</td></tr>
             <tr><td style="padding:6px 8px">practice 环节2<br/><strong>跟读背诵</strong></td><td>跟读评测</td><td>Word / Sentence 的 <code>audioUrl</code></td><td>朗读单词 / 句子，标准音示范</td><td>以标准音为参照打分</td><td>—（仅本地练，不上分）</td></tr>
-            <tr><td rowspan="2" style="padding:6px 8px;vertical-align:top">listen 环节3<br/><strong>关卡小测</strong><br/>（每词 2 题）</td><td>① 听音填空</td><td>Word（须 <code>audioUrl</code>）</td><td>播标准音 + 释义提示</td><td>拼出 <code>word</code>（可多空）</td><td>缺字母 + 干扰字母块（见五）</td></tr>
+            <tr><td rowspan="3" style="padding:6px 8px;vertical-align:top">listen 环节3<br/><strong>关卡小测</strong><br/>（每词 3 题）</td><td>① 听音填空</td><td>Word（须 <code>audioUrl</code>）</td><td>播标准音 + 释义提示</td><td>拼出 <code>word</code>（可多空）</td><td>缺字母 + 干扰字母块（见五）</td></tr>
             <tr><td>② 背诵评测</td><td>Word（+其例句）</td><td>看 <code>meaning</code> 脱稿背诵</td><td>语音对标准音评分</td><td>—（无选项，见六）</td></tr>
+            <tr><td>③ 单词拼写</td><td>Word（须 <code>audioUrl</code>）</td><td>播标准音（题目本体）</td><td>选出抽掉的<strong>一段字母</strong></td><td>正确字母段 + 干扰段（见六之二）</td></tr>
             <tr><td rowspan="4" style="padding:6px 8px;vertical-align:top"><strong>入门测 / 结业测</strong><br/>（抽样组卷，见八）</td><td>英译中 / 中译英选择</td><td>Word</td><td>显示 <code>word</code> 或 <code>meaning</code>（+音频）</td><td>对应 <code>meaning</code> / <code>word</code></td><td>全书其余词抽 3（同词性优先）</td></tr>
             <tr><td>听音选词 / 听音填空</td><td>Word（须 <code>audioUrl</code>）</td><td>播标准音（选词 / 拼写）</td><td>该 <code>word</code></td><td>全书其余词抽 3 / 字母块</td></tr>
             <tr><td>连词成句 order</td><td>Sentence</td><td>打乱句中词块</td><td>正确语序</td><td>—（由该句词块构成）</td></tr>
@@ -475,15 +529,83 @@
         </div>
 
         <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">六之二、单词拼写 · 抽段怎么抽</strong><br/>
+          小测第 3 题：听标准音 → 从字母块中选出单词被抽掉的<strong>一整段连续字母</strong>（区别于第 1 题听音填空的「多空缺字母」，这里只挖<strong>一段、一个空</strong>，选完即判分）：
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">项</th><th style="text-align:left;padding:6px 8px">规则</th></tr>
+            <tr><td style="padding:6px 8px"><strong>抽哪段</strong></td><td>取词中一段连续字母（长度 2~3，<code>SPELL_SEG=2..3</code>），<strong>首字母不抽</strong>（保留定位锚点），优先含元音的段</td></tr>
+            <tr><td style="padding:6px 8px"><strong>选项</strong></td><td>正确段 + 2~3 个等长干扰段（改元音 / 易混拼法，如 ade→aid/ode/ide），整体打乱</td></tr>
+            <tr><td style="padding:6px 8px"><strong>题目本体</strong></td><td>读音即题目：单词标准音 <code>audioUrl</code>，音标紧贴单词下方可点重播；<strong>不设「提示一下」剧透</strong></td></tr>
+            <tr><td style="padding:6px 8px"><strong>判分</strong></td><td>单空选完即判分：选对 = 100 / 选错 = 0（对齐算分规范 5.6③，权重 0.3）</td></tr>
+            <tr><td style="padding:6px 8px"><strong>可复现</strong></td><td>抽段 / 打乱用 <code>seed = word + levelId</code> 伪随机 → 同词每次抽同一段</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px">示例：<code>spade</code>（保留首字母 sp）→ 抽段 <code>ade</code> → 显示 <code>sp___</code>，给字母段 <code>[ade][aid][ide][ode]</code> 让其选择。
+        </div>
+
+        <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">七、关卡小测怎么组卷（全覆盖，不抽样）</strong><br/>
           小测是<strong>本关检验</strong>，覆盖单元全部单词，不抽样：
           <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">项</th><th style="text-align:left;padding:6px 8px">规则</th></tr>
-            <tr><td style="padding:6px 8px">题量</td><td>= 单元词数 × 2（每词：听音填空 1 + 背诵评测 1）</td></tr>
-            <tr><td style="padding:6px 8px">顺序</td><td>按词逐个出「填空 → 背诵」，或先全部填空再全部背诵（页面已分两步）；词序可随机但用 <code>seed=levelId</code> 复现</td></tr>
-            <tr><td style="padding:6px 8px">跳过</td><td>词无 <code>audioUrl</code> → 该词听音填空降级或跳过（见兜底）；背诵评测仍可（有 meaning 即可）</td></tr>
-            <tr><td style="padding:6px 8px">汇总</td><td>每词 2 题 → 该词小测 cell（算分规范 5.6③）→ <code>listening-quiz-result</code> 上报</td></tr>
+            <tr><td style="padding:6px 8px">题量</td><td>= 单元词数 × 3（每词：听音填空 1 + 背诵评测 1 + 单词拼写 1）</td></tr>
+            <tr><td style="padding:6px 8px">顺序</td><td>页面分三步：听音填空 → 背诵评测 → 单词拼写；词序可随机但用 <code>seed=levelId</code> 复现</td></tr>
+            <tr><td style="padding:6px 8px">跳过</td><td>词无 <code>audioUrl</code> → 该词听音填空 / 单词拼写降级或跳过（见兜底）；背诵评测仍可（有 meaning 即可）</td></tr>
+            <tr><td style="padding:6px 8px">汇总</td><td>每词 3 题 → 该词小测 cell（算分规范 5.6③，背诵0.4 / 听填0.3 / 拼写0.3）→ <code>listening-quiz-result</code> 上报</td></tr>
           </table>
+        </div>
+
+        <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">七之一、关卡小测 · 哪些词出现 &amp; 备选项怎么来</strong><br/>
+          本节对齐<strong>接口字段</strong>与<strong>前端实现</strong>（<code>pages/listen/listen-quiz.js</code>）。<strong>后端在 <code>unit-words</code> 每词下发 <code>exercises</code> 后前端直接渲染</strong>；未下发的子题仍按下列规则本地兜底拼题。
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">项</th><th style="text-align:left;padding:6px 8px">规则</th></tr>
+            <tr><td style="padding:6px 8px"><strong>哪些词会出题</strong></td><td><strong>本关全部单词</strong>（<code>GET unit-words</code> 返回的每个 <code>word</code> 一条），不抽样。一词一题串（听填 → 背诵 → 拼写，可按数据降为 1~3 步）。词序建议后端用 <code>seed=levelId</code> 打乱；<strong>现状</strong>按接口返回顺序。</td></tr>
+            <tr><td style="padding:6px 8px"><strong>例句取材</strong></td><td>优先 <code>proverb.label</code>（英文句）；无英文则退回 <code>proverb.content</code> / <code>word.sentence</code>。句中挖不出合法空位 → <strong>该词不进卷</strong>（整题跳过）。</td></tr>
+            <tr><td style="padding:6px 8px"><strong>动态步数</strong></td><td>有 <code>exercises.listenFill</code> 或句中可挖词 → 第 1 步听填；有 <code>meaning</code> / 例句 → 背诵；有 <code>exercises.wordSpell</code> 或词长≥3 可拼写 → 拼写。仅下发 <code>recite+wordSpell</code>、无 <code>listenFill</code> 时 → <strong>2 步</strong>（背诵→拼写）。无 <code>audioUrl</code> → 听填/拼写可跳过（联调前端可用 TTS 兜底发音，正式环境应由后端给音）。</td></tr>
+          </table>
+
+          <div style="margin-top:12px"><strong>① 听音填空 · 挖什么 &amp; 备选项（底部词块）</strong></div>
+          <table style="width:100%; margin-top:8px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">口径</th><th style="text-align:left;padding:6px 8px">挖空对象</th><th style="text-align:left;padding:6px 8px">备选项 / 干扰项</th></tr>
+            <tr><td style="padding:6px 8px"><strong>目标（后端下发 · 见五节）</strong></td><td>对<strong>单词本身</strong>挖字母空（如 <code>c_mp_t_r</code>）</td><td><code>listenFill.letterTiles[]</code> = 正确字母 + 2~4 干扰字母，打乱</td></tr>
+            <tr><td style="padding:6px 8px"><strong>现状前端临时拼题</strong></td><td>对<strong>例句英文</strong>挖「整词」空（非字母块）：候选 = 句中所有英文词，排除：长度≤2、停用词（the/a/is…）、<strong>本题正在学的词</strong>（含 <code>exchange</code> 变形）</td><td>备选项 = <strong>本次被挖空的那些词</strong>（1~4 个），打乱作为底部 chips；<strong>不另抽干扰词</strong>（选项池即答案词集合）。实际挖空数 = <code>min(4, 候选数)</code>，伪随机抽取（目标应改为 <code>seed=word+levelId</code> 可复现）。</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px;opacity:.9">接口字段（后端下发时前端只渲染）：<code>exercises.listenFill = { audioUrl, sentence?, translation?, parts[], gaps[{gapIndex, answer}], options[{text}] }</code>。未下发时走上行「现状前端」规则。</span>
+
+          <div style="margin-top:12px"><strong>② 背诵评测</strong></div>
+          <span style="display:block;margin-top:6px;opacity:.9">无备选项。展示例句中文 / <code>recite.meaning</code>，用户脱稿朗读；评测参照 <code>recite.audioUrl</code> 或单词 <code>audioUrl</code>（句子音频仅作展示，不作为拼写/听填题干音）。</span>
+
+          <div style="margin-top:12px"><strong>③ 单词拼写 · 备选项（底部字母段）</strong></div>
+          <table style="width:100%; margin-top:8px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">口径</th><th style="text-align:left;padding:6px 8px">规则</th></tr>
+            <tr><td style="padding:6px 8px"><strong>目标（后端下发 · 见六之二）</strong></td><td><code>wordSpell = { audioUrl, prefix, answer, suffix, options[] }</code>，4 段等长，1 正 + 3 扰，打乱</td></tr>
+            <tr><td style="padding:6px 8px"><strong>现状前端临时拼题</strong></td><td>词长&lt;3 不出拼写。保留首字母，在词中抽连续 2~3 字母为 <code>answer</code>（优先含元音段）。干扰段：同长度，优先改元音 → 易混辅音(b/d,p/q…) → 随机替换；凑满 3 扰 + 1 正共 4 项打乱。种子目标 <code>word+levelId</code>。</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px">示例 <code>spade</code>：显示 <code>sp___</code>，选项 <code>[ade][aid][ide][ode]</code>（与联调 fixture 一致）。</span>
+
+          <div style="margin-top:12px"><strong>④ <code>unit-words</code> 每词 <code>exercises</code> 建议结构（完整）</strong></div>
+          <pre style="margin:8px 0 0;font-size:11px;line-height:1.5;overflow:auto;opacity:.92">{
+  "word": { "word": "planet", "phonetic": "ˈplænɪt", "audioUrl": "…", "meaning": "行星", "pos": "n." },
+  "proverb": [{ "label": "Bright planets cross the sky.", "trans": "…", "audioUrl": "…" }],
+  "exercises": {
+    "listenFill": {
+      "audioUrl": "…",
+      "sentence": "Bright ___ cross the sky.",
+      "translation": "…",
+      "gaps": [{ "gapIndex": 0, "answer": "planets" }],
+      "options": [{ "text": "planets" }]
+    },
+    "recite": { "meaning": "n.行星", "audioUrl": "…", "refText": "planet" },
+    "wordSpell": {
+      "audioUrl": "…",
+      "prefix": "pla",
+      "answer": "net",
+      "suffix": "",
+      "options": ["net", "nat", "nit", "not"]
+    }
+  }
+}</pre>
+          <span style="display:block;margin-top:8px;opacity:.85">联调样例见仓库 <code>utils/quiz-dev-fixture.js</code>（<code>planet</code> 三步全 + <code>spade</code> 两步无听填）。</span>
         </div>
 
         <div class="callout warn" style="margin-bottom:14px">
@@ -520,6 +642,8 @@
             <tr><td style="padding:6px 8px">单词无 <code>audioUrl</code></td><td>不生成听音类题；学习卡隐藏播放按钮（或 TTS 兜底）</td></tr>
             <tr><td style="padding:6px 8px">单词无 <code>phonetic</code></td><td>学习卡隐藏音标行，其余照常</td></tr>
             <tr><td style="padding:6px 8px">单元无句子 / 句子无 <code>trans</code></td><td>跳过句子挖空与课文跟读，小测只出单词题</td></tr>
+            <tr><td style="padding:6px 8px">句中无合法挖词位 / 未下发 <code>listenFill</code></td><td>跳过听填步；若仍有 <code>recite</code> / <code>wordSpell</code> 则降为 2 步或 1 步</td></tr>
+            <tr><td style="padding:6px 8px">词长 &lt; 3，无法拼写</td><td>跳过拼写步；听填+背诵仍可（2 步）</td></tr>
             <tr><td style="padding:6px 8px">单元可用词 &lt; 4</td><td>干扰项跨单元 / 全书补足；仍不足则该单元降为「听音填空 / 自评」等不依赖干扰项的题型</td></tr>
             <tr><td style="padding:6px 8px">整单元无单词</td><td>该单元不生成关卡（导入阶段过滤）</td></tr>
           </table>
@@ -542,7 +666,7 @@
         </div>
       </section>
 
-      <section class="section" id="page-inventory">
+      <section class="section changed-section" id="page-inventory">
         <div class="section-head"><div><h2>全站页面清单 · 交付对照</h2><p class="section-desc"><code>app.json</code> 注册路由 + 关键组件；联调时按「待接 API」列逐项关闭 Mock</p></div></div>
         <div class="callout" style="margin-bottom:14px">
           <strong>图例</strong> · <span class="badge ok" style="display:inline;padding:2px 8px;font-size:11px">已接</span> 页面已调真实接口 ·
@@ -553,7 +677,7 @@
           <table>
             <thead><tr><th>路由</th><th>模块</th><th>职责</th><th>主要接口</th><th>状态</th><th>联调待办</th></tr></thead>
             <tbody>
-              <tr><td><code>pages/onboarding/onboarding</code></td><td>引导</td><td>首访：产品介绍 → 年级/学期/教材 → 形象/手机号（选填）</td><td>student-profile（待接）；phone-number；login</td><td><span class="badge partial">部分</span></td><td>档案现 Storage；联调改 POST student-profile</td></tr>
+              <tr><td><code>pages/onboarding/onboarding</code></td><td>引导</td><td>首访：产品介绍 → 年级/学期/教材 → 形象/手机号（选填）</td><td>student-profile（待接）；phone-number；login</td><td><span class="badge partial">部分</span></td><td>档案现 Storage；联调改 POST student-profile，并按 version+年级+学期匹配 user-books 自动切默认教材</td></tr>
               <tr><td><code>pages/today/today</code></td><td>今日</td><td>Tab 首页：今日路线、任务关卡、教材胶囊、会员引导、入门测提示</td><td>user/info, user-books, book-units, info-update, exam-result(entry)</td><td><span class="badge partial">部分</span></td><td>今日路线/目标关后端下发；会员读本地 membership</td></tr>
               <tr><td><code>pages/home/home</code></td><td>成长</td><td>Tab「成长」：闯关列表/地图、教材弹窗、打卡摘要、测评 Banner、报告 pill</td><td>user/info, user-books, book-units, switch-default-book, info-update</td><td><span class="badge partial">部分</span></td><td>goUnitReport→unit-report；exam→exam-paper；会员门禁</td></tr>
               <tr><td><code>pages/plan/plan</code></td><td>成长</td><td>每日目标关数、关卡预览（含单词）、打卡预告、强度小怪兽</td><td>book-units, unit-words；study-plan（待实现，当前 Storage）</td><td><span class="badge partial">部分</span></td><td>groupsPerDay 改 study-plan 接口；活动文案读 user/info</td></tr>
@@ -569,7 +693,7 @@
               <tr><td><code>pages/exam/exam-report</code></td><td>报告</td><td>测评报告</td><td>exam-result（待接）</td><td><span class="badge partial">部分</span></td><td>—</td></tr>
               <tr><td><code>pages/study-record/record</code></td><td>报告</td><td>按日学习统计、测评入口</td><td>study-records（待接，现 demo）</td><td><span class="badge partial">部分</span></td><td>—</td></tr>
               <tr><td><code>pages/me/me</code></td><td>我的</td><td>资料、会员态、消息区→notify、学习形象、档案编辑入口</td><td>user/info, info-update, phone-number, upload-avatar</td><td><span class="badge partial">部分</span></td><td>会员/角色图改后端下发</td></tr>
-              <tr><td><code>pages/me/book</code></td><td>我的</td><td>已购/可用教材列表</td><td>user-books, switch-default-book</td><td><span class="badge ok">已接</span></td><td>—</td></tr>
+              <tr><td><code>pages/me/book</code></td><td>我的</td><td><strong>已学教材</strong>列表（仅首关已完成的书；UI 文案「已学书本」）</td><td>user-books, switch-default-book</td><td><span class="badge ok">已接</span></td><td>—</td></tr>
               <tr><td><code>pages/me/notify</code></td><td>我的</td><td>消息授权状态：三类模板、累计次数、提醒开关、预览</td><td>wx.requestSubscribeMessage；subscribe-message/report（待接）</td><td><span class="badge partial">部分</span></td><td>偏好/次数现本地 Storage；联调开 report</td></tr>
               <tr><td><code>pages/me/paid-agreement</code></td><td>我的</td><td>用户付费协议（会员开通前必读）</td><td>无（静态文案）</td><td><span class="badge missing">无后端</span></td><td>可选 CMS 下发协议正文</td></tr>
               <tr><td><code>pages/me/contact</code></td><td>我的</td><td>FAQ、微信客服</td><td>无</td><td><span class="badge missing">无后端</span></td><td>—</td></tr>
@@ -580,19 +704,18 @@
             </tbody>
           </table>
         </div>
-        <div class="callout warn" style="margin-top:14px">
-          <strong style="color:var(--amber)">截图缺口（交付前可补）</strong><br/>
-          已有：home / practice / listen / checkin / me / plan / finish / 旧版 vip·advertisement。<br/>
-          待补：<code>today</code>、<code>onboarding</code>、<code>membership</code>（替换 06-vip）、<code>exam</code>、<code>exam-report</code>、<code>report</code>、<code>study-record</code> — 运行 <code>npm run doc:screenshots</code> 后更新 <code>docs/images/mini-app/</code> 与 SCREENSHOTS 常量。
+        <div class="callout tip" style="margin-top:14px">
+          <strong style="color:var(--blue)">截图</strong><br/>
+          运行 <code>npm run doc:screenshots</code>（微信开发者工具 CLI）自动输出到 <code>docs/images/mini-app/</code>。v1.1.4 新增 <code>07-*</code> 系列（今日/引导/会员/测评/报告/学习记录）。
         </div>
       </section>
 
-      <section class="section" id="gallery-section">
+      <section class="section changed-section" id="gallery-section">
         <div class="section-head"><div><h2>页面截图</h2><p class="section-desc">点击图片查看大图。缺失截图会显示占位提示。</p></div></div>
         <div class="gallery" id="gallery"></div>
       </section>
 
-      <section class="section" id="matrix">
+      <section class="section changed-section" id="matrix">
         <div class="section-head"><div><h2>接口 ↔ 页面对照表</h2><p class="section-desc">可按模块、状态筛选；点击「详情」查看字段与渲染说明。</p></div></div>
         <div class="matrix-layout">
           <aside class="page-nav"><div class="page-nav-title">模块</div><div class="page-nav-list" id="pageNav"></div></aside>
@@ -624,7 +747,7 @@
         </div>
       </section>
 
-      <section class="section" id="module-core-flow">
+      <section class="section changed-section" id="module-core-flow">
         <div class="section-head">
           <div>
             <h2>★ 核心学习流程 · 每关三环节</h2>
@@ -657,12 +780,27 @@
         <div class="cards" id="coreFlowPages"></div>
       </section>
 
-      <section class="section" id="module-today">
+      <section class="section changed-section" id="module-today">
         <div class="section-head"><div><h2>⓪ 新手引导 · 今日</h2><p class="section-desc">首访 <code>pages/onboarding/onboarding</code> → Tab「今日」<code>pages/today/today</code></p></div></div>
         <div class="callout" style="margin-bottom:14px">
           <strong>新手引导 onboarding</strong><br/>
           四步：产品介绍长图 → 年级+学期 → 教材版本 → 学习形象/手机号（选填）。完成后写 <code>studentProfile</code> 到 Storage（<code>utils/student-profile.js</code>），并标记入门测提示待展示。<br/>
-          手机号走 <code>POST user/phone-number</code>；年级/学期/版本<strong>待接</strong> <code>POST student-profile</code>（或扩展 <code>user/info-update</code>）。编辑模式从「我的」进入，可只改档案不回 Tab。
+          手机号走 <code>POST user/phone-number</code>；年级/学期/版本<strong>待接</strong> <code>POST student-profile</code>（或扩展 <code>user/info-update</code>）。编辑模式从「我的」进入，可只改档案不回 Tab。<br/>
+          年级清单见 <code>GRADE_GROUPS</code>（小学 g1–g6 / 初中 g7–g9 / 高中 g10–g12），学期 <code>SEMESTERS</code>（<code>first</code> 上学期 / <code>second</code> 下学期），版本按学段取 <code>VERSIONS_BY_STAGE</code>。
+        </div>
+        <div class="callout warn" style="margin-bottom:14px">
+          <strong style="color:var(--amber)">教材联动 · 引导选完必须有书可推（新增口径）</strong><br/>
+          引导采集的「年级 + 学期 + 教材版本」<strong>必须能映射到一本真实教材</strong>，否则用户选完没有图书推荐、今日页空着。约定如下：
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">点</th><th style="text-align:left;padding:6px 8px">约定</th></tr>
+            <tr><td style="padding:6px 8px">教材目录</td><td>由 <code>GET user-books</code> 按数据库<strong>真实返回</strong>，每本带 <code>version</code> / <code>gradeId</code> / <code>semesterId</code> 标签（与 onboarding 同一套取值）</td></tr>
+            <tr><td style="padding:6px 8px">匹配口径</td><td>按 <code>version + gradeId + semesterId</code> 命中目录里的书 → 该书 <code>resBookId</code> 设为推荐/默认词书</td></tr>
+            <tr><td style="padding:6px 8px"><strong>无学期标签</strong></td><td>数据库里没有上下学期标签的书，<strong>一律按上学期（<code>semesterId=first</code>）</strong>参与匹配</td></tr>
+            <tr><td style="padding:6px 8px">落地方式</td><td><strong>自动设为默认词书</strong>：<code>POST student-profile</code> 返回 <code>recommendedResBookId</code> 并自动 <code>switch-default-book</code>，今日页直接展示这本</td></tr>
+            <tr><td style="padding:6px 8px">无精确命中</td><td>同版本同年级无对应学期 → 退到该版本该年级任一册；仍无 → 回退后端 <code>defaultBook</code>（不报错、不留空）</td></tr>
+            <tr><td style="padding:6px 8px"><strong>学习计划随教材联动</strong></td><td>学习计划（每日目标关数）<strong>按 <code>resBookId</code> 绑这本书</strong>：切到推荐教材后，今日页「今日 x/y 关」与 plan 页读的是该书自己的计划，无则默认 1 关/天，总关数随该书词量算（详见对照表 study-plan 词条）</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px">现状：<strong>前端已实现过渡联动</strong> —— <code>onboarding.applyRecommendedBook</code> + <code>utils/book-match.js</code> 拉 <code>user-books</code> 按 <code>version+gradeId+semesterId</code> 匹配（demo 书本地切 / 真实书调 <code>switch-default-book</code>），经 <code>globalData.pendingBookId</code> 让今日页落到这本；匹配未命中或超时(1.5s)均回退 defaultBook、不阻断引导完成。<strong>后端 <code>student-profile</code> 就绪后</strong>改由后端返回 <code>recommendedResBookId</code> 替代前端匹配（详见对照表 student-profile / user-books 词条）。</span>
         </div>
         <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">今日页 today</strong><br/>
@@ -670,10 +808,37 @@
           数据：<code>user-books</code> + <code>book-units</code> 拼今日任务；<code>checkin-progress</code> 本地算今日 x/y 关；会员态读 <code>membership</code> Storage；入门测完成态读 <code>exam-data</code> Storage。<br/>
           切换教材：跳 Tab「成长」并拉起选择教材弹层（<code>globalData.openBookPicker</code>）。开通会员：<code>navigateToVipPurchase</code> → <code>pages/membership/membership</code>。
         </div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>今日页各项数据 · 来源与口径</strong><br/>
+          今日页不是单独一个接口，而是由下列接口/本地状态拼装。联调时逐项对齐字段与计算口径：
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">展示项</th><th style="text-align:left;padding:6px 8px">来源</th><th style="text-align:left;padding:6px 8px">字段 / 计算口径</th></tr>
+            <tr><td style="padding:6px 8px">教材胶囊（书名/版本/封面）</td><td><code>user-books</code></td><td>当前默认词书 <code>name/press(version)/bookCover/newStandard</code>；引导联动后即推荐教材</td></tr>
+            <tr><td style="padding:6px 8px">档案副标题「三年级上册·人教版」</td><td><code>student-profile</code></td><td><code>describeProfile(gradeName+semester册+version)</code></td></tr>
+            <tr><td style="padding:6px 8px"><strong>本书已学词数</strong></td><td><code>user-books</code> / <code>book-units</code></td><td><code>learningInfo.book.learningWords</code>；或前端按已学关聚合（见下「已学」口径）</td></tr>
+            <tr><td style="padding:6px 8px">今日已学（词 / 句）</td><td><code>book-units</code></td><td>今日目标关里各 task <code>current/total</code> 求和（<code>word</code>→词，<code>recitation</code>→句）</td></tr>
+            <tr><td style="padding:6px 8px"><strong>今日小结</strong>（词 / 句 / 关）</td><td><code>book-units</code> + <code>checkin-progress</code></td><td>与上同源；关数读今日已完成关 <code>getTodayDone</code>；点击可弹进度说明</td></tr>
+            <tr><td style="padding:6px 8px">再练一次弹窗</td><td>本地</td><td>路线卡片已 completed 的环节再次进入前确认；仅更好成绩更新；<code>reprac_skip_confirm</code> 可不再提醒</td></tr>
+            <tr><td style="padding:6px 8px">今日 x / y 关</td><td><code>study-plan</code>（待接，现本地，<strong>按 resBookId 联动</strong>）</td><td>y=<code>getDailyGoal(resBookId)</code>（该教材每日目标关，无则 1）；x=<code>getTodayDone</code>（今日已完成关，<code>checkin-progress</code> 本地 <code>dailyProgress_*</code>）</td></tr>
+            <tr><td style="padding:6px 8px">今日学习路线 / 关卡卡片</td><td><code>book-units</code></td><td>取 <code>isTodayTask</code> 的关 → 拆「单词新学→跟读背诵→关卡小测」三步；进度/星级由后端 <code>tasks[]</code> 给</td></tr>
+            <tr><td style="padding:6px 8px">会员浮层 / 关卡锁</td><td><code>membership</code></td><td><code>active</code>；sort=1 免费体验关，其余非会员拦截（<code>level-access</code>）</td></tr>
+            <tr><td style="padding:6px 8px">入门测提示 Banner</td><td><code>exam-result</code> / <code>exam-data</code></td><td>无 entry 结果且未关闭提示时展示</td></tr>
+          </table>
+        </div>
+        <div class="callout warn" style="margin-bottom:14px">
+          <strong style="color:var(--amber)">「已学」与「已掌握」是两套口径，不可混用</strong><br/>
+          二者计算逻辑、数据源、出现位置都不同，后端须分别返回：
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">口径</th><th style="text-align:left;padding:6px 8px">定义</th><th style="text-align:left;padding:6px 8px">计算</th><th style="text-align:left;padding:6px 8px">出现位置</th></tr>
+            <tr><td style="padding:6px 8px"><strong>已学</strong> learned</td><td>关卡三环节<strong>都做完</strong>，该关单词即计入已学（看「学没学过」，与分数无关）</td><td><code>utils/learned-progress.js</code>：关的 <code>word/recitation/listening</code> 三 task 全 completed → 该关 <code>levelWords</code> 计入；占书比 = 已学词 / 总词数</td><td>今日页本书已学词数；我的页「已学词数」「已学书本」；me/book 列表（首关已完成才入列）</td></tr>
+            <tr><td style="padding:6px 8px"><strong>已掌握</strong> mastered</td><td>词的<strong>掌握度 ≥ 70</strong>（看「学得好不好」，由成绩决定）</td><td><code>level-score-review-spec</code>：词×环节矩阵行聚合（小测占 50% 加权）→ <code>MASTERY_THRESHOLD=70</code>；&lt;70 待复习</td><td>关卡报告 / 学习记录（不在今日页主数据，按报告口径单算）</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px">一句话：<strong>已学 = 流程走完（关级，与分数无关）；已掌握 = 成绩达标（词级 ≥70）</strong>。所以同一关可能「已学」但词未必「已掌握」。</span>
+        </div>
         <div class="cards" id="todayPages"></div>
       </section>
 
-      <section class="section" id="module-home">
+      <section class="section changed-section" id="module-home">
         <div class="section-head"><div><h2>① 成长 · 闯关列表</h2><p class="section-desc">Tab「成长」· 路由 <code>pages/home/home</code></p></div></div>
         <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>展示当前词书、学习进度、打卡摘要；提供地图/分类两种关卡视图；每关含「单词新学 → 跟读背诵 → 关卡小测」三任务；支持<strong>切换教材弹窗</strong>、错词复习关、入门测/结业测 Banner、单关报告入口、学习计划。非会员仅第 1 关可学，其余关卡弹会员引导。</div>
         <div class="callout tip" style="margin-bottom:14px">
@@ -682,7 +847,7 @@
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">界面</th><th style="text-align:left;padding:6px 8px">路由/组件</th><th style="text-align:left;padding:6px 8px">范围</th><th style="text-align:left;padding:6px 8px">主要动作</th></tr>
             <tr><td style="padding:6px 8px"><strong>选择教材弹窗</strong></td><td><code>home</code> 内嵌 bottom-sheet</td><td>全量目录</td><td>学段/版本筛选 · 封面/按钮均为「切换使用」→ switch-default-book</td></tr>
             <tr><td style="padding:6px 8px">今日页教材胶囊</td><td><code>today</code> → 跳 home 拉起弹层</td><td>同上</td><td>浏览/切换当前教材</td></tr>
-            <tr><td style="padding:6px 8px">我的教材</td><td><code>pages/me/book</code></td><td>已购/可用子集</td><td>列表切换当前 · 继续学习回成长 Tab</td></tr>
+            <tr><td style="padding:6px 8px">已学教材（我的）</td><td><code>pages/me/book</code></td><td>已学子集（首关三环节完成）</td><td>列表切换当前 · 继续学习回成长 Tab</td></tr>
           </table>
           弹窗数据来自 <code>GET user-books</code>；非 release 环境前端追加 <code>mock-textbooks.js</code> 演示目录。切换词书调 <code>switch-default-book</code> 并刷新 <code>book-units</code>。<strong>不再跳转词书商品详情页</strong>，内容解锁统一走会员。
         </div>
@@ -713,15 +878,15 @@
         <div class="cards" id="checkinPages"></div>
       </section>
 
-      <section class="section" id="module-listen">
+      <section class="section changed-section" id="module-listen">
         <div class="section-head"><div><h2>③ 伴读（随身听）</h2><p class="section-desc">底栏「伴读」Tab + <code>pages/listen/listen</code> + 迷你播放条</p></div></div>
-        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>按单元播放单词+例句混排列表；支持倍速、<strong>单期循环 / 整本书循环</strong>；列表统一显示「关卡N」（不展示后端 <code>unitName</code> 如「第N期」）；课文页可展开跟读（Chivox 评测，<strong>仅本地练、不上报分数</strong>）；<code>mode=quiz</code> 时进入关卡小测（听音填空 + 背诵评测，支持「立即跳过」倒计时），结果上报 <code>listening-quiz-result</code>。</div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>按单元播放单词+例句混排列表；支持倍速、<strong>单期循环 / 整本书循环</strong>；列表统一显示「关卡N」（不展示后端 <code>unitName</code> 如「第N期」）；课文页可展开跟读（Chivox 评测，<strong>仅本地练、不上报分数</strong>）；<code>mode=quiz</code> 时进入关卡小测（听音填空 + 背诵评测 + 单词拼写，支持「立即跳过」倒计时），结果上报 <code>listening-quiz-result</code>。</div>
         <div class="cards" id="listenPages"></div>
       </section>
 
-      <section class="section" id="module-me">
+      <section class="section changed-section" id="module-me">
         <div class="section-head"><div><h2>④ 我的</h2><p class="section-desc">Tab「我的」· 路由 <code>pages/me/me</code> 及子页</p></div></div>
-        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计；子页含<strong>我的教材</strong>、学习记录、<strong>消息授权（notify）</strong>、联系客服、隐私协议、学习形象、手机号验证。<strong>宠物（me/pet）</strong>为本地演示，不同步后端。</div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计（已学词数 / 学习时长 / 连续打卡）；子页含<strong>已学教材</strong>（<code>me/book</code>，UI 文案「已学书本」，仅列首关已完成的书）、学习记录、<strong>消息授权（notify）</strong>、联系客服、隐私协议、学习形象、手机号验证。<strong>宠物（me/pet）</strong>为本地演示，不同步后端。</div>
         <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">订阅消息 · 三类模板</strong><br/>
           配置在 <code>utils/subscribe.js</code>（模板 ID 已填入公众平台申请结果）。微信一次性订阅<strong>前端查不到剩余次数</strong>，须由后端记账并在到点时调用微信下发接口扣减额度。
@@ -737,16 +902,16 @@
         <div class="cards" id="mePages"></div>
       </section>
 
-      <section class="section" id="module-commerce">
+      <section class="section changed-section" id="module-commerce">
         <div class="section-head"><div><h2>⑤ 会员开通（待对接）</h2><p class="section-desc"><code>pages/membership/membership</code> → <code>membership-success</code> / <code>membership-records</code></p></div></div>
         <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">购买入口</strong><br/>
           今日页会员浮层 / 成长页关卡锁 / 伴读锁 / 我的页「开通会员」→ <code>membership</code>（<code>utils/vip-purchase.js</code> 统一跳转）→ 模拟微信支付或兑换码 → 本地 <code>activateMembership</code> 写 Storage → 成功页 <code>membership-success</code>。
         </div>
         <div class="callout" style="margin-bottom:14px">
-          <strong>现状（v1.0.9）</strong><br/>
+          <strong>现状（v1.1.4）</strong><br/>
           三档套餐前端常量：<code>m1</code> 1个月 ¥39 · <code>m2</code> 2个月 ¥59 · <code>y1</code> 1年 ¥109（<code>utils/membership.js</code>）。支付为<strong>模拟弹窗</strong>，订单记 <code>membership_orders</code> Storage。<br/>
-          兑换码硬编码 <code>REDEEM_CODE_TIERS</code>（2818M32→m1，2818M21→m2），命中后跳过支付直接开通。<br/>
+          兑换码硬编码 <code>REDEEM_CODE_TIERS</code>（2818M32→m1，2818M21→m2），命中后跳过支付直接开通。<strong>兑换码对应的是 VIP 时效</strong>：码 → 档位 → 按该档 <code>months</code> 从 <code>max(now, expireAt)</code> 叠加延长到期时间，<strong>不绑定单本词书</strong>（解锁全站同会员）。<br/>
           开通前须勾选付费协议 → <code>pages/me/paid-agreement</code>（静态页）。
         </div>
         <div class="callout tip" style="margin-bottom:14px">
@@ -862,13 +1027,24 @@
             <tr><td style="padding:6px 8px">边界</td><td colspan="2">无句子 → <code>cell = 单词读音分</code>；某句评分失败 → 跳过该句，句子内部重新归一</td></tr>
           </table>
 
-          <div style="margin-top:12px"><strong>· 关卡小测 = 每词 2 小题，等权平均</strong>　<code>cell = (听音填空分 + 背诵评测分) / 2</code></div>
+          <div style="margin-top:12px"><strong>· 关卡小测 = 每词 3 小题，加权</strong>　<code>cell = 背诵评测分×0.4 + 听音填空分×0.3 + 单词拼写分×0.3</code></div>
           <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:12px">
             <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">小题</th><th style="text-align:left;padding:6px 8px">怎么得分</th><th style="text-align:left;padding:6px 8px">占比</th></tr>
-            <tr><td style="padding:6px 8px">① 听音填空</td><td>整词填对 = 100 / 填错 = 0；<strong>多空时 = 填对空数 / 总空数 × 100</strong></td><td>50%</td></tr>
-            <tr><td style="padding:6px 8px">② 背诵评测</td><td>看中文脱稿朗读 → Chivox 发音分 0–100</td><td>50%</td></tr>
-            <tr><td style="padding:6px 8px">汇总</td><td colspan="2">两小题平均 = 该词小测 cell → 再进 ② 的三环节加权（小测占 50%）</td></tr>
+            <tr><td style="padding:6px 8px">① 听音填空</td><td>整词填对 = 100 / 填错 = 0；<strong>多空时 = 填对空数 / 总空数 × 100</strong></td><td>30%</td></tr>
+            <tr><td style="padding:6px 8px">② 背诵评测</td><td>看中文脱稿朗读 → Chivox 发音分 0–100</td><td>40%</td></tr>
+            <tr><td style="padding:6px 8px">③ 单词拼写</td><td>听读音选出抽掉的一段字母，<strong>单空选完即判分</strong>：对 = 100 / 错 = 0</td><td>30%</td></tr>
+            <tr><td style="padding:6px 8px">汇总</td><td colspan="2">三小题加权 = 该词<strong>小测 cell</strong>（0–100）→ 再进下方 ② 的三环节加权（小测占 50%）。<strong>某词只做了 1~2 个小题时，按实际参与的小题重新归一化 0.4/0.3/0.3，缺失小题不当 0 分</strong>（同 5.3 原则）。</td></tr>
           </table>
+
+          <div style="margin-top:10px"><strong>小测子步缺失时的权重示例</strong></div>
+          <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">该词实际做了</th><th style="text-align:left;padding:6px 8px">有效权重（归一化后）</th><th style="text-align:left;padding:6px 8px">例：听填100 / 背诵80 / 拼写未做</th></tr>
+            <tr><td style="padding:6px 8px">听填 + 背诵 + 拼写（3 步）</td><td>0.3 / 0.4 / 0.3</td><td>100×0.3 + 80×0.4 + — = 62</td></tr>
+            <tr><td style="padding:6px 8px">听填 + 背诵（无拼写，词太短等）</td><td>0.3/0.7 ≈ 43% / 57%</td><td>100×0.43 + 80×0.57 ≈ 89</td></tr>
+            <tr><td style="padding:6px 8px">背诵 + 拼写（无听填，后端未下发 listenFill）</td><td>0.4/0.6 ≈ 67% / 33%</td><td>— + 80×0.67 + 100×0.33 ≈ 87</td></tr>
+            <tr><td style="padding:6px 8px">仅背诵（1 步）</td><td>背诵 100%</td><td>80</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px;opacity:.9">前端临时算分：<code>utils/finish-stars.js</code> → <code>computeQuizScoreRate</code>（环节总分 / 星级用）；词级掌握度须后端按矩阵聚合（spec 5.1）。</span>
         </div>
 
         <div class="callout warn" style="margin-bottom:14px">
@@ -879,6 +1055,20 @@
             <tr><td style="padding:6px 8px"><strong>关卡星级</strong></td><td>55 / 80（总分）</td><td>&lt;55 ⭐留本关；55–79 ⭐⭐；≥80 ⭐⭐⭐。<strong>≥55（满2星）才解锁下一关</strong></td></tr>
           </table>
           <strong>复习闭环</strong>：种子 = <strong>首次</strong>那次 mastery&lt;70 的词集合，<strong>冻结</strong>（重练原关不改种子）；毕业在<strong>独立「复习」场景</strong>完成（做达标→出队列），不在重刷原关里毕业。首次「蒙对」的词暂不进复习（先埋点）。
+        </div>
+        <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">⑤ 报告页怎么呈现（<code>pages/report/report</code> ← <code>GET unit-report</code>）</strong><br/>
+          关卡学习报告 / 听力小测「生成报告」<strong>共用</strong>本页，数据由后端按 <code>level-score-review-spec.md</code> 算好下发（现状 <code>report.js</code> 仍为 Mock）。
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">区域</th><th style="text-align:left;padding:6px 8px">字段 / 含义</th></tr>
+            <tr><td style="padding:6px 8px">顶栏</td><td>关卡标题、谚语（可选）、<code>stageStars</code>（由总 <code>scoreRate</code> 与 55/80 档算 ⭐1~3）</td></tr>
+            <tr><td style="padding:6px 8px">四指标</td><td><code>accuracy</code> 总正确率（= 各词 <code>mastery</code> 平均）· <code>masteredCount</code> 已掌握（≥70）· <code>wrongCount</code> 待复习 · <code>minutes</code> 本关练习用时</td></tr>
+            <tr><td style="padding:6px 8px">环节表现卡 ×3</td><td><code>sectionScores.wordNew / recite / quiz</code> 各环节 0–100 分 + <code>refreshedAt</code>（展示分刷新时间）；小测卡展示<strong>整环节</strong>分，不拆听填/拼写子步</td></tr>
+            <tr><td style="padding:6px 8px">待复习词表</td><td><code>words[]</code> 中 <code>mastery &lt; 70</code>：拼写、音标、释义；可展示 <code>sections.{wordNew,recite,quiz}</code> 供排查</td></tr>
+            <tr><td style="padding:6px 8px">已掌握词表</td><td><code>mastery ≥ 70</code> 的词列表</td></tr>
+            <tr><td style="padding:6px 8px">「?」掌握度说明</td><td>弹窗示意：<strong>词掌握度</strong> = 新学 20% + 跟读 30% + 小测 50%（小测内再按 0.4/0.3/0.3）；阈值 70。与上方 ② 一致</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px;opacity:.85">完整 JSON 见文档底部 <code>unit-report</code> 示例及 <code>level-score-review-spec.md</code> §7.2。</span>
         </div>
         <div class="callout" style="margin-bottom:14px">
           <strong>测评链路</strong><br/>
@@ -941,13 +1131,13 @@
 
     <script>
       const MODULES = [
-        { id: "today", label: "⓪ 今日/引导", anchor: "module-today", pages: "onboarding · today" },
-        { id: "core", label: "★ 核心三环节", anchor: "module-core-flow", pages: "practice → listen → finish" },
-        { id: "home", label: "① 成长闯关", anchor: "module-home", pages: "home · 选择教材 · plan" },
+        { id: "today", label: "⓪ 今日/引导", anchor: "module-today", pages: "onboarding · today", changed: true },
+        { id: "core", label: "★ 核心三环节", anchor: "module-core-flow", pages: "practice → listen → finish", changed: true },
+        { id: "home", label: "① 成长闯关", anchor: "module-home", pages: "home · 选择教材 · plan", changed: true },
         { id: "checkin", label: "② 打卡", anchor: "module-checkin", pages: "pages/checkin/calendar" },
-        { id: "listen", label: "③ 伴读", anchor: "module-listen", pages: "listen · mini-player" },
-        { id: "commerce", label: "⑤ 会员", anchor: "module-commerce", pages: "membership · records" },
-        { id: "me", label: "④ 我的", anchor: "module-me", pages: "me · notify · book · contact" },
+        { id: "listen", label: "③ 伴读", anchor: "module-listen", pages: "listen · mini-player", changed: true },
+        { id: "commerce", label: "⑤ 会员", anchor: "module-commerce", pages: "membership · records", changed: true },
+        { id: "me", label: "④ 我的", anchor: "module-me", pages: "me · notify · book · contact", changed: true },
         { id: "exam", label: "⑥ 测评/报告", anchor: "module-exam-record", pages: "入门测 · 结业测 · 报告" }
       ];
 
@@ -956,7 +1146,7 @@
           group: "总览",
           items: [
             { id: "module-overview", label: "模块导航" },
-            { id: "conventions", label: "通用约定" }
+            { id: "conventions", label: "通用约定", changed: true }
           ]
         },
         {
@@ -968,21 +1158,21 @@
         {
           group: "页面与接口",
           items: [
-            { id: "page-inventory", label: "页面清单" },
-            { id: "gallery-section", label: "页面截图" },
-            { id: "matrix", label: "接口对照表" }
+            { id: "page-inventory", label: "页面清单", changed: true },
+            { id: "gallery-section", label: "页面截图", changed: true },
+            { id: "matrix", label: "接口对照表", changed: true }
           ]
         },
         {
           group: "业务模块",
           items: [
-            { id: "module-today", label: "⓪ 今日/引导" },
-            { id: "module-core-flow", label: "★ 核心三环节" },
-            { id: "module-home", label: "① 成长闯关" },
+            { id: "module-today", label: "⓪ 今日/引导", changed: true },
+            { id: "module-core-flow", label: "★ 核心三环节", changed: true },
+            { id: "module-home", label: "① 成长闯关", changed: true },
             { id: "module-checkin", label: "② 打卡" },
-            { id: "module-listen", label: "③ 伴读" },
-            { id: "module-me", label: "④ 我的" },
-            { id: "module-commerce", label: "⑤ 会员开通" },
+            { id: "module-listen", label: "③ 伴读", changed: true },
+            { id: "module-me", label: "④ 我的", changed: true },
+            { id: "module-commerce", label: "⑤ 会员开通", changed: true },
             { id: "module-exam-record", label: "⑥ 测评/报告" }
           ]
         },
@@ -998,6 +1188,11 @@
       const SCREENSHOTS = [
         { id: "today-route", module: "today", title: "今日 · 学习路线", file: "images/mini-app/07-today-route.png", apis: ["user-books", "book-units", "user/info", "membership 待接"] },
         { id: "onboarding", module: "today", title: "新手引导", file: "images/mini-app/07-onboarding.png", apis: ["student-profile 待接", "phone-number"] },
+        { id: "membership", module: "commerce", title: "开通会员", file: "images/mini-app/07-membership.png", apis: ["membership/order", "membership/redeem 待接"] },
+        { id: "exam-entry", module: "exam", title: "入门测", file: "images/mini-app/07-exam-entry.png", apis: ["exam-paper", "exam-submit"] },
+        { id: "exam-report", module: "exam", title: "入门测报告", file: "images/mini-app/07-exam-report.png", apis: ["exam-result?type=entry"] },
+        { id: "unit-report", module: "exam", title: "关卡学习报告", file: "images/mini-app/07-unit-report.png", apis: ["unit-report 待接"] },
+        { id: "study-record", module: "exam", title: "学习记录", file: "images/mini-app/07-study-record.png", apis: ["study-records 待接"] },
         { id: "home-list", module: "home", title: "成长 · 闯关列表", file: "images/mini-app/01-home-level-list.png", apis: ["book-units", "user-books", "user/info"] },
         { id: "home-map", module: "home", title: "成长 · 地图闯关", file: "images/mini-app/01-home-map.png", apis: ["book-units"] },
         { id: "home-book-picker", module: "home", title: "选择教材", file: "images/mini-app/01-home-book-picker.png", apis: ["user-books", "switch-default-book"] },
@@ -1010,7 +1205,6 @@
         { id: "listen", module: "listen", title: "伴读播放", file: "images/mini-app/03-listen-player.png", apis: ["book-units", "unit-words"] },
         { id: "me", module: "me", title: "我的", file: "images/mini-app/04-me-profile.png", apis: ["user/info", "user-books", "membership 待接"] },
         { id: "me-book", module: "me", title: "我的教材", file: "images/mini-app/04-me-book.png", apis: ["user-books", "switch-default-book"] },
-        { id: "membership", module: "commerce", title: "开通会员", file: "images/mini-app/07-membership.png", apis: ["membership/order", "membership/redeem 待接"] },
         { id: "plan", module: "home", title: "学习计划", file: "images/mini-app/06-plan.png", apis: ["book-units", "unit-words", "study-plan 待实现"] }
       ];
 
@@ -1040,15 +1234,15 @@
           }
         },
         {
-          id: "user-books", module: "首页/我的", moduleId: "home", page: "词书目录 · 选择教材弹窗 · 我的教材", status: "ok",
+          id: "user-books", module: "首页/我的", moduleId: "home", page: "词书目录 · 选择教材弹窗 · 已学教材", status: "ok",
           endpoints: [{ method: "GET", path: "/mini-app/user-books" }],
-          summary: "全量教材目录 + 购买态 + 学习进度",
+          summary: "全量教材目录（含版本/年级/学期标签）+ 学习进度",
           detail: {
             request: "无 query",
-            response: "data: Book[] — resBookId, name, bookCover, defaultBook, wordCount, proverbCount, needVip/unlocked, learningInfo, press, stage/grades, newStandard…",
-            callers: "today.js loadHomeData, home.js loadHomeData（allBooks+弹窗）, me/book.js（已购子集）, me.js loadStats",
-            fields: "【目录·弹窗】须返回<strong>全部可售词书</strong>（含未购 needVip=1），供首页「选择教材」弹窗展示；me/book 前端 filter !locked 只显示已购。【分类字段】stage/grades（小学/初中/高中）、press（出版社/版本，如人教版/牛津译林版）、newStandard（新课标角标）、wordCount。【购买态】locked=unlocked=0 或 needVip=1；defaultBook=true 为当前教材。【演示】非 release 注入 mock-textbooks.js 占位目录。",
-            render: "首页 Hero 封面+进度；选择教材弹窗网格；我的教材已购列表"
+            response: "data: Book[] — resBookId, name, bookCover, defaultBook, wordCount, proverbCount, needVip/unlocked, learningInfo, press(version), <strong>gradeId, semesterId</strong>, stage/grades, newStandard…",
+            callers: "today.js loadHomeData, home.js loadHomeData（allBooks+弹窗）, me/book.js（已学子集）, me.js loadStats",
+            fields: "【目录·弹窗】须返回<strong>全部可售词书</strong>，供「成长」选择教材弹窗与今日教材胶囊展示；<strong>不再用于按本解锁</strong>（解锁看会员）。【教材联动】每本带 <code>version+gradeId+semesterId</code> 标签，供 onboarding 按档匹配推荐教材；<strong>无 semesterId 的书按上学期(first)</strong>。【me/book】仅展示<strong>已学教材</strong>子集 —— 前端按 <code>hasLearnedBook</code>（首关三环节完成）过滤，不是全部已购/可用；已学词数读 <code>learningInfo.book.learningWords</code>。【分类】stage/grades、press、newStandard、wordCount。【历史字段】unlocked/needVip 可保留作运营标签，<strong>前端关卡门禁不读此字段</strong>，改读 membership。【演示】非 release 注入 mock-textbooks.js。",
+            render: "今日教材胶囊；成长 Hero + 选择教材弹窗；我的页「已学书本」列表"
           }
         },
         {
@@ -1059,8 +1253,8 @@
             request: "resBookId, page=1, rows=2000",
             response: "data: { list: Unit[], pageInfo: { total } }。Unit 核心字段：unitId, sort, wordTotal, unitName, needVip, completed, tasks[]",
             callers: "today.js loadUnits, home.js loadUnits, listen.js loadUnits, utils/player.js, plan.js fetchAllLevels（学习计划关卡预览全量列表）",
-            fields: "【进度·后端存储】completed / 星级 / tasks[]（type/current/total/percent）均由后端返回。unit.wrongWords=该关错词数（供复习关卡片展示）。列表读 completed；地图读 tasks[].percent。【购买态】unit.needVip=1 未购锁定。【展示】listen/player 列表统一渲染「关卡{sort}」，<code>unitName</code> 字段前端不用于 UI。",
-            render: "首页地图/分类卡片上的任务进度、星级、解锁态；随身听顶部期切换"
+            fields: "【进度·后端存储】completed / 星级 / tasks[] 均由后端返回。unit.wrongWords=错词数。【门禁·v1.1.4】前端用 <code>level-access.isLevelUnlocked(sort)</code>：sort=1 免费，其余要会员；<strong>不读 unit.needVip 锁关</strong>（needVip 为历史字段，可与词书态一并返回但前端忽略）。【展示】listen/player 列表渲染「关卡{sort}」。",
+            render: "成长地图/列表任务进度；今日路线关卡卡片；伴听列表"
           }
         },
         {
@@ -1090,7 +1284,7 @@
         {
           id: "unit-words", module: "学习流", moduleId: "home", page: "单词新学/跟读 · 随身听内容 · 学习计划关卡单词预览", status: "ok",
           endpoints: [{ method: "GET", path: "/mini-app/unit-words" }],
-          summary: "单关卡学习资源；needVip 表示未购词书锁定",
+          summary: "单关卡学习资源（门禁由会员+sort 决定，非按书 needVip）",
           detail: {
             request: "unitId",
             response: "data: Item[] — 每项 { word, proverb?, unit, needVip, isReview? }；word 含 content, translation, audio, senses…",
@@ -1143,7 +1337,7 @@
             request: '{ …, "correct", "phase", "durationSeconds"? }',
             response: "成功/失败（失败静默）",
             callers: "pages/listen/listen.js rememberQuizWordResult → postListeningQuizResult",
-            fields: "听音填空 fill + 背诵 recite。【时长】每题 durationSeconds；环节总用时亦可在 save-learning-record(listening) 再报一次。汇总进 taskDurations.listening。",
+            fields: "每词一题串。上报建议带齐：<code>fillCorrect</code>（bool，未做听填则省略）、<code>reciteScore</code>（0–100）、<code>spellCorrect</code>（bool，未做拼写则省略）、<code>phase</code>（fill|recite|spell，最后一次）、<code>durationSeconds</code>。后端按 spec 5.6③ 聚合成该词 <code>sections.quiz</code>；缺失子步按实际参与归一化 0.4/0.3/0.3。",
             render: "listen?mode=quiz；错词进入复习关词表"
           }
         },
@@ -1160,15 +1354,15 @@
           }
         },
         {
-          id: "unit-exercises", module: "核心·三环节", moduleId: "core", page: "新学选择题 · 关卡小测（题目下发）", status: "missing",
+          id: "unit-exercises", module: "核心·三环节", moduleId: "core", page: "新学选择题 · 关卡小测（题目下发）", status: "partial",
           endpoints: [{ method: "GET", path: "/mini-app/unit-words", note: "扩展 exercises[]，或新增 unit-exercises" }],
           summary: "【产品已定：题目全部后端下发】小测/新学选择题改由后端出好题，前端只渲染",
           detail: {
             request: "unitId（同 unit-words）",
-            response: ' 建议在 unit-words 每词上增加 exercises：{ wordChoice: {stem, audioUrl, options[4], answerIndex}, listenFill: {audioUrl, masked:"c_mp_t_r", blanks:[1,4,6], letterTiles[], answer:"computer"}, recite: {meaning, audioUrl} }；或独立 GET unit-exercises 返回同结构',
-            callers: "practice.js（新学选择题）、listen.js（小测 quizQuestions）— 当前<strong>前端用 unit-words 现拼</strong>，需改为读后端下发题目",
-            fields: "见「内容系统导入规则」四/五/七：选项/干扰项、听音填空挖空位与字母块、组卷均由后端按规则生成；前端不再计算。挖空/打乱用固定 seed 可复现。入门/结业测已走 exam-paper.questions[]，无需本接口。",
-            render: "单词新学选择题；listen?mode=quiz 听音填空+背诵"
+            response: ' 建议在 unit-words 每词上增加 exercises：{ wordChoice: {stem, audioUrl, options[4], answerIndex}, listenFill: {audioUrl, masked:"c_mp_t_r", blanks:[1,4,6], letterTiles[], answer:"computer"}, recite: {meaning, audioUrl}, wordSpell: {audioUrl, prefix, answer, suffix, options[] } }；或独立 GET unit-exercises 返回同结构',
+            callers: "practice.js（新学选择题）、listen.js（小测 quizQuestions）— <strong>小测已接 exercises 渲染</strong>（listenFill / recite / wordSpell 有则直接用，无则本地兜底拼题）",
+            fields: "见「内容系统导入规则」七之一（词表/备选项/动态步数）与四~六之二。后端按规则生成 exercises.listenFill / recite / wordSpell；前端只渲染。挖空/打乱用 seed=word+levelId 可复现。入门/结业测已走 exam-paper.questions[]。",
+            render: "单词新学选择题；listen?mode=quiz 听音填空+背诵+单词拼写"
           }
         },
         {
@@ -1189,12 +1383,12 @@
             { method: "GET", path: "/mini-app/study-plan", note: "待实现" },
             { method: "POST", path: "/mini-app/study-plan", note: "待实现" }
           ],
-          summary: "每日目标关数 groupsPerDay + 关卡预览 + 打卡预告联动",
+          summary: "每日目标关数 groupsPerDay（按教材联动）+ 关卡预览 + 打卡预告",
           detail: {
             request: "GET/POST ?resBookId= · POST body: { groupsPerDay, levelSize? }",
             response: "{ groupsPerDay: 2, levelSize: 10, estimatedDays?, updatedAt? }",
             callers: "pages/plan/plan.js 读写 Storage；pages/home/home.js goStudyPlan；utils/checkin-progress.js getDailyGoal",
-            fields: "首页「今日 x/y 关」的 y、plan 页「每天完成 N 关即打卡」的 N 均来自 groupsPerDay。<strong>关卡预览</strong>：GET book-units 拉全量关卡列表（按 sort），默认展示前 5 关，可「展开全部」；每关单词来自 GET unit-words（按 unitId 批量懒加载，展开后分批请求）。无 resBookId 时回退为按总词数每 10 词一档的序号区间。<strong>强度反馈</strong>：1–2 组/天 → 首页 mascot-sleep（很轻松）；3–4 组 → mascot-progress（正常）；≥5 组 → mascot-alert（苦恼）。<strong>礼品活动文案</strong>仍读 user/info.gifts[]，不在本接口。当前 groupsPerDay 无后端，换机不同步。",
+            fields: "<strong>【按教材联动】学习计划绑当前教材，按 <code>resBookId</code> 存取（现 Storage 键 <code>studyPlan_&lt;resBookId&gt;</code>，后端须 userId+resBookId 存取）</strong>：onboarding 自动切教材 / 用户切教材后，今日页与 plan 页读的是<strong>这本书自己的计划</strong>，没有则默认 <code>DEFAULT_GROUPS=1</code> 关/天；总关数 = <code>ceil(wordCount/10)</code> 随该书词量算（与年级无关）。首页「今日 x/y 关」的 y、plan 页「每天完成 N 关即打卡」的 N 均来自 groupsPerDay。<strong>关卡预览</strong>：GET book-units 拉全量关卡列表（按 sort），默认展示前 5 关，可「展开全部」；每关单词来自 GET unit-words（按 unitId 批量懒加载，展开后分批请求）。无 resBookId 时回退为按总词数每 10 词一档的序号区间。<strong>强度反馈</strong>：1–2 组/天 → 首页 mascot-sleep（很轻松）；3–4 组 → mascot-progress（正常）；≥5 组 → mascot-alert（苦恼）。<strong>礼品活动文案</strong>仍读 user/info.gifts[]，不在本接口。当前 groupsPerDay 无后端，换机不同步。",
             render: "首页 study-plan 入口 → plan 页设置每日组数 + 小怪兽强度 + 打卡规则预告卡 + 关卡预览（可展开）"
           }
         },
@@ -1267,13 +1461,13 @@
             { method: "POST", path: "/mini-app/student-profile", note: "待实现" },
             { method: "POST", path: "/mini-app/user/info-update", note: "可扩展同写字段" }
           ],
-          summary: "首访采集年级/学期/教材版本，供推荐与展示",
+          summary: "首访采集年级/学期/版本 → 匹配并自动设为默认教材",
           detail: {
             request: '{ "gradeId": "g3", "semesterId": "first|second", "version": "人教版PEP", "characterGender"?: "boy|girl" }',
-            response: "ack + 规范化 studentProfile（含 stage, gradeName, semesterName）",
+            response: 'ack + 规范化 studentProfile（含 stage, gradeName, semesterName）+ <strong>recommendedResBookId</strong>（按 version+gradeId+semesterId 命中 user-books 的书；已自动设为默认词书）',
             callers: "pages/onboarding/onboarding.js finishOnboarding/saveStudentProfile；today.js describeProfile 展示；me.js 编辑入口回 onboarding",
-            fields: "【现状】utils/student-profile.js 全本地 Storage，换机不同步。【门槛】hasStudentProfile 为 gradeId+semesterId+version 三者齐全；tab-bar 首访无档案会引导 onboarding。【不写死教材】采集版本后不自动 switch-default-book，默认词书仍为后端 defaultBook。",
-            render: "今日页教材胶囊副标题「三年级上册 · 人教版」；我的页头部年级标签"
+            fields: "【现状】档案 utils/student-profile.js 全本地 Storage；<strong>教材联动前端已实现过渡方案</strong> —— onboarding.applyRecommendedBook + utils/book-match.js 采集完拉 user-books 按 version+gradeId+semesterId 匹配，命中后 demo 书本地切 / 真实书调 switch-default-book，经 globalData.pendingBookId 落到今日页。【目标·教材联动】后端 student-profile 就绪后<strong>由后端按同口径匹配并返回 recommendedResBookId、自动设默认词书</strong>，替代前端匹配；<strong>无 semesterId 的书按上学期(first)</strong>；无精确命中退到该版本该年级任一册，仍无则回退 defaultBook。【门槛】hasStudentProfile 为 gradeId+semesterId+version 三者齐全；tab-bar 首访无档案会引导 onboarding。",
+            render: "今日页教材胶囊副标题「三年级上册 · 人教版」+ 推荐教材；我的页头部年级标签"
           }
         },
         {
@@ -1379,12 +1573,12 @@
         {
           id: "membership-redeem", module: "会员", moduleId: "commerce", page: "membership · 兑换码开通", status: "partial",
           endpoints: [{ method: "POST", path: "/mini-app/membership/redeem", note: "待实现" }],
-          summary: "校验兑换码并开通对应档位会员（免支付）",
+          summary: "校验兑换码 → 按命中档位的时长延长 VIP 时效（免支付）",
           detail: {
             request: '{ "code": "2818M32", "tierId"?: "m1" }',
             response: '{ "valid": true, "tierId": "m1", "membership": { active, expireAt, tierName } } 或 { valid: false, reason }',
             callers: "pages/membership/membership.js applyRedeem（当前比对 REDEEM_CODE_TIERS 硬编码）",
-            fields: "【现状】2818M32→m1，2818M21→m2，大小写不敏感。命中后跳过支付 activateMembership。【后端】一次性核销+幂等；返回更新后 membership。",
+            fields: "【口径】<strong>兑换码对应 VIP 时效</strong>：码 → 档位(tierId) → 按该档 <code>months</code> 从 <code>max(now, expireAt)</code> 叠加延长 expireAt，<strong>不绑单本词书</strong>。【现状】2818M32→m1，2818M21→m2，大小写不敏感；命中后跳过支付走 activateMembership。【后端】一次性核销+幂等；校验码绑定的档位/时长，返回更新后 membership（含新 expireAt）。",
             render: "membership 页兑换码输入 → 确认兑换/延期"
           }
         },
@@ -1542,7 +1736,7 @@
         coreFlow: [
           { title: "环节1 · 单词新学", desc: "practice?taskType=word。标记认识/不认识/记错 → POST word-mark（含 timeSpentSeconds/durationSeconds）。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark"] },
           { title: "环节2 · 跟读背诵", desc: "practice?taskType=recitation。Chivox 评分 → recitation-score。【后续】「分析这个词」可能在本页，调 word-info。", paths: ["pages/practice/practice", "components/media"], apis: ["unit-words", "recitation-score", "word-info 后续", "Chivox sig"] },
-          { title: "环节3 · 关卡小测", desc: "listen?mode=quiz。听音填空+背诵 → POST listening-quiz-result（每题 durationSeconds）。", paths: ["pages/listen/listen"], apis: ["unit-words", "listening-quiz-result"] },
+          { title: "环节3 · 关卡小测", desc: "listen?mode=quiz。听音填空+背诵+单词拼写 → POST listening-quiz-result（每题 durationSeconds）。", paths: ["pages/listen/listen"], apis: ["unit-words", "listening-quiz-result"] },
           { title: "环节完成", desc: "finish/today → save-learning-record（带 taskType、scoreRate、durationSeconds 环节总用时）→ 链式跳转下一环节。", paths: ["pages/finish/today"], apis: ["save-learning-record"] },
           { title: "复习关", desc: "每3关插入。GET review-words 拉错词；三任务同样上报各环节 durationSeconds。", paths: ["home-units", "practice?review=1", "listen?review=1"], apis: ["review-words", "book-units.wrongWords"] }
         ],
@@ -1568,7 +1762,7 @@
         listen: [
           { title: "listen 播放器", desc: "全局 player：循环模式「单期循环 / 整本书循环」；列表显示「关卡N」。播放报 listen-duration(source=player)；课文跟读仅本地练 + follow-read 计次。", paths: ["pages/listen/listen", "utils/player.js", "custom-tab-bar"], apis: ["book-units", "unit-words", "listen-duration"] },
           { title: "跟读评测", desc: "课文 track 展开 media；评分本地展示 trackScores，不进 recitation-score / 报告。", paths: ["components/media"], apis: ["Chivox sig"] },
-          { title: "关卡小测", desc: "fill 听音填空 → recite 背诵；倒计时可「立即跳过」；POST listening-quiz-result。", paths: ["listen?mode=quiz"], apis: ["unit-words", "listening-quiz-result"] }
+          { title: "关卡小测", desc: "fill 听音填空 → recite 背诵 → spell 单词拼写；倒计时可「立即跳过」；POST listening-quiz-result。", paths: ["listen?mode=quiz"], apis: ["unit-words", "listening-quiz-result"] }
         ],
         me: [
           { title: "me 个人中心", desc: "登录、头像昵称、会员态、studyMinutes；消息区「开启学习提醒」→ notify；档案编辑→onboarding。", paths: ["pages/me/me"], apis: ["user/info", "user-books", "info-update", "phone-number", "upload-avatar", "membership 待接"] },
@@ -1645,7 +1839,7 @@
 
       function renderModuleNav() {
         $("#moduleNav").innerHTML = MODULES.map(m =>
-          `<button class="nav-module" data-anchor="${m.anchor}"><strong>${m.label}</strong><span>${m.pages}</span></button>`
+          `<button class="nav-module${m.changed ? ' changed' : ''}" data-anchor="${m.anchor}"><strong>${m.label}</strong><span>${m.pages}</span></button>`
         ).join("");
         $("#moduleNav").addEventListener("click", e => {
           const btn = e.target.closest(".nav-module");
@@ -1659,7 +1853,7 @@
           <div class="doc-toc-group">
             <div class="doc-toc-group-title">${group.group}</div>
             <div class="doc-toc-list">
-              ${group.items.map(item => `<button type="button" class="doc-toc-item" data-target="${item.id}">${item.label}</button>`).join("")}
+              ${group.items.map(item => `<button type="button" class="doc-toc-item${item.changed ? ' changed' : ''}" data-target="${item.id}">${item.label}</button>`).join("")}
             </div>
           </div>
         `).join("");
@@ -1727,7 +1921,7 @@
           { id: "exam", label: "⑥ 测评/报告" }
         ];
         $("#pageNav").innerHTML = [`<button class="page-nav-item ${active === "all" ? "active" : ""}" data-module="all">全部模块</button>`]
-          .concat(MODULES.map(m => `<button class="page-nav-item ${active === m.id ? "active" : ""}" data-module="${m.id}">${m.label}</button>`))
+          .concat(MODULES.map(m => `<button class="page-nav-item ${active === m.id ? "active" : ""}${m.changed ? " changed" : ""}" data-module="${m.id}">${m.label}</button>`))
           .concat(extra.map(m => `<button class="page-nav-item ${active === m.id ? "active" : ""}" data-module="${m.id}">${m.label}</button>`)).join("");
       }
 
@@ -1754,14 +1948,20 @@
   "recordDurationMs": 4200
 }`;
         const quizExample = `POST /mini-app/listening-quiz-result
+// 建议每词做完小测后汇总上报（或分 phase 多次上报，后端合并）
+// 算分见 level-score-review-spec §5.6③ + 文档「关卡报告 · 小测子步缺失权重」
 
 {
   "unitId": "u_001",
   "wordId": "w_123",
-  "correct": false,
-  "phase": "fill",
-  "durationSeconds": 25
-}`;
+  "content": "planet",
+  "fillCorrect": true,
+  "reciteScore": 82,
+  "spellCorrect": false,
+  "durationSeconds": 95
+}
+// 无听填步 → 省略 fillCorrect
+// 无拼写步 → 省略 spellCorrect`;
         const saveExample = `GET /mini-app/save-learning-record
   ?unitId=u_001&taskType=word&scoreRate=85
   &durationSeconds=320&resBookId=rb_xxx
@@ -1863,29 +2063,33 @@
   内容解锁           → 非会员仅第 1 关可学；弹层只负责切换教材，购买走 membership
 
 【与 me/book 区别】
-  弹窗 = 全量目录；me/book = 可用子集列表`;
+  弹窗 = 全量目录；me/book = 已学教材子集（首关三环节完成；UI 文案「已学书本」）`;
         const userBooksPicker = `GET /mini-app/user-books  →  弹窗所需字段
 
 {
   "data": [
     {
       "resBookId": "rb_001",
-      "name": "初中英语词汇格言谚语词典",
+      "name": "三年级上册",
       "bookCover": "https://…",
-      "wordCount": 1413,
-      "press": "人教版",
-      "stage": "初中",
-      "grades": "初中",
-      "newStandard": 0,
+      "wordCount": 312,
+      "press": "人教版PEP",
+      "version": "人教版PEP",
+      "stage": "小学",
+      "grades": "小学",
+      "gradeId": "g3",
+      "semesterId": "first",
+      "newStandard": 1,
       "defaultBook": 1,
       "unlocked": 1,
-      "needVip": 0,
-      "learningInfo": { "book": { "learningWords": 320 } }
+      "needVip": 1,
+      "learningInfo": { "book": { "learningWords": 120 } }
     }
   ]
 }
 
-// stage/press/newStandard 供前端分类；后端应全量返回可售词书`;
+// stage/press/newStandard 供前端分类；version+gradeId+semesterId 供 onboarding 匹配推荐
+// 无 semesterId 视为上学期(first)；后端应全量返回可售词书`;
         $("#bookPickerSchema").innerHTML = [
           ["选择教材 · 弹窗结构与交互", pickerFlow],
           ["user-books · 目录字段", userBooksPicker]
@@ -1900,7 +2104,8 @@ m2  → { id: "m2", name: "2个月", months: 2, price: 59, tag: "超值" }
 y1  → { id: "y1", name: "1年", months: 12, price: 109, tag: "推荐" }
 
 REDEEM_CODE_TIERS（membership.js 硬编码，待删）→ POST membership/redeem
-2818M32 → m1 · 2818M21 → m2`;
+2818M32 → m1 · 2818M21 → m2
+// 兑换码 = VIP 时效：命中档位 → 按该档 months 延长 expireAt，不绑单本词书`;
         const membershipExample = `GET /mini-app/membership
 
 {

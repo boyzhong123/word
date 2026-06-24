@@ -1,6 +1,7 @@
 // 选教材弹窗的演示教材目录：仅在非 release 环境注入，
 // 用于预览学段/版本分类、新课标标记和商品详情页的展示效果。
 const { isTestPurchaseEnabled } = require('./dev-books')
+const { parseGradeIdFromName, parseSemesterIdFromName } = require('./book-match')
 
 function cover(index) {
   return '/images/home/mock-cover-' + (index < 10 ? '0' + index : index) + '.png'
@@ -12,6 +13,10 @@ function demoBook(id, name, stage, press, coverIndex, wordCount, newStandard) {
     name,
     stage,
     press,
+    // 教材联动字段：供 onboarding 按 version+gradeId+semesterId 匹配推荐（无学期标签按上学期）
+    version: press,
+    gradeId: parseGradeIdFromName(name),
+    semesterId: parseSemesterIdFromName(name) || 'first',
     bookCover: cover(coverIndex),
     wordCount,
     newStandard: newStandard ? 1 : 0,

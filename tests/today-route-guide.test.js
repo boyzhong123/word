@@ -55,7 +55,8 @@ test('shouldOfferTodayRouteGuide shows once per day per book and resets on book 
     targetLevels,
     allDone: false,
     blocked: false,
-    resBookId: 'book-a'
+    resBookId: 'book-a',
+    date: today
   }
 
   assert.equal(shouldOfferTodayRouteGuide(base), true)
@@ -68,7 +69,8 @@ test('shouldOfferTodayRouteGuide shows once per day per book and resets on book 
     targetLevels,
     allDone: false,
     blocked: false,
-    resBookId: 'book-b'
+    resBookId: 'book-b',
+    date: today
   }), true)
 
   global.wx._storage[TODAY_ROUTE_GUIDE_LAST_SHOWN_KEY] = {
@@ -79,7 +81,8 @@ test('shouldOfferTodayRouteGuide shows once per day per book and resets on book 
     targetLevels,
     allDone: false,
     blocked: false,
-    resBookId: 'book-a'
+    resBookId: 'book-a',
+    date: today
   }), true)
 })
 

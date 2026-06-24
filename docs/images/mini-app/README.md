@@ -12,13 +12,17 @@
 | --- | --- | --- |
 | `07-today-route.png` | 今日 · 学习路线 | 今日 Tab 任务关卡与进度 |
 | `07-onboarding.png` | 新手引导 | 年级/学期/教材采集步骤 |
-| `07-membership.png` | 开通会员 | 套餐选择与兑换码（替换 06-vip） |
+| `07-exam-entry.png` | 入门测 | exam intro / 答题 |
+| `07-exam-report.png` | 入门测报告 | exam-report?type=entry |
+| `07-unit-report.png` | 关卡学习报告 | report 页 |
+| `07-study-record.png` | 学习记录 | study-record/record |
 | `01-home-level-list.png` | 成长 · 闯关列表 | 词书卡片 + 关卡分类列表 |
-| `01-home-map.png` | 首页 · 地图视图 | 地图闯关 trail + 小怪兽节点 |
-| `01-home-book-picker.png` | 首页 · 切换教材 | 学段/版本/词书选择弹窗 |
+| `07-membership.png` | 开通会员 | 套餐选择与兑换码 |
+| `01-home-map.png` | 成长 · 地图视图 | 地图闯关 trail + 小怪兽节点 |
+| `01-home-book-picker.png` | 成长 · 切换教材 | 学段/版本/词书选择弹窗 |
 | `02-checkin-calendar.png` | 打卡日历 | 月历 + 连续打卡天数 + 奖励进度 |
 | `02-checkin-poster.png` | 打卡分享海报 | 生成海报预览页 |
-| `03-listen-player.png` | 随身听 · 播放 | 黑胶封面 + 播放控制条 |
+| `03-listen-player.png` | 伴读 · 播放 | 黑胶封面 + 播放控制条 |
 | `03-listen-follow.png` | 随身听 · 跟读 | 课文列表 + 展开跟读评测 |
 | `03-listen-quiz.png` | 关卡小测 | 听音填空 / 背诵评测 |
 | `04-me-profile.png` | 我的 | 头像、统计、菜单入口 |
@@ -32,4 +36,4 @@
 
 | `06-finish-word.png` | 单词新学完成 | finish/today 环节 1/3 |
 
-当前截图由开发者工具 CLI 自动截取（2026-06-16）。重新生成：`npm run doc:screenshots` 或 `node scripts/capture-mini-app-screenshots.mjs --only=practice,recite,quiz`。
+当前截图由开发者工具 CLI 自动截取（2026-06-24 · v1.1.4）。重新生成：`npm run doc:screenshots` 或 `node scripts/capture-mini-app-screenshots.mjs --only=today,membership,exam`。

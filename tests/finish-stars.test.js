@@ -41,12 +41,22 @@ test('word new score rate reflects known and mistaken answers', () => {
   assert.equal(scoreRate, 60)
 })
 
-test('quiz score rate blends fill accuracy and recite scores', () => {
+test('quiz score rate weights recite over fill when no spelling step', () => {
+  // fill 50 (×0.3) + recite 70 (×0.4), 按实际参与归一化 0.7 → 61
   const scoreRate = computeQuizScoreRate([
     { fillCorrect: true, reciteScore: 80 },
     { fillCorrect: false, reciteScore: 60 }
   ], 2)
-  assert.equal(scoreRate, 60)
+  assert.equal(scoreRate, 61)
+})
+
+test('quiz score rate folds in word-spelling with 0.4/0.3/0.3 weights', () => {
+  // fill 50 ×0.3 + recite 70 ×0.4 + spell 50 ×0.3 = 15 + 28 + 15 = 58
+  const scoreRate = computeQuizScoreRate([
+    { fillCorrect: true, reciteScore: 80, spellCorrect: true },
+    { fillCorrect: false, reciteScore: 60, spellCorrect: false }
+  ], 2)
+  assert.equal(scoreRate, 58)
 })
 
 test('score rate normalizes invalid values to safe bounds', () => {

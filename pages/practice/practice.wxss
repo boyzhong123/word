@@ -160,7 +160,7 @@ page {
 .recitation-countdown {
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom) + 48rpx);
+  bottom: calc(env(safe-area-inset-bottom) + 24rpx);
   transform: translateX(-50%);
   z-index: 60;
   display: flex;

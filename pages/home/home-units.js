@@ -776,5 +776,6 @@ module.exports = {
   groupListUnits,
   buildMapSections,
   buildMapTrail,
-  getNextVisibleCount
+  getNextVisibleCount,
+  buildStageStars
 }

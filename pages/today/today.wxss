@@ -469,59 +469,34 @@
 .summary-stats {
   display: flex;
   align-items: stretch;
-  gap: 14rpx;
 }
 .summary-stat {
-  position: relative;
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 26rpx 8rpx 22rpx;
+  padding: 14rpx 8rpx;
   box-sizing: border-box;
-  border-radius: 20rpx;
-  overflow: hidden;
 }
-/* 顶部高亮描边，给每张卡片一抹品牌色 */
-.summary-stat::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48rpx;
-  height: 6rpx;
-  border-radius: 0 0 6rpx 6rpx;
+/* 极简风：去掉色块填充，三栏用细分隔线隔开，只让数字带品牌色 */
+.summary-divider {
+  flex: none;
+  width: 1rpx;
+  margin: 12rpx 0;
+  background: #edeff2;
 }
-.summary-stat--word {
-  background: linear-gradient(180deg, #fff6e9 0%, #fffaf2 100%);
-  border: 1rpx solid #ffe7c4;
-}
-.summary-stat--word::before { background: #ff9d2d; }
 .summary-stat--word .summary-stat-num { color: #f07a00; }
-
-.summary-stat--sentence {
-  background: linear-gradient(180deg, #e9fff2 0%, #f4fff9 100%);
-  border: 1rpx solid #c8f3da;
-}
-.summary-stat--sentence::before { background: #25b65a; }
-.summary-stat--sentence .summary-stat-num { color: #0f9b4e; }
-
-.summary-stat--level {
-  background: linear-gradient(180deg, #ebf4ff 0%, #f5faff 100%);
-  border: 1rpx solid #cfe4ff;
-}
-.summary-stat--level::before { background: #5299f2; }
-.summary-stat--level .summary-stat-num { color: #2f7be0; }
+.summary-stat--sentence .summary-stat-num { color: #1aa34a; }
+.summary-stat--level .summary-stat-num { color: #e0740c; }
 
 .summary-stat-num {
   display: flex;
   align-items: baseline;
   font-size: 48rpx;
   line-height: 52rpx;
-  font-weight: 800;
+  font-weight: 600;
   color: #1f2024;
   letter-spacing: -0.5rpx;
 }
@@ -529,7 +504,7 @@
   margin-left: 3rpx;
   font-size: 24rpx;
   line-height: 24rpx;
-  font-weight: 700;
+  font-weight: 600;
   color: inherit;
   opacity: 0.85;
 }

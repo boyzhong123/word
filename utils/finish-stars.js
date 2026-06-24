@@ -93,21 +93,45 @@ function computeQuizScoreRate(records, totalQuestions) {
     return 0
   }
 
-  const fillCorrect = recordsList.filter(record => record && record.fillCorrect).length
-  const fillRate = Math.round(fillCorrect * 100 / total)
+  // 关卡小测三题加权：背诵 0.4 / 听音填空 0.3 / 单词拼写 0.3
+  // 仅按「实际参与」的环节归一化权重，缺失环节不当 0 分（对齐 spec 5.6③ / 5.3）
+  // 听填：仅统计实际做了听填的词
+  const fillRecords = recordsList.filter(record => record && record.fillCorrect != null)
+  const fillCorrect = fillRecords.filter(record => record.fillCorrect === true).length
+  const fillRate = fillRecords.length
+    ? Math.round(fillCorrect * 100 / fillRecords.length)
+    : null
+
   const reciteScores = recordsList
     .map(record => record && record.reciteScore)
     .filter(score => score != null && score !== '')
     .map(score => Number(score))
+  const avgRecite = reciteScores.length
+    ? Math.round(reciteScores.reduce((sum, score) => sum + score, 0) / reciteScores.length)
+    : null
 
-  if (!reciteScores.length) {
-    return fillRate
+  const spellRecords = recordsList.filter(record => record && record.spellCorrect != null)
+  const spellCorrect = spellRecords.filter(record => record.spellCorrect === true).length
+  const spellRate = spellRecords.length
+    ? Math.round(spellCorrect * 100 / spellRecords.length)
+    : null
+
+  const parts = []
+  if (fillRate != null) {
+    parts.push({ value: fillRate, weight: 0.3 })
+  }
+  if (avgRecite != null) {
+    parts.push({ value: avgRecite, weight: 0.4 })
+  }
+  if (spellRate != null) {
+    parts.push({ value: spellRate, weight: 0.3 })
   }
 
-  const avgRecite = Math.round(
-    reciteScores.reduce((sum, score) => sum + score, 0) / reciteScores.length
-  )
-  return Math.round((fillRate + avgRecite) / 2)
+  const weightSum = parts.reduce((sum, part) => sum + part.weight, 0)
+  if (!weightSum) {
+    return fillRate != null ? fillRate : 0
+  }
+  return Math.round(parts.reduce((sum, part) => sum + part.value * part.weight, 0) / weightSum)
 }
 
 module.exports = {

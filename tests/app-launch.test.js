@@ -132,7 +132,7 @@ test('today overview shows learning stats and keeps plan editing beside the rout
   assert.match(todayTemplate, /productHighlights/)
   assert.match(todayTemplate, /wx:if="\{\{highlightsExpanded\}\}" class="ov-highlight-list"/)
   assert.doesNotMatch(todayTemplate, /ov-highlight-hidden/)
-  assert.match(todayTemplate, /icon-today-streak\.png/)
+  assert.match(todayTemplate, /icon-today-summary-jelly\.png/)
   assert.match(todayTemplate, /class="today-summary" bindtap="showTodayProgressHint"/)
   assert.match(todayTemplate, /class="summary-head-title">今日小结</)
   assert.match(todayTemplate, /今日学习路线/)

@@ -12,7 +12,8 @@ const listenStyle = fs.readFileSync(path.join(projectRoot, 'pages/listen/listen.
 const {
   buildListeningQuizQuestions,
   buildLearningWords,
-  instantiateQuizQuestion
+  instantiateQuizQuestion,
+  buildSpellChallenge
 } = require('../pages/listen/listen-quiz')
 
 test('listening quiz builds fill-in questions from unit example sentences', () => {
@@ -90,6 +91,184 @@ test('listening quiz instantiates random front-end blanks for the same sentence'
     first.gaps.map(gap => gap.answer),
     second.gaps.map(gap => gap.answer)
   )
+})
+
+test('word-spelling challenge keeps the first letter and offers one correct segment', () => {
+  const challenge = buildSpellChallenge('planet', () => 0.42)
+  assert.ok(challenge)
+  // 首字母不抽（前缀非空）
+  assert.ok(challenge.prefix.length >= 1)
+  // 抽段 + 前后缀拼回原词
+  assert.equal(challenge.prefix + challenge.answer + challenge.suffix, 'planet')
+  // 四选一、长度一致、恰有一个正确
+  assert.equal(challenge.options.length, 4)
+  challenge.options.forEach(option => assert.equal(option.text.length, challenge.answer.length))
+  assert.equal(challenge.options.filter(option => option.isAnswer).length, 1)
+  const answerOption = challenge.options.find(option => option.isAnswer)
+  assert.equal(answerOption.text, challenge.answer)
+  // 干扰项互不重复、且都不等于正确段
+  const texts = challenge.options.map(option => option.text.toLowerCase())
+  assert.equal(new Set(texts).size, texts.length)
+})
+
+test('word-spelling challenge is skipped for words shorter than 3 letters', () => {
+  assert.equal(buildSpellChallenge('it'), null)
+  assert.equal(buildSpellChallenge(''), null)
+})
+
+test('listening quiz spell step uses voice fallback when word audio is missing', () => {
+  const source = buildListeningQuizQuestions([
+    {
+      word: { content: 'planet', translation: '行星', attribute: 'n.', symbol: 'ˈplænɪt' },
+      proverb: [{ content: 'Bright planets cross the sky.', translation: 'X', audio: 'sentence.mp3' }]
+    }
+  ])[0]
+  const view = instantiateQuizQuestion(source, () => 0.3)
+  assert.ok(view.spell)
+  assert.match(view.spell.audio, /dictvoice/)
+})
+
+test('listening quiz uses backend listenFill exercise payload', () => {
+  const source = buildListeningQuizQuestions([
+    {
+      word: { content: 'computer', translation: '电脑', audio: 'word.mp3' },
+      exercises: {
+        listenFill: {
+          audioUrl: 'fill.mp3',
+          sentence: 'c_mp_t_r',
+          translation: '电脑',
+          gaps: [
+            { gapIndex: 0, answer: 'o' },
+            { gapIndex: 1, answer: 'u' },
+            { gapIndex: 2, answer: 'e' }
+          ],
+          letterTiles: ['o', 'u', 'e', 'a', 'i']
+        }
+      },
+      proverb: [{ content: 'I use a computer.', translation: '我用电脑。', audio: 'sentence.mp3' }]
+    }
+  ])[0]
+
+  assert.equal(source.serverFill, true)
+  const view = instantiateQuizQuestion(source, () => 0.5)
+  assert.equal(view.parts.filter(part => part.type === 'blank').length, 3)
+  assert.equal(view.options.length, 5)
+  assert.equal(view.audio, 'fill.mp3')
+  assert.deepEqual(view.gaps.map(gap => gap.answer), ['o', 'u', 'e'])
+})
+
+test('listening quiz uses backend listenFill parts array directly', () => {
+  const source = buildListeningQuizQuestions([
+    {
+      word: { content: 'planet', translation: '行星' },
+      exercises: {
+        listenFill: {
+          audioUrl: 'fill.mp3',
+          parts: [
+            { type: 'text', text: 'Bright ' },
+            { type: 'blank', gapIndex: 0, answer: 'planets' },
+            { type: 'text', text: ' cross the sky.' }
+          ],
+          gaps: [{ gapIndex: 0, answer: 'planets' }],
+          options: [{ text: 'planets' }, { text: 'stars' }]
+        }
+      },
+      proverb: [{ content: 'Bright planets cross the sky.', translation: 'X', audio: 'sentence.mp3' }]
+    }
+  ])[0]
+  const view = instantiateQuizQuestion(source, () => 0.5)
+
+  assert.equal(source.serverFill, true)
+  assert.equal(view.parts.length, 3)
+  assert.equal(view.options.length, 2)
+})
+
+test('listening quiz uses backend recite exercise fields', () => {
+  const source = buildListeningQuizQuestions([
+    {
+      word: { content: 'planet', translation: '行星' },
+      exercises: {
+        recite: {
+          meaning: 'n.行星（后端）',
+          refText: 'planet',
+          audioUrl: 'recite.mp3'
+        }
+      },
+      proverb: [{ content: 'Bright planets cross the sky.', translation: '旧翻译', audio: 'sentence.mp3' }]
+    }
+  ])[0]
+
+  assert.equal(source.translation, 'n.行星（后端）')
+  assert.equal(source.reciteRefText, 'planet')
+})
+
+test('listening quiz accepts backend wordSpell exercise payload', () => {
+  const source = buildListeningQuizQuestions([
+    {
+      word: { content: 'spade', translation: '铲子', attribute: 'n.' },
+      exercises: {
+        wordSpell: {
+          prefix: 'sp',
+          answer: 'ade',
+          suffix: '',
+          options: ['ade', 'aid', 'ide', 'ode']
+        }
+      },
+      proverb: [{ content: 'He used a spade in the garden.', translation: 'X', audio: 'sentence.mp3' }]
+    }
+  ])[0]
+  const view = instantiateQuizQuestion(source, () => 0.3)
+  assert.ok(view.spell)
+  assert.equal(view.spell.answer, 'ade')
+  assert.equal(view.spell.options.length, 4)
+})
+
+test('listening quiz skips fill when backend only sends recite and wordSpell', () => {
+  const {
+    buildQuizStepList,
+    hasFillStep
+  } = require('../pages/listen/listen-quiz')
+  const source = buildListeningQuizQuestions([
+    {
+      word: { content: 'planet', translation: '行星', attribute: 'n.' },
+      exercises: {
+        recite: { meaning: 'n.行星' },
+        wordSpell: {
+          prefix: 'pla',
+          answer: 'net',
+          suffix: '',
+          options: ['net', 'nat', 'nit', 'not']
+        }
+      },
+      proverb: [{ content: 'Bright planets cross the sky.', translation: 'X', audio: 'sentence.mp3' }]
+    }
+  ])[0]
+  const view = instantiateQuizQuestion(source, () => 0.3)
+
+  assert.ok(source.skipFill)
+  assert.ok(view)
+  assert.equal(view.skipFill, true)
+  assert.equal(hasFillStep(view), false)
+  assert.ok(view.spell)
+  assert.deepEqual(
+    buildQuizStepList(false, true, true).map(step => step.key),
+    ['recite', 'spell']
+  )
+})
+
+test('instantiated quiz question carries a spell challenge with word audio and symbol', () => {
+  const source = buildListeningQuizQuestions([
+    {
+      word: { content: 'planet', translation: '行星', attribute: 'n.', audio: 'word.mp3', symbol: 'ˈplænɪt' },
+      proverb: [{ content: 'Bright planets cross the sky.', translation: 'X', audio: 'sentence.mp3' }]
+    }
+  ])[0]
+  const view = instantiateQuizQuestion(source, () => 0.3)
+  assert.ok(view.spell)
+  assert.equal(view.spell.word, 'planet')
+  assert.equal(view.spell.audio, 'word.mp3')
+  assert.equal(view.spell.symbol, '[ˈplænɪt]')
+  assert.equal(view.spell.translation, 'n.行星')
 })
 
 test('listening quiz prefers English proverb.label over Chinese proverb.content', () => {
@@ -202,17 +381,19 @@ test('quiz recite media is reset before switching questions', () => {
 })
 
 test('recite countdown advances without treating a zero score as missing', () => {
-  const scheduleReciteToNext = listenScript.match(/scheduleReciteToNext\(\)\s*{[\s\S]*?^  },/m)
-  assert.ok(scheduleReciteToNext)
-  assert.match(scheduleReciteToNext[0], /goToNextQuizQuestion\(\)/)
-  assert.doesNotMatch(scheduleReciteToNext[0], /quizReciteScore/)
-  assert.match(listenTemplate, /wx:if="{{quizNextCountdown > 0 && !quizNextPaused && \(quizChecked \|\| quizPhase === 'recite'\)}}"/)
-  assert.match(listenTemplate, /{{quizNextCountdown}} 秒后进入下一步/)
+  // 背诵后改由 scheduleAfterRecite 分流（有拼写题进拼写，否则下一题）
+  const scheduleAfterRecite = listenScript.match(/scheduleAfterRecite\(\)\s*{[\s\S]*?^  },/m)
+  assert.ok(scheduleAfterRecite)
+  assert.match(scheduleAfterRecite[0], /goToNextQuizQuestion\(\)/)
+  assert.match(scheduleAfterRecite[0], /startQuizSpell\(\)/)
+  assert.doesNotMatch(scheduleAfterRecite[0], /quizReciteScore/)
+  assert.match(listenTemplate, /wx:if="{{quizNextCountdown > 0 && !quizNextPaused && \(quizChecked \|\| quizPhase === 'recite' \|\| \(quizPhase === 'spell' && quizSpellSelectedIndex != null\)\)}}"/)
+  assert.match(listenTemplate, /{{quizNextCountdown}} 秒后{{quizNextIsSubmit \? '提交' : '进入下一步'}}/)
   assert.doesNotMatch(listenTemplate, /wx:if="{{quizReciteScore && quizNextCountdown > 0}}"/)
 })
 
-test('fill and recite countdown use the same auto-advance copy', () => {
-  const countdownCopies = [...listenTemplate.matchAll(/>{{quizNextCountdown}} 秒后进入下一步<\/text>/g)]
+test('fill, recite and spell countdown use the same auto-advance copy', () => {
+  const countdownCopies = [...listenTemplate.matchAll(/>{{quizNextCountdown}} 秒后{{quizNextIsSubmit \? '提交' : '进入下一步'}}，/g)]
   assert.equal(countdownCopies.length, 1)
   assert.doesNotMatch(listenTemplate, /秒后自动进入背诵/)
   assert.doesNotMatch(listenTemplate, /秒后即将切换下一单词/)
@@ -229,6 +410,10 @@ test('listen page renders a home-styled fill-in quiz with top progress and new w
   assert.match(listenScript, /postListeningQuizResult/)
   assert.match(listenScript, /setQuizViewQuestion\(question, true[\s\S]*rememberQuizWordResult/)
   assert.match(listenTemplate, /word-new\/hint-bulb\.png/)
+  assert.match(listenScript, /quizHasSpell/)
+  assert.match(listenScript, /quizHasFill/)
+  assert.match(listenScript, /quizStepList/)
+  assert.match(listenTemplate, /wx:for="{{quizStepList}}"/)
   assert.match(listenTemplate, /wx:if="{{!loading && quizMode}}"/)
   assert.match(listenTemplate, /正在准备关卡小测/)
   assert.match(listenTemplate, /随机生成填空中/)
@@ -264,19 +449,19 @@ test('quiz page badge uses a dedicated class so it does not mask the whole scree
 test('quiz hint action aligns with the word-new hint placement', () => {
   assert.match(listenTemplate, /class="quiz-audio-hint"/)
   assert.match(listenTemplate, /word-new\/hint-bulb\.png/)
-  assert.match(listenStyle, /\.quiz-audio-hint\s*{[^}]*margin-top:\s*auto/s)
+  assert.match(listenStyle, /\.quiz-bottom-area\s*{[^}]*margin-top:\s*auto/s)
   assert.match(listenStyle, /\.quiz-audio-hint\s*{[^}]*padding-top:\s*60rpx/s)
-  assert.match(listenStyle, /\.quiz-audio-hint\s*{[^}]*padding-bottom:\s*126rpx/s)
+  assert.match(listenStyle, /\.quiz-bottom-area\s*{[^}]*padding-bottom:\s*calc\(env\(safe-area-inset-bottom\) \+ 24rpx\)/s)
   assert.match(listenStyle, /\.quiz-hint-btn\s*{[^}]*width:\s*108rpx/s)
   assert.match(listenStyle, /\.quiz-hint-icon\s*{[^}]*width:\s*66rpx/s)
   assert.match(listenStyle, /\.quiz-hint-label\s*{[^}]*margin-top:\s*32rpx/s)
   assert.match(listenStyle, /\.quiz-hint-label\s*{[^}]*font-size:\s*26rpx/s)
 })
 
-test('auto-advance countdown renders below the quiz card with one shared style', () => {
-  assert.match(listenTemplate, /<\/view>\s*<view\s+wx:if="{{quizNextCountdown > 0 && !quizNextPaused && \(quizChecked \|\| quizPhase === 'recite'\)}}"\s+class="quiz-countdown"/)
+test('auto-advance countdown renders in the bottom area below the quiz card with one shared style', () => {
+  assert.match(listenTemplate, /<view class="quiz-bottom-area">[\s\S]*<view\s+wx:if="{{quizNextCountdown > 0 && !quizNextPaused && \(quizChecked \|\| quizPhase === 'recite' \|\| \(quizPhase === 'spell' && quizSpellSelectedIndex != null\)\)}}"\s+class="quiz-countdown"/)
   // 暂停态复用同一个 quiz-countdown 容器（不引入独立样式），点按可恢复自动切换
-  assert.match(listenTemplate, /<view\s+wx:elif="{{quizNextPaused && \(quizChecked \|\| quizPhase === 'recite'\)}}"\s+class="quiz-countdown"/)
+  assert.match(listenTemplate, /<view\s+wx:elif="{{quizNextPaused && \(quizChecked \|\| quizPhase === 'recite' \|\| \(quizPhase === 'spell' && quizSpellSelectedIndex != null\)\)}}"\s+class="quiz-countdown"/)
   assert.match(listenTemplate, /catchtap="pauseQuizCountdown"/)
   assert.match(listenTemplate, /catchtap="resumeQuizNext"/)
   assert.match(listenTemplate, /已暂停自动切换/)

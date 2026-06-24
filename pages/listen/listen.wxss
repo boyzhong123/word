@@ -424,13 +424,9 @@ page {
   font-weight: 500;
 }
 
-/* 固定在页面底部，不随内容/动画移动 */
+/* 固定在页面底部深蓝区域，不随内容/动画移动 */
 .quiz-countdown {
-  position: fixed;
-  left: 50%;
-  bottom: calc(env(safe-area-inset-bottom) + 48rpx);
-  transform: translateX(-50%);
-  z-index: 60;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 16rpx;
@@ -542,11 +538,161 @@ page {
   border-color: rgba(230, 77, 61, 0.36);
 }
 
+/* ===== 单词拼写（小测第 3 步）===== */
+.quiz-spell-word {
+  margin-top: 40rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+  color: #263f45;
+  font-size: 72rpx;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+}
+
+.quiz-spell-gap {
+  min-width: 150rpx;
+  margin: 0 10rpx;
+  padding: 0 10rpx 8rpx;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9aa6ad;
+  letter-spacing: 10rpx;
+  border-bottom: 6rpx solid rgba(38, 63, 69, 0.3);
+}
+
+.quiz-spell-gap-correct {
+  color: #0eaf30;
+  border-bottom-color: #0eaf30;
+}
+
+.quiz-spell-gap-wrong {
+  color: #e64d3d;
+  border-bottom-color: #e64d3d;
+}
+
+.quiz-spell-ipa {
+  margin-top: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+}
+
+.quiz-spell-spk {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(17, 19, 24, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-spell-spk-img {
+  width: 30rpx;
+  height: 30rpx;
+  display: block;
+}
+
+.quiz-spell-spk-playing {
+  animation: quiz-hint-pulse 0.7s ease-in-out infinite;
+}
+
+.quiz-spell-symbol {
+  color: #4e6a70;
+  font-size: 30rpx;
+  letter-spacing: 1rpx;
+}
+
+.quiz-spell-cn {
+  margin-top: 22rpx;
+  text-align: center;
+  color: #434a56;
+  font-size: 26rpx;
+  line-height: 1.4;
+}
+
+.quiz-spell-verdict {
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 26rpx;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.quiz-spell-verdict-ok {
+  color: #0eaf30;
+}
+
+.quiz-spell-verdict-no {
+  color: #e64d3d;
+}
+
+.quiz-spell-options {
+  justify-content: center;
+}
+
+.quiz-spell-opt {
+  min-width: 150rpx;
+  height: 108rpx;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111318;
+  font-size: 46rpx;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 6rpx;
+  background: rgba(255, 255, 255, 0.46);
+  border: 1rpx solid rgba(255, 255, 255, 0.55);
+  border-radius: 22rpx;
+  box-shadow: 0 8rpx 18rpx rgba(74, 126, 132, 0.1);
+}
+
+.quiz-spell-opt:active {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.quiz-spell-opt-correct {
+  color: #0eaf30;
+  border-color: rgba(14, 175, 48, 0.55);
+  background: rgba(14, 175, 48, 0.12);
+  box-shadow: none;
+}
+
+.quiz-spell-opt-wrong {
+  color: #e64d3d;
+  border-color: rgba(230, 77, 61, 0.55);
+  background: rgba(230, 77, 61, 0.12);
+  box-shadow: none;
+}
+
+.quiz-spell-opt-muted {
+  opacity: 0.5;
+}
+
 /* 提示一下：位置与单词新学页保持一致 */
-.quiz-audio-hint {
+.quiz-bottom-area {
   margin-top: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24rpx);
+  box-sizing: border-box;
+}
+
+.quiz-audio-hint {
   padding-top: 60rpx;
-  padding-bottom: 126rpx;
+  padding-bottom: 24rpx;
   display: flex;
   flex-direction: column;
   align-items: center;

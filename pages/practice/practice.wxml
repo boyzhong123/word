@@ -315,14 +315,6 @@
               <template is='bottom' data="{{showMedia:pIndex + 1 == item.selectedIndex,index:pIndex + 1,autoplay:from != 'search',audio:proverb.audio,refText:proverb.refText || proverb.content,coreType:'en.sent.score',score:proverb.result.score}}" />
               </view>
             <view style="height: 84rpx;"></view>
-            <view wx:if="{{from != 'search' && autoNextCountdown > 0 && !autoNextPaused}}" class="recitation-countdown" catchtap="pauseAutoNext">
-              <text>{{autoNextCountdown}} 秒后{{current >= contents.length - 1 ? '提交' : '进入下一步'}}，<text class="auto-next-skip" catchtap="skipAutoNext">立即跳过</text></text>
-              <text class="auto-next-cancel">取消</text>
-            </view>
-            <view wx:elif="{{from != 'search' && autoNextPaused}}" class="recitation-countdown" catchtap="manualGoNext">
-              <text>已暂停自动切换</text>
-              <text class="auto-next-go">{{current >= contents.length - 1 ? '提交' : '进入下一步'}} ›</text>
-            </view>
 
             <!-- 各种tip -->
             <template is="tip" data="{{...axis['anchor-record']}}"></template>
@@ -334,6 +326,14 @@
     </block>
   </swiper>
   </block>
+  <view wx:if="{{!isWordNewMode && from != 'search' && autoNextCountdown > 0 && !autoNextPaused}}" class="recitation-countdown" catchtap="pauseAutoNext">
+    <text>{{autoNextCountdown}} 秒后{{current >= contents.length - 1 ? '提交' : '进入下一步'}}，<text class="auto-next-skip" catchtap="skipAutoNext">立即跳过</text></text>
+    <text class="auto-next-cancel">取消</text>
+  </view>
+  <view wx:elif="{{!isWordNewMode && from != 'search' && autoNextPaused}}" class="recitation-countdown" catchtap="manualGoNext">
+    <text>已暂停自动切换</text>
+    <text class="auto-next-go">{{current >= contents.length - 1 ? '提交' : '进入下一步'}} ›</text>
+  </view>
   <view
     wx:if="{{recordingOverlay.active}}"
     class="recording-overlay"

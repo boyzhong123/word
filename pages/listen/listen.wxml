@@ -37,7 +37,7 @@
       <view wx:if="{{quizAllDone}}" class="quiz-done-panel">
         <view class="quiz-done-card">
           <view class="quiz-done-title">关卡小测完成</view>
-          <view class="quiz-done-copy">听音填空和背诵评测都做完啦，可以生成报告看看表现。</view>
+          <view class="quiz-done-copy">本关小测都做完啦，可以生成报告看看表现。</view>
         </view>
         <view class="quiz-report-btn" bindtap="openQuizReport">生成听力报告</view>
       </view>
@@ -45,19 +45,18 @@
       <block wx:elif="{{quizQuestion}}">
         <view class="quiz-body">
         <view wx:if="{{quizQuestion && !quizAllDone}}" class="quiz-step-row">
-          <view class="quiz-step {{quizPhase === 'fill' ? 'quiz-step-active' : 'quiz-step-done'}}">
-            <text class="quiz-step-no">1</text>
-            <text class="quiz-step-label">听音填空</text>
-          </view>
-          <view class="quiz-step-line"></view>
-          <view class="quiz-step {{quizPhase === 'recite' ? 'quiz-step-active' : ''}}">
-            <text class="quiz-step-no">2</text>
-            <text class="quiz-step-label">背诵评测</text>
-          </view>
+          <block wx:for="{{quizStepList}}" wx:key="key" wx:for-index="stepIndex">
+            <view wx:if="{{stepIndex > 0}}" class="quiz-step-line"></view>
+            <view class="quiz-step {{item.stepClass}}">
+              <text class="quiz-step-no">{{item.no}}</text>
+              <text class="quiz-step-label">{{item.label}}</text>
+            </view>
+          </block>
         </view>
 
         <view class="quiz-head">
           <view class="quiz-tip" wx:if="{{quizPhase === 'fill'}}">听音频，把缺的单词填进去</view>
+          <view class="quiz-tip" wx:elif="{{quizPhase === 'spell'}}">听单词读音，选出缺失的字母</view>
           <view class="quiz-tip" wx:else>看着中文默念，然后开口背诵</view>
           <text wx:if="{{quizQuestion.page}}" class="quiz-page-tag">P{{quizQuestion.page}}</text>
         </view>
@@ -67,7 +66,7 @@
             <text class="quiz-score-badge-text">{{quizReciteScore}}分</text>
           </view>
 
-          <block wx:if="{{quizPhase === 'fill'}}">
+          <block wx:if="{{quizPhase === 'fill' && quizHasFill}}">
             <view class="quiz-guide">点击下方单词填空，点已填词可撤销</view>
             <view class="quiz-sentence">
               <block wx:for="{{quizQuestion.parts}}" wx:key="index">
@@ -84,6 +83,23 @@
             <view wx:if="{{quizResultText}}" class="quiz-result">{{quizResultText}}</view>
           </block>
 
+          <block wx:elif="{{quizPhase === 'spell'}}">
+            <view class="quiz-guide">点击下方字母块完成拼写</view>
+            <view class="quiz-spell-word">
+              <text>{{quizSpell.prefix}}</text>
+              <text class="quiz-spell-gap {{quizSpellSelectedIndex == null ? '' : (quizSpellCorrect ? 'quiz-spell-gap-correct' : 'quiz-spell-gap-wrong')}}">{{quizSpellFilled || ' '}}</text>
+              <text>{{quizSpell.suffix}}</text>
+            </view>
+            <view class="quiz-spell-ipa">
+              <view class="quiz-spell-spk {{quizAudioPlaying ? 'quiz-spell-spk-playing' : ''}}" catchtap="playQuizSpellAudio">
+                <image class="quiz-spell-spk-img" src="../../images/audio_small_hint.png" mode="aspectFit" />
+              </view>
+              <text wx:if="{{quizSpell.symbol}}" class="quiz-spell-symbol">{{quizSpell.symbol}}</text>
+            </view>
+            <view wx:if="{{quizSpell.translation}}" class="quiz-spell-cn">{{quizSpellSelectedIndex == null ? quizSpell.translation : (quizSpell.word + ' · ' + quizSpell.translation)}}</view>
+            <view wx:if="{{quizSpellSelectedIndex != null}}" class="quiz-spell-verdict {{quizSpellCorrect ? 'quiz-spell-verdict-ok' : 'quiz-spell-verdict-no'}}">{{quizSpellCorrect ? '拼写正确' : ('正确答案：' + quizSpell.word)}}</view>
+          </block>
+
           <block wx:else>
             <view class="quiz-guide">准备好后点击下方麦克风开始录音</view>
             <view class="quiz-recite-sentence">
@@ -96,23 +112,6 @@
           </block>
         </view>
 
-        <view
-          wx:if="{{quizNextCountdown > 0 && !quizNextPaused && (quizChecked || quizPhase === 'recite')}}"
-          class="quiz-countdown"
-          catchtap="pauseQuizCountdown"
-        >
-          <text>{{quizNextCountdown}} 秒后{{quizPhase === 'recite' && quizIndex >= quizQuestions.length - 1 ? '提交' : '进入下一步'}}，<text class="quiz-countdown-skip" catchtap="skipQuizNext">立即跳过</text></text>
-          <text class="quiz-countdown-cancel">取消</text>
-        </view>
-        <view
-          wx:elif="{{quizNextPaused && (quizChecked || quizPhase === 'recite')}}"
-          class="quiz-countdown"
-          catchtap="resumeQuizNext"
-        >
-          <text>已暂停自动切换</text>
-          <text class="quiz-countdown-go">{{quizPhase === 'recite' && quizIndex >= quizQuestions.length - 1 ? '提交' : '进入下一步'}} ›</text>
-        </view>
-
         <view wx:if="{{quizPhase === 'recite'}}" class="quiz-recite-panel listen-full-bleed">
           <media
             wx:key="{{quizIndex}}"
@@ -120,7 +119,7 @@
             _index="{{quizIndex}}"
             _autoplay="{{false}}"
             _audio="{{quizQuestion.audio}}"
-            _refText="{{quizQuestion.sentence}}"
+            _refText="{{quizQuestion.reciteRefText || quizQuestion.sentence}}"
             _coreType="en.sent.score"
             score="{{quizReciteScore}}"
             bindresult="onQuizReciteResult"
@@ -130,7 +129,7 @@
           ></media>
         </view>
 
-        <view wx:if="{{quizPhase === 'fill'}}" class="quiz-options">
+        <view wx:if="{{quizPhase === 'fill' && quizHasFill}}" class="quiz-options">
           <view
             wx:for="{{quizQuestion.options}}"
             wx:key="index"
@@ -147,11 +146,39 @@
           >清空</view>
         </view>
 
-        <view class="quiz-audio-hint" bindtap="replayQuizAudio">
-          <view class="quiz-hint-btn {{quizAudioPlaying ? 'quiz-hint-btn-playing' : ''}}">
-            <image class="quiz-hint-icon" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+        <view wx:if="{{quizPhase === 'spell'}}" class="quiz-options quiz-spell-options">
+          <view
+            wx:for="{{quizSpell.options}}"
+            wx:key="index"
+            class="quiz-spell-opt {{quizSpellSelectedIndex != null && item.isAnswer ? 'quiz-spell-opt-correct' : ''}} {{quizSpellSelectedIndex == index && !item.isAnswer ? 'quiz-spell-opt-wrong' : ''}} {{quizSpellSelectedIndex != null && quizSpellSelectedIndex != index && !item.isAnswer ? 'quiz-spell-opt-muted' : ''}}"
+            data-index="{{index}}"
+            bindtap="onQuizSpellOptionTap"
+          >{{item.text}}</view>
+        </view>
+
+        <view class="quiz-bottom-area">
+          <view class="quiz-audio-hint" wx:if="{{quizPhase !== 'spell'}}" bindtap="replayQuizAudio">
+            <view class="quiz-hint-btn {{quizAudioPlaying ? 'quiz-hint-btn-playing' : ''}}">
+              <image class="quiz-hint-icon" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+            </view>
+            <text class="quiz-hint-label">提示一下</text>
           </view>
-          <text class="quiz-hint-label">提示一下</text>
+          <view
+            wx:if="{{quizNextCountdown > 0 && !quizNextPaused && (quizChecked || quizPhase === 'recite' || (quizPhase === 'spell' && quizSpellSelectedIndex != null))}}"
+            class="quiz-countdown"
+            catchtap="pauseQuizCountdown"
+          >
+            <text>{{quizNextCountdown}} 秒后{{quizNextIsSubmit ? '提交' : '进入下一步'}}，<text class="quiz-countdown-skip" catchtap="skipQuizNext">立即跳过</text></text>
+            <text class="quiz-countdown-cancel">取消</text>
+          </view>
+          <view
+            wx:elif="{{quizNextPaused && (quizChecked || quizPhase === 'recite' || (quizPhase === 'spell' && quizSpellSelectedIndex != null))}}"
+            class="quiz-countdown"
+            catchtap="resumeQuizNext"
+          >
+            <text>已暂停自动切换</text>
+            <text class="quiz-countdown-go">{{quizNextIsSubmit ? '提交' : '进入下一步'}} ›</text>
+          </view>
         </view>
         </view>
       </block>

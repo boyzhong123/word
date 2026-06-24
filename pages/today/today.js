@@ -36,7 +36,9 @@ const { getResult } = require('../../utils/exam-data')
 const {
   buildDisplayUnits,
   buildListUnits,
-  markTodayTasks
+  markTodayTasks,
+  buildStageStars,
+  UNLOCK_ALL_TASKS_FOR_DEV
 } = require('../home/home-units')
 const { FALLBACK_UNITS } = require('../../utils/fallback-units')
 const { pickActiveBook } = require('../../utils/book-select')
@@ -555,13 +557,18 @@ Page({
         ? ('更新于 ' + routeUpdatedAtText)
         : ('下一关 · 共 ' + totalTaskCount + ' 步')
 
-      // 已通关的关卡：三星点亮，并放出「报告」入口，与成长页保持一致（今日页只是
-      // 成长地图里「今天要做的那几关」，做完同样有星星和闯关报告）。
+      // 星级与成长页同源：由后端 doneStages / stageStars（整关 scoreRate 换算）下发，
+      // 不是「完成一个环节亮一颗星」。三环节未齐或后端未结算时通常为 ☆☆☆。
       const levelCompleted = levelState === 'completed'
-      const stageStars = levelCompleted
-        ? [true, true, true]
-        : (Array.isArray(unit.stageStars) ? unit.stageStars : [false, false, false])
-      const showReport = levelCompleted && !unit.isReview
+      const doneStages = (() => {
+        const n = Number(unit.doneStages)
+        if (!Number.isFinite(n) || n < 0) return 0
+        return Math.min(Math.floor(n), 3)
+      })()
+      const stageStars = Array.isArray(unit.stageStars) && unit.stageStars.length === 3
+        ? unit.stageStars
+        : buildStageStars(doneStages)
+      const showReport = doneStages >= 3 && !unit.isReview
 
       return {
         key,
@@ -574,6 +581,7 @@ Page({
         subtitleEnglish: unit.subtitleEnglish || '',
         subtitleChinese: unit.subtitleChinese || '',
         stageStars,
+        doneStages,
         showReport,
         levelWords: unit.levelWords || 0,
         tasks,
@@ -784,7 +792,11 @@ Page({
       this.showLocked()
       return
     }
-    if (task.mapState !== 'active' && task.mapState !== 'completed') {
+    if (
+      !UNLOCK_ALL_TASKS_FOR_DEV &&
+      task.mapState !== 'active' &&
+      task.mapState !== 'completed'
+    ) {
       this.showMonsterHint('请先完成上一项任务')
       return
     }

@@ -60,7 +60,8 @@ function shouldOfferTodayRouteGuide(options) {
   if (!findCurrentRouteTask(opts.targetLevels)) {
     return false
   }
-  if (hasShownTodayRouteGuideForBook(resBookId)) {
+  // opts.date 可选注入「今天」，与 markTodayRouteGuideShown 用同一基准比对（生产不传，用实时 new Date()）。
+  if (hasShownTodayRouteGuideForBook(resBookId, opts.date)) {
     return false
   }
   return true

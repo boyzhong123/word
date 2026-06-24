@@ -237,7 +237,7 @@
               <view class="seg-fold-title-row">
                 <text wx:if="{{level.isReview}}" class="seg-badge">复习</text>
                 <text class="seg-fold-title">{{level.title}}</text>
-                <view wx:if="{{level.levelState === 'completed'}}" class="seg-stage-stars">
+                <view class="seg-stage-stars">
                   <image
                     class="seg-stage-star"
                     wx:for="{{level.stageStars}}"
@@ -283,7 +283,7 @@
                 <view class="seg-title-row">
                   <text wx:if="{{level.isReview}}" class="seg-badge">复习</text>
                   <text class="seg-title">{{level.title}}</text>
-                  <view wx:if="{{level.levelState === 'completed'}}" class="seg-stage-stars">
+                  <view class="seg-stage-stars">
                     <image
                       class="seg-stage-star"
                       wx:for="{{level.stageStars}}"
@@ -375,7 +375,7 @@
       <!-- 今日小结：把今天的三类收获汇总到页面底部，作为回顾收尾 -->
       <view wx:if="{{book}}" class="today-summary" bindtap="showTodayProgressHint">
         <view class="summary-head">
-          <image class="summary-head-icon" src="../../images/home/icon-today-streak.png" mode="aspectFit" />
+          <image class="summary-head-icon" src="../../images/home/icon-today-summary-jelly.png" mode="aspectFit" />
           <text class="summary-head-title">今日小结</text>
         </view>
         <view class="summary-stats">
@@ -383,10 +383,12 @@
             <view class="summary-stat-num">{{todayWords}}<text class="summary-stat-unit">词</text></view>
             <view class="summary-stat-label">今日单词</view>
           </view>
+          <view class="summary-divider"></view>
           <view class="summary-stat summary-stat--sentence">
             <view class="summary-stat-num">{{todaySentences}}<text class="summary-stat-unit">句</text></view>
             <view class="summary-stat-label">今日句子</view>
           </view>
+          <view class="summary-divider"></view>
           <view class="summary-stat summary-stat--level">
             <view class="summary-stat-num">{{todayDone}}<text class="summary-stat-unit">关</text></view>
             <view class="summary-stat-label">今日闯关</view>

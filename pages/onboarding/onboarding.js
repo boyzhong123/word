@@ -16,10 +16,13 @@ const {
   setCharacterGender,
   getCharacterGender
 } = require('../../utils/character-gender')
-const { bindPhoneNumber } = require('../../utils/api')
+const { bindPhoneNumber, getUserBooks, toggleBook } = require('../../utils/api')
 const { login, fetchLoginCode } = require('../../utils/login')
 const { markEntryExamPromptPending } = require('../../utils/entry-exam-prompt')
 const { imageUrl } = require('../../utils/image-host')
+const { withTestBook, applyDevPurchaseToBooks } = require('../../utils/dev-books')
+const { withMockTextbooks } = require('../../utils/mock-textbooks')
+const { matchRecommendedBook } = require('../../utils/book-match')
 
 // 首屏三张长图（定位 / 痛点+流程 / 亮点+坚持），底部按钮保留原生
 const INTRO_PANELS = [
@@ -513,16 +516,52 @@ Page({
       profilePayload.phoneNumber = this.data.phoneNumber
       profilePayload.phoneVerified = true
     }
-    saveStudentProfile(profilePayload)
-    if (this.data.editMode) {
-      wx.showToast({ title: '已保存', icon: 'success' })
-      setTimeout(() => wx.navigateBack(), 400)
-      return
+    const profile = saveStudentProfile(profilePayload)
+    const editMode = this.data.editMode
+    // 教材联动：按 年级/学期/版本 匹配教材目录并自动设为默认词书，再进入今日页（最长等待 1.5s 不阻塞跳转）
+    this.applyRecommendedBook(profile).then(() => {
+      if (editMode) {
+        wx.showToast({ title: '已保存', icon: 'success' })
+        setTimeout(() => wx.navigateBack(), 400)
+        return
+      }
+      markEntryExamPromptPending()
+      wx.showToast({ title: '设置完成', icon: 'success' })
+      setTimeout(() => {
+        wx.switchTab({ url: '/pages/today/today' })
+      }, 400)
+    })
+  },
+
+  // 按档案匹配教材目录，命中则把推荐教材设为默认词书（演示书仅本地切，真实书调 switch-default-book）。
+  // 任何失败都不阻断引导完成：超时/无网/无命中都回退后端 defaultBook。
+  applyRecommendedBook(profile) {
+    if (!profile || !profile.gradeId || !profile.version) {
+      return Promise.resolve(null)
     }
-    markEntryExamPromptPending()
-    wx.showToast({ title: '设置完成', icon: 'success' })
-    setTimeout(() => {
-      wx.switchTab({ url: '/pages/today/today' })
-    }, 400)
+    const matchAndSwitch = login().then(result => {
+      if (!result || !result.logined) {
+        return null
+      }
+      return getUserBooks()
+    }).then(books => {
+      const list = applyDevPurchaseToBooks(
+        withMockTextbooks(withTestBook(Array.isArray(books) ? books : []))
+      )
+      const matched = matchRecommendedBook(list, profile)
+      if (!matched || !matched.resBookId) {
+        return null
+      }
+      const app = getApp()
+      app.globalData.pendingBookId = matched.resBookId
+      app.globalData.book = Object.assign({}, app.globalData.book, matched)
+      if (matched.demo) {
+        return matched
+      }
+      return toggleBook(matched.resBookId).then(() => matched).catch(() => matched)
+    }).catch(() => null)
+
+    const timeout = new Promise(resolve => setTimeout(() => resolve(null), 1500))
+    return Promise.race([matchAndSwitch, timeout])
   }
 })

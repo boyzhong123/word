@@ -7,7 +7,11 @@ const {
   buildListeningQuizQuestions,
   buildReciteParts,
   instantiateQuizQuestion,
-  normalizeUnitResource
+  normalizeUnitResource,
+  hasSpellStep,
+  hasFillStep,
+  buildQuizStepList,
+  decorateQuizStepList
 } = require('./listen-quiz')
 const {
   buildMockReviewResource
@@ -20,6 +24,7 @@ const {
 // 通常听力播放走全局单例（跨页持续 + 迷你播放器）；buildTracks 复用单例里的实现
 const { player, buildTracks } = require('../../utils/player')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
+const { buildVoiceUrl } = require('../../utils/voice-url')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const { isLevelUnlocked } = require('../../utils/level-access')
 const { promptVipPurchase } = require('../../utils/vip-purchase')
@@ -33,6 +38,13 @@ const {
   markListenGuideDone,
   findGuideTrackIndex
 } = require('../../utils/listen-guide')
+const {
+  isQuizDevFixtureEnabled,
+  buildQuizDevUnitResource,
+  buildQuizDevUnitsList,
+  QUIZ_DEV_UNIT_ID,
+  QUIZ_DEV_UNIT_SORT
+} = require('../../utils/quiz-dev-fixture')
 const LISTEN_WORD_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-word-jelly.png'
 const LISTEN_SENTENCE_TAG_IMAGE = IMAGE_BASE_URL + '/images/listen/tag-sentence-jelly.png'
 const LOADING_MASCOT_SPRITE = imageUrl('/images/listen/loading-mascot-sprite.png')
@@ -40,6 +52,11 @@ const LOADING_MASCOT_SPRITE = imageUrl('/images/listen/loading-mascot-sprite.png
 const LISTEN_PAGE_ANIM_MS = 320
 // 与 app.json tabBar.list 保持一致
 const TAB_ROUTES = ['pages/today/today', 'pages/home/home', 'pages/me/me']
+// 联调用：加载 utils/quiz-dev-fixture.js 里的测试词表（三步 + 两步无听填）。测完改回 false。
+const USE_QUIZ_DEV_FIXTURE = false
+// 联调用：只出前 N 个词的小测；0 = 全量。fixture 共 2 词，保持 2 即可。
+const QUIZ_DEV_WORD_LIMIT = 2
+
 const QUIZ_NEXT_COUNTDOWN_S = 3
 // media 组件评分反馈（彩带/表情）展示 2000ms 后淡出，倒计时等它播完
 const QUIZ_CELEBRATE_DELAY_MS = 2200
@@ -53,6 +70,49 @@ function decorateListenUnits(units) {
   return (Array.isArray(units) ? units : []).map((unit, index) => Object.assign({}, unit, {
     isUnlockedForListen: isListenUnitUnlocked(unit, index)
   }))
+}
+
+function limitQuizQuestionsForDev(questions) {
+  const list = Array.isArray(questions) ? questions : []
+  if (!QUIZ_DEV_WORD_LIMIT || QUIZ_DEV_WORD_LIMIT <= 0) {
+    return list
+  }
+
+  // 联调优先选能走满三步的词：有填空素材 + 词长够拼写
+  const ranked = list.map((question, index) => {
+    const word = question && question.word ? String(question.word) : ''
+    let score = 0
+    if (!question.skipFill) {
+      score += 2
+    }
+    if (word.length >= 4) {
+      score += 2
+    } else if (word.length >= 3) {
+      score += 1
+    }
+    if (question.spell || hasSpellStep(question.spell)) {
+      score += 1
+    }
+    return { question, index, score }
+  })
+
+  ranked.sort((a, b) => b.score - a.score || a.index - b.index)
+  return ranked
+    .slice(0, QUIZ_DEV_WORD_LIMIT)
+    .sort((a, b) => a.index - b.index)
+    .map(item => item.question)
+}
+
+function getActiveQuizSpell(page) {
+  const data = page.data || {}
+  if (hasSpellStep(data.quizSpell)) {
+    return data.quizSpell
+  }
+  const runtime = page.quizRuntimeQuestion
+  if (hasSpellStep(runtime && runtime.spell)) {
+    return runtime.spell
+  }
+  return null
 }
 
 function postListeningQuizResult(payload) {
@@ -132,16 +192,26 @@ Page({
     quizChecked: false,
     quizResultText: '',
     quizReviewWordResults: [],
-    // fill: 听音填空 | recite: 看着背诵 + 语音评测
+    // fill: 听音填空 | recite: 看着背诵 + 语音评测 | spell: 单词拼写
     quizPhase: 'fill',
     quizReciteParts: [],
     quizReciteScore: '',
     quizMarking: false,
     quizNextCountdown: 0,
     quizNextPaused: false,
+    quizNextIsSubmit: false,
     quizAllDone: false,
     quizRecords: [],
     quizAudioPlaying: false,
+    // 题型由数据决定：听音填空 / 背诵评测 / 单词拼写 可出现 1~3 步
+    quizHasFill: true,
+    quizHasRecite: true,
+    quizHasSpell: false,
+    quizStepList: [],
+    quizSpell: null,
+    quizSpellSelectedIndex: null,
+    quizSpellCorrect: false,
+    quizSpellFilled: '',
     dialog: { type: '' }
   },
 
@@ -164,6 +234,9 @@ Page({
     this.reviewUnitIds = options.reviewUnitIds
       ? decodeURIComponent(options.reviewUnitIds).split(',').filter(Boolean)
       : []
+    this.useQuizDevFixture = quizMode && isQuizDevFixtureEnabled(
+      USE_QUIZ_DEV_FIXTURE || options.quizDev === '1' || options.quizDev === 1
+    )
     this.setData({ quizMode, review: this.review })
     const bookCover = normalizeBookCover(book.bookCover || this.data.bookCover)
     if (book.bookCover) {
@@ -304,6 +377,10 @@ Page({
       this.loadReviewUnit()
       return
     }
+    if (this.useQuizDevFixture) {
+      this.loadQuizDevUnit()
+      return
+    }
     if (!this.resBookId) {
       this.setData({ loading: false })
       wx.showToast({ title: '请先在学习页选择教材', icon: 'none' })
@@ -328,7 +405,7 @@ Page({
   // 假数据没有音频，tracks 为空，因此只走 quizMode 的听力填空。
   loadReviewUnit() {
     const source = buildMockReviewResource(this.reviewUnitIds)
-    const quizQuestions = buildListeningQuizQuestions(source)
+    const quizQuestions = limitQuizQuestionsForDev(buildListeningQuizQuestions(source))
     this.unitSort = 0
     this.setData({
       loading: false,
@@ -356,6 +433,44 @@ Page({
       quizRecords: []
     })
     this.showQuizQuestion(0, true)
+  },
+
+  // 联调专用：planet（听填→背诵→拼写）+ spade（背诵→拼写，无听填）
+  loadQuizDevUnit() {
+    const units = decorateListenUnits(buildQuizDevUnitsList())
+    const source = normalizeUnitResource(buildQuizDevUnitResource())
+    const tracks = buildTracks(source)
+    const quizQuestions = limitQuizQuestionsForDev(buildListeningQuizQuestions(source))
+
+    this.unitSort = QUIZ_DEV_UNIT_SORT
+    this.targetUnitId = QUIZ_DEV_UNIT_ID
+    this.setData({
+      loading: false,
+      units,
+      unitIndex: 0,
+      unitName: '联调小测',
+      ...this.getQuizNavMeta(0, quizQuestions.length),
+      tracks,
+      current: 0,
+      progress: 0,
+      currentTime: '00:00',
+      showPlaylist: false,
+      quizQuestions,
+      quizIndex: 0,
+      quizAnsweredCount: 0,
+      quizProgressPercent: 0,
+      quizChecked: false,
+      quizResultText: '',
+      quizReviewWordResults: [],
+      quizPhase: 'fill',
+      quizReciteParts: [],
+      quizReciteScore: '',
+      quizMarking: false,
+      quizAllDone: false,
+      quizRecords: []
+    })
+    this.showQuizQuestion(0, true)
+    wx.showToast({ title: '联调试卷：2词', icon: 'none' })
   },
 
   getQuizNavMeta(index, totalOptional) {
@@ -395,7 +510,7 @@ Page({
       // 统一显示为「关卡N」，不沿用后端的「第N期」命名
       const unitName = '关卡' + sort
 
-      const quizQuestions = buildListeningQuizQuestions(source)
+      const quizQuestions = limitQuizQuestionsForDev(buildListeningQuizQuestions(source))
 
       this.setData({
         loading: false,
@@ -440,6 +555,52 @@ Page({
     }
   },
 
+  syncQuizStepList(quizPhase) {
+    const phase = quizPhase || this.data.quizPhase
+    const quizStepList = decorateQuizStepList(this.data.quizStepList, phase)
+    if (quizStepList.length) {
+      this.setData({ quizStepList })
+    }
+  },
+
+  applyQuizStepPlan(question, spell) {
+    const quizHasFill = hasFillStep(question)
+    const quizHasRecite = !!(question && question.sentence)
+    const quizHasSpell = hasSpellStep(spell)
+    const quizStepList = buildQuizStepList(quizHasFill, quizHasRecite, quizHasSpell)
+    const initialPhase = (quizStepList[0] && quizStepList[0].key) || 'recite'
+
+    return {
+      quizHasFill,
+      quizHasRecite,
+      quizHasSpell,
+      quizStepList: decorateQuizStepList(quizStepList, initialPhase),
+      quizPhase: initialPhase,
+      quizChecked: !quizHasFill
+    }
+  },
+
+  patchQuizStepPlan(spell, quizPhase) {
+    const runtime = this.quizRuntimeQuestion || {}
+    const quizHasFill = this.data.quizHasFill != null
+      ? this.data.quizHasFill
+      : hasFillStep(runtime)
+    const quizHasRecite = this.data.quizHasRecite != null
+      ? this.data.quizHasRecite
+      : !!(runtime.sentence)
+    const quizHasSpell = hasSpellStep(spell)
+    const phase = quizPhase || this.data.quizPhase
+    const quizStepList = buildQuizStepList(quizHasFill, quizHasRecite, quizHasSpell)
+
+    return {
+      quizHasFill,
+      quizHasRecite,
+      quizHasSpell,
+      quizStepList: decorateQuizStepList(quizStepList, phase),
+      quizSpell: spell
+    }
+  },
+
   showQuizQuestion(index, autoPlay) {
     this.clearQuizTimers()
     if (this.data.quizPhase === 'recite') {
@@ -469,17 +630,24 @@ Page({
     this.quizAnswers = question.gaps.map(() => '')
     this.quizOptionUsed = question.options.map(() => false)
 
-    this.setData({
+    const spell = question.spell || null
+    const stepPlan = this.applyQuizStepPlan(question, spell)
+
+    this.setData(Object.assign({
       quizIndex: index,
       ...this.getQuizNavMeta(index),
-      quizPhase: 'fill',
-      quizReciteParts: buildReciteParts(sourceQuestion.sentence),
+      quizReciteParts: buildReciteParts(sourceQuestion.reciteRefText || sourceQuestion.sentence),
       quizReciteScore: '',
-      quizMarking: false
-    })
-    this.setQuizViewQuestion(question, false, '')
+      quizMarking: false,
+      quizNextIsSubmit: false,
+      quizSpell: spell,
+      quizSpellSelectedIndex: null,
+      quizSpellCorrect: false,
+      quizSpellFilled: ''
+    }, stepPlan))
+    this.setQuizViewQuestion(question, stepPlan.quizChecked, '')
 
-    if (autoPlay) {
+    if (autoPlay && stepPlan.quizPhase === 'fill') {
       this.playQuizAudio()
     }
   },
@@ -546,8 +714,20 @@ Page({
     const filled = this.quizAnswers.every(Boolean)
     if (filled) {
       const correct = this.isQuizCorrect(question)
+      const records = (this.data.quizRecords || []).slice()
+      records[this.data.quizIndex] = Object.assign({}, records[this.data.quizIndex], {
+        fillCorrect: correct
+      })
+      this.setData({ quizRecords: records })
       this.setQuizViewQuestion(question, true, this.getQuizResultText(correct))
-      this.rememberQuizWordResult(question, correct)
+      if (!correct) {
+        this.rememberWrongQuizWord({
+          unitId: question.unitId || this.targetUnitId || '',
+          wordId: question.wordId || '',
+          word: question.word || '',
+          correct: false
+        })
+      }
       wx.nextTick(() => {
         this.scheduleFillToRecite()
       })
@@ -617,6 +797,34 @@ Page({
 
     if (!correct) {
       this.rememberWrongQuizWord(payload)
+    }
+  },
+
+  submitQuizWordResult() {
+    const index = this.data.quizIndex
+    const question = this.quizRuntimeQuestion
+    const record = ((this.data.quizRecords || [])[index]) || {}
+    if (!question) {
+      return
+    }
+
+    const payload = {
+      unitId: question.unitId || this.targetUnitId || '',
+      wordId: question.wordId || '',
+      word: question.word || ''
+    }
+    if (record.fillCorrect != null) {
+      payload.fillCorrect = !!record.fillCorrect
+    }
+    if (record.reciteScore != null && record.reciteScore !== '') {
+      payload.reciteScore = Number(record.reciteScore)
+    }
+    if (record.spellCorrect != null) {
+      payload.spellCorrect = !!record.spellCorrect
+    }
+    if (payload.fillCorrect != null && payload.reciteScore == null && payload.spellCorrect == null) {
+      payload.correct = payload.fillCorrect
+      payload.phase = 'fill'
     }
 
     postListeningQuizResult(payload)
@@ -731,6 +939,7 @@ Page({
   },
 
   scheduleFillToRecite() {
+    this.setData({ quizNextIsSubmit: false })
     this.scheduleQuizCountdown(() => {
       if (this.data.quizPhase === 'fill' && this.data.quizChecked) {
         this.startQuizRecite()
@@ -738,8 +947,21 @@ Page({
     })
   },
 
-  scheduleReciteToNext() {
-    // 等评分庆祝动画（彩带 2s）播完再起倒计时，避免两者叠在一起
+  // 背诵评测完成后：有单词拼写题 → 进拼写；否则 → 下一题 / 提交
+  scheduleAfterRecite() {
+    const spell = getActiveQuizSpell(this)
+    if (hasSpellStep(spell)) {
+      const patch = this.patchQuizStepPlan(spell, 'recite')
+      this.setData(Object.assign({ quizNextIsSubmit: false }, patch))
+      // 等评分庆祝动画（彩带 2s）播完再起倒计时，避免两者叠在一起
+      this.scheduleQuizCountdown(() => {
+        if (this.data.quizPhase === 'recite') {
+          this.startQuizSpell()
+        }
+      }, QUIZ_CELEBRATE_DELAY_MS)
+      return
+    }
+    this.setData({ quizNextIsSubmit: this.data.quizIndex >= this.data.quizQuestions.length - 1 })
     this.scheduleQuizCountdown(() => {
       if (this.data.quizPhase === 'recite') {
         this.goToNextQuizQuestion()
@@ -747,8 +969,21 @@ Page({
     }, QUIZ_CELEBRATE_DELAY_MS)
   },
 
+  scheduleSpellToNext() {
+    this.setData({ quizNextIsSubmit: this.data.quizIndex >= this.data.quizQuestions.length - 1 })
+    this.scheduleQuizCountdown(() => {
+      if (this.data.quizPhase === 'spell') {
+        this.goToNextQuizQuestion()
+      }
+    })
+  },
+
   startQuizRecite() {
-    if (!this.data.quizChecked || this.data.quizPhase !== 'fill') {
+    if (this.data.quizHasFill) {
+      if (!this.data.quizChecked || this.data.quizPhase !== 'fill') {
+        return
+      }
+    } else if (this.data.quizPhase !== 'recite') {
       return
     }
 
@@ -761,7 +996,80 @@ Page({
       quizReciteScore: '',
       playing: false,
       quizAudioPlaying: false
+    }, () => {
+      this.syncQuizStepList('recite')
     })
+  },
+
+  startQuizSpell() {
+    if (this.data.quizPhase !== 'recite') {
+      return
+    }
+    this.cancelQuizReciteMedia()
+    if (this.quizAudio) {
+      this.quizAudio.stop()
+    }
+
+    this.setData({
+      quizPhase: 'spell',
+      quizSpellSelectedIndex: null,
+      quizSpellCorrect: false,
+      quizSpellFilled: '',
+      playing: false,
+      quizAudioPlaying: false
+    }, () => {
+      this.syncQuizStepList('spell')
+      this.playQuizSpellAudio()
+    })
+  },
+
+  playQuizSpellAudio() {
+    const spell = this.data.quizSpell
+    const audio = spell && (spell.audio || buildVoiceUrl(spell.word))
+    if (!audio || !this.quizAudio) {
+      return
+    }
+    this.quizAudio.stop()
+    this.quizAudio.src = audio
+    this.quizAudio.play()
+    this.setData({ playing: true, quizAudioPlaying: true })
+  },
+
+  onQuizSpellOptionTap(e) {
+    if (this.data.quizPhase !== 'spell' || this.data.quizSpellSelectedIndex != null) {
+      return
+    }
+    const index = Number(e.currentTarget.dataset.index)
+    const spell = this.data.quizSpell
+    const option = spell && spell.options && spell.options[index]
+    if (!option) {
+      return
+    }
+
+    const correct = !!option.isAnswer
+    const records = (this.data.quizRecords || []).slice()
+    records[this.data.quizIndex] = Object.assign({}, records[this.data.quizIndex], {
+      spellCorrect: correct
+    })
+
+    this.setData({
+      quizSpellSelectedIndex: index,
+      quizSpellCorrect: correct,
+      quizSpellFilled: option.text,
+      quizRecords: records
+    })
+
+    if (!correct) {
+      const runtime = this.quizRuntimeQuestion || {}
+      this.rememberWrongQuizWord({
+        unitId: runtime.unitId || this.targetUnitId || '',
+        wordId: runtime.wordId || '',
+        word: spell.word || runtime.word || '',
+        correct: false
+      })
+    }
+
+    this.scheduleSpellToNext()
   },
 
   onQuizMediaBeforePlay() {
@@ -782,17 +1090,19 @@ Page({
 
     const question = this.quizRuntimeQuestion
     const records = (this.data.quizRecords || []).slice()
-    records[this.data.quizIndex] = {
-      fillCorrect: question ? this.isQuizCorrect(question) : false,
-      reciteScore: Number(score)
+    const record = {}
+    if (this.data.quizHasFill && question) {
+      record.fillCorrect = this.isQuizCorrect(question)
     }
+    record.reciteScore = Number(score)
+    records[this.data.quizIndex] = Object.assign({}, records[this.data.quizIndex], record)
 
     this.setData({
       quizReciteScore: score,
       quizMarking: false,
       quizRecords: records
     }, () => {
-      this.scheduleReciteToNext()
+      this.scheduleAfterRecite()
     })
   },
 
@@ -814,6 +1124,7 @@ Page({
   },
 
   goToNextQuizQuestion() {
+    this.submitQuizWordResult()
     const nextIndex = this.data.quizIndex + 1
     const total = this.data.quizQuestions.length || 1
     if (nextIndex >= this.data.quizQuestions.length) {
@@ -857,15 +1168,22 @@ Page({
     const avgRecite = reciteScores.length
       ? Math.round(reciteScores.reduce((sum, score) => sum + Number(score), 0) / reciteScores.length)
       : 0
+    const spellRecords = records.filter(item => item && item.spellCorrect != null)
+    const spellCorrect = spellRecords.filter(item => item.spellCorrect === true).length
+    const spellRate = spellRecords.length
+      ? Math.round(spellCorrect * 100 / spellRecords.length)
+      : 0
     const accuracy = total
       ? Math.round(fillCorrect * 100 / total)
       : 0
 
+    const summary = 'Listening quiz · ' + accuracy + '% fill · ' + avgRecite + ' recite' +
+      (spellRecords.length ? ' · ' + spellRate + '% spell' : '')
     const query = [
       'sort=' + (unit.sort || 1),
       'words=' + total,
       'unitId=' + encodeURIComponent(unit.unitId || this.targetUnitId || ''),
-      'en=' + encodeURIComponent('Listening quiz · ' + accuracy + '% fill · ' + avgRecite + ' recite'),
+      'en=' + encodeURIComponent(summary),
       'zh=' + encodeURIComponent(this.data.unitName || '关卡小测')
     ].join('&')
 
