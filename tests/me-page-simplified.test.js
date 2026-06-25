@@ -105,4 +105,8 @@ test('me page adds WeChat phone verification in account settings', () => {
   assert.match(meScript, /bindPhoneNumber/)
   assert.match(apiScript, /function bindPhoneNumber/)
   assert.match(apiScript, /\/mini-app\/user\/phone-number/)
+  assert.doesNotMatch(
+    apiScript,
+    /requestBind\(['"]\/mini-app\/user\/info-update['"]/
+  )
 })

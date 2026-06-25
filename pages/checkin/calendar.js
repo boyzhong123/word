@@ -3,7 +3,9 @@ const { login } = require('../../utils/login')
 const {
   getCheckinRemindTmplId,
   getSubscribePref,
-  setSubscribePref
+  setSubscribePref,
+  getSubscribeQuota,
+  bumpSubscribeQuota
 } = require('../../utils/subscribe')
 const {
   DEMO_CONTINUOUS_DAYS,
@@ -229,7 +231,7 @@ Page({
 
     this.setData(Object.assign(getSafeArea(), getNavLayout(), {
       bookName: book.name || '当前教材',
-      checkinRemindCount: Number(wx.getStorageSync(CHECKIN_REMIND_COUNT_KEY)) || 0,
+      checkinRemindCount: getSubscribeQuota(CHECKIN_REMIND_COUNT_KEY),
       checkinRemindEnabled: getSubscribePref(CHECKIN_REMIND_PREF_KEY)
     }))
     this.applyRewardScenario(DEFAULT_REWARD_SCENARIO_ID)
@@ -341,8 +343,7 @@ Page({
       tmplIds: [tmplId],
       success: (res) => {
         if (res[tmplId] === 'accept') {
-          const count = (Number(this.data.checkinRemindCount) || 0) + 1
-          wx.setStorageSync(CHECKIN_REMIND_COUNT_KEY, count)
+          const count = bumpSubscribeQuota(CHECKIN_REMIND_COUNT_KEY, 1)
           setSubscribePref(CHECKIN_REMIND_PREF_KEY, true)
           this.setData({ checkinRemindCount: count, checkinRemindEnabled: true })
           // 预留后端：上报本次订阅，后端据此累计推送额度（接口就绪前为空操作）

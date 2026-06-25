@@ -1,6 +1,8 @@
 // 学生学习档案：首访引导采集 年级 / 学期 / 教材版本；可选 学习形象 / 手机号。
 // 用于今日模块展示与后续推荐；不自动切换当前教材（默认仍为格言谚语词典）。
-const STORAGE_KEY = 'studentProfile'
+// 档案是后端业务真值（真实走 user/info），前端不持久化：收口到 mock-store 的
+// studentProfile slice。
+const mockStore = require('./mock/mock-store')
 
 // 年级列表（按学段分组），grade.id 用于存储，stage 关联教材版本
 const GRADE_GROUPS = [
@@ -83,7 +85,7 @@ function getVersionsByStage(stage) {
 }
 
 function getStudentProfile() {
-  const raw = wx.getStorageSync(STORAGE_KEY)
+  const raw = mockStore.getSlice('studentProfile')
   return raw && typeof raw === 'object' ? raw : null
 }
 
@@ -99,12 +101,13 @@ function saveStudentProfile(profile) {
   next.stage = getStageByGradeId(next.gradeId)
   next.gradeName = getGradeName(next.gradeId)
   next.semesterName = getSemesterName(next.semesterId)
-  wx.setStorageSync(STORAGE_KEY, next)
+  // 接后端：改调 POST /mini-app/user/info-update，成功后重新拉 user/info
+  mockStore.setSlice('studentProfile', next)
   return next
 }
 
 function clearStudentProfile() {
-  wx.removeStorageSync(STORAGE_KEY)
+  mockStore.setSlice('studentProfile', null)
 }
 
 // 组合一句教材描述，如「三年级上册 · 人教版PEP」

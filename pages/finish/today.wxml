@@ -16,7 +16,10 @@
   </view>
   <view class="stage-summary-title">{{summaryTitle}}</view>
   <view class="stage-summary-sub">{{summarySub}}</view>
-  <view class="checkin-progress-line">今日已完成 {{todayDone}}/{{todayGoal}} 关</view>
+  <view class="checkin-progress-line">
+    今日已完成 {{todayDone}}/{{todayGoal}} 关
+    <text wx:if="{{overGoalCount > 0}}" class="checkin-progress-extra"> · 超额 {{overGoalCount}} 关</text>
+  </view>
   <view class="checkin-success-card {{justCheckedIn ? 'checkin-success-card-bright' : ''}}" wx:if="{{checkinComplete}}">
     <image class="checkin-success-icon" src="../../images/checkin/charge-jelly.png" mode="aspectFit" />
     <view class="checkin-success-copy">

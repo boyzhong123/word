@@ -14,7 +14,7 @@ const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { normalizeBookCover, getFallbackBookCover } = require('../../utils/book-cover')
 const { isNewStandardBook } = require('../../utils/book-tags')
 const { appendReturnTabQuery } = require('../../utils/return-tab')
-const { LEVEL_SIZE, getDailyGoal, getTodayDone } = require('../../utils/checkin-progress')
+const { LEVEL_SIZE, getDailyGoal, getTodayDone, getTodayDoneUnitIds } = require('../../utils/checkin-progress')
 const { getMembership, isMember } = require('../../utils/membership')
 const { navigateToVipPurchase, promptVipPurchase } = require('../../utils/vip-purchase')
 const { isLevelUnlocked, isFreeLevel } = require('../../utils/level-access')
@@ -25,7 +25,7 @@ const {
 const { redirectToOnboardingIfNeeded } = require('../../utils/onboarding-guard')
 const { getLearnedWordCount } = require('../../utils/learned-progress')
 const {
-  dismissEntryExamPrompt,
+  recordEntryExamPrompt,
   shouldShowEntryExamPrompt
 } = require('../../utils/entry-exam-prompt')
 const {
@@ -36,12 +36,12 @@ const { getResult } = require('../../utils/exam-data')
 const {
   buildDisplayUnits,
   buildListUnits,
-  markTodayTasks,
   buildStageStars,
   UNLOCK_ALL_TASKS_FOR_DEV
 } = require('../home/home-units')
 const { FALLBACK_UNITS } = require('../../utils/fallback-units')
 const { pickActiveBook } = require('../../utils/book-select')
+const { consumeTodayFeedback } = require('../../utils/today-feedback')
 
 // 今日页演示态：固定展示 3 个关卡，并把当前进度落在第 2 个关卡。已关闭，按真实进度展示。
 // 注意 DEMO_ACTIVE_LEVEL_INDEX 在演示开关外也会把「靠前的关卡」强制标成已完成，
@@ -291,6 +291,9 @@ function buildStepStatus(stepState) {
 function buildPlanProgressHint(todayDone, todayGoal, allDone) {
   const done = Math.max(Number(todayDone) || 0, 0)
   const goal = Math.max(Number(todayGoal) || 0, 0)
+  if (goal > 0 && done > goal) {
+    return '今日已超额完成 ' + (done - goal) + ' 关，继续保持'
+  }
   if (allDone || (goal > 0 && done >= goal)) {
     return '今日计划已完成，明天继续保持'
   }
@@ -298,6 +301,57 @@ function buildPlanProgressHint(todayDone, todayGoal, allDone) {
     return '已完成 ' + done + '/' + (goal || done) + ' 关，继续按计划推进'
   }
   return '今日计划已准备好，先从第 1 关开始吧'
+}
+
+function getTargetUnitId(unit) {
+  return String((unit && (unit.unitId || unit.id)) || '')
+}
+
+function isEligibleTodayTarget(unit) {
+  if (!unit) {
+    return false
+  }
+  if (unit.isReview) {
+    return !unit.lockedByVip
+  }
+  return !unit.locked && unit.mapState !== 'completed'
+}
+
+function selectTodayTargets(listUnits, goal, doneUnitIds) {
+  const units = Array.isArray(listUnits) ? listUnits : []
+  const doneIds = Array.isArray(doneUnitIds) ? doneUnitIds.map(String).filter(Boolean) : []
+  const doneIdSet = new Set(doneIds)
+  const targetCount = Math.max(Math.max(Number(goal) || 0, 0), doneIds.length)
+  const selected = []
+  const selectedKeys = new Set()
+
+  units.forEach(unit => {
+    const unitId = getTargetUnitId(unit)
+    if (!unitId || !doneIdSet.has(unitId)) {
+      return
+    }
+    const key = unit.key || unitId
+    if (selectedKeys.has(key)) {
+      return
+    }
+    selected.push(Object.assign({}, unit, { isTodayTask: true }))
+    selectedKeys.add(key)
+  })
+
+  units.forEach(unit => {
+    if (selected.length >= targetCount) {
+      return
+    }
+    const unitId = getTargetUnitId(unit)
+    const key = unit.key || unitId || ('sort-' + unit.sort)
+    if (selectedKeys.has(key) || (unitId && doneIdSet.has(unitId)) || !isEligibleTodayTarget(unit)) {
+      return
+    }
+    selected.push(Object.assign({}, unit, { isTodayTask: true }))
+    selectedKeys.add(key)
+  })
+
+  return selected
 }
 
 Page({
@@ -386,6 +440,10 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0, hidden: false })
     }
+    const feedback = consumeTodayFeedback(globalData)
+    if (feedback) {
+      wx.showToast(feedback)
+    }
     this.loadDashboard()
   },
 
@@ -462,21 +520,22 @@ Page({
     const resBookId = book.resBookId
     const todayGoal = DEMO_TODAY_ROUTE ? DEMO_TODAY_GOAL : getDailyGoal(resBookId)
     const todayDone = DEMO_TODAY_ROUTE ? DEMO_ACTIVE_LEVEL_INDEX : getTodayDone(resBookId)
+    const todayDoneUnitIds = DEMO_TODAY_ROUTE ? [] : getTodayDoneUnitIds(resBookId)
 
     getUnits(resBookId).then(data => {
       const apiUnits = data && Array.isArray(data.list) ? data.list : []
       const displayUnits = buildDisplayUnits(apiUnits, FALLBACK_UNITS)
-      const listUnits = markTodayTasks(buildListUnits(displayUnits), todayGoal)
+      const listUnits = buildListUnits(displayUnits)
       const targets = DEMO_TODAY_ROUTE
         ? listUnits.filter(unit => !unit.isReview).slice(0, DEMO_TODAY_GOAL)
-        : listUnits.filter(unit => unit.isTodayTask)
+        : selectTodayTargets(listUnits, todayGoal, todayDoneUnitIds)
       this.applyTargets(book, targets, todayGoal, todayDone)
     }).catch(() => {
       const displayUnits = buildDisplayUnits([], FALLBACK_UNITS)
-      const listUnits = markTodayTasks(buildListUnits(displayUnits), todayGoal)
+      const listUnits = buildListUnits(displayUnits)
       const targets = DEMO_TODAY_ROUTE
         ? listUnits.filter(unit => !unit.isReview).slice(0, DEMO_TODAY_GOAL)
-        : listUnits.filter(unit => unit.isTodayTask)
+        : selectTodayTargets(listUnits, todayGoal, todayDoneUnitIds)
       this.applyTargets(book, targets, todayGoal, todayDone)
     })
   },
@@ -642,11 +701,12 @@ Page({
     if (!shouldShowEntryExamPrompt(resBookId, hasEntryResult)) {
       return
     }
+    // 弹出即记录「今天这本书已弹过」，今天内不再重复弹
+    recordEntryExamPrompt(resBookId)
     this.setData({ showEntryExamPrompt: true })
   },
 
   skipEntryExamPrompt() {
-    dismissEntryExamPrompt()
     this.setData({ showEntryExamPrompt: false }, () => {
       this.maybeStartTodayRouteGuide()
     })
@@ -658,7 +718,6 @@ Page({
       this.showPending()
       return
     }
-    dismissEntryExamPrompt()
     this.setData({ showEntryExamPrompt: false })
     wx.navigateTo({
       url: '/pages/exam/exam?resBookId=' + encodeURIComponent(book.resBookId) +

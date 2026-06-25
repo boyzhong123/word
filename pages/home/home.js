@@ -34,6 +34,7 @@ const { navigateToVipPurchase, promptVipPurchase } = require('../../utils/vip-pu
 const { redirectToOnboardingIfNeeded } = require('../../utils/onboarding-guard')
 const { pickActiveBook } = require('../../utils/book-select')
 const { appendReturnTabQuery } = require('../../utils/return-tab')
+const { TODAY_FEEDBACK, queueTodayFeedback } = require('../../utils/today-feedback')
 const {
   dismissVipFloatingGuide,
   shouldShowVipFloatingGuide
@@ -735,6 +736,7 @@ Page({
       getApp().globalData.book = selectedBook
       this.loadUnits(selectedBook.resBookId)
       if (this.returnToTodayAfterBookSwitch) {
+        queueTodayFeedback(getApp().globalData, TODAY_FEEDBACK.BOOK_CHANGED)
         this.returnToTodayAfterBookSwitch = false
         wx.switchTab({ url: '/pages/today/today' })
       }

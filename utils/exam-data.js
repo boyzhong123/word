@@ -16,6 +16,9 @@
 //     explain                       // 解析
 //   }
 
+// 测评成绩是学习评测数据（业务态），不落裸 Storage：收口到 mock-store 的 examResults slice。
+var mockStore = require('./mock/mock-store')
+
 // ----------------------------- 静态词库 -----------------------------
 // 初中核心词，带音标、词性、释义与一条例句（例句用于「词汇运用」填空题）。
 var WORD_POOL = [
@@ -374,18 +377,16 @@ function scoreExam(exam, responses, options) {
 }
 
 function saveResult(resBookId, type, result) {
-  try {
-    wx.setStorageSync(storageKey(resBookId, type), result)
-  } catch (e) {}
+  // 接后端：改调 POST exam-result 上报，成绩由服务器返回
+  var all = Object.assign({}, mockStore.getSlice('examResults'))
+  all[storageKey(resBookId, type)] = result
+  mockStore.setSlice('examResults', all)
 }
 
 function getResult(resBookId, type) {
-  try {
-    var data = wx.getStorageSync(storageKey(resBookId, type))
-    return data && data.total ? data : null
-  } catch (e) {
-    return null
-  }
+  var all = mockStore.getSlice('examResults') || {}
+  var data = all[storageKey(resBookId, type)]
+  return data && data.total ? data : null
 }
 
 function hasResult(resBookId, type) {

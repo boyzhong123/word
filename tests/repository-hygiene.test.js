@@ -42,3 +42,12 @@ test('production code no longer references retired routes or pet rewards', () =>
   assert.doesNotMatch(source, /pages\/(?:index\/index|advertisement\/advertisement|vip\/vip|me\/pet)/)
   assert.doesNotMatch(source, /pet-system|petReward|\/images\/pet\/|\/images\/home\/ad\//)
 })
+
+test('analytics tracking does not read retired userInfo or student storage fallbacks', () => {
+  const utilSource = read('utils/util.js')
+
+  assert.doesNotMatch(utilSource, /getStorageSync\(['"]userInfo['"]\)/)
+  assert.doesNotMatch(utilSource, /getStorageSync\(['"]student['"]\)/)
+  assert.match(utilSource, /getCharacterGender/)
+  assert.match(utilSource, /getMembership/)
+})

@@ -153,3 +153,24 @@ test('membership status copy and footer action stay on one line with compact spa
   assert.match(style, /\.footer-open\s*{[^}]*flex-wrap:\s*nowrap/s)
   assert.match(style, /\.footer-action-label\s*{[^}]*white-space:\s*nowrap/s)
 })
+
+test('membership records page reflects active membership state in profile badge', () => {
+  const template = fs.readFileSync(
+    path.join(projectRoot, 'pages/membership-records/membership-records.wxml'),
+    'utf8'
+  )
+  const script = fs.readFileSync(
+    path.join(projectRoot, 'pages/membership-records/membership-records.js'),
+    'utf8'
+  )
+  const emptyImage = path.join(projectRoot, 'images/vip/membership-records-empty.png')
+
+  assert.ok(fs.existsSync(emptyImage))
+  assert.match(
+    template,
+    /membership\.active \? vipBadgeActiveImage : vipBadgeInactiveImage/
+  )
+  assert.match(script, /vipBadgeInactiveImage:\s*imageUrl\('\/images\/home\/vip-name-badge-inactive\.png'\)/)
+  assert.match(script, /emptyStateImage:\s*imageUrl\('\/images\/vip\/membership-records-empty\.png'\)/)
+  assert.match(template, /src="\{\{emptyStateImage\}\}"/)
+})

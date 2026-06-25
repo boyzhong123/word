@@ -27,6 +27,7 @@ const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
 const { buildVoiceUrl } = require('../../utils/voice-url')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const { isLevelUnlocked } = require('../../utils/level-access')
+const mockStore = require('../../utils/mock/mock-store')
 const { promptVipPurchase } = require('../../utils/vip-purchase')
 const {
   syncRecordingOverlay,
@@ -831,8 +832,8 @@ Page({
   },
 
   rememberWrongQuizWord(payload) {
-    const key = 'listeningQuizWrongWords'
-    const list = wx.getStorageSync(key) || []
+    // 错词本是学习数据（接后端上报错词、复习走 review-words），收口到 mock-store
+    const list = mockStore.getSlice('listeningWrongWords') || []
     const id = payload.wordId || payload.word
     const next = Array.isArray(list)
       ? list.filter(item => (item.wordId || item.word) !== id)
@@ -841,7 +842,7 @@ Page({
     next.push(Object.assign({}, payload, {
       updatedAt: Date.now()
     }))
-    wx.setStorageSync(key, next)
+    mockStore.setSlice('listeningWrongWords', next)
   },
 
   playQuizAudio() {

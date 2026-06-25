@@ -16,7 +16,9 @@ Page({
     profileAvatar: '',
     profileName: '英语学习者',
     fallbackAvatar: '/images/app-logo.png',
-    vipBadgeImage: imageUrl('/images/home/vip-name-badge.png'),
+    vipBadgeActiveImage: imageUrl('/images/home/vip-name-badge.png'),
+    vipBadgeInactiveImage: imageUrl('/images/home/vip-name-badge-inactive.png'),
+    emptyStateImage: imageUrl('/images/vip/membership-records-empty.png'),
     membership: getMembership(),
     orders: []
   },

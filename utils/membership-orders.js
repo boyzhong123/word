@@ -1,7 +1,9 @@
-const STORAGE_KEY = 'membership_orders'
+// 会员订单是后端业务真值（GET /mini-app/membership/orders），前端不持久化：
+// 收口到 mock-store 的 membershipOrders slice。
+const mockStore = require('./mock/mock-store')
 
 function readOrders() {
-  const value = wx.getStorageSync(STORAGE_KEY)
+  const value = mockStore.getSlice('membershipOrders')
   return Array.isArray(value) ? value : []
 }
 
@@ -38,12 +40,12 @@ function createOrder(tier, byRedeem, code, membership) {
 
 function saveOrder(order) {
   const orders = [order].concat(readOrders()).slice(0, 20)
-  wx.setStorageSync(STORAGE_KEY, orders)
+  // 接后端：订单由 POST /mini-app/membership/order 创建并返回，这里改为重新拉列表
+  mockStore.setSlice('membershipOrders', orders)
   return orders
 }
 
 module.exports = {
-  MEMBERSHIP_ORDER_STORAGE_KEY: STORAGE_KEY,
   readOrders,
   getOrder,
   createOrder,

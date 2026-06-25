@@ -18,7 +18,6 @@ const {
 } = require('../../utils/character-gender')
 const { bindPhoneNumber, getUserBooks, toggleBook } = require('../../utils/api')
 const { login, fetchLoginCode } = require('../../utils/login')
-const { markEntryExamPromptPending } = require('../../utils/entry-exam-prompt')
 const { imageUrl } = require('../../utils/image-host')
 const { withTestBook, applyDevPurchaseToBooks } = require('../../utils/dev-books')
 const { withMockTextbooks } = require('../../utils/mock-textbooks')
@@ -525,7 +524,6 @@ Page({
         setTimeout(() => wx.navigateBack(), 400)
         return
       }
-      markEntryExamPromptPending()
       wx.showToast({ title: '设置完成', icon: 'success' })
       setTimeout(() => {
         wx.switchTab({ url: '/pages/today/today' })

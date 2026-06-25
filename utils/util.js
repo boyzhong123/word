@@ -1,4 +1,6 @@
 const login = require('./login')
+const { getCharacterGender } = require('./character-gender')
+const { getMembership } = require('./membership')
 const global = getApp().globalData
 const { BASE_URL} = global
 
@@ -125,18 +127,14 @@ const upload = (filePath) => {
  * 友盟埋点
  */
 const track = (eventId, param = {}) => {
-  const userInfo = global.userInfo || wx.getStorageSync('userInfo')
-  const student = wx.getStorageSync('student') || {
-    vip: {
-      isExpired: 1,
-    },
-  }
+  const userInfo = global.userInfo || {}
+  const membership = getMembership()
   const attr = Object.assign(
     {},
     userInfo,
     {
-      studentGender: student.gender,
-      sutdentVip: student.vip.isExpired === 1 ? 0 : 1,
+      studentGender: getCharacterGender(),
+      sutdentVip: membership.active ? 1 : 0,
     },
     param
   )

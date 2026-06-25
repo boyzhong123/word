@@ -6,16 +6,21 @@ function loadDevBooks(storage) {
   global.wx = {
     getStorageSync: key => state[key],
     setStorageSync: (key, value) => { state[key] = value },
+    removeStorageSync: key => { delete state[key] },
+    getStorageInfoSync: () => ({ keys: Object.keys(state) }),
     getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } })
   }
 
+  delete require.cache[require.resolve('../utils/mock/mock-store')]
   delete require.cache[require.resolve('../utils/dev-books')]
   return require('../utils/dev-books')
 }
 
-test('applyDevPurchaseToBook unlocks books stored in devPurchasedBooks', () => {
+test('applyDevPurchaseToBook unlocks books stored in mock-store purchasedBookIds', () => {
   const devBooks = loadDevBooks({
-    devPurchasedBooks: ['demo-rj-7a']
+    __mock_state__: {
+      purchasedBookIds: ['demo-rj-7a']
+    }
   })
 
   const book = devBooks.applyDevPurchaseToBook({
@@ -30,7 +35,9 @@ test('applyDevPurchaseToBook unlocks books stored in devPurchasedBooks', () => {
 
 test('applyDevPurchaseToBook leaves unpurchased books unchanged', () => {
   const devBooks = loadDevBooks({
-    devPurchasedBooks: ['demo-rj-7a']
+    __mock_state__: {
+      purchasedBookIds: ['demo-rj-7a']
+    }
   })
 
   const book = devBooks.applyDevPurchaseToBook({

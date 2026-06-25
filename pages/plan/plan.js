@@ -7,6 +7,8 @@ const MIN_GROUPS = 1
 const MAX_GROUPS = 8
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const { getUnits, getUnitResource } = require('../../utils/api')
+const { getStudyPlan, saveStudyPlan } = require('../../utils/checkin-progress')
+const { TODAY_FEEDBACK, queueTodayFeedback } = require('../../utils/today-feedback')
 const {
   PLAN_MASCOT,
   buildPlanMascot,
@@ -215,7 +217,7 @@ Page({
     const maxGroups = clamp(MAX_GROUPS, MIN_GROUPS, totalLevels)
 
     // 读取上次保存的计划（兼容旧数据：旧版保存的是每日词数）
-    const saved = wx.getStorageSync('studyPlan_' + (book.resBookId || 'default'))
+    const saved = getStudyPlan(book.resBookId)
     const savedGroups = saved && (saved.groupsPerDay ||
       (saved.dailyWords ? Math.round(saved.dailyWords / LEVEL_SIZE) : 0))
     const initialGroups = clamp(
@@ -350,7 +352,8 @@ Page({
     this.setData({ saving: true })
 
     const { book, groupsPerDay, dailyWords, totalLevels } = this.data
-    wx.setStorageSync('studyPlan_' + (book.resBookId || 'default'), {
+    // 接后端：改调 POST study-plan
+    saveStudyPlan(book.resBookId, {
       groupsPerDay,
       levelSize: LEVEL_SIZE,
       dailyWords,
@@ -365,10 +368,7 @@ Page({
       prev.refresh = true
     }
 
-    wx.showToast({
-      title: '计划已保存',
-      icon: 'success'
-    })
+    queueTodayFeedback(getApp().globalData, TODAY_FEEDBACK.PLAN_UPDATED)
     setTimeout(() => {
       wx.navigateBack()
     }, 600)

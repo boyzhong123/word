@@ -64,6 +64,7 @@ const REMOTE_IMAGE_PATHS = {
   '/images/plan/plan-mascot-hard.png': true,
   '/images/plan/plan-mascot-normal.png': true,
   '/images/vip/membership-family-hero-v2.jpg': true,
+  '/images/vip/membership-records-empty.png': true,
   '/images/vip/membership-success.jpg': true
 }
 
@@ -91,6 +92,8 @@ const REMOTE_IMAGE_VERSIONS = {
   '/images/plan/plan-mascot-easy.png': '20260620-plan-mascot-color-v7',
   '/images/plan/plan-mascot-hard.png': '20260620-plan-mascot-color-v7',
   '/images/plan/plan-mascot-normal.png': '20260620-plan-mascot-color-v7',
+  '/images/vip/membership-family-hero-v2.jpg': '20260625-family-hero-v3',
+  '/images/vip/membership-records-empty.png': '20260625-records-empty-v4',
   '/images/vip/membership-success.jpg': '20260624-vip-crown-v1'
 }
 

@@ -132,6 +132,10 @@
   text-align: center;
 }
 
+.checkin-progress-extra {
+  color: #c96a00;
+}
+
 .checkin-success-card {
   margin: 30rpx 66rpx 0;
   padding: 24rpx 24rpx 26rpx;

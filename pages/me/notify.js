@@ -1,7 +1,9 @@
 const {
   getSubscribeTemplates,
   getSubscribePref,
-  setSubscribePref
+  setSubscribePref,
+  getSubscribeQuota,
+  bumpSubscribeQuota
 } = require('../../utils/subscribe')
 const { reportSubscribeMessageQuota } = require('../../utils/api')
 
@@ -9,7 +11,7 @@ function buildTemplateView(item) {
   const isEvent = item.mode === 'event'
   const hasPref = !!item.prefKey
   const enabled = hasPref ? getSubscribePref(item.prefKey) : false
-  const count = item.countKey ? (Number(wx.getStorageSync(item.countKey)) || 0) : 0
+  const count = item.countKey ? getSubscribeQuota(item.countKey) : 0
   let statusText = '待授权'
   let statusType = 'off'
   if (hasPref && !enabled) {
@@ -171,8 +173,7 @@ Page({
       tmplIds: [id],
       success: res => {
         if (res[id] === 'accept') {
-          const count = (Number(wx.getStorageSync(template.countKey)) || 0) + 1
-          wx.setStorageSync(template.countKey, count)
+          const count = bumpSubscribeQuota(template.countKey, 1)
           // 预留后端：上报订阅，后端据此累计推送额度（接口就绪前为空操作）
           reportSubscribeMessageQuota({ tmplId: id, delta: 1, total: count })
           this.updateTemplate(id, { count, statusText: '已授权', statusType: 'on' })

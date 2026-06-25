@@ -1,9 +1,11 @@
-// 购买流程测试用的本地词书：仅在非 release 环境注入，
-// 购买状态记录在本地 storage，不依赖后端。
+// 购买流程测试用的本地词书：仅在非 release 环境注入。
+// 已购状态是后端业务真值（购买成功后端记录），前端不持久化：收口到 mock-store 的
+// purchasedBookIds slice。
+const mockStore = require('./mock/mock-store')
+
 const ENABLE_TEST_PURCHASE_BOOK = true
 
 const TEST_BOOK_ID = 'dev-test-book-001'
-const STORAGE_KEY = 'devPurchasedBooks'
 
 const TEST_BOOK = {
   resBookId: TEST_BOOK_ID,
@@ -33,7 +35,7 @@ function isDevTestBook(resBookId) {
 }
 
 function getDevPurchasedIds() {
-  const ids = wx.getStorageSync(STORAGE_KEY)
+  const ids = mockStore.getSlice('purchasedBookIds')
   return Array.isArray(ids) ? ids : []
 }
 
@@ -45,7 +47,8 @@ function markDevPurchased(resBookId) {
   if (!resBookId || isDevPurchased(resBookId)) {
     return
   }
-  wx.setStorageSync(STORAGE_KEY, getDevPurchasedIds().concat(resBookId))
+  // 接后端：购买由后端记录，这里改为重新拉 user-books / 已购列表
+  mockStore.setSlice('purchasedBookIds', getDevPurchasedIds().concat(resBookId))
 }
 
 function applyDevPurchaseToBook(book) {
@@ -63,7 +66,7 @@ function applyDevPurchaseToBooks(books) {
 }
 
 function clearDevPurchased() {
-  wx.removeStorageSync(STORAGE_KEY)
+  mockStore.setSlice('purchasedBookIds', [])
 }
 
 // 在书单末尾追加测试词书；已购买则带上 unlocked 标记

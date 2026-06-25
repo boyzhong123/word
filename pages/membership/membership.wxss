@@ -918,10 +918,10 @@ page {
   display: block;
   min-height: 30rpx;
   margin-top: 8rpx;
-  padding-left: 4rpx;
   color: #7a8798;
   font-size: 21rpx;
   line-height: 30rpx;
+  text-align: center;
 }
 
 .redeem-tip-error {

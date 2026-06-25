@@ -26,6 +26,7 @@ Page({
     bookname: '',
     todayDone: 0,
     todayGoal: 0,
+    overGoalCount: 0,
     justCheckedIn: false,
     checkinComplete: false,
     rewardRemainingDays: STREAK_REWARD_DAYS,
@@ -62,6 +63,9 @@ Page({
       : todayDoneBefore
     const checkinComplete = todayDoneAfter >= todayGoal
     const justCheckedIn = todayDoneBefore < todayGoal && checkinComplete
+    const overGoalCount = checkinComplete && todayDoneAfter > todayGoal
+      ? (todayDoneAfter - todayGoal)
+      : 0
     const stage = getStageInfo(this.taskType)
     const stageProgress = buildStageProgress({
       taskType: this.taskType,
@@ -77,6 +81,7 @@ Page({
       bookname: this.book.name,
       todayDone: todayDoneAfter,
       todayGoal,
+      overGoalCount,
       justCheckedIn,
       checkinComplete,
       rewardRemainingDays: STREAK_REWARD_DAYS,

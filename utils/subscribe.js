@@ -13,6 +13,8 @@
 //    详情页只做「开/关」偏好（默认开），prefKey 记偏好；不需要累计按钮。
 // =====================================================================
 
+const mockStore = require('./mock/mock-store')
+
 // 打卡提醒（在线教育·打卡提醒，模板编号 504）
 const CHECKIN_REMIND_TMPL_ID = 'wIiz5RXzkJYLp0pw63mEUpYqS2zSRSet1P_afBV58k0'
 
@@ -85,9 +87,12 @@ function findTemplate(idOrPrefKey) {
   return SUBSCRIBE_TEMPLATES.find(item => item.id === idOrPrefKey || item.prefKey === idOrPrefKey)
 }
 
-// 事件型偏好，默认开启（未设置过即视为开）
+// 事件型偏好，默认开启（未设置过即视为开）。
+// 订阅偏好是后端业务态（建议 user/info.subscribePrefs 下发），前端不持久化到裸 Storage：
+// 收口到 mock-store 的 subscribePrefs slice。
 function getSubscribePref(prefKey) {
-  const value = wx.getStorageSync(prefKey)
+  const prefs = mockStore.getSlice('subscribePrefs') || {}
+  const value = prefs[prefKey]
   if (value === '' || value === undefined || value === null) {
     return true
   }
@@ -95,7 +100,30 @@ function getSubscribePref(prefKey) {
 }
 
 function setSubscribePref(prefKey, enabled) {
-  wx.setStorageSync(prefKey, enabled ? 1 : 0)
+  const prefs = Object.assign({}, mockStore.getSlice('subscribePrefs'))
+  prefs[prefKey] = enabled ? 1 : 0
+  // 接后端：随 user/info-update 提交 subscribePrefs
+  mockStore.setSlice('subscribePrefs', prefs)
+}
+
+// 订阅提醒累计次数（一次性订阅囤额度，供后端累计/扣减）。
+// 业务态 → mock-store 的 subscribeQuota slice，按 countKey 分键。
+function getSubscribeQuota(countKey) {
+  if (!countKey) {
+    return 0
+  }
+  const quota = mockStore.getSlice('subscribeQuota') || {}
+  return Number(quota[countKey]) || 0
+}
+
+function bumpSubscribeQuota(countKey, delta) {
+  if (!countKey) {
+    return 0
+  }
+  const quota = Object.assign({}, mockStore.getSlice('subscribeQuota'))
+  quota[countKey] = (Number(quota[countKey]) || 0) + (Number(delta) || 0)
+  mockStore.setSlice('subscribeQuota', quota)
+  return quota[countKey]
 }
 
 // 在「报告生成 / 练习出分 / 支付成功」等事件发生时调用：
@@ -143,5 +171,7 @@ module.exports = {
   getCheckinRemindTmplId,
   getSubscribePref,
   setSubscribePref,
+  getSubscribeQuota,
+  bumpSubscribeQuota,
   requestSubscribeForEvent
 }

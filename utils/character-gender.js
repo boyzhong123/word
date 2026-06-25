@@ -1,6 +1,8 @@
 const GENDER_BOY = 'boy'
 const GENDER_GIRL = 'girl'
-const STORAGE_KEY = 'characterGender'
+// 学习形象性别是后端业务真值（onboarding 采集 → user/info），前端不持久化：
+// 收口到 mock-store 的 characterGender slice。
+const mockStore = require('./mock/mock-store')
 const PK_SPRITE_DURATION = 3
 const { imageUrl } = require('./image-host')
 
@@ -36,22 +38,23 @@ function normalizeGender(value) {
 }
 
 function getCharacterGender() {
-  if (typeof wx === 'undefined') {
-    return GENDER_BOY
-  }
-  return normalizeGender(wx.getStorageSync(STORAGE_KEY))
+  return normalizeGender(mockStore.getSlice('characterGender'))
 }
 
 function setCharacterGender(gender) {
   const normalized = normalizeGender(gender)
-  if (typeof wx !== 'undefined') {
-    wx.setStorageSync(STORAGE_KEY, normalized)
-  }
+  // 接后端：随 onboarding 一并 POST user/info-update
+  mockStore.setSlice('characterGender', normalized)
   return normalized
 }
 
+// 形象图组优先用后端下发（mock-store.characterAssets），缺失回退 bundled 默认。
+// 前端不再「按规则拼图片路径」，只渲染数据给的 URL；运营换形象由后端下发、不发版。
 function getCharacterAssets(gender) {
-  return CHARACTER_ASSETS[normalizeGender(gender || getCharacterGender())]
+  const key = normalizeGender(gender || getCharacterGender())
+  const overrides = mockStore.getSlice('characterAssets')
+  const override = overrides && overrides[key]
+  return Object.assign({}, CHARACTER_ASSETS[key], override)
 }
 
 function buildCharacterImageUrls(imageBaseUrl) {
@@ -80,7 +83,6 @@ function pickGenderFromUserInfo(userInfo) {
 module.exports = {
   GENDER_BOY,
   GENDER_GIRL,
-  STORAGE_KEY,
   PK_SPRITE_DURATION,
   normalizeGender,
   getCharacterGender,

@@ -130,8 +130,8 @@ page {
 }
 
 .empty-card {
-  min-height: 420rpx;
-  padding: 48rpx 28rpx;
+  min-height: 360rpx;
+  padding: 40rpx 28rpx 44rpx;
   border-radius: 26rpx;
   display: flex;
   flex-direction: column;
@@ -143,13 +143,12 @@ page {
 }
 
 .empty-image {
-  width: 190rpx;
-  height: 190rpx;
-  border-radius: 34rpx;
+  width: 132rpx;
+  height: 164rpx;
 }
 
 .empty-title {
-  margin-top: 22rpx;
+  margin-top: 10rpx;
   color: #151923;
   font-size: 29rpx;
   font-weight: 750;

@@ -1,7 +1,8 @@
 // 会员制（按时长开通，单一会员解锁全部内容）。
-// 现阶段支付为本地模拟，会员状态与到期时间记录在本地 storage，不依赖后端。
+// 会员状态是后端业务真值（GET /mini-app/membership），前端不持久化：统一收口到
+// utils/mock/mock-store 的 membership slice（mock 模式隔离持久化，接后端模式由 api hydrate）。
 // 计费档位：1 个月 ¥39 / 2 个月 ¥59 / 1 年 ¥109。
-const STORAGE_KEY = 'membership'
+const mockStore = require('./mock/mock-store')
 
 const MEMBERSHIP_TIERS = [
   { id: 'm1', name: '1个月', months: 1, price: 39, sub: '尝鲜体验' },
@@ -27,7 +28,7 @@ function addMonths(baseTime, months) {
 }
 
 function readMembership() {
-  const raw = wx.getStorageSync(STORAGE_KEY)
+  const raw = mockStore.getSlice('membership')
   if (raw && typeof raw === 'object') {
     return raw
   }
@@ -65,7 +66,8 @@ function activateMembership(tierId) {
   const current = getMembership()
   const base = current.active && current.expireAt > Date.now() ? current.expireAt : Date.now()
   const expireAt = addMonths(base, tier.months)
-  wx.setStorageSync(STORAGE_KEY, {
+  // 接后端：改调 POST /mini-app/membership/order + pay-notify，成功后重新拉 GET /mini-app/membership
+  mockStore.setSlice('membership', {
     tierId: tier.id,
     months: tier.months,
     expireAt,
@@ -81,7 +83,7 @@ function activateMembershipForMonths(months, meta) {
   const current = getMembership()
   const base = current.active && current.expireAt > Date.now() ? current.expireAt : Date.now()
   const expireAt = addMonths(base, safeMonths)
-  wx.setStorageSync(STORAGE_KEY, {
+  mockStore.setSlice('membership', {
     tierId: (meta && meta.tierId) || '',
     months: safeMonths,
     expireAt,
@@ -91,7 +93,7 @@ function activateMembershipForMonths(months, meta) {
 }
 
 function clearMembership() {
-  wx.removeStorageSync(STORAGE_KEY)
+  mockStore.setSlice('membership', { tierId: '', months: 0, expireAt: 0, updatedAt: 0 })
 }
 
 module.exports = {

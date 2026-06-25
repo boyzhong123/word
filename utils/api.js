@@ -1,4 +1,24 @@
 const util = require('./util')
+const mockStore = require('./mock/mock-store')
+
+// 会员态数据访问：mock 模式直接读本地 mock-store（演示用「假后端」）；
+// 接后端时把 mock-store 的 USE_MOCK 置 false，本函数自动改走 GET /mini-app/membership，
+// 并 hydrate 进 mock-store 供同步的 getMembership() 使用。建议在 app.onLaunch 调一次。
+function fetchMembership() {
+  if (mockStore.USE_MOCK) {
+    return Promise.resolve(mockStore.getSlice('membership'))
+  }
+  return new Promise(resolve => {
+    util.request('GET', '/mini-app/membership', {}, (data) => {
+      if (data && typeof data === 'object') {
+        mockStore.hydrate({ membership: data })
+      }
+      resolve(mockStore.getSlice('membership'))
+    }, () => {
+      resolve(mockStore.getSlice('membership'))
+    })
+  })
+}
 
 function saveUserInfo(userInfo) {
   return new Promise(resolve => {
@@ -32,18 +52,11 @@ function buildPhoneBindError(status, data, message) {
 function bindPhoneNumber(phoneInfo) {
   const payload = normalizePhonePayload(phoneInfo)
   return new Promise((resolve, reject) => {
-    const requestBind = (url, allowFallback) => {
-      util.request('POST', url, { data: payload }, (data) => {
-        resolve(data)
-      }, (status, data, message) => {
-        if (allowFallback && status === 404) {
-          requestBind('/mini-app/user/info-update', false)
-          return
-        }
-        reject(buildPhoneBindError(status, data, message))
-      })
-    }
-    requestBind('/mini-app/user/phone-number', true)
+    util.request('POST', '/mini-app/user/phone-number', { data: payload }, (data) => {
+      resolve(data)
+    }, (status, data, message) => {
+      reject(buildPhoneBindError(status, data, message))
+    })
   })
 }
 
@@ -153,7 +166,7 @@ function getUnits(resBookId, page = 1, rows = 2000) {
 
 function saveRecord(unitId) {
   return new Promise(resolve => {
-    util.request('GET', '/mini-app/save-learning-record', {
+    util.request('POST', '/mini-app/save-learning-record', {
       data: {
         unitId
       }
@@ -264,6 +277,7 @@ function reportSubscribeMessageQuota(payload) {
 }
 
 module.exports = {
+  fetchMembership,
   saveUserInfo,
   bindPhoneNumber,
   getUserInfo,
