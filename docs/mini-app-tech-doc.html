@@ -618,11 +618,19 @@
             <tr><td style="padding:6px 8px">模块</td><td colspan="2"><strong>单词模块 + 句子模块</strong>（与 exam-report 的两模块对齐）；配比建议 词 70% / 句 30%，或按全书 word:sentence 比例</td></tr>
             <tr><td style="padding:6px 8px">题型配比</td><td colspan="2">单词模块：英译中 / 中译英 / 听音选词 / 听音填空 按比例混合；句子模块：句子挖空 / 句子翻译选择 / <strong>连词成句 order</strong>（现有题型）</td></tr>
             <tr><td style="padding:6px 8px">抽样</td><td>按单元<strong>分层均匀抽</strong>，覆盖各单元（覆盖率可低，~60%）</td><td>分层抽，覆盖面更广（接近全书）</td></tr>
-            <tr><td style="padding:6px 8px">去重 / 干扰项</td><td colspan="2">一套卷同一词只出一次；干扰项范围 = 全书（跨单元），同词性优先</td></tr>
+            <tr><td style="padding:6px 8px"><strong>覆盖优先</strong></td><td colspan="2">先覆盖未考单元，再覆盖未考目标单词，最后满足模块与题型配比；素材充足时不得为凑题型重复主考点</td></tr>
+            <tr><td style="padding:6px 8px"><strong>主考点去重</strong></td><td colspan="2">每题用 <code>testedWordRefs</code> 标记真正计分的目标词；同一词原则上只进入一次。已考词可作为句子的<strong>普通上下文</strong>出现，但不得再次作为挖空答案、翻译代表词或其他计分考点</td></tr>
+            <tr><td style="padding:6px 8px">句子选材</td><td colspan="2">优先选择能考查尚未覆盖目标词的句子；同一句不重复出题。若一句同时包含已考词和未考词，可选未考词为主考点继续使用</td></tr>
+            <tr><td style="padding:6px 8px">前后测可比</td><td colspan="2">使用相同抽样蓝图，保持单元、词性、难度、模块与题型结构一致；优先使用同层级的不同目标词或句子，不要求两套卷考完全相同的具体词</td></tr>
+            <tr><td style="padding:6px 8px">去重 / 干扰项</td><td colspan="2">一套卷同一句只用一次；干扰项范围 = 全书（跨单元），同词性优先。干扰项仅用于选项，不计入 <code>testedWordRefs</code></td></tr>
             <tr><td style="padding:6px 8px">顺序</td><td colspan="2">题序、选项序随机但可复现（<code>seed=examId</code>）；可按题型先易后难排</td></tr>
             <tr><td style="padding:6px 8px">次数</td><td>每书仅一次（<code>entryCompleted</code>）</td><td>可多次（建议后端限次）</td></tr>
             <tr><td style="padding:6px 8px">判分</td><td colspan="2">每题 0/100 → 模块正确率 → 总正确率；grade / statusText 分档见「测评/报告」章 + <code>exam-report-copy.js</code></td></tr>
           </table>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(148,163,184,.3)">
+            <strong>主考点 <code>testedWordRefs</code> 定义</strong><br/>
+            单词题标记目标单词；句子挖空标记被挖词；句子翻译或连词成句标记后端选定的代表词。只作为语境出现、不要求用户识别或填写的词不计入主考点。后端组卷时以主考点集合做跨模块去重，而不是看到句子包含已考词就整句排除。
+          </div>
         </div>
 
         <div class="callout tip" style="margin-bottom:14px">
@@ -645,6 +653,7 @@
             <tr><td style="padding:6px 8px">句中无合法挖词位 / 未下发 <code>listenFill</code></td><td>跳过听填步；若仍有 <code>recite</code> / <code>wordSpell</code> 则降为 2 步或 1 步</td></tr>
             <tr><td style="padding:6px 8px">词长 &lt; 3，无法拼写</td><td>跳过拼写步；听填+背诵仍可（2 步）</td></tr>
             <tr><td style="padding:6px 8px">单元可用词 &lt; 4</td><td>干扰项跨单元 / 全书补足；仍不足则该单元降为「听音填空 / 自评」等不依赖干扰项的题型</td></tr>
+            <tr><td style="padding:6px 8px">测评素材不足以主考点去重</td><td>先调整词/句题比例并使用未考素材，再允许减少题量；仍需满足最低题量时才可换题型复用已考目标词一次，并标记 <code>isRepeatedTarget=true</code>。有效题低于 <code>EXAM_MIN_TOTAL</code> 时返回测评不可用，不生成空题或劣质题</td></tr>
             <tr><td style="padding:6px 8px">整单元无单词</td><td>该单元不生成关卡（导入阶段过滤）</td></tr>
           </table>
         </div>
@@ -659,6 +668,8 @@
             <tr><td style="padding:6px 8px"><code>BLANK_RATIO</code> / 上限</td><td>0.35 / 最多 4 空</td><td>听音填空挖空数（见五）</td></tr>
             <tr><td style="padding:6px 8px"><code>KEEP_FIRST</code></td><td>true</td><td>填空保留首字母（见五）</td></tr>
             <tr><td style="padding:6px 8px"><code>EXAM_TOTAL</code></td><td>入门 ~20 / 结业更多</td><td>测评题量（见八）</td></tr>
+            <tr><td style="padding:6px 8px"><code>EXAM_MIN_TOTAL</code></td><td>5</td><td>低于此有效题量时测评不可用</td></tr>
+            <tr><td style="padding:6px 8px"><code>MAX_TESTED_WORD_REPEAT</code></td><td>1</td><td>素材不足时同一主考点最多额外复用一次</td></tr>
             <tr><td style="padding:6px 8px">测评模块配比</td><td>词 70% / 句 30%</td><td>单词模块 : 句子模块（见八）</td></tr>
             <tr><td style="padding:6px 8px">随机种子</td><td>题ID / levelId / examId</td><td>顺序与挖法可复现</td></tr>
           </table>
@@ -2252,6 +2263,7 @@ POST { "groupsPerDay": 3 }
 {
   "status": "success",
   "data": {
+    "examAvailable": true,
     "type": "entry",
     "title": "入门测 · 摸底测评",
     "subtitle": "了解你的当前水平",
@@ -2262,10 +2274,20 @@ POST { "groupsPerDay": 3 }
       { "key": "word", "name": "单词", "desc": "词义·拼写·听辨·运用", "count": 16 },
       { "key": "sentence", "name": "句子", "desc": "句意·翻译·完形·成句", "count": 12 }
     ],
+    "coverage": {
+      "unitCount": 8,
+      "coveredUnitCount": 8,
+      "uniqueTestedWordCount": 28,
+      "repeatedTargetCount": 0
+    },
     "questions": [
       {
         "id": "w0",
         "section": "word",
+        "sourceUnitId": "unit-1",
+        "sourceWordId": "word-brave",
+        "testedWordRefs": ["word-brave"],
+        "isRepeatedTarget": false,
         "type": "word-cn",
         "typeLabel": "词义理解",
         "interaction": "choice",
@@ -2279,7 +2301,22 @@ POST { "groupsPerDay": 3 }
   }
 }
 
-// type=exit 时 exitUnlocked 须 true（全关≥2星，见 book-units + getExitLockState）`;
+// 句子题用 sourceSentenceId 标记素材来源，并用 testedWordRefs 标记该题真正计分的代表词。
+// 素材充足时 repeatedTargetCount 必须为 0；coverage 用于后端质检与联调，不参与前端答题交互。
+// type=exit 时 exitUnlocked 须 true（全关≥2星，见 book-units + getExitLockState）。
+
+// 有效内容低于 EXAM_MIN_TOTAL 时仍返回 success，但不得进入答题：
+{
+  "status": "success",
+  "data": {
+    "examAvailable": false,
+    "unavailableReason": "INSUFFICIENT_VALID_CONTENT",
+    "availableQuestionCount": 4,
+    "minimumQuestionCount": 5
+  }
+}
+
+// 前端展示「本书内容暂不足以生成测评」，不将该状态视为网络错误。`;
         const examSubmit = `POST /mini-app/exam-submit  →  交卷 + 练习用时
 
 { "resBookId": "xxx", "type": "entry", "responses": {…}, "durationSeconds": 892,
