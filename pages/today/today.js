@@ -429,6 +429,7 @@ Page({
     if (redirectToOnboardingIfNeeded()) {
       return
     }
+    this.applyCharacterAssets()
     const globalData = getApp().globalData || {}
     if (globalData.membershipUpdatedAt) {
       this.setData({
@@ -501,6 +502,10 @@ Page({
     })
   },
 
+  applyCharacterAssets() {
+    this.setData(buildCharacterImageUrls(this.data.imageBaseUrl))
+  },
+
   // 顶部 hero 的昵称与角色（性别）资源；与「成长」页共用同一份用户信息。
   loadProfile() {
     getUserInfo().then(userInfo => {
@@ -508,7 +513,7 @@ Page({
       const savedGender = pickGenderFromUserInfo(info)
       if (savedGender) {
         setCharacterGender(savedGender)
-        this.setData(buildCharacterImageUrls(this.data.imageBaseUrl))
+        this.applyCharacterAssets()
       }
       this.setData({
         nickName: info.nickName ? info.nickName : ''

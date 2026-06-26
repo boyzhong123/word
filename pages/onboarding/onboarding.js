@@ -16,7 +16,7 @@ const {
   setCharacterGender,
   getCharacterGender
 } = require('../../utils/character-gender')
-const { bindPhoneNumber, getUserBooks, toggleBook } = require('../../utils/api')
+const { bindPhoneNumber, getUserBooks, toggleBook, saveUserInfo } = require('../../utils/api')
 const { login, fetchLoginCode } = require('../../utils/login')
 const { imageUrl } = require('../../utils/image-host')
 const { withTestBook, applyDevPurchaseToBooks } = require('../../utils/dev-books')
@@ -159,7 +159,7 @@ function buildStepUi(step, editMode) {
   }
   let primaryButtonText = '下一步'
   if (step === 0) {
-    primaryButtonText = '开始设置'
+    primaryButtonText = '开始刷刷刷'
   } else if (editMode && step === 2) {
     primaryButtonText = '保存'
   } else if (step === 3) {
@@ -230,7 +230,7 @@ Page({
     showBackButton: false,
     showSkipButton: false,
     backButtonText: '上一步',
-    primaryButtonText: '开始设置',
+    primaryButtonText: '开始刷刷刷',
     primaryButtonDisabled: false
   },
 
@@ -510,6 +510,9 @@ Page({
     if (this.data.selectedChildGender) {
       profilePayload.childGender = this.data.selectedChildGender
       setCharacterGender(this.data.selectedChildGender)
+      saveUserInfo({ characterGender: this.data.selectedChildGender }).catch(error => {
+        console.log('[onboarding] save character gender failed', error)
+      })
     }
     if (this.data.phoneVerified) {
       profilePayload.phoneNumber = this.data.phoneNumber

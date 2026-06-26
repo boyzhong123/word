@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>词句刷刷刷｜同步教材英语学习 H5</title>
+  <style>
+    :root {
+      --bg: #eaf5f2;
+      --paper: #ffffff;
+      --ink: #152033;
+      --muted: #657386;
+      --line: #dcebe6;
+      --green: #18a563;
+      --green-dark: #087448;
+      --blue: #2f7df6;
+      --yellow: #ffbf36;
+      --red: #ef5c62;
+      --shadow: 0 16px 38px rgba(19, 54, 45, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(105, 211, 155, 0.22), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(78, 157, 255, 0.18), transparent 38%),
+        var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      line-height: 1.72;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page {
+      width: min(100%, 430px);
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #f8fcfb;
+      box-shadow: 0 0 0 1px rgba(9, 86, 60, 0.06);
+      padding-bottom: calc(34px + env(safe-area-inset-bottom));
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 14px 14px 0;
+      background: linear-gradient(180deg, #dff8ed 0%, #f8fcfb 100%);
+    }
+
+    .hero-banner {
+      position: relative;
+      min-height: 268px;
+      overflow: hidden;
+      border-radius: 0 0 28px 28px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 48%),
+        linear-gradient(145deg, #e7e1f0 0%, #d7e7fb 46%, #bfead4 100%);
+      box-shadow: 0 18px 42px rgba(22, 86, 67, 0.16);
+    }
+
+    .hero-banner::after {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 84% 22%, rgba(255, 255, 255, 0.78) 0 10%, transparent 11%),
+        radial-gradient(circle at 76% 58%, rgba(255, 255, 255, 0.46) 0 13%, transparent 14%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0) 62%, rgba(248, 252, 251, 0.72) 100%);
+      content: "";
+    }
+
+    .hero-banner::before {
+      position: absolute;
+      right: -34px;
+      bottom: -58px;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.34);
+      border: 1px solid rgba(255, 255, 255, 0.52);
+      content: "";
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      max-width: 252px;
+      padding: 22px 18px 20px;
+    }
+
+    .hero-card {
+      margin: 12px 18px 0;
+      position: relative;
+      z-index: 2;
+      padding: 14px 14px 15px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.86);
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 10px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #eafaf1;
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .kicker::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .hero-sub {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero-tags {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .hero-tags span {
+      padding: 9px 6px;
+      border-radius: 14px;
+      background: #f4fbf7;
+      color: #254338;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+      border: 1px solid #dff2e8;
+    }
+
+    .article-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+      color: #8793a3;
+      font-size: 12px;
+    }
+
+    .article-meta span {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f1f5f4;
+    }
+
+    section {
+      margin: 14px 14px 0;
+      padding: 20px 18px;
+      border-radius: 20px;
+      background: var(--paper);
+      border: 1px solid rgba(220, 235, 230, 0.96);
+      box-shadow: 0 8px 22px rgba(24, 77, 59, 0.06);
+    }
+
+    .section-soft {
+      background: linear-gradient(180deg, #ffffff 0%, #f0fbf6 100%);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 9px 0 0;
+      color: #334155;
+      font-size: 15px;
+    }
+
+    .lead {
+      color: #526173;
+      font-size: 15px;
+    }
+
+    .pain-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pain {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fffaf0;
+      border: 1px solid #fde9bd;
+    }
+
+    .pain:nth-child(2) {
+      background: #eef6ff;
+      border-color: #d5e8ff;
+    }
+
+    .pain:nth-child(3) {
+      background: #fff1f3;
+      border-color: #ffd8de;
+    }
+
+    .pain b {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: #ffffff;
+      color: var(--green-dark);
+      box-shadow: 0 6px 14px rgba(15, 76, 52, 0.08);
+    }
+
+    .pain span {
+      color: #263445;
+      font-size: 15px;
+      font-weight: 750;
+      line-height: 1.4;
+    }
+
+    .bridge {
+      margin: 16px 0 0;
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #19ad68, #2f7df6);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 850;
+      text-align: center;
+      box-shadow: 0 12px 26px rgba(24, 165, 99, 0.22);
+    }
+
+    .screen-shot {
+      margin-top: 16px;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid #e0e8ee;
+      box-shadow: 0 16px 32px rgba(15, 36, 48, 0.12);
+      background: #f8fafc;
+    }
+
+    .screen-shot img {
+      width: 100%;
+      height: 430px;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .phone-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .phone-tile {
+      overflow: hidden;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #e0e8ee;
+      box-shadow: 0 10px 22px rgba(15, 36, 48, 0.08);
+    }
+
+    .phone-tile img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .phone-tile span {
+      display: block;
+      padding: 9px 8px 10px;
+      color: #344153;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .caption {
+      margin: 8px 2px 0;
+      color: #788494;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .proof-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .proof-card {
+      padding: 14px;
+      border-radius: 18px;
+      background: #f8fcfb;
+      border: 1px solid #e3eee9;
+    }
+
+    .proof-card strong {
+      display: block;
+      color: #163327;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .proof-card span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .source-note {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 15px;
+      background: #f6f8fb;
+      color: #778395;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .source-note a {
+      color: #2f7df6;
+      text-decoration: none;
+      font-weight: 750;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border-radius: 18px;
+      background: #f8fbff;
+      border: 1px solid #e2edff;
+    }
+
+    .step-num {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #e8fff2, #d6ebff);
+      color: var(--green-dark);
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 16px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .feature {
+      min-height: 116px;
+      padding: 13px;
+      border-radius: 18px;
+      background: #f8fcfb;
+      border: 1px solid #e3eee9;
+    }
+
+    .feature i {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      background: #e7f9ef;
+      color: var(--green-dark);
+      font-style: normal;
+      font-weight: 900;
+    }
+
+    .feature b {
+      display: block;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .feature span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .data-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .data-item {
+      padding: 12px 7px;
+      border-radius: 16px;
+      background: #17212f;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .data-item b {
+      display: block;
+      color: #7ff0b0;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .data-item span {
+      display: block;
+      margin-top: 5px;
+      color: #dbe7ef;
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .quote-card {
+      padding: 18px;
+      border-radius: 20px;
+      background: #17212f;
+      color: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .quote-card p {
+      color: #dbe7ef;
+      font-size: 16px;
+    }
+
+    .quote-card strong {
+      color: #7ff0b0;
+    }
+
+    .article-banner {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 20px;
+      background:
+        linear-gradient(135deg, rgba(24, 165, 99, 0.92), rgba(47, 125, 246, 0.92)),
+        #18a563;
+      color: #ffffff;
+      box-shadow: 0 16px 32px rgba(24, 119, 124, 0.22);
+    }
+
+    .article-banner b {
+      display: block;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .article-banner span {
+      display: block;
+      margin-top: 6px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .price-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .price-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 15px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #e3eee9;
+    }
+
+    .price-card.recommend {
+      border-color: #ffd987;
+      background: linear-gradient(135deg, #fff8e6, #ffffff);
+      box-shadow: 0 12px 28px rgba(255, 191, 54, 0.2);
+    }
+
+    .badge {
+      display: inline-flex;
+      width: max-content;
+      margin-bottom: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fff1c6;
+      color: #8a5900;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .price-name {
+      display: block;
+      font-size: 16px;
+      font-weight: 850;
+    }
+
+    .price-desc {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .price {
+      color: #ef7b00;
+      font-size: 25px;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .benefits {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .benefits li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 12px;
+      border-radius: 15px;
+      background: #f7fbf9;
+      color: #2c3948;
+      font-size: 14px;
+    }
+
+    .benefits li::before {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      content: "✓";
+    }
+
+    .ending-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+    }
+
+    .ending-card p {
+      font-size: 15px;
+    }
+
+    .experience-box {
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 18px;
+      background: #f7fbf9;
+      border: 1px solid #e2eee8;
+    }
+
+    .experience-box b {
+      display: block;
+      margin-bottom: 6px;
+      color: #163327;
+      font-size: 15px;
+    }
+
+    .experience-box span {
+      display: block;
+      color: #526173;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .fineprint {
+      margin: 12px 18px 0;
+      color: #8793a3;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (min-width: 431px) {
+      body {
+        padding: 20px 0;
+      }
+
+      .page {
+        border-radius: 28px;
+        overflow: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-banner">
+        <div class="hero-copy">
+          <p class="kicker">同步教材英语学习小程序</p>
+          <h1>孩子背单词总忘？让“听读背测复习”每天跑起来</h1>
+          <p class="hero-sub">每天 10 分钟，跟着课本把词句学扎实。</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="hero-card">
+      <p class="hero-sub">词句刷刷刷帮孩子把课本里的单词和句子拆成每日关卡：知道今天学什么，读得准不准，哪些词还要复习。</p>
+      <div class="article-meta">
+        <span>产品介绍</span>
+        <span>家长阅读</span>
+        <span>建议收藏</span>
+      </div>
+      <div class="hero-tags">
+        <span>每天10分钟</span>
+        <span>AI纠音</span>
+        <span>错词复习</span>
+      </div>
+    </div>
+
+    <section>
+      <h2>背单词，常卡在这三步</h2>
+      <p class="lead">很多孩子不是不努力，而是学习链路太散。任务、发音、复习不连起来，学完就很容易忘。</p>
+      <div class="pain-list">
+        <div class="pain"><b>1</b><span>不知道今天该背哪些，只能从课本里临时找。</span></div>
+        <div class="pain"><b>2</b><span>读得准不准没人帮听，开口练习没有反馈。</span></div>
+        <div class="pain"><b>3</b><span>背完没几天就忘，错词没有继续回来复习。</span></div>
+      </div>
+      <div class="bridge">这三步，App 一条龙帮你接住</div>
+    </section>
+
+    <section class="section-soft">
+      <h2>先选对教材，才不会乱学</h2>
+      <p>首次进入小程序，会先选择年级、学期和教材版本，匹配孩子正在学的同步教材。</p>
+      <p>选好课本后，系统按教材内容拆成关卡，再配合每日计划推进。孩子不用纠结今天背哪一页，家长也不用每天重新安排任务。</p>
+      <div class="screen-shot">
+        <img src="images/mini-app/07-onboarding.png" alt="新手引导选择教材截图" />
+      </div>
+      <p class="caption">新手引导：选择年级、学期、教材版本，建立学习档案</p>
+    </section>
+
+    <section>
+      <h2>为什么坚持“听读背测复习”？</h2>
+      <p class="lead">一本课本通常不只是 200 多个单词，还会有 200-400 个句子。孩子真正学扎实，需要在声音、句子、开口、拼写和复习里反复见面。</p>
+      <div class="data-strip">
+        <div class="data-item"><b>200+</b><span>课本核心单词</span></div>
+        <div class="data-item"><b>200-400</b><span>同步教材句子</span></div>
+        <div class="data-item"><b>多次开口</b><span>发音反复练</span></div>
+      </div>
+      <div class="proof-grid">
+        <div class="proof-card"><strong>间隔复习：对抗“背完就忘”</strong><span>记忆会随时间衰减，分散复习比一次性猛背更适合长期保持。错词和薄弱词要在后续学习里重新出现。</span></div>
+        <div class="proof-card"><strong>提取练习：小测不是为了为难孩子</strong><span>听音填空、背诵评测、单词拼写，本质是让孩子主动回忆。能从脑子里提取出来，才更接近真正掌握。</span></div>
+        <div class="proof-card"><strong>开口朗读：发音要靠多次练和反馈</strong><span>孩子背诵时往往要读很多遍。配合驰声公司的考试级语音评分引擎，读完能得到更明确的发音反馈。</span></div>
+        <div class="proof-card"><strong>听力输入：先听懂，再说准</strong><span>标准音、例句和随身听提供持续输入，让孩子不是孤立背字母，而是在声音和语境里认识词句。</span></div>
+      </div>
+      <p class="source-note">理念参考：分散学习与练习测试相关综述、retrieval practice 研究、National Reading Panel 对 repeated oral reading 的总结，以及可理解输入理论。产品表达以儿童日常学习场景做了转译。</p>
+    </section>
+
+    <section>
+      <h2>一关约10分钟，听读背测循环记牢</h2>
+      <p class="lead">小朋友不用一次学太多。每天跟着今日路线，把课本单词和句子拆成可完成的小关卡。</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">听</div>
+          <div><strong>先听标准音和例句</strong><span>用课本句子建立声音印象，不只靠看字母硬记。</span></div>
+        </div>
+        <div class="step">
+          <div class="step-num">学</div>
+          <div><strong>再学单词和句子</strong><span>看音标、释义、例句，理解这个词在课本里怎么用。</span></div>
+        </div>
+        <div class="step">
+          <div class="step-num">读</div>
+          <div><strong>开口跟读背诵</strong><span>孩子反复开口读，语音评分反馈发音，练得更有方向。</span></div>
+        </div>
+        <div class="step">
+          <div class="step-num">测</div>
+          <div><strong>最后做关卡小测</strong><span>听音填空、背诵评测、单词拼写，检查是否真的掌握。</span></div>
+        </div>
+      </div>
+      <div class="screen-shot">
+        <img src="images/mini-app/07-today-route.png" alt="今日学习路线截图" />
+      </div>
+      <p class="caption">今日路线：每天该学什么，一眼看清楚</p>
+      <div class="article-banner">
+        <b>不是让孩子一天背很多，而是每天完成一个小闭环。</b>
+        <span>听懂一点，读准一点，背牢一点，再把薄弱词带回复习。</span>
+      </div>
+    </section>
+
+    <section class="section-soft">
+      <h2>不只是背，还要敢开口</h2>
+      <p>英语不是只会认单词就够了。孩子还需要听标准音、跟读句子、把词放进语境里说出来。</p>
+      <div class="feature-grid">
+        <div class="feature"><i>词</i><b>单词新学</b><span>音标、释义、例句、选择验证，先把词义学明白。</span></div>
+        <div class="feature"><i>读</i><b>考试级评分</b><span>接入驰声语音评分引擎，读完可看到发音反馈。</span></div>
+        <div class="feature"><i>听</i><b>随身听</b><span>课文、单词和句子碎片时间反复听。</span></div>
+        <div class="feature"><i>测</i><b>关卡小测</b><span>听、背、拼一起测，避免只会看不会用。</span></div>
+      </div>
+      <div class="phone-gallery">
+        <div class="phone-tile"><img src="images/mini-app/05-practice-word.png" alt="单词新学截图" /><span>单词新学</span></div>
+        <div class="phone-tile"><img src="images/mini-app/05-practice-recite.png" alt="跟读背诵截图" /><span>跟读背诵</span></div>
+        <div class="phone-tile"><img src="images/mini-app/03-listen-player.png" alt="随身听截图" /><span>随身听</span></div>
+        <div class="phone-tile"><img src="images/mini-app/03-listen-quiz.png" alt="关卡小测截图" /><span>关卡小测</span></div>
+      </div>
+      <p class="caption">手机截图：单词、跟读、随身听、小测四个核心场景</p>
+    </section>
+
+    <section>
+      <div class="quote-card">
+        <h2>已学，不等于已掌握</h2>
+        <p>孩子完成了一关，代表流程走完了；但一个词是否真的掌握，要看多环节表现。<strong>掌握度不够的词，会进入后续复习重点。</strong></p>
+      </div>
+      <h3>报告会告诉你哪里没掌握</h3>
+      <p>学习报告会综合单词新学、跟读背诵、关卡小测的表现，展示正确率、已掌握词、待复习词和学习用时。</p>
+      <div class="screen-shot">
+        <img src="images/mini-app/07-unit-report.png" alt="学习报告截图" />
+      </div>
+      <p class="caption">学习报告：掌握度、待复习词、环节表现一目了然</p>
+    </section>
+
+    <section class="section-soft">
+      <h2>计划 + 打卡，让坚持变得可见</h2>
+      <p>每天完成计划关卡即可打卡，日历展示连续天数和累计记录。孩子能看到自己的进步，家长也能知道有没有真正完成。</p>
+      <div class="screen-shot">
+        <img src="images/mini-app/02-checkin-calendar.png" alt="打卡日历截图" />
+      </div>
+      <p class="caption">打卡日历：每天完成计划，记录连续坚持</p>
+    </section>
+
+    <section>
+      <h2>入门测和结业测，看见真正进步</h2>
+      <p>刚开始学习时，可以做入门测，了解当前基础。学完整本书后，可以做结业测，检验整本书的学习成果。</p>
+      <p>前后对比后，孩子不是只知道“我学完了”，还能看到哪些模块进步了、哪些题型还薄弱。</p>
+      <div class="screen-shot">
+        <img src="images/mini-app/07-exam-entry.png" alt="入门测截图" />
+      </div>
+      <p class="caption">入门测：先测一测，了解当前水平</p>
+    </section>
+
+    <section class="section-soft" id="price">
+      <h2>会员与价格信息</h2>
+      <p>免费版可完整体验教材第 1 关。开通会员后，解锁第 2 关起的全部教材内容、随身听、跟读评分、报告和复习能力。</p>
+      <ul class="benefits">
+        <li>100+ 本同步教材，覆盖小学至高中主流版本与新教材</li>
+        <li>每本课本围绕 200+ 单词和 200-400 个句子做学习闭环</li>
+        <li>第 2 关起全部关卡解锁，学习路径不断档</li>
+        <li>随身听、驰声考试级跟读评分、学习报告与复习完整开放</li>
+        <li>会员有效期、购买记录清晰可查</li>
+      </ul>
+      <div class="price-grid">
+        <div class="price-card">
+          <div><span class="price-name">1个月</span><span class="price-desc">尝鲜体验，先跑通一个阶段</span></div>
+          <div class="price">¥39</div>
+        </div>
+        <div class="price-card">
+          <div><span class="price-name">2个月</span><span class="price-desc">覆盖一个单元或短期提升</span></div>
+          <div class="price">¥59</div>
+        </div>
+        <div class="price-card recommend">
+          <div><span class="badge">推荐</span><span class="price-name">1年</span><span class="price-desc">低至约 9 元/月，更适合长期跟学</span></div>
+          <div class="price">¥109</div>
+        </div>
+      </div>
+      <div class="screen-shot">
+        <img src="images/mini-app/07-membership.png" alt="会员页截图" />
+      </div>
+      <p class="caption">会员页：套餐、权益、价格和订单记录入口</p>
+    </section>
+
+    <section>
+      <h2>适合这些孩子先试试</h2>
+      <ul class="benefits">
+        <li>背单词没有计划，经常东背一点西背一点</li>
+        <li>会看不会读，开口练习没有反馈</li>
+        <li>跟着课本学，但课后复习跟不上</li>
+        <li>家长想了解孩子学得怎么样，但没时间每天陪练</li>
+      </ul>
+    </section>
+
+    <section class="ending-card">
+      <h2>写在最后</h2>
+      <p>我们做词句刷刷刷，不是想让孩子一天背很多词，而是希望孩子每天都能完成一个清楚的小闭环。</p>
+      <p>听见标准音，读出口，背得出，测一测，再把薄弱词带回复习。时间不需要很长，但路径要清楚，反馈要及时。</p>
+      <p>如果孩子正在跟着课本学英语，可以先从第 1 关免费体验开始，看他是否愿意每天坚持这 10 分钟。</p>
+      <div class="experience-box">
+        <b>体验建议</b>
+        <span>先选择孩子当前年级、学期和教材版本，再完整跑一遍“单词新学 → 跟读背诵 → 关卡小测 → 学习报告”。跑完一关，基本就能感受到这套学习闭环适不适合孩子。</span>
+      </div>
+    </section>
+
+    <p class="fineprint">价格与权益以小程序内实际展示为准。本文为产品介绍，具体学习内容以当前教材和账号状态为准。</p>
+  </main>
+</body>
+</html>

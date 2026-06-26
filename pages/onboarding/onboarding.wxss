@@ -844,7 +844,7 @@
 }
 
 .onboard-next--disabled {
-  opacity: 0.58;
+  background: linear-gradient(135deg, #4a5560 0%, #3a424b 100%);
   box-shadow: 0 10rpx 20rpx rgba(17, 19, 24, 0.1);
 }
 

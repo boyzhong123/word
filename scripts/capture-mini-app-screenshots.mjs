@@ -37,6 +37,55 @@ function buildQuery(params) {
     .join('&')
 }
 
+function demoVipState(now = Date.now()) {
+  const expireAt = new Date(now)
+  expireAt.setFullYear(expireAt.getFullYear() + 1)
+  const pad = (value) => String(value).padStart(2, '0')
+  const expireText = expireAt.getFullYear() + '-' + pad(expireAt.getMonth() + 1) + '-' + pad(expireAt.getDate())
+  return {
+    membership: {
+      tierId: 'y1',
+      months: 12,
+      expireAt: expireAt.getTime(),
+      updatedAt: now
+    },
+    membershipOrders: [
+      {
+        id: 'VIP' + String(now).slice(-10),
+        tierId: 'y1',
+        tierName: '1年会员',
+        durationText: '1年',
+        originalPrice: 109,
+        price: 109,
+        method: '微信支付',
+        code: '',
+        createdAt: '2026-06-26 10:30',
+        expireText
+      },
+      {
+        id: 'VIPDEMO0002',
+        tierId: 'm2',
+        tierName: '2个月会员',
+        durationText: '2个月',
+        originalPrice: 59,
+        price: 0,
+        method: '兑换码',
+        code: 'VIP2026',
+        createdAt: '2026-06-01 09:00',
+        expireText
+      }
+    ]
+  }
+}
+
+async function seedVipState(miniProgram) {
+  await miniProgram.evaluate((state) => {
+    const key = '__mock_state__'
+    const current = wx.getStorageSync(key) || {}
+    wx.setStorageSync(key, Object.assign({}, current, state))
+  }, demoVipState())
+}
+
 async function waitHomeReady(page, timeoutMs = 20000) {
   const start = Date.now()
   while (Date.now() - start < timeoutMs) {
@@ -184,6 +233,48 @@ function makeShots(ctx) {
       waitMs: 4500
     },
     {
+      key: 'notify',
+      file: '04-me-notify.png',
+      label: '消息授权状态',
+      navigate: (mp) => mp.navigateTo('/pages/me/notify'),
+      waitMs: 3500
+    },
+    {
+      key: 'notify-preview',
+      file: '04-me-notify-preview.png',
+      label: '消息样式预览',
+      navigate: (mp) => mp.navigateTo('/pages/me/notify'),
+      waitMs: 3500,
+      prepare: async (page) => {
+        const card = await page.$('.tmpl-card')
+        if (card) {
+          await card.tap()
+          await page.waitFor(1000)
+        }
+      }
+    },
+    {
+      key: 'contact',
+      file: '04-me-contact.png',
+      label: '联系客服',
+      navigate: (mp) => mp.navigateTo('/pages/me/contact'),
+      waitMs: 3500
+    },
+    {
+      key: 'privacy',
+      file: '04-me-privacy.png',
+      label: '隐私与协议',
+      navigate: (mp) => mp.navigateTo('/pages/me/privacy'),
+      waitMs: 3500
+    },
+    {
+      key: 'paid-agreement',
+      file: '04-me-paid-agreement.png',
+      label: '用户付费协议',
+      navigate: (mp) => mp.navigateTo('/pages/me/paid-agreement'),
+      waitMs: 3500
+    },
+    {
       key: 'practice',
       file: '05-practice-word.png',
       label: '单词新学',
@@ -258,6 +349,49 @@ function makeShots(ctx) {
       waitMs: 4000
     },
     {
+      key: 'checkin-rules',
+      file: '02-checkin-rules.png',
+      label: '打卡规则弹窗',
+      navigate: (mp) => mp.navigateTo('/pages/checkin/calendar'),
+      waitMs: 4500,
+      prepare: async (page) => {
+        const help = await page.$('.help-icon')
+        if (help) {
+          await help.tap()
+          await page.waitFor(1000)
+        }
+      }
+    },
+    {
+      key: 'checkin-gift',
+      file: '02-checkin-gift.png',
+      label: '打卡礼品弹窗',
+      navigate: (mp) => mp.navigateTo('/pages/checkin/calendar'),
+      waitMs: 4500,
+      prepare: async (page) => {
+        const gift = await page.$('.gift-icon')
+        if (gift) {
+          await gift.tap()
+          await page.waitFor(1000)
+        }
+      }
+    },
+    {
+      key: 'checkin-share',
+      file: '02-checkin-share.png',
+      label: '打卡分享海报',
+      navigate: (mp) => mp.navigateTo('/pages/checkin/calendar'),
+      waitMs: 4500,
+      prepare: async (page) => {
+        const share = await page.$('.power-button-share')
+        if (share) {
+          await share.tap()
+          await page.waitFor(3000)
+        }
+      },
+      minKb: 40
+    },
+    {
       key: 'today',
       file: '07-today-route.png',
       label: '今日 · 学习路线',
@@ -277,6 +411,26 @@ function makeShots(ctx) {
       label: '开通会员',
       navigate: (mp) => mp.navigateTo(`/pages/membership/membership?${buildQuery({ resBookId, name: bookName })}`),
       waitMs: 4500
+    },
+    {
+      key: 'membership-records',
+      file: '07-membership-records.png',
+      label: '会员购买记录',
+      prepareBeforeNavigate: async (page, mp) => {
+        await seedVipState(mp)
+      },
+      navigate: (mp) => mp.navigateTo('/pages/membership-records/membership-records'),
+      waitMs: 4000
+    },
+    {
+      key: 'membership-success',
+      file: '07-membership-success.png',
+      label: '会员开通成功',
+      prepareBeforeNavigate: async (page, mp) => {
+        await seedVipState(mp)
+      },
+      navigate: (mp) => mp.navigateTo('/pages/membership-success/membership-success'),
+      waitMs: 4000
     },
     {
       key: 'exam',
@@ -329,6 +483,20 @@ function makeShots(ctx) {
       label: '学习记录',
       navigate: (mp) => mp.navigateTo('/pages/study-record/record'),
       waitMs: 4500
+    },
+    {
+      key: 'study-record-detail',
+      file: '07-study-record-detail.png',
+      label: '学习记录 · 每天详情',
+      navigate: (mp) => mp.navigateTo('/pages/study-record/record'),
+      waitMs: 4500,
+      prepare: async (page) => {
+        const head = await page.$('.record-head')
+        if (head) {
+          await head.tap()
+          await page.waitFor(1000)
+        }
+      }
     }
   ]
 }

@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>首启介绍页预览｜词句刷刷刷</title>
+  <style>
+    :root {
+      --ink: #17212f;
+      --muted: #617084;
+      --green: #18a563;
+      --blue: #2f7df6;
+      --orange: #f28a22;
+      --paper: rgba(255, 255, 255, 0.94);
+      --line: rgba(220, 231, 239, 0.94);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #d7eee9;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      padding: 22px 0 28px;
+    }
+
+    .phone {
+      width: 375px;
+      min-height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 34px;
+      background: linear-gradient(180deg, #edf3ff 0%, #f5fff9 30%, #fff8ec 68%, #ddf4eb 100%);
+      box-shadow: 0 28px 80px rgba(19, 40, 48, 0.25);
+    }
+
+    .status {
+      height: 42px;
+      padding: 12px 22px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      color: #16211b;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .nav-title {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 850;
+      margin-top: 6px;
+    }
+
+    .content {
+      padding: 20px 20px 28px;
+    }
+
+    .hero,
+    .section {
+      border-radius: 23px;
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 28px rgba(35, 65, 73, 0.12);
+    }
+
+    .hero {
+      padding: 18px 17px 16px;
+    }
+
+    .hero-poster {
+      margin-top: 13px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #eef5ff;
+      border: 1px solid #e2ebf4;
+      box-shadow: 0 10px 20px rgba(35, 65, 73, 0.1);
+    }
+
+    .hero-poster img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 15px 13px 14px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 13px;
+    }
+
+    .app-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      box-shadow: 0 8px 16px rgba(17, 22, 31, 0.14);
+    }
+
+    .app-name {
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+
+    .app-desc {
+      margin-top: 3px;
+      color: #68778a;
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.2;
+    }
+
+    .eyebrow {
+      display: inline-grid;
+      place-items: center;
+      height: 26px;
+      padding: 0 11px;
+      border-radius: 999px;
+      background: #eaf8ef;
+      color: #087448;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    h1, h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin-top: 11px;
+      font-size: 29px;
+      line-height: 1.18;
+    }
+
+    h1 em {
+      color: var(--green);
+      font-style: normal;
+    }
+
+    h2 {
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    h2 em {
+      color: var(--blue);
+      font-style: normal;
+    }
+
+    .section.member h2 em {
+      color: var(--orange);
+    }
+
+    .lead {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.58;
+    }
+
+    .lead b { color: var(--ink); }
+
+    .pain-list,
+    .rule-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .pain {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 8px;
+      align-items: center;
+      min-height: 42px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #4f5f72;
+      font-size: 12px;
+      line-height: 1.34;
+    }
+
+    .pain b {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #17212f;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .screen-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .screen-title {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .screen-tag {
+      color: #087448;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .phone-shot {
+      position: relative;
+      height: 248px;
+      overflow: hidden;
+      border-radius: 18px;
+      background: #eef5ff;
+      border: 1px solid #dfe9f2;
+    }
+
+    .phone-shot img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transform-origin: top center;
+    }
+
+    .shot-onboarding img { transform: translateY(-30px); }
+    .shot-route img { transform: translateY(-48px); }
+    .shot-recite img { transform: translateY(-28px); }
+    .shot-report img { transform: translateY(-12px); }
+    .shot-member img { transform: translateY(-42px); }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .data {
+      padding: 10px 6px;
+      border-radius: 14px;
+      background: rgba(23, 33, 47, 0.92);
+      color: #fff;
+      text-align: center;
+    }
+
+    .data b {
+      display: block;
+      color: #7ff0b0;
+      font-size: 14px;
+      line-height: 1.12;
+    }
+
+    .data span {
+      display: block;
+      margin-top: 4px;
+      color: #dbe7ef;
+      font-size: 9px;
+      line-height: 1.2;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .flow-item {
+      display: grid;
+      gap: 5px;
+      justify-items: center;
+      min-width: 0;
+    }
+
+    .flow-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #ecf2f0;
+      box-shadow: 0 7px 14px rgba(45, 84, 86, 0.09);
+    }
+
+    .flow-icon img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .flow-item span {
+      color: #425064;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .mini-screens {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .mini-screen {
+      overflow: hidden;
+      border-radius: 17px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .mini-screen .phone-shot {
+      height: 134px;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .mini-screen b {
+      display: block;
+      padding: 8px 9px 9px;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .rule {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 9px;
+      align-items: center;
+      padding: 9px 10px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .rule img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .rule b {
+      display: block;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .rule span {
+      display: block;
+      margin-top: 3px;
+      color: #647185;
+      font-size: 11px;
+      line-height: 1.28;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .price {
+      padding: 8px 5px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #e6edf3;
+      text-align: center;
+    }
+
+    .price.recommend {
+      border-color: #f8c26e;
+      background: #fff8ea;
+    }
+
+    .price b {
+      display: block;
+      font-size: 13px;
+      line-height: 1.15;
+    }
+
+    .price span {
+      display: block;
+      margin-top: 4px;
+      color: #566376;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .caption {
+      margin-top: 9px;
+      color: #667487;
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .note {
+      width: 375px;
+      margin: 14px auto 0;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.82);
+      color: #425064;
+      font-size: 13px;
+      line-height: 1.65;
+      box-shadow: 0 12px 28px rgba(35, 65, 73, 0.12);
+    }
+
+    .note b { color: #17212f; }
+
+    @media (max-width: 430px) {
+      body { padding: 0; background: #edf3ff; }
+      .phone {
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .note {
+        width: calc(100vw - 24px);
+        margin-bottom: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" aria-label="首启介绍页纵向预览">
+    <div class="status"><span>9:41</span><span>● ● ●</span></div>
+    <div class="nav-title">词句刷刷刷</div>
+
+    <div class="content">
+      <section class="hero">
+        <div class="brand-row">
+          <img class="app-logo" src="../images/app-logo.png" alt="词句刷刷刷 Logo" />
+          <div>
+            <div class="app-name">词句刷刷刷</div>
+            <div class="app-desc">同步教材英语学习小程序</div>
+          </div>
+        </div>
+        <div class="hero-poster">
+          <img src="images/onboarding/onboarding-article-hero.png" alt="孩子背单词总忘？让听读背测复习每天跑起来" />
+        </div>
+        <p class="lead">词句刷刷刷先匹配年级、学期和教材版本，再把课本词句拆成每天能完成的小任务。</p>
+        <div class="pain-list">
+          <div class="pain"><b>1</b><span>不知道今天背哪些，只能临时翻课本。</span></div>
+          <div class="pain"><b>2</b><span>读得准不准没人听，开口没有反馈。</span></div>
+          <div class="pain"><b>3</b><span>背完没几天就忘，错词没有回来复习。</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="screen-head">
+          <div class="screen-title">第一步：建立学习档案</div>
+          <div class="screen-tag">同步教材</div>
+        </div>
+        <div class="phone-shot shot-onboarding">
+          <img src="images/mini-app/07-onboarding.png" alt="新手引导选择教材截图" />
+        </div>
+        <p class="caption">选择年级、学期和教材版本，匹配孩子正在学的内容。</p>
+      </section>
+
+      <section class="section">
+        <h2>每天 10 分钟<br><em>听读背测跑一遍</em></h2>
+        <p class="lead">一本课本通常有 <b>200+ 单词</b> 和 <b>200-400 个句子</b>。孩子需要在听力、句子、开口和小测里反复见面。</p>
+        <div class="data-row">
+          <div class="data"><b>200+</b><span>课本核心单词</span></div>
+          <div class="data"><b>200-400</b><span>同步教材句子</span></div>
+          <div class="data"><b>多次开口</b><span>发音反复练</span></div>
+        </div>
+        <div class="flow">
+          <div class="flow-item"><div class="flow-icon"><img src="../images/home/icon-today-feature-listen.png" alt="" /></div><span>听</span></div>
+          <div class="flow-item"><div class="flow-icon"><img src="../images/home/icon-today-feature-read.png" alt="" /></div><span>学</span></div>
+          <div class="flow-item"><div class="flow-icon"><img src="../images/home/icon-today-feature-recite.png" alt="" /></div><span>读</span></div>
+          <div class="flow-item"><div class="flow-icon"><img src="../images/home/icon-today-feature-quiz.png" alt="" /></div><span>测</span></div>
+          <div class="flow-item"><div class="flow-icon"><img src="../images/home/icon-today-summary-jelly.png" alt="" /></div><span>报告</span></div>
+        </div>
+        <div class="mini-screens">
+          <div class="mini-screen">
+            <div class="phone-shot shot-route"><img src="images/mini-app/07-today-route.png" alt="今日路线截图" /></div>
+            <b>系统安排今日关卡</b>
+          </div>
+          <div class="mini-screen">
+            <div class="phone-shot shot-recite"><img src="images/mini-app/05-practice-recite.png" alt="跟读背诵截图" /></div>
+            <b>读完看到发音反馈</b>
+          </div>
+        </div>
+        <p class="caption">接入驰声考试级评分引擎，不是只看单词，孩子要真的读出来。</p>
+      </section>
+
+      <section class="section member">
+        <h2>学完不等于掌握<br><em>报告和复习接住</em></h2>
+        <p class="lead">小测、成绩、学习记录和错词复习连起来。家长能看到今天学了什么，孩子也知道下一次要补哪里。</p>
+        <div class="rule-list">
+          <div class="rule">
+            <img src="../images/home/icon-word-mastered.svg" alt="" />
+            <div><b>掌握逻辑</b><span>会读、会认、会测的内容进入已掌握。</span></div>
+          </div>
+          <div class="rule">
+            <img src="../images/onboarding/onboard-proof-review.png" alt="" />
+            <div><b>错词复习</b><span>薄弱词会继续出现，避免背完就忘。</span></div>
+          </div>
+        </div>
+        <div class="mini-screens">
+          <div class="mini-screen">
+            <div class="phone-shot shot-report"><img src="images/mini-app/07-unit-report.png" alt="学习报告截图" /></div>
+            <b>看掌握和待复习</b>
+          </div>
+          <div class="mini-screen">
+            <div class="phone-shot shot-member"><img src="images/mini-app/07-membership.png" alt="会员页截图" /></div>
+            <b>完整教材持续学</b>
+          </div>
+        </div>
+        <div class="price-row">
+          <div class="price"><b>1个月</b><span>¥39</span></div>
+          <div class="price"><b>2个月</b><span>¥59</span></div>
+          <div class="price recommend"><b>1年</b><span>¥109</span></div>
+        </div>
+        <p class="caption">第 1 关可体验。价格与权益以小程序内实际展示为准。</p>
+      </section>
+    </div>
+  </main>
+
+  <div class="note">
+    <b>预览说明：</b>这版是纵向滚动的首启介绍页，不是三屏轮播。内容基于公众号 H5 浓缩，按“同步教材 → 听读背测 → 报告复习与会员”从上到下展示。
+  </div>
+</body>
+</html>

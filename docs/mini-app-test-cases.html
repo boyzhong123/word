@@ -1,0 +1,1338 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>词句刷刷刷小程序测试用例</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #17212f;
+      --muted: #637083;
+      --line: #dce3ec;
+      --green: #16a35d;
+      --blue: #2563eb;
+      --amber: #d97706;
+      --red: #dc2626;
+      --soft-green: #eaf8f0;
+      --soft-blue: #ebf2ff;
+      --soft-amber: #fff4df;
+      --soft-red: #fff0f0;
+      --shadow: 0 12px 28px rgba(23, 33, 47, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: #eef2f7;
+      color: #263445;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .hero {
+      background: #eaf3fb;
+      color: var(--ink);
+      border-bottom: 1px solid rgba(23, 33, 47, 0.08);
+    }
+
+    .hero-inner,
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    .hero-inner {
+      padding-top: 20px;
+      padding-bottom: 24px;
+    }
+
+    .hero-banner {
+      overflow: hidden;
+      border-radius: 10px;
+      background: #dbeafe;
+      box-shadow: 0 18px 40px rgba(23, 33, 47, 0.14);
+    }
+
+    .hero-banner img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #9ed5b8;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 36px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 900px;
+      margin: 14px 0 0;
+      color: #506174;
+      font-size: 16px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #344153;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 245px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .toc-title {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .toc-legend {
+      display: grid;
+      gap: 6px;
+      margin: 0 0 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+    }
+
+    .toc-legend span,
+    .toc a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toc-legend span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toc-dot {
+      flex: 0 0 auto;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--muted);
+    }
+
+    .toc a {
+      justify-content: space-between;
+      padding: 8px 0;
+      border-top: 1px solid #eef2f7;
+      color: #344153;
+      font-size: 13px;
+    }
+
+    .toc a::after {
+      flex: 0 0 auto;
+      min-width: 34px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      content: attr(data-kind);
+    }
+
+    .toc a.toc-guide {
+      color: #475569;
+    }
+
+    .toc a.toc-guide::after,
+    .toc-legend .toc-dot.guide {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .toc a.toc-rule {
+      color: #92400e;
+    }
+
+    .toc a.toc-rule::after,
+    .toc-legend .toc-dot.rule {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .toc a.toc-feature {
+      color: #1e3a8a;
+    }
+
+    .toc a.toc-feature::after,
+    .toc-legend .toc-dot.feature {
+      background: #dbeafe;
+      color: #1e3a8a;
+    }
+
+    .toc a.toc-special {
+      color: #065f46;
+    }
+
+    .toc a.toc-special::after,
+    .toc-legend .toc-dot.special {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .content {
+      min-width: 0;
+    }
+
+    section {
+      margin-bottom: 22px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+
+    .callout {
+      margin: 12px 0;
+      padding: 14px 16px;
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      background: var(--soft-blue);
+    }
+
+    .callout.green {
+      border-left-color: var(--green);
+      background: var(--soft-green);
+    }
+
+    .callout.amber {
+      border-left-color: var(--amber);
+      background: var(--soft-amber);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .tile {
+      min-height: 112px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .tile strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .tile span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hierarchy {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .layer {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .layer b {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--green);
+      font-size: 14px;
+    }
+
+    .layer small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .feature-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .shot {
+      display: block;
+      width: 100%;
+      max-height: 420px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .shot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .shot-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .shot-card img {
+      display: block;
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      object-position: top center;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .shot-card-body {
+      padding: 12px;
+    }
+
+    .shot-card-title {
+      margin: 0 0 4px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .shot-card-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .info-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .info {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .info b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .info p,
+    .info ul {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 10px 10px;
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #243244;
+      font-weight: 800;
+    }
+
+    td {
+      background: #fff;
+    }
+
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .p0 {
+      background: var(--soft-red);
+      color: var(--red);
+    }
+
+    .p1 {
+      background: var(--soft-amber);
+      color: var(--amber);
+    }
+
+    .tag {
+      display: inline-flex;
+      margin: 2px 4px 2px 0;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #eef2f7;
+      color: #526173;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .footer-note {
+      margin: 26px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+      }
+
+      .hierarchy,
+      .grid,
+      .info-list,
+      .feature-head,
+      .shot-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .shot {
+        max-height: 520px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .hero,
+      .toc {
+        display: none;
+      }
+
+      main {
+        max-width: none;
+        padding: 0;
+      }
+
+      section {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-banner">
+        <img src="images/mini-app-test-header.png" alt="小程序测试用例表头图" />
+      </div>
+      <p class="eyebrow">QA Test Guide</p>
+      <h1>词句刷刷刷小程序测试用例</h1>
+      <p>这份文档给测试同学看的重点不是“点哪里”，而是先说明每个功能在学习闭环里解决什么问题、在软件里属于哪一层，再给可执行的验收用例。</p>
+      <div class="meta-row">
+        <span class="pill">生成日期：2026-06-26</span>
+        <span class="pill">截图目录：docs/images/mini-app</span>
+        <span class="pill">依据：app.json / 页面代码 / HTML 说明页 / mockups</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <nav class="toc" aria-label="页面导航">
+        <p class="toc-title">目录</p>
+        <div class="toc-legend" aria-label="目录类型说明">
+          <span><i class="toc-dot guide"></i>说明/索引：帮助读文档</span>
+          <span><i class="toc-dot rule"></i>规则/口径：测试判定标准</span>
+          <span><i class="toc-dot feature"></i>功能页面：真实业务功能</span>
+          <span><i class="toc-dot special"></i>专项回归：跨功能检查</span>
+        </div>
+        <a class="toc-guide" data-kind="说明" href="#how-to-use">怎么使用</a>
+        <a class="toc-guide" data-kind="说明" href="#software-hierarchy">软件层级</a>
+        <a class="toc-rule" data-kind="口径" href="#business-rules">核心业务口径</a>
+        <a class="toc-guide" data-kind="索引" href="#screenshots">截图索引</a>
+        <a class="toc-guide" data-kind="索引" href="#secondary-pages">二级页面矩阵</a>
+        <a class="toc-feature" data-kind="功能" href="#onboarding">新手引导</a>
+        <a class="toc-feature" data-kind="功能" href="#today-growth">今日与成长</a>
+        <a class="toc-feature" data-kind="功能" href="#practice">单词新学 / 跟读背诵</a>
+        <a class="toc-feature" data-kind="功能" href="#listen-quiz">随身听 / 关卡小测</a>
+        <a class="toc-feature" data-kind="功能" href="#finish-report">完成页 / 报告 / 记录</a>
+        <a class="toc-feature" data-kind="功能" href="#checkin-plan">打卡 / 学习计划</a>
+        <a class="toc-special" data-kind="专项" href="#share-special">分享功能专项</a>
+        <a class="toc-feature" data-kind="功能" href="#membership">会员</a>
+        <a class="toc-feature" data-kind="功能" href="#me">我的</a>
+        <a class="toc-feature" data-kind="功能" href="#exam">入门测 / 结业测</a>
+        <a class="toc-special" data-kind="回归" href="#cross-cutting">横向回归</a>
+      </nav>
+
+      <div class="content">
+        <section id="how-to-use">
+          <h2>怎么使用这份测试用例</h2>
+          <p class="lead">建议先看“软件层级”，再按功能域执行。每个功能域都有说明、入口、依赖和用例，方便新人快速理解业务。</p>
+          <div class="grid">
+            <div class="tile">
+              <strong>先看功能说明</strong>
+              <span>确认这个功能服务于“学词、跟读、小测、复习、报告”里的哪一步，避免只做 UI 点点点。</span>
+            </div>
+            <div class="tile">
+              <strong>再看软件层级</strong>
+              <span>知道它是 Tab 页、二级页、组件、数据层还是系统能力，便于定位问题归属。</span>
+            </div>
+            <div class="tile">
+              <strong>最后执行用例</strong>
+              <span>P0 是发布前必须跑通的主链路；P1 是异常、权限、边界和体验回归。</span>
+            </div>
+          </div>
+          <div class="callout amber">
+            <strong>测试环境提醒：</strong>截图来自微信开发者工具自动化脚本。复跑截图需要在微信开发者工具中开启“服务端口 / CLI 调用”，然后执行 <code>npm run doc:screenshots</code>。
+          </div>
+        </section>
+
+        <section id="software-hierarchy">
+          <h2>软件层级是什么样子的</h2>
+          <p class="lead">这款小程序可以理解为“微信运行时 + 小程序壳 + 功能页面 + 共享能力 + 后端/Mock 数据”的分层结构。测试问题也建议按这个层级归因。</p>
+          <div class="hierarchy">
+            <div class="layer">
+              <b>1. 微信运行层</b>
+              <small>微信授权、订阅消息、相册保存、客服、web-view、录音与音频播放等系统能力。</small>
+            </div>
+            <div class="layer">
+              <b>2. 应用壳层</b>
+              <small><code>app.json</code> 路由、<code>app.js</code> 全局状态、自定义底栏、全局迷你播放器。</small>
+            </div>
+            <div class="layer">
+              <b>3. 页面功能层</b>
+              <small>新手引导、今日、成长、练习、伴读、打卡、报告、会员、我的、测评等页面。</small>
+            </div>
+            <div class="layer">
+              <b>4. 组件与资源层</b>
+              <small><code>media</code>、<code>wave</code>、弹窗、导航、图片资源、海报 Canvas、动画素材。</small>
+            </div>
+            <div class="layer">
+              <b>5. 数据服务层</b>
+              <small>后端 API、<code>utils/mock</code>、学习计划、会员、订阅、测评、学习记录等 slice。</small>
+            </div>
+          </div>
+          <div class="callout green">
+            <strong>业务闭环：</strong>首访建档 → 选教材 → 定计划 → 单词新学 → 跟读背诵 → 关卡小测 → 完成打卡 → 报告复习 → 学习记录/会员解锁。
+          </div>
+        </section>
+
+        <section id="business-rules">
+          <h2>核心业务口径</h2>
+          <p class="lead">这一段给测试同学先对齐“怎么算”。页面能点通不代表业务正确，下面这些定义来自接口文档和关卡成绩规则，是验收时必须按同一口径判断的部分。</p>
+          <div class="callout amber">
+            <strong>总原则：</strong>业务真值最终以后端接口为准。当前 Mock 模式下，会员、订单、档案、形象、学习计划、今日进度、订阅、错词、测评成绩等状态统一收口到 <code>utils/mock/mock-store.js</code> 的 <code>__mock_state__</code>；接后端后由接口 hydrate，不再依赖散落 Storage。
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>业务口径</th>
+                <th>定义给测试同学</th>
+                <th>数据/接口来源</th>
+                <th>必须测什么</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>订阅消息逻辑</strong></td>
+                <td>
+                  订阅分两类：<strong>打卡提醒</strong>是累计型，用户可以多次订阅“囤次数”；<strong>支付成功通知</strong>和<strong>学习报告通知</strong>是事件型，业务发生时按偏好触发一次授权。关闭提醒偏好不清空已累计打卡次数。
+                </td>
+                <td>
+                  <code>pages/me/notify</code>、<code>utils/subscribe.js</code>；后端目标为 <code>subscribe-message/preferences</code> 和 <code>POST subscribe-message/report</code>。Mock slice：<code>subscribePrefs</code>、<code>subscribeQuota</code>。
+                </td>
+                <td>
+                  三类模板都展示；打卡提醒可“再订阅一次”；开关关闭后次数仍保留；订阅 accept 后累计次数增加；拒绝/系统不支持有提示；消息预览字段正确。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>打卡逻辑</strong></td>
+                <td>
+                  打卡不是打开日历就算。用户完成<strong>今日计划要求的关卡数</strong>后，当天自动点亮。今日目标来自学习计划；连续天数、礼品状态和规则文案来自用户信息/活动配置。
+                </td>
+                <td>
+                  <code>pages/checkin/calendar</code>、<code>pages/finish/today</code>、<code>utils/checkin-progress.js</code>；后端目标为 <code>user/info</code>、<code>study-plan</code>、<code>check-in</code>、<code>gift-claim</code>。
+                </td>
+                <td>
+                  单词/跟读完成不误记整关打卡；小测完成才算关卡完成；达到每日目标后日历点亮；切学习计划后今日目标同步；连续 30 天礼品状态分未达标/可领取/已领取。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>学习计划逻辑</strong></td>
+                <td>
+                  学习计划按 <code>resBookId</code> 绑定教材，保存每日目标关数。今日页的 <code>x/y 关</code> 中，<code>y</code> 是该教材每日目标，<code>x</code> 是今天已完成关数；如果用户降低计划，已完成关卡不会被删，所以 <code>x</code> 可以大于 <code>y</code>。
+                </td>
+                <td>
+                  <code>pages/plan/plan</code>；Mock slice：<code>studyPlans</code>、<code>dailyProgress</code>；后端目标为 <code>GET/POST /mini-app/study-plan</code>。
+                </td>
+                <td>
+                  每日组数调整后预计天数变化；保存后今日页提示“新的学习计划已生成”；切教材后不同教材读自己的计划；今日路线保留已完成关卡并补足后续未学关。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>教材匹配逻辑</strong></td>
+                <td>
+                  新手引导采集年级、学期、教材版本后，系统要按 <code>version + gradeId + semesterId</code> 匹配真实教材并设为默认词书。没有学期标签的书按上学期处理；无精确命中时退到同版本同年级任一册，再不行回退默认书，不能让今日页空着。
+                </td>
+                <td>
+                  <code>pages/onboarding/onboarding</code>、<code>utils/book-match.js</code>、<code>GET user-books</code>；后端目标为 <code>POST student-profile</code> 返回 <code>recommendedResBookId</code> 并自动设默认词书。
+                </td>
+                <td>
+                  选择不同年级/学期/版本后推荐教材正确；无 <code>semesterId</code> 的书按上学期匹配；无匹配时有兜底默认书；切换后今日页、成长页、学习计划都读同一本书。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>会员门禁逻辑</strong></td>
+                <td>
+                  当前产品是会员制，不是单本词书购买制。第 1 关永远免费；第 2 关起普通关卡、复习关、伴读内容需要 <code>membership.active=true</code>。注意区分进度锁 <code>locked</code> 和会员锁 <code>lockedByVip</code>。
+                </td>
+                <td>
+                  <code>utils/mock/level-lock.js</code>、<code>utils/level-access.js</code>；后端建议在 <code>book-units</code> 下发 <code>unlocked</code>、<code>requiresVip</code>、<code>lockedByVip</code>。
+                </td>
+                <td>
+                  非会员可完整体验第 1 关；非会员点第 2 关弹会员；会员开通后锁态刷新；复习关跟随会员；进度未达和会员未开两种提示不能混。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>内容导入 / 题目生成逻辑</strong></td>
+                <td>
+                  前端不负责出题。内容系统提供图书、单词、句子、标准音、汉语意思、词性、句子与单词关联；后端负责分关、生成选择题、听音填空、单词拼写、测评题和干扰项，前端只渲染题目、采集作答、上报耗时。
+                </td>
+                <td>
+                  后端扩展 <code>unit-words.exercises[]</code> 或新增 <code>unit-exercises</code>；内容系统字段映射到小程序 <code>Book / Word / Sentence</code>。
+                </td>
+                <td>
+                  关卡固定每 10 词切一关；按内容系统原始词序，不跨书混排；关卡显示名统一“关卡 N”；同一题干扰项不重复、不等于正确项；前端不临时拼题。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>小测题目生成逻辑</strong></td>
+                <td>
+                  关卡小测每词最多三步：听音填空、背诵评测、单词拼写。听音填空保留首字母，按词长挖 1-4 个空，优先挖元音且不挖相邻位；单词拼写抽掉一段字母，听标准音后选择正确字母段。
+                </td>
+                <td>
+                  <code>unit-words.exercises.fill / recite / wordSpell</code>；常量包括 <code>BLANK_RATIO=0.35</code>、<code>KEEP_FIRST=true</code>。得分规则见小测 cell：背诵 40%、听填 30%、拼写 30%。
+                </td>
+                <td>
+                  词太短时题型缺失要归一化；单空选完即判分；不能剧透答案；听音填空和拼写的同一词重练时题目结构稳定。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>随机种子 / 可复现逻辑</strong></td>
+                <td>
+                  题目打乱、挖空、抽样都要可复现。后端使用固定 <code>seed</code>，保证同一题在报告复查、重练、复习中结构一致，不会每次刷新答案位置和挖空位置都变。
+                </td>
+                <td>
+                  选择题用 <code>seed = 题ID</code>；听音填空用 <code>seed = word + levelId</code>；测评组卷用 <code>seed = examId / levelId</code>。
+                </td>
+                <td>
+                  退出重进同一道题，选项顺序和挖空位置一致；同一报告复查和原答题题目一致；换书/换关后 seed 不串。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>测评组卷逻辑</strong></td>
+                <td>
+                  入门测/结业测是词书维度，不是关卡小测。题目从全书素材抽样，单词模块约 70%、句子模块约 30%；有效题量低于最小值时，不进入答题，而显示“本书内容暂不足以生成测评”。
+                </td>
+                <td>
+                  <code>GET exam-paper?resBookId&type=entry|exit</code>；提交走 <code>exam-submit</code>，报告走 <code>exam-result</code>。常量包括 <code>EXAM_MIN_TOTAL=5</code>。
+                </td>
+                <td>
+                  entry 完成后不可重复重考，只能看上次报告；exit 未解锁时拦截；低题量是内容不足，不是网络错误；报告展示总分、模块、题型、错题和用时。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>成绩与星级逻辑</strong></td>
+                <td>
+                  关卡允许反复练。展示分用<strong>历史最高分</strong>，只升不降；最近一次成绩也要保存，但不能把历史高分刷低。星级 gate：低于 55 为 1 星且不解锁下一关，55-79 为 2 星可解锁，80 以上为 3 星可解锁。
+                </td>
+                <td>
+                  <code>save-learning-record</code>、<code>unit-report</code>；规则见 <code>docs/level-score-review-spec.md</code>。报告字段包括 <code>scoreRate</code>、<code>maxScoreRate</code>、<code>latestScoreRate</code>、<code>stars</code>、<code>unlockNext</code>。
+                </td>
+                <td>
+                  重练低分不降低展示分；重练高分刷新展示分；<code>submittedAt</code> 是最近提交时间，<code>refreshedAt</code> 是当前展示高分刷新时间；55 分边界和 80 分边界都要测。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>时长上报逻辑</strong></td>
+                <td>
+                  所有学习过程都要记真实用时，不能由前端按词数估算。单词新学、跟读、关卡小测、测评、随身听播放都要上报 <code>durationSeconds</code>，后端按用户、教材、日期、关卡汇总。
+                </td>
+                <td>
+                  <code>word-mark.durationSeconds</code>、<code>recitation-score.durationSeconds</code>、<code>listening-quiz-result.durationSeconds</code>、<code>save-learning-record.durationSeconds</code>、<code>exam-submit.durationSeconds</code>、<code>listen-duration</code>。
+                </td>
+                <td>
+                  暂停不计时；后台播放随身听仍计播放时长；中途退出不产生成绩但可有过程 log；学习记录的 <code>minutes</code> 来自后端汇总而非页面估算。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>报告时间逻辑</strong></td>
+                <td>
+                  报告不只展示分数，还要展示时间含义。<code>submittedAt</code> 是该环节最近一次成绩提交时间；<code>refreshedAt</code> 是历史最高展示分被刷新时间；<code>reportGeneratedAt</code> 是报告快照生成时间。
+                </td>
+                <td>
+                  <code>unit-report.sectionScores.*.submittedAt/refreshedAt</code>、<code>unit-report.reportGeneratedAt</code>、<code>exam-result.durationSeconds/reportGeneratedAt</code>。
+                </td>
+                <td>
+                  重练低分时 <code>submittedAt</code> 变化但 <code>refreshedAt</code> 不应刷新；重练高分时二者可同时刷新；测评报告的 <code>reportGeneratedAt</code> 应晚于或等于交卷时间。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>随身听音频时长逻辑</strong></td>
+                <td>
+                  随身听有两类统计：播放器听课文/单词的播放时长计入 <code>audioMinutes</code>；随身听里的课文跟读练习只计次数和用时，不计入跟读成绩、不进关卡报告、不进错词池。
+                </td>
+                <td>
+                  <code>POST listen-duration</code>，<code>source = player | follow-read</code>；调用方包括 <code>utils/player.js</code> 和 <code>pages/listen/listen.js</code>。
+                </td>
+                <td>
+                  播放暂停后只累计实际播放；切后台播放仍计；课文跟读不会改变 <code>recitation-score</code> 和 <code>unit-report</code>；学习记录里 <code>audioMinutes</code> 与 <code>listenPracticeCount</code> 分开展示。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>手机号授权逻辑</strong></td>
+                <td>
+                  引导页和我的页获取手机号都必须消费微信 <code>getPhoneNumber</code> 返回的动态 <code>code</code>，只调用 <code>POST user/phone-number</code>。不能回退到 <code>user/info-update</code> 伪保存手机号。
+                </td>
+                <td>
+                  <code>pages/onboarding/onboarding</code>、<code>pages/me/me</code>、<code>bindPhoneNumber</code>；服务端消费微信换号接口并返回 <code>phoneVerified</code>。
+                </td>
+                <td>
+                  用户取消授权、未同意隐私、接口 404、401、422、502、500 都要有明确提示；成功后我的页手机号脱敏展示，并刷新验证状态。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>单词得分逻辑</strong></td>
+                <td>
+                  单词分从“词 × 环节矩阵”算，不是简单平均。单词新学占 20%，跟读背诵占 30%，关卡小测占 50%。如果某词缺某个环节，权重按实际参与环节重新归一化，缺失环节不能当 0 分。
+                </td>
+                <td>
+                  <code>unit-report.words[].sections</code>；小测来自 <code>listening-quiz-result</code>；跟读来自 <code>recitation-score</code>；新学来自 <code>word-mark</code>。
+                </td>
+                <td>
+                  单词新学 2×2：认识+答对=100，认识+答错=30，不认识+答对=70，不认识+答错=50；跟读=单词读音 50% + 句子平均 50%；小测=背诵评测 40% + 听音填空 30% + 单词拼写 30%。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>是否掌握单词</strong></td>
+                <td>
+                  <strong>已掌握</strong>是成绩口径，不是“学过”。词掌握度 <code>&lt; 70</code> 为待复习，<code>≥ 70</code> 为已掌握。这个 70 阈值独立于关卡星级的 55/80。
+                </td>
+                <td>
+                  <code>unit-report.masteredCount</code>、<code>unit-report.reviewCount</code>、<code>words[].mastery/status</code>；规则常量 <code>MASTERY_THRESHOLD = 70</code>。
+                </td>
+                <td>
+                  同一关可以“已学”但某些词未掌握；报告里的正确率、已掌握数、待复习数必须同源；掌握度 69/70 边界要测。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>复习关逻辑</strong></td>
+                <td>
+                  复习词来自<strong>首次正式提交</strong>时掌握度低于 70 的词，形成冻结种子；重练原关卡不改变复习种子。复习关至少 10 词，真错词不足时，从已掌握词里按掌握度从低到高补巩固词。
+                </td>
+                <td>
+                  后端目标为 <code>review-words</code>；规则见 <code>docs/level-score-review-spec.md §6.4</code>。字段建议包含 <code>source: wrong/consolidate</code>。
+                </td>
+                <td>
+                  中途退出不算首次；首次提交后重练不会改错词种子；真错词 ≥10 全用真错词；真错词 &lt;10 补巩固词；巩固词不计入报告待复习数。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>已学教材逻辑</strong></td>
+                <td>
+                  “已学教材”不是全量教材，也不是已购买教材。它是用户已经开始学习的教材子集，口径是<strong>首关三环节完成</strong>后，该书进入我的“已学书本”。弹窗教材选择是全量目录，二者不要混用。
+                </td>
+                <td>
+                  <code>pages/me/book</code>、<code>user-books</code>、<code>book-units.tasks[]</code>；接口文档定义：选择教材弹窗=全量目录，<code>me/book</code>=已学子集。
+                </td>
+                <td>
+                  新书未完成首关不应进入已学书本；完成首关三环节后出现；当前教材显示当前使用；点击继续学习回主学习链路。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>已学 vs 已掌握</strong></td>
+                <td>
+                  <strong>已学</strong>看流程：关卡三环节都做完，该关词数计入已学；与分数无关。<strong>已掌握</strong>看成绩：词掌握度 ≥70。两套数字不能互相替代。
+                </td>
+                <td>
+                  已学：<code>utils/learned-progress.js</code> / <code>learningWords</code>；已掌握：<code>unit-report.masteredCount</code>。
+                </td>
+                <td>
+                  一关低分完成后应计入已学，但报告里仍可能有待复习词；我的页/今日页“已学词数”和报告“已掌握词数”允许不同。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>学习记录逻辑</strong></td>
+                <td>
+                  学习记录按日期聚合真实耗时和学习动作，不是前端估算。练习、小测、测评、随身听播放全过程都要记 <code>durationSeconds</code>，后端汇总为分钟、词数、题数、随身听时长等。
+                </td>
+                <td>
+                  <code>GET /mini-app/study-records</code>，字段包括 <code>minutes</code>、<code>newWords</code>、<code>quizQuestions</code>、<code>audioMinutes</code>、<code>entryExamCount</code>、<code>exitExamCount</code>。
+                </td>
+                <td>
+                  今天/近 7 天/日历范围切换后汇总变化；无记录日期空态；点击可打开报告的明细项；随身听时长和练习时长分别计入。
+                </td>
+              </tr>
+              <tr>
+                <td><strong>入门测提示逻辑</strong></td>
+                <td>
+                  入门测提示按书走。当前默认教材无 entry 成绩，并且这本书今天没弹过，才弹；每本书每天最多弹一次。成绩存在后永久不弹。
+                </td>
+                <td>
+                  <code>exam-result?type=entry</code>、<code>entryExamPrompts</code> slice；后端目标为 <code>POST /mini-app/entry-exam-prompt</code>。
+                </td>
+                <td>
+                  同一本书当天只弹一次；切换到另一本文档无成绩的书可弹；完成入门测后不再弹；稍后再说不影响当天频控。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="screenshots">
+          <h2>截图索引</h2>
+          <p class="lead">截图用于帮助测试同学对照页面状态。若截图和实机不一致，以当前代码运行结果为准，并更新截图。</p>
+          <table>
+            <thead>
+              <tr>
+                <th>功能域</th>
+                <th>截图文件</th>
+                <th>页面/状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>新手引导</td><td><a href="images/mini-app/07-onboarding.png">07-onboarding.png</a></td><td><code>pages/onboarding/onboarding</code></td></tr>
+              <tr><td>今日路线</td><td><a href="images/mini-app/07-today-route.png">07-today-route.png</a></td><td><code>pages/today/today</code></td></tr>
+              <tr><td>成长</td><td><a href="images/mini-app/01-home-level-list.png">01-home-level-list.png</a> / <a href="images/mini-app/01-home-map.png">01-home-map.png</a></td><td>关卡列表 / 地图视图</td></tr>
+              <tr><td>教材选择</td><td><a href="images/mini-app/01-home-book-picker.png">01-home-book-picker.png</a></td><td>教材弹窗</td></tr>
+              <tr><td>练习</td><td><a href="images/mini-app/05-practice-word.png">05-practice-word.png</a> / <a href="images/mini-app/05-practice-recite.png">05-practice-recite.png</a></td><td>单词新学 / 跟读背诵</td></tr>
+              <tr><td>伴读</td><td><a href="images/mini-app/03-listen-player.png">03-listen-player.png</a> / <a href="images/mini-app/03-listen-quiz.png">03-listen-quiz.png</a></td><td>随身听 / 关卡小测</td></tr>
+              <tr><td>打卡计划</td><td><a href="images/mini-app/02-checkin-calendar.png">02-checkin-calendar.png</a> / <a href="images/mini-app/02-checkin-rules.png">02-checkin-rules.png</a> / <a href="images/mini-app/02-checkin-gift.png">02-checkin-gift.png</a> / <a href="images/mini-app/02-checkin-share.png">02-checkin-share.png</a> / <a href="images/mini-app/06-plan.png">06-plan.png</a></td><td>打卡日历 / 规则弹窗 / 礼品弹窗 / 分享海报 / 学习计划</td></tr>
+              <tr><td>完成与报告</td><td><a href="images/mini-app/06-finish-word.png">06-finish-word.png</a> / <a href="images/mini-app/07-unit-report.png">07-unit-report.png</a> / <a href="images/mini-app/07-study-record.png">07-study-record.png</a></td><td>完成页 / 关卡报告 / 学习记录</td></tr>
+              <tr><td>会员</td><td><a href="images/mini-app/07-membership.png">07-membership.png</a> / <a href="images/mini-app/07-membership-success.png">07-membership-success.png</a> / <a href="images/mini-app/07-membership-records.png">07-membership-records.png</a></td><td>会员开通 / 开通成功 / 购买记录</td></tr>
+              <tr><td>我的</td><td><a href="images/mini-app/04-me-profile.png">04-me-profile.png</a> / <a href="images/mini-app/04-me-book.png">04-me-book.png</a> / <a href="images/mini-app/04-me-notify.png">04-me-notify.png</a> / <a href="images/mini-app/04-me-notify-preview.png">04-me-notify-preview.png</a> / <a href="images/mini-app/04-me-contact.png">04-me-contact.png</a> / <a href="images/mini-app/04-me-privacy.png">04-me-privacy.png</a> / <a href="images/mini-app/04-me-paid-agreement.png">04-me-paid-agreement.png</a></td><td>我的主页 / 已学教材 / 消息授权 / 消息预览 / 联系客服 / 隐私协议 / 付费协议</td></tr>
+              <tr><td>测评</td><td><a href="images/mini-app/07-exam-entry.png">07-exam-entry.png</a> / <a href="images/mini-app/07-exam-report.png">07-exam-report.png</a></td><td>入门测 / 测评报告</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="secondary-pages">
+          <h2>二级页面矩阵</h2>
+          <p class="lead">这些不是主 Tab，但都是测试容易漏的页面。二级页面主要承担“资料管理、协议说明、订单记录、消息授权、弹窗状态、学习记录明细”等支撑能力。</p>
+          <div class="callout green">
+            <strong>软件层级：</strong>二级页面大多在页面功能层，部分依赖微信运行层能力，例如订阅消息、客服、相册保存、web-view。验收时要同时看入口、返回、权限失败和数据空态。
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>二级页面/状态</th>
+                <th>从哪里进入</th>
+                <th>这个功能是干嘛的</th>
+                <th>重点测什么</th>
+                <th>截图</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>已学教材<br><code>pages/me/book</code></td><td>我的 → 已学书本</td><td>展示已开始学习或可继续学习的教材，用于回到当前教材主链路。</td><td>空态、当前教材标识、继续学习、切换教材。</td><td><a href="images/mini-app/04-me-book.png">04-me-book.png</a></td></tr>
+              <tr><td>消息授权状态<br><code>pages/me/notify</code></td><td>我的 → 消息授权；隐私/客服页也可跳转</td><td>管理打卡提醒、支付成功通知、报告提醒等订阅偏好。</td><td>模板卡片、累计次数、开关、订阅成功/拒绝、微信授权设置。</td><td><a href="images/mini-app/04-me-notify.png">04-me-notify.png</a></td></tr>
+              <tr><td>消息样式预览<br><code>pages/me/notify</code></td><td>消息授权状态 → 点击模板卡片</td><td>让测试和用户看到订阅消息实际字段长什么样。</td><td>弹窗遮罩、字段文案、关闭、不同模板内容。</td><td><a href="images/mini-app/04-me-notify-preview.png">04-me-notify-preview.png</a></td></tr>
+              <tr><td>联系客服<br><code>pages/me/contact</code></td><td>我的 → 联系客服</td><td>学习记录、教材切换、订阅提醒和订单问题的客服入口。</td><td>微信客服按钮、FAQ 展示、消息授权快捷入口。</td><td><a href="images/mini-app/04-me-contact.png">04-me-contact.png</a></td></tr>
+              <tr><td>隐私与协议<br><code>pages/me/privacy</code></td><td>我的 → 隐私与协议</td><td>说明账号数据、学习记录、微信授权等隐私规则。</td><td>文案完整、滚动不遮挡、跳转消息授权。</td><td><a href="images/mini-app/04-me-privacy.png">04-me-privacy.png</a></td></tr>
+              <tr><td>用户付费协议<br><code>pages/me/paid-agreement</code></td><td>会员页协议链接；我的协议入口</td><td>购买前必须可读的付费条款，覆盖有效期、退款、责任边界。</td><td>协议链接、长文滚动、生效日期、返回会员页。</td><td><a href="images/mini-app/04-me-paid-agreement.png">04-me-paid-agreement.png</a></td></tr>
+              <tr><td>关注公众号 web-view<br><code>pages/me/web-src</code></td><td>我的 → 公众号/文章入口</td><td>承载公众号文章或运营内容链接，页面内容由 URL 参数和微信 web-view 合法域名决定。</td><td>URL 编解码、标题设置、合法域名、空 URL 空态、返回路径。</td><td>动态 web-view，按链接实测</td></tr>
+              <tr><td>打卡规则弹窗</td><td>打卡日历 → 右上角帮助</td><td>解释打卡如何点亮、计划如何影响目标、连续 30 天奖励规则。</td><td>弹窗内容、遮罩关闭、按钮关闭。</td><td><a href="images/mini-app/02-checkin-rules.png">02-checkin-rules.png</a></td></tr>
+              <tr><td>打卡礼品弹窗</td><td>打卡日历 → 礼品图标</td><td>展示连续打卡奖励进度、领取或复制兑换码。</td><td>未达标/可领取/已领取三种状态、复制码、重复领取拦截。</td><td><a href="images/mini-app/02-checkin-gift.png">02-checkin-gift.png</a></td></tr>
+              <tr><td>打卡分享海报</td><td>打卡日历 → 分享打卡</td><td>生成今日或累计打卡海报，用于保存图片或分享到微信。</td><td>今日/累计切换、主题滑动、保存相册权限、分享按钮。</td><td><a href="images/mini-app/02-checkin-share.png">02-checkin-share.png</a></td></tr>
+              <tr><td>会员开通成功<br><code>pages/membership-success/membership-success</code></td><td>会员页支付/兑换成功后</td><td>展示已解锁权益、套餐、有效期、订单编号，并引导返回学习。</td><td>订单信息、权益列表、查看购买记录、返回今日。</td><td><a href="images/mini-app/07-membership-success.png">07-membership-success.png</a></td></tr>
+              <tr><td>会员购买记录<br><code>pages/membership-records/membership-records</code></td><td>会员页/成功页 → 查看购买记录</td><td>保存会员订单历史，方便查套餐、开通方式、有效期和订单号。</td><td>空态/非空、会员徽章、订单复制、兑换码订单。</td><td><a href="images/mini-app/07-membership-records.png">07-membership-records.png</a></td></tr>
+              <tr><td>学习记录<br><code>pages/study-record/record</code></td><td>我的 → 学习记录</td><td>按日期查看学习分钟、单词、背诵、小测、随身听等历史数据。</td><td>日期范围、汇总卡、趋势条、每天记录、无记录空态、报告入口。</td><td><a href="images/mini-app/07-study-record.png">07-study-record.png</a></td></tr>
+            </tbody>
+          </table>
+          <div class="shot-grid">
+            <div class="shot-card"><img src="images/mini-app/04-me-notify-preview.png" alt="消息样式预览" /><div class="shot-card-body"><p class="shot-card-title">消息样式预览</p><p class="shot-card-desc">测试订阅消息字段、弹窗关闭和模板切换。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/02-checkin-share.png" alt="打卡分享海报" /><div class="shot-card-body"><p class="shot-card-title">打卡分享海报</p><p class="shot-card-desc">覆盖今日/累计海报、保存图片和微信分享。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/07-membership-success.png" alt="会员开通成功" /><div class="shot-card-body"><p class="shot-card-title">会员开通成功</p><p class="shot-card-desc">购买/兑换后的权益、订单和返回学习闭环。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/07-membership-records.png" alt="会员购买记录" /><div class="shot-card-body"><p class="shot-card-title">会员购买记录</p><p class="shot-card-desc">订单历史、会员状态、订单号复制。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/04-me-paid-agreement.png" alt="用户付费协议" /><div class="shot-card-body"><p class="shot-card-title">用户付费协议</p><p class="shot-card-desc">购买前必须可读、可返回、文案完整。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/07-study-record.png" alt="学习记录" /><div class="shot-card-body"><p class="shot-card-title">学习记录</p><p class="shot-card-desc">按日与周期汇总学习数据，是报告体系的历史入口。</p></div></div>
+          </div>
+        </section>
+
+        <section id="onboarding">
+          <div class="feature-head">
+            <div>
+              <h2>新手引导</h2>
+              <p class="lead">这个功能用于新用户首次进入时建立学习档案：让系统知道孩子的学段、年级、学期、教材版本和学习形象，从而推荐默认教材并进入今日学习路线。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>页面功能层：首访入口；依赖微信授权和数据服务层的学生档案。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/onboarding/onboarding</code> → <code>pages/today/today</code></p></div>
+                <div class="info"><b>测试重点</b><p>必填校验、步骤切换、档案保存、手机号可跳过/可授权、推荐教材正确。</p></div>
+                <div class="info"><b>异常重点</b><p>低版本微信、手机号授权失败、接口失败、返回后选择项保留。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/07-onboarding.png" alt="新手引导截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>ONB-001</td><td>完成首访建档</td><td>冷启动未登录/登录过期状态进入，完成 <code>login</code> 后依次选择年级、学期、教材、形象，手机号跳过或授权，点击完成。</td><td>登录态建立；档案保存成功并进入今日页；默认教材与档案匹配。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>ONB-002</td><td>必填项校验</td><td>不选择年级/学期/教材/形象直接下一步或完成。</td><td>出现对应 toast，停留当前步骤，已选内容不丢失。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>ONB-003</td><td>编辑档案回流</td><td>从今日或我的进入 <code>?edit=1</code>，修改教材/形象后完成。</td><td>回到原主链路，今日/成长教材刷新。</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="today-growth">
+          <div class="feature-head">
+            <div>
+              <h2>今日与成长</h2>
+              <p class="lead">今日页负责告诉学生“今天学什么”，成长页负责展示整本教材的关卡进度。两者是主学习入口，共同承载教材切换、任务入口、报告入口、锁关和会员引导。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>应用壳层 Tab 页 + 页面功能层；依赖教材、关卡、会员、学习计划、测评结果等数据。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/today/today</code>、<code>pages/home/home</code>、<code>pages/me/book</code></p></div>
+                <div class="info"><b>测试重点</b><p>今日任务、列表/地图视图、三环节入口、报告 pill、教材弹窗、入门测提示。</p></div>
+                <div class="info"><b>锁态规则</b><p>第 1 关免费；进度锁看前序完成；会员锁看 <code>membership.active</code>。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/01-home-level-list.png" alt="成长列表截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>TOD-001</td><td>今日任务进入练习</td><td>打开今日页，点击待练关卡的单词新学、跟读背诵、关卡小测。</td><td>分别进入对应页面，参数包含教材和关卡信息。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>GRW-001</td><td>成长列表三环节入口</td><td>在成长列表点击三类任务。</td><td>单词进入 practice word，跟读进入 practice recitation，小测进入 listen quiz。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>GRW-002</td><td>地图视图锁态</td><td>切到地图视图，点击已完成、待练、会员锁、进度锁关卡。</td><td>状态展示和跳转/提示符合锁态规则。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>GRW-003</td><td>教材切换</td><td>打开教材弹窗，切换学段、版本、教材并点击使用，触发 <code>switch-default-book</code>。</td><td>列表过滤正确；默认教材保存成功；切换后今日/成长/计划/报告入口同步刷新。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>TOD-002</td><td>入门测提示频控</td><td>新教材无入门测成绩进入今日，点击稍后再说，再次进入。</td><td>首次提示；稍后再说后按频控不重复打扰；开始入门测跳转正确。</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="practice">
+          <div class="feature-head">
+            <div>
+              <h2>单词新学 / 跟读背诵</h2>
+              <p class="lead">这是每关学习闭环的前两步。单词新学解决“认不认识、会不会选义、能否理解例句”；跟读背诵解决“能不能开口读、发音是否过关”。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>页面功能层 + 组件层；依赖 <code>media</code> 录音组件、音频资源、驰声评分能力。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/practice/practice?taskType=word</code> / <code>taskType=recitation</code></p></div>
+                <div class="info"><b>测试重点</b><p>认识/不认识分支、选择题、详情 Tab、例句音频、录音授权、评分结果、完成跳转。</p></div>
+                <div class="info"><b>数据重点</b><p>单词、音标、发音、释义、句子、详情字段、答题和跟读结果。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/05-practice-word.png" alt="单词新学截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>PRC-001</td><td>认识分支</td><td>点击发音，点认识，完成选择题并进入详情/下一词。</td><td>音频可播；选择题正误反馈正确；进度推进。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>PRC-002</td><td>不认识分支</td><td>点击不认识，查看详情 Tab 后继续。</td><td>详情字段完整渲染；空字段无异常占位；可继续下一词。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>REC-001</td><td>跟读评分</td><td>播放标准音，点击录音，结束录音。</td><td>播放期间全局播放器暂停；波形显示；评分完成后有分数/反馈。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>REC-002</td><td>麦克风授权</td><td>在未授权/已拒绝状态点击录音。</td><td>出现用途说明或去设置弹窗；授权后可录音；拒绝不崩溃。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>PRC-003</td><td>音频失败兜底</td><td>模拟发音/例句音频不可用。</td><td>出现 toast 或错误状态，不阻塞继续学习。</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="listen-quiz">
+          <div class="feature-head">
+            <div>
+              <h2>随身听 / 关卡小测</h2>
+              <p class="lead">随身听用于碎片时间反复听单词和例句；关卡小测是每关的验收环节，覆盖听音填空、背诵评测和单词拼写。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>Tab 伴读/二级页 + 全局播放器 + 录音组件 + 小测状态机。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/listen/listen</code>、<code>custom-tab-bar</code>、<code>components/listen-player</code></p></div>
+                <div class="info"><b>测试重点</b><p>播放控制、播放列表、倍速/循环、跨页迷你播放条、小测三阶段、倒计时。</p></div>
+                <div class="info"><b>权限重点</b><p>小测背诵同样依赖麦克风授权；保存分数依赖结果上报。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/03-listen-quiz.png" alt="关卡小测截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>LIS-001</td><td>播放器控制</td><td>点击播放/暂停、上一首/下一首、倍速、循环、进度拖动、播放列表。</td><td>播放状态、标题、进度、倍速、循环态正确更新。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>QUI-001</td><td>听音填空</td><td>播放音频，点空格，选择候选词，清空并重新作答。</td><td>填空顺序和正误判断正确；倒计时可暂停/跳过。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>QUI-002</td><td>背诵评测</td><td>进入背诵阶段，听标准音并录音评分。</td><td>分数写入当前题记录；完成后进入拼写或下一题。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>QUI-003</td><td>单词拼写</td><td>播放单词音频，选择字母块。</td><td>单空选完即判分；正确/错误态明显；可提交报告。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>LIS-002</td><td>跨页迷你播放器</td><td>随身听播放中切换今日、成长、我的。</td><td>底栏迷你播放条保持；练习录音时播放器暂停。</td></tr>
+            </tbody>
+          </table>
+          <h3>关卡小测三环节出题规则</h3>
+          <p class="lead">这一块专门给测试同学看“小测题到底怎么来”。关卡小测不是前端临时凑题，目标口径是后端按规则下发 <code>exercises.listenFill / recite / wordSpell</code>，前端只负责渲染、作答、录音和上报。</p>
+          <table>
+            <thead>
+              <tr>
+                <th>题型</th>
+                <th>出题规则</th>
+                <th>判分/上报</th>
+                <th>重点测什么</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>整体题量与顺序</strong></td>
+                <td>本关 <code>unit-words</code> 返回的每个单词都要参与小测，不抽样。每词最多 3 步，页面顺序固定为：听音填空 → 背诵评测 → 单词拼写。词序可由后端用 <code>seed=levelId</code> 打乱并保持可复现；未下发打乱时按接口返回顺序。</td>
+                <td>每个词形成一个小测 cell；最终通过 <code>listening-quiz-result</code> 上报每题结果、阶段 <code>phase</code> 和 <code>durationSeconds</code>。</td>
+                <td>同一关退出重进题序稳定；每个词都出现；三步顺序不乱；重练/报告复查题目结构一致。</td>
+              </tr>
+              <tr>
+                <td><strong>① 听音填空</strong></td>
+                <td>播放单词标准音，展示释义提示，对单词本身挖字母空。首字母保留；按词长挖 1-4 个空：L≤3 挖 1，L=4-6 挖 2，L=7-9 挖 3，L≥10 挖 4；优先挖元音，元音不足再挖辅音；不挖相邻位，重复字母不全挖。备选字母块 = 正确字母 + 2-4 个干扰字母，并打乱。</td>
+                <td>整词填对 = 100；填错 = 0；多空时可按填对空数 / 总空数 × 100。小测内权重 30%。</td>
+                <td>首字母必须保留；空位数量符合词长；不会连续挖空；选项不剧透答案；多空填错部分时分数按比例；无 <code>audioUrl</code> 或无合法挖空时可跳过该步。</td>
+              </tr>
+              <tr>
+                <td><strong>② 背诵评测</strong></td>
+                <td>显示中文释义，让用户脱稿朗读目标单词；不展示英文拼写作为提示。以单词标准音作为评分目标，走语音评测能力。</td>
+                <td>评分结果为 0-100；小测内权重 40%。需要记录录音/等待评分耗时，并归入 <code>durationSeconds</code>。</td>
+                <td>麦克风授权、录音中断、评分失败、重录；评分写入当前词而不是串到下一词；背诵评测和 practice 的跟读背诵是两个技能，不要互相覆盖成绩。</td>
+              </tr>
+              <tr>
+                <td><strong>③ 单词拼写</strong></td>
+                <td>播放单词标准音，单词只挖掉一整段连续字母，展示 <code>prefix + 空 + suffix</code>。底部选项为 4 个等长字母段：1 个正确段 + 3 个干扰段，并打乱。区别于听音填空，这里只有一个空，选完立即判分。</td>
+                <td>选对 = 100；选错 = 0；不设撤回，不给提示剧透。小测内权重 30%。</td>
+                <td>词长 &lt; 3 时跳过拼写；选项不能重复，不能只有正确项；选错后不能改答案刷分；音频缺失时拼写步降级或跳过。</td>
+              </tr>
+              <tr>
+                <td><strong>缺题归一化</strong></td>
+                <td>如果某个词因为音频、词长、后端未下发等原因只做了 1-2 个小题，只按实际参与的小题重新分配 0.4 / 0.3 / 0.3 的权重。</td>
+                <td>缺失小题不能当 0 分。例如只做听填 + 背诵时，有效权重约为听填 43%、背诵 57%；只做背诵时，背诵占 100%。</td>
+                <td>短词、无音频、无 <code>listenFill</code>、无 <code>wordSpell</code> 都要测；报告里的小测分不能因为跳过题型被错误拉低。</td>
+              </tr>
+              <tr>
+                <td><strong>分数进报告</strong></td>
+                <td>关卡小测 cell 再进入单词掌握度矩阵：单词新学 20%、跟读背诵 30%、关卡小测 50%。</td>
+                <td>小测内为背诵 40% + 听填 30% + 拼写 30%；词掌握度 ≥70 才算已掌握。</td>
+                <td>同一词小测低分会拉低掌握度；关卡完成不等于全部词已掌握；小测完成后才算整关通关/打卡。</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="finish-report">
+          <div class="feature-head">
+            <div>
+              <h2>完成页 / 报告 / 学习记录</h2>
+              <p class="lead">完成页给学生即时正反馈，报告给家长和学生看学习结果，学习记录按日期沉淀历史表现。它们共同负责“学完以后看得见”。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>页面功能层 + 数据服务层；报告依赖学习结果、耗时、掌握度、错词。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/finish/today</code>、<code>pages/report/report</code>、<code>pages/study-record/record</code></p></div>
+                <div class="info"><b>测试重点</b><p>三环节完成口径、打卡口径、报告规则弹窗、待复习词、日历记录。</p></div>
+                <div class="info"><b>口径重点</b><p>只有关卡小测完成后才算通关/打卡；单词和跟读只算环节完成。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/07-unit-report.png" alt="关卡报告截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>FIN-001</td><td>环节完成口径</td><td>分别用 word、recitation、listening 进入完成页。</td><td>单词/跟读不误记整关打卡；小测完成后计入今日完成。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>RPT-001</td><td>关卡报告</td><td>从今日/成长报告入口进入。</td><td>正确率、已掌握、待复习、耗时、环节得分显示正确。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>RPT-002</td><td>规则弹窗</td><td>点击报告页两个问号。</td><td>规则内容正确，遮罩和“知道啦”均能关闭。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>REC-LOG-001</td><td>学习记录</td><td>切换预设日期，展开日历和某日记录，进入详情报告。</td><td>统计头、日列表、环节详情一致；无记录日期显示空态。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>REC-LOG-002</td><td>周期汇总口径</td><td>切换今天、近 7 天、自定义日期范围。</td><td>分钟数、单词数、小测题数、随身听时长随范围变化；顶部日期标签同步。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>REC-LOG-003</td><td>记录详情入口</td><td>点击每天记录中的可打开报告项。</td><td>能进入关卡报告或测评报告；无报告项不可误跳转。</td></tr>
+            </tbody>
+          </table>
+          <div class="shot-grid">
+            <div class="shot-card"><img src="images/mini-app/06-finish-word.png" alt="完成单词新学" /><div class="shot-card-body"><p class="shot-card-title">环节完成</p><p class="shot-card-desc">单词/跟读完成只推进环节，不误记整关通关。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/07-unit-report.png" alt="关卡报告" /><div class="shot-card-body"><p class="shot-card-title">关卡报告</p><p class="shot-card-desc">正确率、掌握词、待复习、环节表现。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/07-study-record.png" alt="学习记录" /><div class="shot-card-body"><p class="shot-card-title">学习记录</p><p class="shot-card-desc">按日期沉淀学习分钟、词数、小测和随身听数据。</p></div></div>
+          </div>
+        </section>
+
+        <section id="checkin-plan">
+          <div class="feature-head">
+            <div>
+              <h2>打卡 / 学习计划</h2>
+              <p class="lead">学习计划决定每天学几关，打卡负责把持续学习可视化，并通过提醒、礼品和分享海报增强坚持动力。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>页面功能层 + 微信系统能力；打卡分享依赖 Canvas、相册权限和订阅消息。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/plan/plan</code>、<code>pages/checkin/calendar</code>、<code>pages/checkin/share-poster.js</code></p></div>
+                <div class="info"><b>测试重点</b><p>每日关数、预计完成天数、月历、连续天数、提醒订阅、礼品、海报保存。</p></div>
+                <div class="info"><b>权限重点</b><p>订阅消息拒绝、相册拒绝、海报生成失败都要有明确反馈。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/02-checkin-calendar.png" alt="打卡日历截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>PLN-001</td><td>保存计划</td><td>调整每日组数，点预设，展开关卡，保存。</td><td>预计天数和关卡预览实时更新；保存后今日页反馈计划已生成。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>CHK-001</td><td>打卡日历</td><td>切换月份，点击日期，打开规则。</td><td>日期状态、连续天数和规则文案正确。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>CHK-002</td><td>订阅提醒</td><td>点击开启打卡提醒，分别测试同意/拒绝/系统不支持。</td><td>成功累计次数；拒绝或不支持有 toast/弹窗反馈。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>CHK-003</td><td>分享海报</td><td>打开分享弹窗，切换今日/累计，保存图片。</td><td>数据口径正确；相册权限异常可恢复；海报生成失败有提示。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>CHK-004</td><td>礼品领取</td><td>未达标、达标、已领取三种状态打开礼品弹窗。</td><td>未达标提示继续打卡；达标可领取/复制；已领取不可重复。</td></tr>
+            </tbody>
+          </table>
+          <div class="shot-grid">
+            <div class="shot-card"><img src="images/mini-app/06-plan.png" alt="学习计划" /><div class="shot-card-body"><p class="shot-card-title">学习计划</p><p class="shot-card-desc">每日组数、预计天数和关卡预览。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/02-checkin-rules.png" alt="打卡规则" /><div class="shot-card-body"><p class="shot-card-title">打卡规则</p><p class="shot-card-desc">解释完成计划、连续天数和奖励规则。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/02-checkin-gift.png" alt="打卡礼品" /><div class="shot-card-body"><p class="shot-card-title">礼品弹窗</p><p class="shot-card-desc">未达标、可领取、已领取状态验收。</p></div></div>
+          </div>
+        </section>
+
+        <section id="share-special">
+          <div class="feature-head">
+            <div>
+              <h2>分享功能专项</h2>
+              <p class="lead">分享功能目前主要体现在打卡海报：用户完成学习后，可以生成“今日打卡”或“累计打卡”海报，保存到相册或分享到微信。它是学习激励闭环的一部分，不是简单的图片弹窗。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>页面功能层 + 组件/资源层 + 微信运行层。页面在 <code>pages/checkin/calendar</code>，海报绘制在 <code>pages/checkin/share-poster.js</code>，保存依赖相册权限。</p></div>
+                <div class="info"><b>入口</b><p>打卡日历页点击“分享打卡”；完成页进入打卡日历后也能分享。</p></div>
+                <div class="info"><b>业务用途</b><p>把学习结果外化为可传播的海报，用连续天数、掌握数、学习时长强化坚持感。</p></div>
+                <div class="info"><b>测试重点</b><p>海报生成、模式切换、主题滑动、保存相册、微信分享、权限拒绝和生成失败兜底。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/02-checkin-share.png" alt="打卡分享海报截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>SHR-001</td><td>打开分享弹窗</td><td>进入打卡日历，点击“分享打卡”。</td><td>弹出海报弹窗，背景遮罩正确，默认展示累计或当前选中模式。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>SHR-002</td><td>今日/累计数据口径</td><td>分别切换“今日打卡”和“累计打卡”。</td><td>今日模式显示今日学习数据；累计模式显示连续打卡、累计掌握等累计口径。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>SHR-003</td><td>主题滑动</td><td>左右滑动海报主题。</td><td>海报图、圆点指示和当前主题保持同步；不出现空白海报。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>SHR-004</td><td>保存图片</td><td>点击保存图片，分别测试相册已授权、未授权、拒绝授权。</td><td>已授权保存成功；未授权引导授权；拒绝后有明确提示，可重新去设置。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>SHR-005</td><td>分享到微信</td><td>点击分享到微信。</td><td>触发微信分享链路或给出平台限制提示；不关闭页面导致状态丢失。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>SHR-006</td><td>海报生成失败</td><td>模拟背景图/二维码/Canvas 失败。</td><td>显示“海报生成失败，请重试”等兜底，不阻塞关闭弹窗。</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="membership">
+          <div class="feature-head">
+            <div>
+              <h2>会员</h2>
+              <p class="lead">会员功能负责解锁第 2 关起的完整教材关卡、随身听、报告复习等权益。它既是购买链路，也是学习门禁规则的来源。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>页面功能层 + 数据服务层 + 微信支付/模拟支付；影响今日、成长、伴读的锁态。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/membership/membership</code>、<code>membership-success</code>、<code>membership-records</code></p></div>
+                <div class="info"><b>测试重点</b><p>套餐选择、协议勾选、确认面板、兑换码、支付成功、订单记录、会员态刷新。</p></div>
+                <div class="info"><b>门禁重点</b><p>非会员第 1 关免费，其余关卡和复习关需要会员。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/07-membership.png" alt="会员截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>MEM-001</td><td>开通会员</td><td>选择套餐，不勾协议点击开通；再勾协议确认支付。</td><td>未勾协议 toast；确认面板金额正确；成功后跳转成功页并刷新会员态。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>MEM-002</td><td>兑换码</td><td>输入无效码和有效码，分别点击使用并确认。</td><td>无效码提示；有效码锁定对应套餐；成功生成订单。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>MEM-003</td><td>购买记录</td><td>进入购买记录，点击订单号复制。</td><td>订单号复制成功；空记录有空态图和引导。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>MEM-004</td><td>会员门禁回归</td><td>非会员点击第 1 关和第 2 关任务，会员后再点击。</td><td>第 1 关可体验；第 2 关非会员提示开通，会员可进入。</td></tr>
+            </tbody>
+          </table>
+          <div class="shot-grid">
+            <div class="shot-card"><img src="images/mini-app/07-membership.png" alt="会员开通页" /><div class="shot-card-body"><p class="shot-card-title">开通会员</p><p class="shot-card-desc">套餐、权益、兑换码、付费协议和确认入口。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/07-membership-success.png" alt="会员开通成功页" /><div class="shot-card-body"><p class="shot-card-title">开通成功</p><p class="shot-card-desc">权益解锁、订单信息、查看购买记录和返回今日。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/07-membership-records.png" alt="会员购买记录页" /><div class="shot-card-body"><p class="shot-card-title">购买记录</p><p class="shot-card-desc">订单列表、开通方式、有效期和订单号复制。</p></div></div>
+          </div>
+        </section>
+
+        <section id="me">
+          <div class="feature-head">
+            <div>
+              <h2>我的</h2>
+              <p class="lead">我的页是账号、资料、会员、消息授权、学习记录、已学书本和协议客服的入口。它的测试重点是资料授权和入口导航。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>Tab 页 + 微信系统能力；依赖用户信息、手机号、头像上传、订阅偏好。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/me/me</code>、<code>book</code>、<code>notify</code>、<code>contact</code>、<code>privacy</code>、<code>paid-agreement</code></p></div>
+                <div class="info"><b>测试重点</b><p>登录授权、昵称头像、手机号脱敏、学习形象、各菜单入口。</p></div>
+                <div class="info"><b>权限重点</b><p>用户取消授权、手机号绑定失败、通知授权开关、客服 open-type。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/04-me-profile.png" alt="我的截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>ME-001</td><td>资料授权</td><td>点击头像/昵称授权，编辑昵称，选择头像并走 <code>upload-avatar</code>，绑定手机号。</td><td>头像上传成功后回显；资料保存成功；手机号脱敏展示；取消授权有提示。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>ME-002</td><td>入口导航</td><td>点击打卡统计、消息授权、公众号、学习记录、教材、协议、客服。</td><td>各入口跳转正确；客服按钮可触发微信客服。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>ME-003</td><td>消息授权页</td><td>进入 notify，预览模板，开启提醒，切换偏好，打开微信授权设置。</td><td>三类模板展示正确；订阅成功/拒绝/不支持均有反馈。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>ME-004</td><td>已学书本</td><td>进入已学书本，点击继续学习/切换教材。</td><td>列表只展示符合条件教材；继续学习回主链路。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>ME-005</td><td>联系客服</td><td>进入联系客服页，点击客服按钮和消息授权状态。</td><td>客服 open-type 可触发；消息授权快捷入口跳转正确。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>ME-006</td><td>隐私与协议</td><td>进入隐私与协议页，滚动阅读并点击管理通知授权。</td><td>文案完整无遮挡；管理通知授权跳转 notify。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>ME-007</td><td>付费协议入口</td><td>从会员页点击《用户付费协议》，从我的协议入口进入。</td><td>协议页可打开、可返回，购买前协议链路不断。</td></tr>
+            </tbody>
+          </table>
+          <div class="shot-grid">
+            <div class="shot-card"><img src="images/mini-app/04-me-book.png" alt="已学教材" /><div class="shot-card-body"><p class="shot-card-title">已学教材</p><p class="shot-card-desc">教材回流、继续学习、当前教材状态。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/04-me-notify.png" alt="消息授权状态" /><div class="shot-card-body"><p class="shot-card-title">消息授权状态</p><p class="shot-card-desc">打卡提醒、支付通知、报告提醒的订阅管理。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/04-me-contact.png" alt="联系客服" /><div class="shot-card-body"><p class="shot-card-title">联系客服</p><p class="shot-card-desc">FAQ、客服按钮、消息授权快捷入口。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/04-me-privacy.png" alt="隐私与协议" /><div class="shot-card-body"><p class="shot-card-title">隐私与协议</p><p class="shot-card-desc">账号数据、学习记录和授权说明。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/04-me-paid-agreement.png" alt="用户付费协议" /><div class="shot-card-body"><p class="shot-card-title">用户付费协议</p><p class="shot-card-desc">购买前必读条款、有效期和退款说明。</p></div></div>
+            <div class="shot-card"><img src="images/mini-app/04-me-notify-preview.png" alt="消息样式预览" /><div class="shot-card-body"><p class="shot-card-title">消息预览弹窗</p><p class="shot-card-desc">模板字段和实际提醒样式验证。</p></div></div>
+          </div>
+        </section>
+
+        <section id="exam">
+          <div class="feature-head">
+            <div>
+              <h2>入门测 / 结业测</h2>
+              <p class="lead">测评功能用于在词书维度评估当前水平或学习成果，区别于关卡小测。入门测帮助定起点，结业测验证整本书学习效果。</p>
+              <div class="info-list">
+                <div class="info"><b>软件层级</b><p>页面功能层 + 数据服务层；依赖 exam paper、音频资源、答题结果和报告生成。</p></div>
+                <div class="info"><b>关联页面</b><p><code>pages/exam/exam</code>、<code>pages/exam/exam-report</code></p></div>
+                <div class="info"><b>测试重点</b><p>开始测评、题型作答、上一题、未答校验、交卷确认、报告分档。</p></div>
+                <div class="info"><b>边界重点</b><p>试题不足、音频缺失、退出确认、报告数据缺失。</p></div>
+              </div>
+            </div>
+            <img class="shot" src="images/mini-app/07-exam-entry.png" alt="入门测截图" />
+          </div>
+          <table>
+            <thead><tr><th>优先级</th><th>ID</th><th>测试点</th><th>操作</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="priority p0">P0</span></td><td>EXM-001</td><td>入门测答题</td><td>开始入门测，完成选择题/拼写题，上一题，交卷。</td><td>未答不能下一题；交卷二次确认；保存结果并进入报告。</td></tr>
+              <tr><td><span class="priority p0">P0</span></td><td>EXM-002</td><td>测评报告</td><td>交卷后查看报告。</td><td>总分、分档文案、模块表现、完成按钮正确。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>EXM-003</td><td>结业测锁态</td><td>未满足和满足结业测条件时分别点击结业测入口。</td><td>未满足显示锁定说明；满足后进入 <code>type=exit</code> 测评。</td></tr>
+              <tr><td><span class="priority p1">P1</span></td><td>EXM-004</td><td>退出确认</td><td>测评中点击返回。</td><td>弹出退出确认；取消留在测评；确认回学习页。</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="cross-cutting">
+          <h2>横向回归与发布前检查</h2>
+          <p class="lead">以下问题跨多个功能，发布前建议统一检查。</p>
+          <table>
+            <thead><tr><th>类别</th><th>为什么要测</th><th>覆盖范围</th><th>预期</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag">权限</span></td><td>微信权限很容易导致主链路卡住。</td><td>用户资料、手机号、麦克风、订阅、相册、客服。</td><td>同意、拒绝、不支持、去设置都有明确反馈。</td></tr>
+              <tr><td><span class="tag">登录态</span></td><td>首访、换设备、登录过期都会影响后续所有接口。</td><td><code>login</code>、用户信息拉取、档案保存、会员态、默认教材。</td><td>未登录可自动建态；过期后能重新登录；登录失败有重试/退出路径。</td></tr>
+              <tr><td><span class="tag">网络</span></td><td>接口和音频失败不能白屏或卡死。</td><td>用户信息、教材关卡、单词资源、音频、报告、订单。</td><td>显示加载失败/空态/重试/返回，页面不崩溃。</td></tr>
+              <tr><td><span class="tag">会员锁</span></td><td>锁态同时影响今日、成长、伴读和复习。</td><td>第 1 关免费、普通关、复习关、已购/会员有效期。</td><td>各入口锁态一致，不出现绕过或误锁。</td></tr>
+              <tr><td><span class="tag">音频录音</span></td><td>播放器、录音和小测共享媒体能力。</td><td>随身听、单词发音、例句音频、跟读、小测背诵。</td><td>互相暂停/恢复正确；录音中不混播；失败有兜底。</td></tr>
+              <tr><td><span class="tag">适配</span></td><td>自定义导航和底栏容易遮挡内容。</td><td>iPhone SE、常规 iPhone、大屏 Android、长内容弹窗。</td><td>按钮、底栏、弹窗、安全区不遮挡，文字不溢出。</td></tr>
+              <tr><td><span class="tag">文案</span></td><td>对外销售页承诺要和产品内一致。</td><td>“单词新学 → 跟读背诵 → 关卡小测 → 复习 → 报告”。</td><td>术语统一，不出现已下线“广告详情/VIP购买”等旧主流程文案。</td></tr>
+            </tbody>
+          </table>
+          <div class="callout">
+            <strong>建议发布前最小回归：</strong>跑通新手引导、今日进入三环节、随身听、小测提交、完成页打卡、报告、会员开通、我的入口、入门测报告，并执行 <code>node --test tests/*.test.js</code>。
+          </div>
+        </section>
+
+        <p class="footer-note">文件位置：<code>docs/mini-app-test-cases.html</code>。如页面或截图更新，请同步更新本说明页和截图索引。</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -83,6 +83,15 @@ test('home page uses gender-aware hero and pk sprite urls', () => {
 
 test('today page keeps the previous pk hero while growth uses the new hero', () => {
   const todayTemplate = fs.readFileSync(path.join(projectRoot, 'pages/today/today.wxml'), 'utf8')
+  const todayScript = fs.readFileSync(path.join(projectRoot, 'pages/today/today.js'), 'utf8')
   assert.match(todayTemplate, /src="{{todayHeroImageUrl}}"/)
   assert.doesNotMatch(todayTemplate, /src="{{heroImageUrl}}"/)
+  assert.match(todayScript, /applyCharacterAssets/)
+  assert.match(todayScript, /onShow\(\)[\s\S]*applyCharacterAssets/)
+})
+
+test('growth hero slogan avoids webkit text stroke for real-device readability', () => {
+  const homeStyles = fs.readFileSync(path.join(projectRoot, 'pages/home/home.wxss'), 'utf8')
+  assert.doesNotMatch(homeStyles, /hero-slogan-line[\s\S]*-webkit-text-stroke/)
+  assert.match(homeStyles, /hero-slogan-line[\s\S]*text-shadow/)
 })

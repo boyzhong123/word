@@ -3,6 +3,7 @@ const GENDER_GIRL = 'girl'
 // 学习形象性别是后端业务真值（onboarding 采集 → user/info），前端不持久化：
 // 收口到 mock-store 的 characterGender slice。
 const mockStore = require('./mock/mock-store')
+const { getStudentProfile } = require('./student-profile')
 const PK_SPRITE_DURATION = 3
 const { imageUrl } = require('./image-host')
 
@@ -74,10 +75,14 @@ function pickGenderFromUserInfo(userInfo) {
     || userInfo.gender
     || userInfo.studentGender
     || userInfo.childGender
-  if (value === undefined || value === null || value === '') {
-    return ''
+  if (value !== undefined && value !== null && value !== '') {
+    return normalizeGender(value)
   }
-  return normalizeGender(value)
+  const profile = getStudentProfile()
+  if (profile && profile.childGender) {
+    return normalizeGender(profile.childGender)
+  }
+  return ''
 }
 
 module.exports = {
