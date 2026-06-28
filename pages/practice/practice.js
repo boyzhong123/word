@@ -1,6 +1,7 @@
 const {
     getWordInfo,
-    getUnitResource
+    getUnitResource,
+    getUnits
 } = require('../../utils/api')
 const {
     refreshHomePage
@@ -20,11 +21,17 @@ const {
 } = require('../../utils/proverb-text')
 const { player } = require('../../utils/player')
 const { navigateToVipPurchase } = require('../../utils/vip-purchase')
+const { resolveVoiceUrl } = require('../../utils/voice-url')
 const {
   syncRecordingOverlay,
   hideRecordingOverlay
 } = require('../../utils/recording-overlay')
 const { appendReturnTabQuery } = require('../../utils/return-tab')
+const {
+  getTaskResumeIndex,
+  submitWordStepProgress,
+  submitRecitationStepProgress
+} = require('../../utils/task-progress')
 
 const PRONUNCIATION_TIPS = [
   '先发 /æ/ 音，嘴巴张大，舌尖抵下齿背',
@@ -302,7 +309,10 @@ Page({
     }
   },
   fetchUnitData(unitId) {
-    getUnitResource(unitId).then(data => {
+    Promise.all([
+      getUnitResource(unitId),
+      this.resBookId ? getUnits(this.resBookId) : Promise.resolve(null)
+    ]).then(([data, unitsData]) => {
       let vip = false
       if (Array.isArray(data)) {
           data.forEach(item => {
@@ -311,24 +321,33 @@ Page({
           this.prepareWordChoiceOptions(data)
           vip = !data.some(item => item.needVip)
       }
-      // 免费体验关：视为已解锁，不弹会员拦截弹窗。
       if (this.trial) {
         vip = true
       }
       const wordTotal = data.length
+      const resumeIndex = getTaskResumeIndex(unitsData, unitId, this.data.taskType)
+      this.progressResumeIndex = resumeIndex
+      if (resumeIndex >= wordTotal && wordTotal > 0 && !this.wordId) {
+        this.setData({ loading: false })
+        this.goFinishPage()
+        return
+      }
+      const startIndex = Math.min(resumeIndex, Math.max(wordTotal - 1, 0))
+      const startItem = data[startIndex]
       this.setData({
         loading: false,
-        current: 0,
+        current: startIndex,
         needVip: vip ? 0 : 1,
         wordTotal: wordTotal,
         dialog: this.getDialogObject(!vip),
         contents: data,
-        ...this.getNavMeta(data[0], 0, wordTotal)
+        ...this.getNavMeta(startItem, startIndex, wordTotal)
       })
-      this.last = 0
+      this.last = startIndex
       this.dx = 0
+      this.markWordStepStarted(startIndex)
       if (this.data.isWordNewMode) {
-        wx.nextTick(() => this.startWordReading(0))
+        wx.nextTick(() => this.startWordReading(startIndex))
       } else {
         this.showPageTip()
       }
@@ -572,6 +591,7 @@ Page({
 
   goAutoNext(index) {
     this.setData({ autoNextCountdown: 0, autoNextPaused: false })
+    this.reportRecitationStep(index)
     if (index < this.data.contents.length - 1) {
       this.changeRecitationIndex(index + 1)
       return
@@ -822,7 +842,55 @@ Page({
     }, this.getNavMeta(item, next)))
     this.last = next
     this.dx = 0
+    this.markWordStepStarted(next)
   },
+  markWordStepStarted(index) {
+    this._wordStepStartedAt = Date.now()
+    this._wordStepStartedIndex = index
+  },
+
+  getWordStepElapsedSeconds(index) {
+    if (this._wordStepStartedIndex !== index || !this._wordStepStartedAt) {
+      return undefined
+    }
+    return Math.max(1, Math.round((Date.now() - this._wordStepStartedAt) / 1000))
+  },
+
+  reportWordStep(index) {
+    if (!this.data.isWordNewMode || this.wordId || this.data.from === 'search' || this.data.needVip) {
+      return
+    }
+    const item = this.data.contents[index]
+    if (!item) {
+      return
+    }
+    submitWordStepProgress({
+      item,
+      unitId: this.unitId,
+      resBookId: this.resBookId,
+      wordIndex: index,
+      resumeFrom: this.progressResumeIndex || 0,
+      timeSpentSeconds: this.getWordStepElapsedSeconds(index)
+    })
+  },
+
+  reportRecitationStep(index) {
+    if (this.data.isWordNewMode || this.wordId || this.data.from === 'search' || this.data.needVip) {
+      return
+    }
+    if (!this.isRecitationItemDone(this.data.contents[index])) {
+      return
+    }
+    submitRecitationStepProgress({
+      item: this.data.contents[index],
+      unitId: this.unitId,
+      resBookId: this.resBookId,
+      wordIndex: index,
+      resumeFrom: this.progressResumeIndex || 0,
+      durationSeconds: this.getWordStepElapsedSeconds(index)
+    })
+  },
+
   goFinishPage() {
     const scoreRate = this.data.isWordNewMode
       ? computeWordNewScoreRate(this.data.contents)
@@ -858,6 +926,20 @@ Page({
     }) || item.word.pronunciations[0]
     return accent ? accent.audio : ''
   },
+  getWordContent(index) {
+    const item = this.data.contents[index]
+    return item && item.word ? item.word.content : ''
+  },
+  resolveWordNewAudio(index, src, text) {
+    const content = text || this.getWordContent(index)
+    if (!content) {
+      return Promise.resolve(src || '')
+    }
+    return resolveVoiceUrl(content, {
+      preferredUrl: src,
+      fallbackUrl: src
+    })
+  },
   getExampleAudio(index) {
     const item = this.data.contents[index]
     if (!item || !item.proverb || !item.proverb.length) {
@@ -876,7 +958,7 @@ Page({
     }
     this.setData({ playingSrc: '' })
   },
-  playWordNewAudio(src, onEnded) {
+  playWordNewAudio(src, onEnded, playingSrc) {
     if (!src) {
       if (onEnded) {
         onEnded()
@@ -902,9 +984,13 @@ Page({
     }
     this._wordNewAudioEndCb = onEnded || null
     this.wordNewAudio.stop()
-    this.setData({ playingSrc: src })
+    this.setData({ playingSrc: playingSrc || src })
     this.wordNewAudio.src = src
     this.wordNewAudio.play()
+  },
+  async playResolvedWordNewAudio(index, src, onEnded, text) {
+    const audio = await this.resolveWordNewAudio(index, src, text)
+    this.playWordNewAudio(audio, onEnded, src || audio)
   },
   // 三个点分别对应：问答页读词、详情页读词、详情页读例句
   setWordReadCount(index, count) {
@@ -924,11 +1010,11 @@ Page({
     this.setData({
       ['contents[' + index + '].readCount']: 1
     })
-    this.playWordNewAudio(this.getActiveAccentAudio(index))
+    this.playResolvedWordNewAudio(index, this.getActiveAccentAudio(index))
   },
   playDetailIntro(index) {
     this.setWordReadCount(index, 2)
-    this.playWordNewAudio(this.getActiveAccentAudio(index), () => {
+    this.playResolvedWordNewAudio(index, this.getActiveAccentAudio(index), () => {
       const exampleAudio = this.getExampleAudio(index)
       if (exampleAudio) {
         this.setWordReadCount(index, 3)
@@ -940,7 +1026,7 @@ Page({
     this.playWordNewAudio(this.getExampleAudio(index))
   },
   playWordAudio(e) {
-    this.playWordNewAudio(e.currentTarget.dataset.src)
+    this.playResolvedWordNewAudio(this.data.current, e.currentTarget.dataset.src)
   },
   switchWordAccent(e) {
     const index = this.data.current
@@ -950,7 +1036,7 @@ Page({
       ['contents[' + index + '].word.activeAccent']: key
     })
     if (src) {
-      this.playWordNewAudio(src)
+      this.playResolvedWordNewAudio(index, src)
     }
   },
   showHint() {
@@ -1061,7 +1147,7 @@ Page({
 
     if (item.wordChoiceSelectedIndex !== null && item.wordChoiceSelectedIndex !== undefined) {
       if (option.audio) {
-        this.playWordNewAudio(option.audio)
+        this.playResolvedWordNewAudio(index, option.audio, null, option.content)
       }
       return
     }
@@ -1080,7 +1166,7 @@ Page({
     }
     this.setData(updates)
     if (option.audio) {
-      this.playWordNewAudio(option.audio)
+      this.playResolvedWordNewAudio(index, option.audio, null, option.content)
     }
   },
   revealWordChoiceAnswer() {
@@ -1099,7 +1185,7 @@ Page({
     }
     this.setData(updates)
     if (option && option.audio) {
-      this.playWordNewAudio(option.audio)
+      this.playResolvedWordNewAudio(index, option.audio, null, option.content)
     }
   },
   continueUnderstandWord() {
@@ -1126,6 +1212,7 @@ Page({
   },
   goNextWord() {
     this.clearWordHintTimers()
+    this.reportWordStep(this.data.current)
     if (this.data.current < this.data.contents.length - 1) {
       const next = this.data.current + 1
       const nextItem = this.data.contents[next]
@@ -1135,6 +1222,8 @@ Page({
       }, this.getNavMeta(nextItem, next)))
       if (this.data.isWordNewMode) {
         wx.nextTick(() => this.startWordReading(next))
+      } else {
+        this.markWordStepStarted(next)
       }
       return
     }

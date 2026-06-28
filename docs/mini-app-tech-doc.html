@@ -752,7 +752,7 @@
               <tr><td><code>pages/membership/membership</code></td><td>会员</td><td>开通/续费：三档套餐、兑换码、模拟支付、付费协议</td><td>membership/*（待接）；subscribe-message/report</td><td><span class="badge partial">部分</span></td><td>替换 activateMembership + 硬编码 REDEEM_CODE_TIERS</td></tr>
               <tr><td><code>pages/membership-success/membership-success</code></td><td>会员</td><td>开通/续费成功页</td><td>membership/orders（待接）</td><td><span class="badge partial">部分</span></td><td>订单详情现读 membershipOrders slice，联调以后端为准</td></tr>
               <tr><td><code>pages/membership-records/membership-records</code></td><td>会员</td><td>会员订单记录列表</td><td>membership/orders（待接）；user/info</td><td><span class="badge partial">部分</span></td><td>readOrders 已收口 membershipOrders slice</td></tr>
-              <tr><td><code>pages/practice/practice</code></td><td>核心</td><td>单词新学 / 跟读背诵 / 复习关</td><td>unit-words（修改：扩展 exercises[]）；word-mark（新增，待接）/recitation-score（新增，待接）；review-words（修改，待接）</td><td><span class="badge partial">部分</span></td><td>逐词上报；word-info 后续</td></tr>
+              <tr><td><code>pages/practice/practice</code></td><td>核心</td><td>单词新学 / 跟读背诵 / 复习关</td><td>unit-words（修改：扩展 exercises[]）；word-mark / recitation-score（前端已接逐词上报）；review-words（修改，待接）</td><td><span class="badge partial">部分</span></td><td>逐词上报 + 读 task.current 恢复；word-info 后续</td></tr>
               <tr><td><code>pages/listen/listen</code></td><td>核心/伴读</td><td>播放器、课文跟读、关卡小测；底栏「伴读」入口</td><td>book-units, unit-words（修改：扩展 exercises[] / 可备选新增 unit-exercises）, listening-quiz-result（修改）；listen-duration 待接</td><td><span class="badge partial">部分</span></td><td>跟读不上分；小测已封装</td></tr>
               <tr><td><code>pages/finish/today</code></td><td>核心</td><td>环节完成、打卡成功卡</td><td>save-learning-record（修改：补 taskType/durationSeconds）；check-in（新增，待接）</td><td><span class="badge partial">部分</span></td><td>补 taskType/durationSeconds</td></tr>
               <tr><td><code>pages/checkin/calendar</code></td><td>打卡</td><td>月历、礼品、规则弹窗、打卡提醒订阅、分享海报</td><td>user/info；subscribe-message/report（待接）；gift-claim 待接</td><td><span class="badge partial">部分</span></td><td>claimReward→gift-claim；提醒偏好/额度已收口 mock-store</td></tr>
@@ -832,7 +832,8 @@
           <strong style="color:var(--blue)">数据分工</strong><br/>
           · <strong>前端提交</strong>：单词认选结果、跟读/背诵分数、小测对错、<strong>各环节/各题耗时（durationSeconds）</strong><br/>
           · <strong>后端存储&决策</strong>：掌握态、任务进度、错词池、<strong>按日汇总学习时长</strong>（供报告/学习记录/user/info）<br/>
-          · <strong>前端只读</strong>：<code>book-units.tasks[]</code>；复习词表 <code>review-words</code>；报告里的 <code>minutes</code> / 三环节用时均由后端返回
+          · <strong>前端只读</strong>：<code>book-units.tasks[]</code>；复习词表 <code>review-words</code>；报告里的 <code>minutes</code> / 三环节用时均由后端返回<br/>
+          · <strong>中途退出恢复</strong>：每做完一个词/一题即上报（<code>word-mark</code> / <code>recitation-score</code> / <code>listening-quiz-result</code>），后端更新 <code>tasks[].current</code>；再次进入从 <code>current</code> 定位到下一词/题，已做过的跳过不重做；整环节完成仍走 <code>save-learning-record</code>
         </div>
         <div class="callout warn" style="margin-bottom:14px">
           <strong style="color:var(--amber)">学习时长 · 全程记录</strong><br/>
@@ -1341,7 +1342,7 @@
             request: "resBookId, page=1, rows=2000",
             response: "data: { list: Unit[], pageInfo: { total } }。Unit 核心字段：unitId, sort, wordTotal, unitName, needVip, completed, tasks[]",
             callers: "today.js loadUnits, home.js loadUnits, listen.js loadUnits, utils/player.js, plan.js fetchAllLevels（学习计划关卡预览全量列表）",
-            fields: "【进度·后端存储】completed / 星级 / tasks[] 均由后端返回。unit.wrongWords=错词数。【门禁·v1.1.6】前端用 <code>level-access.isLevelUnlocked(sort)</code>：sort=1 免费，其余要会员；<strong>不读 unit.needVip 锁关</strong>（needVip 为历史字段，可与词书态一并返回但前端忽略）。【展示】listen/player 列表渲染「关卡{sort}」。",
+            fields: "【进度·后端存储】completed / 星级 / tasks[] 均由后端返回。<code>tasks[].current</code> = 该环节<strong>已完成</strong>词/题数（0-based 累计）；<code>total</code> = 本关该环节总词/题数。再次进入环节时前端从 <code>current</code> 定位到下一项；<code>mapState=completed</code> 时从 0 重练（首页「再练一次」确认后）。逐词/逐题上报成功后后端递增 <code>current</code> 并持久化单条成绩。unit.wrongWords=错词数。【门禁·v1.1.6】前端用 <code>level-access.isLevelUnlocked(sort)</code>：sort=1 免费，其余要会员；<strong>不读 unit.needVip 锁关</strong>（needVip 为历史字段，可与词书态一并返回但前端忽略）。【展示】listen/player 列表渲染「关卡{sort}」。",
             render: "成长地图/列表任务进度；今日路线关卡卡片；伴听列表"
           }
         },
@@ -1386,34 +1387,34 @@
           endpoints: [{ method: "POST", path: "/mini-app/save-learning-record", note: "修改：补 taskType / scoreRate / durationSeconds" }],
           summary: "【修改】单环节完成上报（须扩展 taskType / scoreRate）",
           detail: {
-            request: "当前仅 unitId；【建议补】unitId, taskType, scoreRate, resBookId, durationSeconds, startedAt?, finishedAt?",
-            response: "建议 data: { nextUnitId?, tasksUpdated: true }；后端更新 book-units 对应 task 的 current/total/percent",
+            request: "unitId, taskType, scoreRate, resBookId, durationSeconds?, startedAt?, finishedAt?",
+            response: "建议 data: { nextUnitId?, tasksUpdated: true }；后端将该 task 的 mapState 置 completed、写入环节汇总分",
             callers: "pages/finish/today.js onLoad（word/recitation/listening 各完成一次各调一次）",
-            fields: "每关三环节各完成调一次。【时长】durationSeconds + finishedAt；后端写入 sectionScores.submittedAt、study-records.minutes 增量。",
+            fields: "每关三环节<strong>全部词/题做完</strong>后进 finish 页调一次；与逐词上报并存——逐词上报维护 <code>current</code>，本接口标记环节完成并写汇总分/用时。【时长】durationSeconds + finishedAt；后端写入 sectionScores.submittedAt、study-records.minutes 增量。",
             render: "完成页步骤条 1/3·2/3·3/3；继续按钮链式跳转下一环节"
           }
         },
         {
           id: "word-mark", module: "核心·三环节", moduleId: "core", page: "practice · 单词新学", status: "partial",
-          endpoints: [{ method: "POST", path: "/mini-app/word-mark", note: "新增 / 待实现" }],
-          summary: "【新增】逐词上报认选结果（认识/不认识/记错）→ 后端记入错词池",
+          endpoints: [{ method: "POST", path: "/mini-app/word-mark", note: "新增 / 前端已接" }],
+          summary: "【新增】逐词上报认选结果（认识/不认识/记错）→ 后端记入错词池并递增 task.current",
           detail: {
-            request: '{ …, "durationSeconds"?, "startedAt"?, "finishedAt"? } — 见 durationSchema',
-            response: "ack；后端更新掌握态 + 累加该词/题耗时",
-            callers: "pages/practice/practice.js — answerKnow/answerUnknown/submitWordChoice/markWordMistaken（当前仅写 contents[].known/mistaken，未调 API）",
-            fields: "【时长】建议每词上报 timeSpentSeconds（卡片停留+选择题耗时），或环节末 batch 上报。后端汇总进 taskDurations.word 与 daily minutes。",
+            request: "unitId, wordId, word, taskType=word, status(known|unknown|mistaken), choiceCorrect?, wordIndex?, timeSpentSeconds?, resBookId?",
+            response: "ack；建议 data: { current, total } — 后端更新掌握态 + tasks[].current +1",
+            callers: "pages/practice/practice.js — goNextWord → reportWordStep（每词完成切下一词前上报）",
+            fields: "【触发时机】用户完成该词认选/选择题并进入下一词时上报，<strong>非</strong>环节末 batch。【恢复】进入单词新学时读 book-units task.current 定位起始词；已上报词（index &lt; current）不再重复上报。【时长】timeSpentSeconds=该词卡片停留+选择题耗时。",
             render: "单词新学：认识/不认识/选择题/记错了 toast"
           }
         },
         {
           id: "recitation-score", module: "核心·三环节", moduleId: "core", page: "practice · 跟读背诵", status: "partial",
-          endpoints: [{ method: "POST", path: "/mini-app/recitation-score", note: "新增 / 待实现" }],
-          summary: "【新增】逐词/逐句上报 Chivox 跟读分数",
+          endpoints: [{ method: "POST", path: "/mini-app/recitation-score", note: "新增 / 前端已接" }],
+          summary: "【新增】逐词上报 Chivox 跟读分数 → 后端递增 task.current",
           detail: {
-            request: '{ …, "score", "durationSeconds"?, "recordDurationMs"? }',
-            response: "ack；低分词进错词池 + 累加跟读用时",
-            callers: "components/media/media.js 评分回调 → practice contents[].word.result / proverb[].result（当前未上报 API）",
-            fields: "【时长】durationSeconds=该词/句录音+等待评分耗时；Chivox 录音可另报 recordDurationMs。汇总进 taskDurations.recitation。【范围】仅 practice?taskType=recitation；listen 课文跟读不走本接口。",
+            request: "unitId, wordId, word, taskType=recitation, contentType=word, score, wordIndex?, durationSeconds?, resBookId?",
+            response: "ack；建议 data: { current, total } — 低分词进错词池 + tasks[].current +1",
+            callers: "pages/practice/practice.js — goAutoNext → reportRecitationStep（该词 word+例句均评分后上报）",
+            fields: "【触发时机】该词全部跟读条目评分完成、自动/手动切下一词前上报。score 取 word+例句分数均值。【恢复】同 word-mark，读 task.current 定位。【范围】仅 practice?taskType=recitation；listen 课文跟读不走本接口。",
             render: "跟读录音→Chivox 评分→彩带反馈；读完自动倒计时下一词"
           }
         },
@@ -1422,10 +1423,10 @@
           endpoints: [{ method: "POST", path: "/mini-app/listening-quiz-result", note: "修改：沿用老接口，补完整题型/时长口径" }],
           summary: "【修改】小测逐词对错上报（已封装，须与错词池对齐）",
           detail: {
-            request: '{ …, "correct", "phase", "durationSeconds"? }',
-            response: "成功/失败（失败静默）",
-            callers: "pages/listen/listen.js rememberQuizWordResult → postListeningQuizResult",
-            fields: "每词一题串。上报建议带齐：<code>fillCorrect</code>（bool，未做听填则省略）、<code>reciteScore</code>（0–100）、<code>spellCorrect</code>（bool，未做拼写则省略）、<code>phase</code>（fill|recite|spell，最后一次）、<code>durationSeconds</code>。后端按 spec 5.6③ 聚合成该词 <code>sections.quiz</code>；缺失子步按实际参与归一化 0.4/0.3/0.3。",
+            request: "unitId, wordId, word, taskType=listening, wordIndex?, fillCorrect?, reciteScore?, spellCorrect?, phase?, durationSeconds?, resBookId?",
+            response: "成功/失败（失败静默）；建议 data: { current, total }",
+            callers: "pages/listen/listen.js goToNextQuizQuestion → submitQuizWordResult（每题全部子步完成后上报）",
+            fields: "每词一题串。进入小测时读 task.current 定位起始题；已做题不再上报。上报建议带齐：<code>fillCorrect</code>、<code>reciteScore</code>、<code>spellCorrect</code>、<code>phase</code>、<code>durationSeconds</code>。后端按 spec 5.6③ 聚合并递增 tasks[].current。",
             render: "listen?mode=quiz；错词进入复习关词表"
           }
         },
@@ -1845,7 +1846,7 @@
           { title: "today 今日", desc: "Tab 落地页：今日路线关卡、教材胶囊、打卡摘要、会员浮层、入门测提示 Banner。", paths: ["pages/today/today"], apis: ["user/info", "user-books", "book-units", "info-update", "membership 待接"] }
         ],
         coreFlow: [
-          { title: "环节1 · 单词新学", desc: "practice?taskType=word。标记认识/不认识/记错 → POST word-mark（含 timeSpentSeconds/durationSeconds）。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark"] },
+          { title: "环节1 · 单词新学", desc: "practice?taskType=word。每词完成切下一词前 POST word-mark；进入时读 book-units task.current 恢复。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark", "book-units"] },
           { title: "环节2 · 跟读背诵", desc: "practice?taskType=recitation。Chivox 评分 → recitation-score。【后续】「分析这个词」可能在本页，调 word-info。", paths: ["pages/practice/practice", "components/media"], apis: ["unit-words", "recitation-score", "word-info 后续", "Chivox sig"] },
           { title: "环节3 · 关卡小测", desc: "listen?mode=quiz。听音填空+背诵+单词拼写 → POST listening-quiz-result（每题 durationSeconds）。", paths: ["pages/listen/listen"], apis: ["unit-words", "listening-quiz-result"] },
           { title: "环节完成", desc: "finish/today → save-learning-record（带 taskType、scoreRate、durationSeconds 环节总用时）→ 链式跳转下一环节。", paths: ["pages/finish/today"], apis: ["save-learning-record"] },
@@ -1854,7 +1855,7 @@
         home: [
           { title: "home 成长", desc: "词书 Hero、打卡入口、地图/列表、切换教材弹窗、学习计划、入门/结业测 Banner、单关报告 pill；非会员仅第 1 关可进。", paths: ["pages/home/home"], apis: ["user/info", "user-books", "book-units", "switch-default-book", "info-update", "unit-report 待接", "membership 待接"] },
           { title: "选择教材弹窗", desc: "home 内嵌 bottom-sheet：学段+版本+封面网格；统一「切换使用」→ switch-default-book；今日页可跳转拉起。", paths: ["home.wxml book-picker", "today.switchBook"], apis: ["user-books", "switch-default-book"] },
-          { title: "practice 练习", desc: "三环节主战场：word 单词新学（word-mark）、recitation 跟读（recitation-score）；review 模式走 review-words；非会员锁关弹会员引导。", paths: ["pages/practice/practice"], apis: ["unit-words", "word-mark", "recitation-score", "review-words"] },
+          { title: "practice 练习", desc: "三环节主战场：word 单词新学（word-mark 逐词）、recitation 跟读（recitation-score 逐词）；进入时读 task.current 恢复；review 模式走 review-words；非会员锁关弹会员引导。", paths: ["pages/practice/practice"], apis: ["unit-words", "book-units", "word-mark", "recitation-score", "review-words"] },
           { title: "finish 完成", desc: "每环节结束页；save-learning-record 更新 tasks[]；今日达标触发本地打卡计数（待接 check-in）。", paths: ["pages/finish/today"], apis: ["save-learning-record", "check-in 待实现"] },
           { title: "plan 学习计划", desc: "设置 groupsPerDay（待接 study-plan，当前读写 mock-store.studyPlans）；book-units 拉全量关卡 + unit-words 懒加载单词预览。", paths: ["pages/plan/plan", "home.goStudyPlan", "today 入口"], apis: ["book-units", "unit-words", "study-plan 待实现", "user/info.gifts[]"] }
         ],
@@ -1927,7 +1928,7 @@
         { title: "report.js → unit-report", desc: "home.goUnitReport 补 resBookId+unitId；listen 已带 unitId；report.js 改调 API，废弃 buildReport Mock。" },
         { title: "exam-data.js → exam APIs", desc: "exam-paper 替换本地题库，exam-submit / exam-result 替换 mock-store.examResults；exam-report 展示 durationSeconds + reportGeneratedAt。" },
         { title: "study-records 真数据", desc: "study-record/record.js 替换 buildDemoStudyRecords；含 entryExamCount/exitExamCount。" },
-        { title: "三环节逐词上报", desc: "word-mark / recitation-score / listening-quiz-result 当前未调；save-learning-record 须带 taskType + durationSeconds。" },
+        { title: "三环节逐词上报", desc: "word-mark / recitation-score / listening-quiz-result 前端已接（每词/每题完成时上报）；save-learning-record 已带 taskType + scoreRate + resBookId。" },
         { title: "listen-duration 双源", desc: "player→audioMinutes；follow-read→listenPracticeCount+用时；study-record 演示仍用 listenAssessCount，须对齐字段名。" },
         { title: "打卡活动文案", desc: "plan 预告卡、calendar 规则弹窗/礼品弹窗、finish 成功卡 — 30天/VIP/规则三条均写死 wxml；应对接 user/info checkInRules[] + gifts[] + study-plan.groupsPerDay。" },
         { title: "membership 本地模拟", desc: "membership.js / membership-orders.js 改调 membership/*；删除 REDEEM_CODE_TIERS 硬编码。" },
@@ -2038,42 +2039,54 @@
 
       function renderCoreFlowSchema() {
         const wordMarkExample = `POST /mini-app/word-mark
+// 每词完成（切下一词前）上报；后端 tasks[].current += 1
 
 {
   "unitId": "u_001",
   "wordId": "w_123",
-  "status": "known",
+  "word": "planet",
   "taskType": "word",
+  "status": "known",
+  "choiceCorrect": true,
+  "wordIndex": 5,
   "timeSpentSeconds": 18,
-  "startedAt": "2026-06-16T10:01:02+08:00",
-  "finishedAt": "2026-06-16T10:01:20+08:00"
-}`;
+  "resBookId": "rb_xxx"
+}
+
+// 响应建议：{ "data": { "current": 6, "total": 10 } }`;
         const recitationExample = `POST /mini-app/recitation-score
+// 该词 word+例句均评分后、切下一词前上报
 
 {
   "unitId": "u_001",
   "wordId": "w_123",
+  "word": "planet",
+  "taskType": "recitation",
   "contentType": "word",
   "score": 87,
+  "wordIndex": 5,
   "durationSeconds": 12,
-  "recordDurationMs": 4200
+  "resBookId": "rb_xxx"
 }`;
         const quizExample = `POST /mini-app/listening-quiz-result
-// 建议每词做完小测后汇总上报（或分 phase 多次上报，后端合并）
-// 算分见 level-score-review-spec §5.6③ + 文档「关卡报告 · 小测子步缺失权重」
+// 每题全部子步完成后上报（goToNextQuizQuestion）；后端 tasks[].current += 1
 
 {
   "unitId": "u_001",
   "wordId": "w_123",
-  "content": "planet",
+  "word": "planet",
+  "taskType": "listening",
+  "wordIndex": 5,
   "fillCorrect": true,
   "reciteScore": 82,
   "spellCorrect": false,
-  "durationSeconds": 95
+  "durationSeconds": 95,
+  "resBookId": "rb_xxx"
 }
 // 无听填步 → 省略 fillCorrect
 // 无拼写步 → 省略 spellCorrect`;
         const saveExample = `POST /mini-app/save-learning-record
+// 环节全部词/题做完后进 finish 页上报；标记 task completed
 
 {
   "unitId": "u_001",
@@ -2083,7 +2096,7 @@
   "resBookId": "rb_xxx"
 }
 
-// 环节结束汇总上报（可与逐词用时二选一或并存）`;
+// 与逐词上报并存：逐词维护 current，本接口标记环节完成`;
         const reviewExample = `GET /mini-app/review-words?resBookId=rb_xxx&reviewUnitIds=u_001,u_002,u_003
 
 {
@@ -2093,10 +2106,10 @@
   ]
 }`;
         $("#coreFlowSchema").innerHTML = [
-          ["word-mark · 单词认选（待实现）", wordMarkExample],
-          ["recitation-score · 跟读分数（待实现）", recitationExample],
-          ["listening-quiz-result · 小测对错（已封装）", quizExample],
-          ["save-learning-record · 环节完成（须补 taskType）", saveExample],
+          ["word-mark · 单词认选（每词上报）", wordMarkExample],
+          ["recitation-score · 跟读分数（每词上报）", recitationExample],
+          ["listening-quiz-result · 小测对错（每题上报）", quizExample],
+          ["save-learning-record · 环节完成", saveExample],
           ["review-words · 复习词表（待实现）", reviewExample]
         ].map(([title, body]) => `<article class="api-box wide"><h3>${title}</h3><pre>${body}</pre></article>`).join("");
       }
@@ -2105,13 +2118,18 @@
         const durationFlow = `学习时长 · 上报 → 汇总 → 展示
 
 【前端计时点】
-  practice 单词卡片 onShow→判题     → word-mark.timeSpentSeconds
-  practice/media 跟读录音           → recitation-score.durationSeconds
-  listen quiz 每题                  → listening-quiz-result.durationSeconds
+  practice 单词卡片 onShow→判题     → word-mark.timeSpentSeconds（每词完成时）
+  practice/media 跟读录音           → recitation-score.durationSeconds（每词完成时）
+  listen quiz 每题                  → listening-quiz-result.durationSeconds（每题完成时）
   finish/today 环节结束             → save-learning-record.durationSeconds
   exam 整卷 intro→交卷              → exam-submit.durationSeconds
   player 有效播放                   → listen-duration(source=player)
   listen 课文跟读（无分数）         → listen-duration(source=follow-read) → listenPracticeCount
+
+【中途退出恢复】
+  book-units.tasks[].current = 已完成词/题数
+  再次进入 practice/listen quiz     → 从 current 定位；index < current 不再重复上报
+  环节全部完成                      → save-learning-record 标记 completed
 
 【后端汇总】
   按 userId + resBookId + date 累加 → study-records.records[].minutes

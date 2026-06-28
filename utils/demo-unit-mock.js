@@ -4,6 +4,14 @@
 const ENABLE_DEMO_UNITS = false
 const { buildVoiceUrl } = require('./voice-url')
 const DEMO_UNIT_PREFIX = 'demo-unit-'
+const TTS_MISSING_AUDIO_UNIT_ID = 'demo-unit-tts-missing-audio'
+
+const TTS_MISSING_AUDIO_WORDS = [
+  { content: 'lantern', symbol: 'ˈlæntən', attribute: 'n.', translation: '灯笼；提灯', sentence: 'The old lantern glowed beside the door.', sentenceCn: '那盏旧灯笼在门边发光。' },
+  { content: 'whisper', symbol: 'ˈwɪspə', attribute: 'v.', translation: '低语；耳语', sentence: 'Please whisper when the baby is sleeping.', sentenceCn: '宝宝睡觉时请小声说话。' },
+  { content: 'harvest', symbol: 'ˈhɑːvɪst', attribute: 'n.', translation: '收获；收成', sentence: 'The farmers celebrated a rich harvest.', sentenceCn: '农民们庆祝丰收。' },
+  { content: 'journey', symbol: 'ˈdʒɜːni', attribute: 'n.', translation: '旅行；旅程', sentence: 'Every journey begins with a single step.', sentenceCn: '千里之行，始于足下。' }
+]
 
 const DEMO_UNIT_WORDS = {
   1: [
@@ -67,7 +75,7 @@ function parseDemoUnitSort(unitId) {
 }
 
 function isDemoUnitId(unitId) {
-  return parseDemoUnitSort(unitId) > 0
+  return String(unitId || '') === TTS_MISSING_AUDIO_UNIT_ID || parseDemoUnitSort(unitId) > 0
 }
 
 function getDemoWordsForUnit(sort) {
@@ -75,8 +83,9 @@ function getDemoWordsForUnit(sort) {
 }
 
 function buildDemoUnitResource(unitId) {
-  const sort = parseDemoUnitSort(unitId) || 1
-  const words = getDemoWordsForUnit(sort)
+  const isTtsMissingAudioUnit = String(unitId || '') === TTS_MISSING_AUDIO_UNIT_ID
+  const sort = isTtsMissingAudioUnit ? 1 : (parseDemoUnitSort(unitId) || 1)
+  const words = isTtsMissingAudioUnit ? TTS_MISSING_AUDIO_WORDS : getDemoWordsForUnit(sort)
   const total = words.length
 
   return words.map((item, index) => ({
@@ -84,7 +93,7 @@ function buildDemoUnitResource(unitId) {
     unit: {
       unitId,
       sort,
-      unitName: '关卡 ' + sort,
+      unitName: isTtsMissingAudioUnit ? 'TTS 缺音频预览' : ('关卡 ' + sort),
       wordTotal: total
     },
     word: {
@@ -93,7 +102,9 @@ function buildDemoUnitResource(unitId) {
       symbol: item.symbol,
       attribute: item.attribute,
       translation: item.translation,
-      audio: buildVoiceUrl(item.content),
+      audio: isTtsMissingAudioUnit ? '' : buildVoiceUrl(item.content),
+      ukAudio: isTtsMissingAudioUnit ? '' : buildVoiceUrl(item.content, 1),
+      usAudio: isTtsMissingAudioUnit ? '' : buildVoiceUrl(item.content, 2),
       pages: [],
       exchange: item.content
     },
@@ -123,6 +134,7 @@ function resolveDemoUnitResource(unitId) {
 
 module.exports = {
   DEMO_UNIT_PREFIX,
+  TTS_MISSING_AUDIO_UNIT_ID,
   isDemoUnitsEnabled,
   isDemoUnitId,
   buildDemoUnitResource,

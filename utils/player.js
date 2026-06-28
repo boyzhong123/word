@@ -14,7 +14,7 @@ const {
   resolveProverbDisplayText,
   resolveProverbRefText
 } = require('./proverb-text')
-const { buildVoiceUrl } = require('./voice-url')
+const { buildVoiceUrl, resolveVoiceUrl } = require('./voice-url')
 
 // 循环模式：单期循环（仅当前关卡）/ 整本书循环（贯穿所有关卡）
 const LOOP_MODES = [
@@ -375,21 +375,42 @@ const player = {
     if (!track) {
       return
     }
+    const loadToken = (this._loadToken || 0) + 1
+    this._loadToken = loadToken
     this._wantPlaying = !!autoPlay
     this.syncBackgroundMetadata(track)
-    if (audio.src !== track.audio) {
-      audio.src = track.audio
-    } else if (autoPlay) {
-      audio.play()
-    }
-    if (audio.playbackRate !== undefined) {
-      try { audio.playbackRate = SPEEDS[this.speedIndex] } catch (e) {}
-    }
     const count = this.tracks.length || 1
     this.progress = (this.current / count) * 100
     this.currentTime = '00:00'
     this.playing = !!autoPlay
     this.emit()
+
+    const text = (track && (track.refText || track.content)) || ''
+    const shouldResolveTts = track && (track.type === 'word' || track.type === 'sentence')
+    const pendingAudio = shouldResolveTts
+      ? resolveVoiceUrl(text, {
+        preferredUrl: track.audio,
+        fallbackUrl: track.audio || buildVoiceUrl(text)
+      })
+      : Promise.resolve(track.audio)
+
+    pendingAudio.then((src) => {
+      if (this._loadToken !== loadToken) {
+        return
+      }
+      const finalSrc = src || track.audio
+      if (finalSrc && track.audio !== finalSrc) {
+        track.audio = finalSrc
+      }
+      if (audio.src !== finalSrc) {
+        audio.src = finalSrc
+      } else if (autoPlay) {
+        audio.play()
+      }
+      if (audio.playbackRate !== undefined) {
+        try { audio.playbackRate = SPEEDS[this.speedIndex] } catch (e) {}
+      }
+    })
   },
 
   handleEnded() {

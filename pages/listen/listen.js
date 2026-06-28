@@ -24,7 +24,7 @@ const {
 // 通常听力播放走全局单例（跨页持续 + 迷你播放器）；buildTracks 复用单例里的实现
 const { player, buildTracks } = require('../../utils/player')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
-const { buildVoiceUrl } = require('../../utils/voice-url')
+const { buildVoiceUrl, resolveVoiceUrl } = require('../../utils/voice-url')
 const { getFallbackBookCover, normalizeBookCover } = require('../../utils/book-cover')
 const { isLevelUnlocked } = require('../../utils/level-access')
 const mockStore = require('../../utils/mock/mock-store')
@@ -34,6 +34,7 @@ const {
   hideRecordingOverlay
 } = require('../../utils/recording-overlay')
 const { appendReturnTabQuery } = require('../../utils/return-tab')
+const { getTaskResumeIndex } = require('../../utils/task-progress')
 const {
   hasCompletedListenGuide,
   markListenGuideDone,
@@ -512,21 +513,40 @@ Page({
       const unitName = '关卡' + sort
 
       const quizQuestions = limitQuizQuestionsForDev(buildListeningQuizQuestions(source))
+      const unitsData = { list: this.data.units }
+      const resumeIndex = this.data.quizMode
+        ? getTaskResumeIndex(unitsData, unit.unitId, 'listening')
+        : 0
+      this.progressResumeIndex = resumeIndex
+
+      if (this.data.quizMode && resumeIndex >= quizQuestions.length && quizQuestions.length > 0) {
+        this.setData({
+          loading: false,
+          unitIndex: index,
+          unitName,
+          quizQuestions
+        })
+        this.goFinishPage()
+        return
+      }
+
+      const startQuizIndex = Math.min(resumeIndex, Math.max(quizQuestions.length - 1, 0))
+      const quizTotal = quizQuestions.length || 1
 
       this.setData({
         loading: false,
         unitIndex: index,
         unitName,
-        ...this.getQuizNavMeta(0, quizQuestions.length),
+        ...this.getQuizNavMeta(startQuizIndex, quizQuestions.length),
         tracks,
         current: toEnd ? Math.max(tracks.length - 1, 0) : 0,
         progress: 0,
         currentTime: '00:00',
         showPlaylist: false,
         quizQuestions,
-        quizIndex: 0,
-        quizAnsweredCount: 0,
-        quizProgressPercent: 0,
+        quizIndex: startQuizIndex,
+        quizAnsweredCount: startQuizIndex,
+        quizProgressPercent: Math.round(startQuizIndex * 100 / quizTotal),
         quizChecked: false,
         quizResultText: '',
         quizReviewWordResults: [],
@@ -537,7 +557,7 @@ Page({
         quizAllDone: false,
         quizRecords: []
       })
-      this.showQuizQuestion(0, true)
+      this.showQuizQuestion(startQuizIndex, true)
       if (!quizQuestions.length && !tracks.length) {
         wx.showToast({ title: '本期暂无可测试例句', icon: 'none' })
       }
@@ -812,7 +832,10 @@ Page({
     const payload = {
       unitId: question.unitId || this.targetUnitId || '',
       wordId: question.wordId || '',
-      word: question.word || ''
+      word: question.word || '',
+      taskType: 'listening',
+      resBookId: this.resBookId || '',
+      wordIndex: index
     }
     if (record.fillCorrect != null) {
       payload.fillCorrect = !!record.fillCorrect
@@ -1024,10 +1047,20 @@ Page({
     })
   },
 
-  playQuizSpellAudio() {
+  async playQuizSpellAudio() {
     const spell = this.data.quizSpell
-    const audio = spell && (spell.audio || buildVoiceUrl(spell.word))
-    if (!audio || !this.quizAudio) {
+    const word = spell && spell.word
+    const fallbackAudio = spell && (spell.audio || buildVoiceUrl(word))
+    if ((!word && !fallbackAudio) || !this.quizAudio) {
+      return
+    }
+    const audio = word
+      ? await resolveVoiceUrl(word, {
+        preferredUrl: spell.audio,
+        fallbackUrl: fallbackAudio
+      })
+      : fallbackAudio
+    if (!audio || !this.quizAudio || this.data.quizSpell !== spell) {
       return
     }
     this.quizAudio.stop()

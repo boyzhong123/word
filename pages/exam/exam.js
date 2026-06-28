@@ -8,6 +8,7 @@ const {
 } = require('../../utils/exam-data')
 const { imageUrl } = require('../../utils/image-host')
 const { player } = require('../../utils/player')
+const { resolveVoiceUrl } = require('../../utils/voice-url')
 Page({
   data: {
     stage: 'intro',          // intro | quiz
@@ -154,9 +155,15 @@ Page({
   },
 
   // 听音辨词：播放真实发音
-  playAudio() {
+  async playAudio() {
     const q = this.data.question
-    const src = q && q.audioUrl
+    const fallbackSrc = q && q.audioUrl
+    const src = q && q.audioWord
+      ? await resolveVoiceUrl(q.audioWord, {
+        preferredUrl: q.audioUrl,
+        fallbackUrl: fallbackSrc
+      })
+      : fallbackSrc
     if (!src) {
       wx.showToast({ title: '暂无发音', icon: 'none' })
       return

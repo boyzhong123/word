@@ -26,3 +26,8 @@ test('portable player exposes suspend/resume for secondary pages with local audi
   assert.match(listenScript, /suspendForExternalAudio\('listen-quiz'\)/)
   assert.match(listenScript, /resumeFromExternalAudio\('listen-quiz'\)/)
 })
+
+test('portable player resolves missing word and sentence audio through tts fallback', () => {
+  assert.match(playerScript, /track\.type === 'word' \|\| track\.type === 'sentence'/)
+  assert.match(playerScript, /resolveVoiceUrl\(text,\s*\{/)
+})

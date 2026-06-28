@@ -94,7 +94,12 @@ Page({
       headerImage: headerImageForScoreRate(scoreRate)
     })
 
-    saveRecord(options.unitId).then(data => {
+    saveRecord({
+      unitId: options.unitId,
+      taskType: this.taskType,
+      scoreRate: scoreRate,
+      resBookId: this.resBookId
+    }).then(data => {
       this.nextUnitId = data && data.nextUnitId
       this.setData({
         showContinue: hasContinueAction(this.taskType, this.nextUnitId)

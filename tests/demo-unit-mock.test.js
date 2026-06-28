@@ -5,7 +5,8 @@ const {
   isDemoUnitId,
   buildDemoUnitResource,
   buildDemoUnitsList,
-  getDemoWordsForUnit
+  getDemoWordsForUnit,
+  TTS_MISSING_AUDIO_UNIT_ID
 } = require('../utils/demo-unit-mock')
 const { FALLBACK_UNITS } = require('../utils/fallback-units')
 
@@ -57,4 +58,17 @@ test('resolveDemoUnitResource falls back to unit 1 words for unknown ids', () =>
   const data = resolveDemoUnitResource('backend-unit-999')
   assert.equal(data.length, 12)
   assert.equal(data[0].word.content, 'apple')
+})
+
+test('tts missing audio demo unit keeps word audio empty for edge tts preview', () => {
+  const data = buildDemoUnitResource(TTS_MISSING_AUDIO_UNIT_ID)
+
+  assert.equal(isDemoUnitId(TTS_MISSING_AUDIO_UNIT_ID), true)
+  assert.equal(data.length, 4)
+  data.forEach(item => {
+    assert.equal(item.word.audio, '')
+    assert.equal(item.word.ukAudio, '')
+    assert.equal(item.word.usAudio, '')
+    assert.match(item.proverb[0].audio, /^https:\/\/dict\.youdao\.com\/dictvoice/)
+  })
 })

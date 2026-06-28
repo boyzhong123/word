@@ -164,14 +164,41 @@ function getUnits(resBookId, page = 1, rows = 2000) {
   })
 }
 
-function saveRecord(unitId) {
+function saveRecord(payload) {
+  const data = typeof payload === 'string'
+    ? { unitId: payload }
+    : Object.assign({}, payload || {})
   return new Promise(resolve => {
     util.request('POST', '/mini-app/save-learning-record', {
-      data: {
-        unitId
-      }
-    }, (data) => {
-      resolve(data)
+      data
+    }, (response) => {
+      resolve(response)
+    }, () => {
+      resolve(null)
+    })
+  })
+}
+
+function reportWordMark(payload) {
+  return new Promise(resolve => {
+    util.request('POST', '/mini-app/word-mark', {
+      data: payload
+    }, () => {
+      resolve(true)
+    }, () => {
+      resolve(false)
+    })
+  })
+}
+
+function reportRecitationScore(payload) {
+  return new Promise(resolve => {
+    util.request('POST', '/mini-app/recitation-score', {
+      data: payload
+    }, () => {
+      resolve(true)
+    }, () => {
+      resolve(false)
     })
   })
 }
@@ -293,6 +320,8 @@ module.exports = {
   deleteRecord,
   getBookProucts,
   getOrder,
+  reportWordMark,
+  reportRecitationScore,
   reportListeningQuizResult,
   reportSubscribeMessageQuota
 }

@@ -423,7 +423,7 @@ function resolveServerRecite(item, proverb, wordMeta) {
     return {
       meaning: proverbData.translation || wordMeta.translation || '',
       refText: wordMeta.content,
-      audio: proverbData.audio || wordMeta.audio || ''
+      audio: proverbData.audio || ''
     }
   }
 
