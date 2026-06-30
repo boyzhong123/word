@@ -14,6 +14,11 @@ const {
   headerImageForScoreRate
 } = require('../../utils/finish-stars')
 const { normalizeReturnTab, returnTabUrl } = require('../../utils/return-tab')
+const {
+  buildReportMessageData,
+  buildUnitReportPage,
+  requestSubscribeForEvent
+} = require('../../utils/subscribe')
 
 const STREAK_REWARD_DAYS = 30
 
@@ -105,6 +110,31 @@ Page({
         showContinue: hasContinueAction(this.taskType, this.nextUnitId)
       })
     })
+
+    if (isUnitComplete) {
+      const reportPage = buildUnitReportPage({
+        resBookId: this.resBookId,
+        unitId: this.unitId,
+        sort: options.unitSort,
+        words: options.words || 12,
+        en: 'Unit report · ' + scoreRate + '%',
+        zh: '关卡 ' + (options.unitSort || 1) + ' 学习报告'
+      })
+      requestSubscribeForEvent('subscribePref_report', {
+        messageData: buildReportMessageData({
+          reportType: '关卡学习报告',
+          durationText: '约5分钟',
+          score: scoreRate,
+          remark: '本关报告已生成，复盘再闯关'
+        }),
+        reportPayload: {
+          reportType: 'unit',
+          resBookId: this.resBookId,
+          unitId: this.unitId,
+          page: reportPage
+        }
+      })
+    }
 
     refreshHomePage()
   },

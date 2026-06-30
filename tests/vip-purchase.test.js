@@ -17,7 +17,12 @@ function loadMembershipPage(options) {
       windowHeight: 800,
       safeArea: { bottom: 780 }
     }),
-    getStorageSync: () => null
+    getStorageSync: () => null,
+    setStorageSync() {},
+    removeStorageSync() {},
+    getStorageInfoSync: () => ({ keys: [] }),
+    showToast() {},
+    redirectTo() {}
   }
   global.Page = config => {
     pageConfig = config
@@ -80,6 +85,70 @@ test('membership page opens the sku confirmation when requested by an entry poin
 
   assert.equal(page.data.selectedTierId, 'm2')
   assert.equal(page.data.showConfirm, true)
+})
+
+test('membership payment success requests the payment success template with order fields', async () => {
+  const page = loadMembershipPage({ tierId: 'm1' })
+  const subscribeCalls = []
+  let reportedPayload = null
+  global.wx.requestSubscribeMessage = options => {
+    subscribeCalls.push(options)
+    options.success({
+      RpsH9zwTbY6f4zV6WhmuPZ096nfwJj95guxKOwy03nE: 'accept'
+    })
+  }
+  const api = require('../utils/api')
+  const originalReport = api.reportSubscribeMessageQuota
+  api.reportSubscribeMessageQuota = payload => {
+    reportedPayload = payload
+    return Promise.resolve(true)
+  }
+
+  try {
+    page.onSuccess(page.data.currentTier, false, false)
+    await new Promise(resolve => setTimeout(resolve, 0))
+  } finally {
+    api.reportSubscribeMessageQuota = originalReport
+  }
+
+  assert.equal(subscribeCalls.length, 1)
+  assert.deepEqual(subscribeCalls[0].tmplIds, ['RpsH9zwTbY6f4zV6WhmuPZ096nfwJj95guxKOwy03nE'])
+  assert.equal(reportedPayload.tmplId, 'RpsH9zwTbY6f4zV6WhmuPZ096nfwJj95guxKOwy03nE')
+  assert.equal(reportedPayload.orderId.startsWith('VIP'), true)
+  assert.deepEqual(Object.keys(reportedPayload.messageData), ['thing1', 'amount2', 'time3', 'thing4'])
+  assert.equal(reportedPayload.messageData.thing1.value, '1个月会员')
+  assert.equal(reportedPayload.messageData.amount2.value, '39.00元')
+  assert.match(reportedPayload.messageData.thing4.value, /^课本解锁至\d{4}-\d{2}-\d{2}，开始学习$/)
+  assert.ok(reportedPayload.messageData.thing4.value.length <= 20)
+  assert.match(reportedPayload.page, /^\/pages\/membership-success\/membership-success\?orderId=VIP/)
+})
+
+test('membership redeem success also reports payment template with zero amount', async () => {
+  const page = loadMembershipPage({ tierId: 'm1' })
+  let reportedPayload = null
+  global.wx.requestSubscribeMessage = options => {
+    options.success({
+      RpsH9zwTbY6f4zV6WhmuPZ096nfwJj95guxKOwy03nE: 'accept'
+    })
+  }
+  const api = require('../utils/api')
+  const originalReport = api.reportSubscribeMessageQuota
+  api.reportSubscribeMessageQuota = payload => {
+    reportedPayload = payload
+    return Promise.resolve(true)
+  }
+
+  try {
+    page.onSuccess(page.data.currentTier, true, false)
+    await new Promise(resolve => setTimeout(resolve, 0))
+  } finally {
+    api.reportSubscribeMessageQuota = originalReport
+  }
+
+  assert.equal(reportedPayload.orderType, 'membership')
+  assert.equal(reportedPayload.messageData.amount2.value, '0.00元')
+  assert.equal(reportedPayload.messageData.thing1.value, '1个月会员')
+  assert.match(reportedPayload.page, /^\/pages\/membership-success\/membership-success\?orderId=VIP/)
 })
 
 test('membership page includes a compact family learning promotional banner', () => {

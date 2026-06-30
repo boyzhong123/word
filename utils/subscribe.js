@@ -17,6 +17,7 @@ const mockStore = require('./mock/mock-store')
 
 // 打卡提醒（在线教育·打卡提醒，模板编号 504）
 const CHECKIN_REMIND_TMPL_ID = 'wIiz5RXzkJYLp0pw63mEUpYqS2zSRSet1P_afBV58k0'
+const CHECKIN_REMIND_TIME = '08:30'
 
 // ⚠️ event 型模板的 title / desc / when 请按公众平台后台实际模板核对调整。
 const SUBSCRIBE_TEMPLATES = [
@@ -24,30 +25,30 @@ const SUBSCRIBE_TEMPLATES = [
     id: CHECKIN_REMIND_TMPL_ID,
     title: '打卡提醒',
     desc: '到打卡时间提醒你，避免断签',
-    when: '每天到打卡时间提醒，需提前订阅累计次数',
+    when: '每天 8:30 提醒完成今日学习',
     mode: 'accumulate',
     prefKey: 'subscribePref_checkin',
     countKey: 'checkinRemindCount', // 与打卡日历页共用同一计数
     previewFields: [
-      { label: '计划名', value: '每日7:00准时晨读' },
-      { label: '任务说明', value: '让晨读来开启自己元气满满的一天' },
+      { label: '计划名', value: '每日8:30学习提醒' },
+      { label: '任务说明', value: '完成今日学习，保持连续打卡' },
       { label: '进度', value: '0/21' },
-      { label: '打卡时间', value: '06:00:00~08:30:00' },
+      { label: '打卡时间', value: '08:30:00' },
       { label: '已打卡次数', value: '3' }
     ]
   },
   {
     id: 'RpsH9zwTbY6f4zV6WhmuPZ096nfwJj95guxKOwy03nE',
     title: '支付成功通知',
-    desc: '购买成功后提醒查看订单与学习权益',
+    desc: '全部课本已解锁，开始学习吧',
     when: '支付成功后自动提醒',
     mode: 'event',
     prefKey: 'subscribePref_payment',
     previewFields: [
-      { label: '商品名称', value: 'ABCmouse听说读写全能套餐' },
-      { label: '支付金额', value: '999.00元' },
-      { label: '支付时间', value: '2019-11-11 14:20' },
-      { label: '温馨提示', value: '订单已提交，点击下方查看您的学习权益' }
+      { key: 'thing1', label: '商品名称', value: '1年会员' },
+      { key: 'amount2', label: '支付金额', value: '109.00元' },
+      { key: 'time3', label: '支付时间', value: '2026-06-30 21:08' },
+      { key: 'thing4', label: '温馨提示', value: '课本解锁至2027-06-30，开始学习' }
     ]
   },
   {
@@ -58,10 +59,10 @@ const SUBSCRIBE_TEMPLATES = [
     mode: 'event',
     prefKey: 'subscribePref_report',
     previewFields: [
-      { label: '报告类型', value: '任务报告，学习报告' },
-      { label: '英语学习时长', value: '5分钟' },
-      { label: '学习得分', value: '100' },
-      { label: '备注', value: '本节课的学习报告已生成，快来查看吧' }
+      { key: 'thing1', label: '报告类型', value: '关卡学习报告' },
+      { key: 'thing2', label: '英语学习时长', value: '约5分钟' },
+      { key: 'number3', label: '学习得分', value: '96' },
+      { key: 'thing4', label: '备注', value: '本关报告已生成，复盘再闯关' }
     ]
   }
 ]
@@ -126,13 +127,73 @@ function bumpSubscribeQuota(countKey, delta) {
   return quota[countKey]
 }
 
+function formatAmount(value) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) {
+    return '0.00元'
+  }
+  return amount.toFixed(2) + '元'
+}
+
+function formatMessageText(value, fallback, maxLength) {
+  const text = String(value == null || value === '' ? fallback : value)
+  return text.length > maxLength ? text.slice(0, maxLength) : text
+}
+
+function encodeQueryValue(value) {
+  return encodeURIComponent(String(value == null ? '' : value))
+}
+
+function buildUnitReportPage(options) {
+  options = options || {}
+  return '/pages/report/report?' + [
+    'resBookId=' + encodeQueryValue(options.resBookId),
+    'unitId=' + encodeQueryValue(options.unitId),
+    'sort=' + encodeQueryValue(options.sort || 1),
+    'words=' + encodeQueryValue(options.words || 12),
+    'en=' + encodeQueryValue(options.en || ''),
+    'zh=' + encodeQueryValue(options.zh || '')
+  ].join('&')
+}
+
+function buildExamReportPage(options) {
+  options = options || {}
+  return '/pages/exam/exam-report?' + [
+    'resBookId=' + encodeQueryValue(options.resBookId),
+    'type=' + encodeQueryValue(options.type === 'exit' ? 'exit' : 'entry'),
+    'name=' + encodeQueryValue(options.name || '')
+  ].join('&')
+}
+
+function buildPaymentSuccessMessageData(order) {
+  order = order || {}
+  const expireHint = order.expireText ? '课本解锁至' + order.expireText + '，开始学习' : '全部课本已解锁，开始学习吧'
+  return {
+    thing1: { value: formatMessageText(order.tierName || order.productName, '会员套餐', 20) },
+    amount2: { value: formatAmount(order.price) },
+    time3: { value: formatMessageText(order.createdAt || order.payTime, '', 20) },
+    thing4: { value: formatMessageText(order.remark, expireHint, 20) }
+  }
+}
+
+function buildReportMessageData(report) {
+  report = report || {}
+  return {
+    thing1: { value: formatMessageText(report.reportType, '学习报告', 20) },
+    thing2: { value: formatMessageText(report.durationText, '约5分钟', 20) },
+    number3: { value: String(Math.round(Number(report.score) || 0)) },
+    thing4: { value: formatMessageText(report.remark, '点击查看报告详情', 20) }
+  }
+}
+
 // 在「报告生成 / 练习出分 / 支付成功」等事件发生时调用：
 // 若用户开启了该类提醒，就地拉起订阅授权（一次性订阅，正好为这次事件囤一次额度）。
 // 用法示例（报告页生成报告后）：
 //   const { requestSubscribeForEvent } = require('../../utils/subscribe')
 //   requestSubscribeForEvent('Bq5QCQ0Km8XTBapXuDavgzC0YrjUupVxJ_Hob0hmch4')
-function requestSubscribeForEvent(idOrPrefKey) {
+function requestSubscribeForEvent(idOrPrefKey, options) {
   return new Promise(resolve => {
+    options = options || {}
     const tmpl = findTemplate(idOrPrefKey)
     if (!tmpl || !isUsableTmplId(tmpl.id)) {
       resolve(false)
@@ -153,7 +214,13 @@ function requestSubscribeForEvent(idOrPrefKey) {
         if (accepted) {
           // 预留后端：上报本次事件订阅（懒加载 api 避免循环依赖）
           try {
-            require('./api').reportSubscribeMessageQuota({ tmplId: tmpl.id, delta: 1, source: 'event' })
+            require('./api').reportSubscribeMessageQuota(Object.assign({
+              tmplId: tmpl.id,
+              delta: 1,
+              source: 'event'
+            }, options.reportPayload || {}, {
+              messageData: options.messageData || null
+            }))
           } catch (e) {}
         }
         resolve(accepted)
@@ -165,6 +232,7 @@ function requestSubscribeForEvent(idOrPrefKey) {
 
 module.exports = {
   CHECKIN_REMIND_TMPL_ID,
+  CHECKIN_REMIND_TIME,
   SUBSCRIBE_TEMPLATES,
   getSubscribeTemplates,
   getSubscribeTmplIds,
@@ -173,5 +241,9 @@ module.exports = {
   setSubscribePref,
   getSubscribeQuota,
   bumpSubscribeQuota,
+  buildUnitReportPage,
+  buildExamReportPage,
+  buildPaymentSuccessMessageData,
+  buildReportMessageData,
   requestSubscribeForEvent
 }

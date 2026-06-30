@@ -5,7 +5,8 @@ const {
   getSubscribePref,
   setSubscribePref,
   getSubscribeQuota,
-  bumpSubscribeQuota
+  bumpSubscribeQuota,
+  CHECKIN_REMIND_TIME
 } = require('../../utils/subscribe')
 const {
   DEMO_CONTINUOUS_DAYS,
@@ -347,7 +348,14 @@ Page({
           setSubscribePref(CHECKIN_REMIND_PREF_KEY, true)
           this.setData({ checkinRemindCount: count, checkinRemindEnabled: true })
           // 预留后端：上报本次订阅，后端据此累计推送额度（接口就绪前为空操作）
-          reportSubscribeMessageQuota({ tmplId, delta: 1, total: count })
+          reportSubscribeMessageQuota({
+            tmplId,
+            delta: 1,
+            total: count,
+            source: 'accumulate',
+            remindTime: CHECKIN_REMIND_TIME,
+            page: '/pages/checkin/calendar'
+          })
           wx.showToast({ title: '已累计 ' + count + ' 次提醒', icon: 'success' })
         } else if (res[tmplId] === 'reject') {
           wx.showToast({ title: '已拒绝打卡提醒', icon: 'none' })

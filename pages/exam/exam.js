@@ -9,6 +9,11 @@ const {
 const { imageUrl } = require('../../utils/image-host')
 const { player } = require('../../utils/player')
 const { resolveVoiceUrl } = require('../../utils/voice-url')
+const {
+  buildExamReportPage,
+  buildReportMessageData,
+  requestSubscribeForEvent
+} = require('../../utils/subscribe')
 Page({
   data: {
     stage: 'intro',          // intro | quiz
@@ -90,10 +95,13 @@ Page({
   },
 
   goReport() {
-    const query = 'resBookId=' + encodeURIComponent(this.resBookId) +
-      '&type=' + this.examType +
-      '&name=' + encodeURIComponent(this.bookName)
-    wx.navigateTo({ url: '/pages/exam/exam-report?' + query })
+    wx.navigateTo({
+      url: buildExamReportPage({
+        resBookId: this.resBookId,
+        type: this.examType,
+        name: this.bookName
+      })
+    })
   },
 
   loadQuestion(index) {
@@ -277,10 +285,26 @@ Page({
       durationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000))
     })
     saveResult(this.resBookId, this.examType, result)
-    const query = 'resBookId=' + encodeURIComponent(this.resBookId) +
-      '&type=' + this.examType +
-      '&name=' + encodeURIComponent(this.bookName)
-    wx.redirectTo({ url: '/pages/exam/exam-report?' + query })
+    const reportPage = buildExamReportPage({
+      resBookId: this.resBookId,
+      type: this.examType,
+      name: this.bookName
+    })
+    requestSubscribeForEvent('subscribePref_report', {
+      messageData: buildReportMessageData({
+        reportType: this.examType === 'exit' ? '结业测评报告' : '入门测评报告',
+        durationText: result.practiceTimeText || '约' + Math.max(1, Math.ceil((result.practiceSeconds || 0) / 60)) + '分钟',
+        score: result.accuracy,
+        remark: this.examType === 'exit' ? '结业成果已生成，看看进步' : '摸清基础，学习更有方向'
+      }),
+      reportPayload: {
+        reportType: this.examType,
+        resBookId: this.resBookId,
+        page: reportPage
+      }
+    }).then(() => {
+      wx.redirectTo({ url: reportPage })
+    })
   },
 
   // 返回：还没开始答题（intro 页）直接返回，不二次确认；答题中才确认

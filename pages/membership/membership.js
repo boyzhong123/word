@@ -13,6 +13,10 @@ const {
   createOrder,
   saveOrder
 } = require('../../utils/membership-orders')
+const {
+  buildPaymentSuccessMessageData,
+  requestSubscribeForEvent
+} = require('../../utils/subscribe')
 
 const REDEEM_CODE_TIERS = {
   '2818M32': 'm1',
@@ -340,11 +344,21 @@ Page({
     const membership = activateMembership(tier.id)
     const order = createOrder(tier, byRedeem, this.data.appliedCode, membership)
     const orders = saveOrder(order)
+    const successUrl = '/pages/membership-success/membership-success?orderId=' + encodeURIComponent(order.id)
     this.setData({
       paid: true,
       showConfirm: false,
       membership,
       orders
+    })
+    requestSubscribeForEvent('subscribePref_payment', {
+      messageData: buildPaymentSuccessMessageData(order),
+      reportPayload: {
+        orderId: order.id,
+        orderType: 'membership',
+        payMethod: order.method,
+        page: successUrl
+      }
     })
     wx.showToast({
       title: renewing ? '续费成功' : (byRedeem ? '兑换成功' : '开通成功'),
@@ -363,7 +377,7 @@ Page({
         channel.emit('membership', membership)
       }
       wx.redirectTo({
-        url: '/pages/membership-success/membership-success?orderId=' + encodeURIComponent(order.id)
+        url: successUrl
       })
     }, 550)
   }

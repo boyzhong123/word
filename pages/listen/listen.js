@@ -1214,6 +1214,7 @@ Page({
     const summary = 'Listening quiz · ' + accuracy + '% fill · ' + avgRecite + ' recite' +
       (spellRecords.length ? ' · ' + spellRate + '% spell' : '')
     const query = [
+      'resBookId=' + encodeURIComponent(this.resBookId || ''),
       'sort=' + (unit.sort || 1),
       'words=' + total,
       'unitId=' + encodeURIComponent(unit.unitId || this.targetUnitId || ''),

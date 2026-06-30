@@ -281,12 +281,10 @@ function reportListeningQuizResult(payload) {
   })
 }
 
-// 预留：上报订阅消息的订阅次数，供后端累计一次性订阅的推送额度。
-// payload 形如 { tmplId, delta, total }。后端就绪后，把 URL 与后端确认、
-// 并将 ENABLED 置为 true 即可联通；在此之前直接返回 false，
-// 前端本地计数照常工作，不会发出无效请求。
+// 上报订阅消息授权和事件消息数据，供后端累计一次性订阅额度并发送事件通知。
+// payload 形如 { tmplId, delta, total, messageData }。
 const SUBSCRIBE_REPORT_URL = '/mini-app/subscribe-message/report' // TODO: 与后端确认实际路径
-const SUBSCRIBE_REPORT_ENABLED = false
+const SUBSCRIBE_REPORT_ENABLED = true
 
 function reportSubscribeMessageQuota(payload) {
   if (!SUBSCRIBE_REPORT_ENABLED) {

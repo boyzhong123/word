@@ -3,7 +3,8 @@ const {
   getSubscribePref,
   setSubscribePref,
   getSubscribeQuota,
-  bumpSubscribeQuota
+  bumpSubscribeQuota,
+  CHECKIN_REMIND_TIME
 } = require('../../utils/subscribe')
 const { reportSubscribeMessageQuota } = require('../../utils/api')
 
@@ -175,7 +176,14 @@ Page({
         if (res[id] === 'accept') {
           const count = bumpSubscribeQuota(template.countKey, 1)
           // 预留后端：上报订阅，后端据此累计推送额度（接口就绪前为空操作）
-          reportSubscribeMessageQuota({ tmplId: id, delta: 1, total: count })
+          reportSubscribeMessageQuota({
+            tmplId: id,
+            delta: 1,
+            total: count,
+            source: 'accumulate',
+            remindTime: CHECKIN_REMIND_TIME,
+            page: '/pages/checkin/calendar'
+          })
           this.updateTemplate(id, { count, statusText: '已授权', statusType: 'on' })
           wx.showToast({ title: '已累计 ' + count + ' 次提醒', icon: 'success' })
         } else if (res[id] === 'reject') {
