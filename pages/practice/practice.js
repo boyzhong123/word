@@ -48,6 +48,7 @@ const DETAIL_TAB_DEFS = [
 ]
 
 const WORD_HINT_VISIBLE_MS = 2000
+const PAGE_TIP_NAV_GAP_PX = 8
 // 跟读模式：当前词全部条目读完评分后，倒计时自动进入下一词（与小测一致）
 const AUTO_NEXT_COUNTDOWN_S = 3
 // media 组件评分反馈（彩带/表情）展示 2000ms 后淡出，倒计时等它播完
@@ -67,6 +68,17 @@ function getPracticeProgressRatio(index, total) {
 
 function getPracticeProgressPercent(index, total) {
   return Math.round(getPracticeProgressRatio(index, total) * 100)
+}
+
+function getPageTipPosition(targetRect, tipRect, navRect) {
+  const top = (targetRect && targetRect.top || 0) - (tipRect && tipRect.height || 0)
+  const minTop = navRect && typeof navRect.bottom === 'number'
+    ? navRect.bottom + PAGE_TIP_NAV_GAP_PX
+    : top
+  return {
+    top: Math.max(top, minTop),
+    left: (targetRect && targetRect.left || 0) + 5
+  }
 }
 
 function normalizeWordPronunciations(word) {
@@ -208,7 +220,7 @@ Page({
     safeAreaBottom: wx.getStorageSync('windowHeight') - wx.getStorageSync('safeArea').bottom,
     dialog: { type: '' },
     axis: {
-      'anchor-page': { text: '在书中对应的页数 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-page', marginleft: 1 },
+      'anchor-page': { text: '在书中对应的页数 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-page-tip', marginleft: 1 },
       'anchor-record': { text: '点击开始录音，请在“叮”声后开始朗读 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-record' }, 'anchor-replay': { text: '点击回放录音 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-replay' },
       'anchor-proverb': { text: '点击学习谚语 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-proverb' },
       'anchor-stress': { text: '加粗的单词需重读 x', top: 0, left: 0, hidden: 'hidden', class: 'anchor-stress' },
@@ -675,6 +687,9 @@ Page({
     }
   },
   hideTip(anchor) {
+    if (anchor === 'anchor-page-tip') {
+      anchor = 'anchor-page'
+    }
     if (anchor) {
       this.setData({
         ['axis.' + anchor + '.hidden']: 'hidden'
@@ -695,17 +710,23 @@ Page({
     }
     let query = this.createSelectorQuery()
     query.select('.scroll-container').boundingClientRect()
+    query.select('.practice-nav').boundingClientRect()
     if (!wx.getStorageSync('anchor-page')) {
-      query.selectAll('.anchor-page').boundingClientRect()
+      query.select('.anchor-page-tip').boundingClientRect()
+      query.select('.anchor-page').boundingClientRect()
     }
     query.exec(res => {
       this.scrollviewTop = res[0].top
       this.scrollTop = 0
-      if (res.length > 1 && res[1][1].width > 3) {
+      const navRect = res[1]
+      const tipRect = res[2]
+      const targetRect = res[3]
+      if (targetRect && targetRect.width > 3) {
+        const position = getPageTipPosition(targetRect, tipRect, navRect)
         wx.setStorageSync('anchor-page', true)
         this.setData({
-          'axis.anchor-page.top': res[1][1].top - res[1][0].height,
-          'axis.anchor-page.left': res[1][1].left + 5,
+          'axis.anchor-page.top': position.top,
+          'axis.anchor-page.left': position.left,
           'axis.anchor-page.hidden': 'visible'
         })
       }

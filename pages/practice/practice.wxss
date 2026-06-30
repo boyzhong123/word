@@ -259,6 +259,10 @@ page {
   transition: background 0.25s ease;
 }
 
+.anchor-page-tip {
+  z-index: 120;
+}
+
 /* ===================== 单词新学：认识不 + 详情页 ===================== */
 /* 整屏统一背景（含导航区） */
 .practice-bg,
