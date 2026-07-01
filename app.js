@@ -3,6 +3,40 @@ const { resetVipFloatingGuideDismissed } = require('./utils/vip-floating-guide')
 
 const baseUrl = wx.getAccountInfoSync().miniProgram.envVersion === 'release' ? 'https://pb10.91tszx.com' : 'https://pb10.91tszx.com'
 
+function setupMiniProgramUpdate() {
+  if (typeof wx.getUpdateManager !== 'function') {
+    return
+  }
+
+  const updateManager = wx.getUpdateManager()
+  updateManager.onCheckForUpdate((result) => {
+    if (result && result.hasUpdate) {
+      console.log('发现小程序新版本，开始下载更新包')
+    }
+  })
+  updateManager.onUpdateReady(() => {
+    wx.showModal({
+      title: '版本更新',
+      content: '新版本已准备好，请重启小程序以使用最新版。',
+      showCancel: false,
+      confirmText: '立即重启',
+      success(res) {
+        if (!res || res.confirm) {
+          updateManager.applyUpdate()
+        }
+      }
+    })
+  })
+  updateManager.onUpdateFailed(() => {
+    wx.showModal({
+      title: '更新失败',
+      content: '新版本下载失败，请检查网络后重新打开小程序。',
+      showCancel: false,
+      confirmText: '知道了'
+    })
+  })
+}
+
 function updateNetworkStatus(networkType) {
   const isConnected = networkType !== 'none'
   wx.setStorageSync('networkType', networkType)
@@ -12,6 +46,7 @@ function updateNetworkStatus(networkType) {
 
 App({
   onLaunch() {
+    setupMiniProgramUpdate()
     resetVipFloatingGuideDismissed()
     wx.setInnerAudioOption({
         obeyMuteSwitch: false,

@@ -33,6 +33,8 @@ function loadTodayPage() {
   global.Page = config => {
     pageConfig = config
   }
+  const mockStore = require('../utils/mock/mock-store')
+  mockStore.reset()
 
   delete require.cache[require.resolve('../pages/today/today')]
   require('../pages/today/today')
@@ -48,7 +50,76 @@ function loadTodayPage() {
     }
   })
 
-  return { page, calls, storage }
+  return { page, calls, storage, mockStore }
+}
+
+function loadAppWithUpdateManager() {
+  let appConfig
+  const storage = {}
+  const updateCallbacks = {}
+  const calls = {
+    applyUpdate: 0,
+    getUpdateManager: 0,
+    showModal: []
+  }
+  const updateManager = {
+    onCheckForUpdate(callback) {
+      updateCallbacks.check = callback
+    },
+    onUpdateReady(callback) {
+      updateCallbacks.ready = callback
+    },
+    onUpdateFailed(callback) {
+      updateCallbacks.failed = callback
+    },
+    applyUpdate() {
+      calls.applyUpdate += 1
+    }
+  }
+
+  global.App = config => {
+    appConfig = config
+  }
+  global.getApp = () => appConfig
+  global.wx = {
+    getAccountInfoSync: () => ({ miniProgram: { envVersion: 'release' } }),
+    getUpdateManager: () => {
+      calls.getUpdateManager += 1
+      return updateManager
+    },
+    showModal: options => {
+      calls.showModal.push(options)
+      if (typeof options.success === 'function') {
+        options.success({ confirm: true })
+      }
+    },
+    setInnerAudioOption: options => {
+      if (options && typeof options.success === 'function') {
+        options.success()
+      }
+    },
+    getNetworkType: options => {
+      if (options && typeof options.success === 'function') {
+        options.success({ networkType: 'wifi' })
+      }
+    },
+    onNetworkStatusChange: () => {},
+    getSystemInfoSync: () => ({
+      statusBarHeight: 20,
+      platform: 'ios',
+      windowWidth: 375,
+      windowHeight: 667,
+      safeArea: { top: 20, bottom: 667 }
+    }),
+    getMenuButtonBoundingClientRect: () => ({ top: 26, height: 32 }),
+    getStorageSync: key => storage[key],
+    setStorageSync: (key, value) => { storage[key] = value }
+  }
+
+  delete require.cache[require.resolve('../app')]
+  require('../app')
+
+  return { app: appConfig, calls, updateCallbacks }
 }
 
 function cssBlock(selector) {
@@ -76,6 +147,20 @@ test('app cold-starts on onboarding before tab pages', () => {
   assert.equal(appConfig.pages[0], 'pages/onboarding/onboarding')
   assert.ok(appConfig.pages.includes('pages/today/today'))
   assert.equal(appConfig.tabBar.list[0].pagePath, 'pages/today/today')
+})
+
+test('app applies downloaded mini program updates after a forced restart prompt', () => {
+  const { app, calls, updateCallbacks } = loadAppWithUpdateManager()
+
+  app.onLaunch()
+  updateCallbacks.ready()
+
+  assert.equal(calls.getUpdateManager, 1)
+  assert.equal(calls.showModal.length, 1)
+  assert.equal(calls.showModal[0].showCancel, false)
+  assert.match(calls.showModal[0].title, /更新/)
+  assert.match(calls.showModal[0].content, /重启/)
+  assert.equal(calls.applyUpdate, 1)
 })
 
 test('today page guards incomplete profiles on show', () => {
@@ -264,8 +349,8 @@ test('non-member can expand a paid level but tapping a task prompts vip', () => 
 })
 
 test('vip member tapping the same later-level task follows normal navigation', () => {
-  const { page, calls, storage } = loadTodayPage()
-  storage.membership = { tierId: 'y1', expireAt: Date.now() + 86400000 }
+  const { page, calls, mockStore } = loadTodayPage()
+  mockStore.setSlice('membership', { tierId: 'y1', expireAt: Date.now() + 86400000 })
   page.book = { resBookId: 'book-1', name: 'Book' }
   page.applyTargets(
     page.book,
