@@ -6,6 +6,7 @@ const {
   buildPlanMascot,
   buildDisplayLevels,
   buildLevelViewState,
+  resolveUnitResourceId,
   INITIAL_LEVEL_COUNT,
   PLAN_MASCOT
 } = require('../utils/plan-preview')
@@ -38,6 +39,12 @@ test('plan level preview can expand to show all levels', () => {
   assert.equal(expanded.canExpandLevels, false)
   assert.equal(expanded.canCollapseLevels, true)
   assert.deepEqual(buildDisplayLevels(levelList, true), levelList)
+})
+
+test('plan preview uses integer backend id when unitId is not an integer', () => {
+  assert.equal(resolveUnitResourceId({ unitId: 'unit-1', id: 101 }), 101)
+  assert.equal(resolveUnitResourceId({ unitId: '102', id: 101 }), '102')
+  assert.equal(resolveUnitResourceId({ unitId: 'demo-unit-1' }), 'demo-unit-1')
 })
 
 test('plan page exposes mascot row and expand-all levels UI', () => {

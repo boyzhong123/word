@@ -55,11 +55,33 @@ function buildLevelViewState(levelList, levelsExpanded) {
   }
 }
 
+function isPositiveIntegerLike(value) {
+  if (value === null || typeof value === 'undefined' || value === '') {
+    return false
+  }
+  const text = String(value)
+  return /^\d+$/.test(text) && Number(text) > 0
+}
+
+function resolveUnitResourceId(unit) {
+  if (!unit) {
+    return ''
+  }
+  if (isPositiveIntegerLike(unit.unitId)) {
+    return unit.unitId
+  }
+  if (isPositiveIntegerLike(unit.id)) {
+    return unit.id
+  }
+  return unit.unitId || unit.id || ''
+}
+
 module.exports = {
   LEVEL_SIZE,
   INITIAL_LEVEL_COUNT,
   PLAN_MASCOT,
   buildPlanMascot,
   buildDisplayLevels,
-  buildLevelViewState
+  buildLevelViewState,
+  resolveUnitResourceId
 }

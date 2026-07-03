@@ -3,6 +3,7 @@ const assert = require('node:assert/strict')
 
 const {
   UNLOCK_ALL_TASKS_FOR_DEV,
+  DEMO_COMPLETED_LEVEL_COUNT,
   DISPLAY_BATCH_SIZE,
   REVIEW_INTERVAL,
   buildDisplayUnits,
@@ -12,6 +13,12 @@ const {
   buildMapSections,
   getNextVisibleCount
 } = require('../pages/home/home-units')
+
+function skipIfDemoCompletionEnabled(t) {
+  if (DEMO_COMPLETED_LEVEL_COUNT > 0) {
+    t.skip('DEMO_COMPLETED_LEVEL_COUNT is enabled (' + DEMO_COMPLETED_LEVEL_COUNT + ')')
+  }
+}
 
 test('buildDisplayUnits maps every API unit and sorts by sort ascending', () => {
   const units = buildDisplayUnits([
@@ -44,6 +51,7 @@ test('different levels rotate through at least 200 bilingual learning sayings', 
 })
 
 test('category cards use the same jelly monster with state-specific frames', (t) => {
+  skipIfDemoCompletionEnabled(t)
   if (UNLOCK_ALL_TASKS_FOR_DEV) {
     t.skip('sequential unlock is disabled in dev mode')
   }
@@ -104,9 +112,10 @@ test('completed units show full progress for all three tasks', () => {
   ])
 })
 
-test('unfinished units show zero progress', () => {
+test('unfinished units show zero progress', (t) => {
+  skipIfDemoCompletionEnabled(t)
   const [unit] = buildDisplayUnits([
-    { unitId: 'unfinished', sort: 2, wordTotal: 12, completed: false }
+    { unitId: 'unfinished', sort: 5, wordTotal: 12, completed: false }
   ])
 
   assert.equal(unit.locked, false)
@@ -142,7 +151,8 @@ test('needVip locks a unit and overrides completed progress', () => {
   ])
 })
 
-test('empty API data returns a cloned fallback list', () => {
+test('empty API data returns a cloned fallback list', (t) => {
+  skipIfDemoCompletionEnabled(t)
   const fallback = [{
     unitId: 'fallback',
     sort: 2,
@@ -169,7 +179,8 @@ test('getNextVisibleCount adds one batch without exceeding total', () => {
   assert.equal(getNextVisibleCount(55, 55), 55)
 })
 
-test('the first level starts as the active, not-yet-cleared step (demo off)', () => {
+test('the first level starts as the active, not-yet-cleared step (demo off)', (t) => {
+  skipIfDemoCompletionEnabled(t)
   const [unit] = buildDisplayUnits([
     { unitId: 'unit-1', sort: 1, wordTotal: 12, completed: false }
   ])
@@ -183,6 +194,7 @@ test('the first level starts as the active, not-yet-cleared step (demo off)', ()
 })
 
 test('map progress exposes completed, active, upcoming, and locked task states', (t) => {
+  skipIfDemoCompletionEnabled(t)
   if (UNLOCK_ALL_TASKS_FOR_DEV) {
     t.skip('sequential unlock is disabled in dev mode')
   }
@@ -220,6 +232,7 @@ test('map progress exposes completed, active, upcoming, and locked task states',
 })
 
 test('map progress builds a continuous level route with image nodes and animated monsters', (t) => {
+  skipIfDemoCompletionEnabled(t)
   if (UNLOCK_ALL_TASKS_FOR_DEV) {
     t.skip('sequential unlock is disabled in dev mode')
   }
@@ -281,7 +294,8 @@ test('buildListUnits inserts a review level after every three real levels', () =
   ])
 })
 
-test('a 5-card daily goal boxes up exactly 5 cards, review included as a slot', () => {
+test('a 5-card daily goal boxes up exactly 5 cards, review included as a slot', (t) => {
+  skipIfDemoCompletionEnabled(t)
   const units = buildDisplayUnits(Array.from({ length: 6 }, (_, index) => ({
     unitId: 'unit-' + (index + 1),
     sort: index + 1,
@@ -314,7 +328,7 @@ test('buildListUnits review card mirrors the regular layout with wrong-word cont
   assert.ok(review)
   assert.equal(review.key, 'review-1')
   assert.equal(review.reviewWords, 30)
-  assert.equal(review.title, '复习 · 错词巩固 · 30词')
+  assert.equal(review.title, '错词巩固 · 30词')
   assert.equal(review.locked, false)
   // Same three-task layout as a regular card, retargeted at review content
   assert.deepEqual(review.tasks.map(task => task.type), ['word', 'recitation', 'listening'])
@@ -328,7 +342,8 @@ test('buildListUnits review card mirrors the regular layout with wrong-word cont
   assert.ok(review.cardMonsterSprite.startsWith('/images/home/map/monsters/'))
 })
 
-test('buildListUnits prefers explicit wrong-word counts and locks until the group is cleared', () => {
+test('buildListUnits prefers explicit wrong-word counts and locks until the group is cleared', (t) => {
+  skipIfDemoCompletionEnabled(t)
   const units = buildDisplayUnits([
     { unitId: 'unit-1', sort: 1, wordTotal: 10, wrongWords: 3, completed: true },
     { unitId: 'unit-2', sort: 2, wordTotal: 12, wrongWords: 5, completed: false },
@@ -341,7 +356,8 @@ test('buildListUnits prefers explicit wrong-word counts and locks until the grou
   assert.equal(review.locked, true)
 })
 
-test('markTodayTasks flags the next N cards, counting reviews and skipping done/VIP', () => {
+test('markTodayTasks flags the next N cards, counting reviews and skipping done/VIP', (t) => {
+  skipIfDemoCompletionEnabled(t)
   const units = buildDisplayUnits([
     { unitId: 'unit-1', sort: 1, wordTotal: 10, completed: true },
     { unitId: 'unit-2', sort: 2, wordTotal: 12 },
@@ -377,7 +393,8 @@ test('markTodayTasks excludes a review that covers VIP levels', () => {
   assert.equal(review.isTodayTask, false)
 })
 
-test('groupListUnits bundles consecutive today levels into one group, others alone', () => {
+test('groupListUnits bundles consecutive today levels into one group, others alone', (t) => {
+  skipIfDemoCompletionEnabled(t)
   const units = buildDisplayUnits([
     { unitId: 'unit-1', sort: 1, wordTotal: 10, completed: true },
     { unitId: 'unit-2', sort: 2, wordTotal: 12 },

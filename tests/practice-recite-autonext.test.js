@@ -8,6 +8,22 @@ const practiceScript = fs.readFileSync(path.join(projectRoot, 'pages/practice/pr
 const practiceTemplate = fs.readFileSync(path.join(projectRoot, 'pages/practice/practice.wxml'), 'utf8')
 const practiceStyle = fs.readFileSync(path.join(projectRoot, 'pages/practice/practice.wxss'), 'utf8')
 
+test('recitation learning mode blocks swiper finger swipes in swiperChanged', () => {
+  assert.match(practiceTemplate, /disable-touch="{{from != 'search'}}"/)
+  const swiperChangedBody = practiceScript.match(/swiperChanged\(e\)\s*{([\s\S]*?)\n  },/)
+  assert.ok(swiperChangedBody)
+  assert.match(swiperChangedBody[1], /source === 'touch'/)
+  assert.match(swiperChangedBody[1], /this\.data\.from !== 'search'/)
+  assert.match(swiperChangedBody[1], /setData\(\{\s*current:\s*revertTo/)
+})
+
+test('recitation learning mode blocks swiper changes with missing source unless code allowed them', () => {
+  const swiperChangedBody = practiceScript.match(/swiperChanged\(e\)\s*{([\s\S]*?)\n  },/)
+  assert.ok(swiperChangedBody)
+  assert.match(swiperChangedBody[1], /source === ''/)
+  assert.match(swiperChangedBody[1], /this\._allowRecitationSwiperChange !== current/)
+})
+
 test('recitation auto-next countdown supports immediate skip like the level quiz', () => {
   assert.match(practiceTemplate, /{{autoNextCountdown}} 秒后{{current >= contents\.length - 1 \? '提交' : '进入下一步'}}，<text class="auto-next-skip" catchtap="skipAutoNext">立即跳过<\/text>/)
   assert.match(practiceTemplate, /catchtap="pauseAutoNext"/)

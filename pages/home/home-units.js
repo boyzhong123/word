@@ -2,8 +2,9 @@ const DISPLAY_BATCH_SIZE = 20
 const { imageUrl } = require('../../utils/image-host')
 // 临时放开顺序解锁，方便联调跟读背诵 / 听力小测；测完改回 false。
 const UNLOCK_ALL_TASKS_FOR_DEV = false
-// 演示：第一关视为已通关（三星 + 报告 + 小怪兽 defeated）。已关闭，按真实进度展示。
-const DEMO_FIRST_UNIT_COMPLETED = false
+// 演示：前 N 关视为已通关（三星 + 报告 + 小怪兽 defeated）。0 = 按真实进度展示。
+// 仅演示第一关；设为 2+ 会让后续关在地图/成长页也显示已通关，三个子环节可随意点进。
+const DEMO_COMPLETED_LEVEL_COUNT = 1
 const LEARNING_SAYINGS = require('./learning-sayings')
 const MAP_POSITIONS = ['left', 'right', 'center']
 const MAP_LANES = ['center', 'left', 'right', 'left', 'center', 'right', 'left', 'right']
@@ -294,8 +295,10 @@ function getMapSectionTheme(sectionIndex) {
   return MAP_SECTION_THEMES[sectionIndex % MAP_SECTION_THEMES.length]
 }
 
-function applyFirstUnitDemoCompletion(unit) {
-  if (!DEMO_FIRST_UNIT_COMPLETED || !unit || unit.sort !== 1 || unit.locked || unit.isReview) {
+function applyDemoLevelCompletion(unit) {
+  const sort = Number(unit && unit.sort) || 0
+  if (!DEMO_COMPLETED_LEVEL_COUNT || sort < 1 || sort > DEMO_COMPLETED_LEVEL_COUNT ||
+    !unit || unit.locked || unit.isReview) {
     return unit
   }
 
@@ -323,7 +326,7 @@ function applyFirstUnitDemoCompletion(unit) {
 function buildDisplayUnit(unit, index) {
   const locked = isEnabled(unit.needVip)
   const sort = getSort(unit, index)
-  const completed = (DEMO_FIRST_UNIT_COMPLETED && sort === 1 && !locked) ||
+  const completed = (DEMO_COMPLETED_LEVEL_COUNT > 0 && sort >= 1 && sort <= DEMO_COMPLETED_LEVEL_COUNT && !locked) ||
     (isEnabled(unit.completed) && !locked)
   const state = UNIT_STATES[locked ? 'locked' : (completed ? 'completed' : 'unfinished')]
   const wordTotal = toNonNegativeInteger(unit.wordTotal)
@@ -447,7 +450,7 @@ function buildDisplayUnits(apiUnits, fallbackUnits) {
   if (!source.length) {
     const fallback = Array.isArray(fallbackUnits) ? fallbackUnits : []
     return decorateMapProgress(
-      fallback.map(buildFallbackDisplayUnit).map(applyFirstUnitDemoCompletion)
+      fallback.map(buildFallbackDisplayUnit).map(applyDemoLevelCompletion)
     )
   }
 
@@ -459,7 +462,7 @@ function buildDisplayUnits(apiUnits, fallbackUnits) {
     .sort((left, right) => left.display.sort - right.display.sort || left.index - right.index)
     .map(item => item.display)
 
-  return decorateMapProgress(units.map(applyFirstUnitDemoCompletion))
+  return decorateMapProgress(units.map(applyDemoLevelCompletion))
 }
 
 function buildMapSections(units) {
@@ -768,6 +771,7 @@ function groupListUnits(listUnits) {
 
 module.exports = {
   UNLOCK_ALL_TASKS_FOR_DEV,
+  DEMO_COMPLETED_LEVEL_COUNT,
   DISPLAY_BATCH_SIZE,
   REVIEW_INTERVAL,
   buildDisplayUnits,

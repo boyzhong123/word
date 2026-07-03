@@ -12,7 +12,8 @@ const { TODAY_FEEDBACK, queueTodayFeedback } = require('../../utils/today-feedba
 const {
   PLAN_MASCOT,
   buildPlanMascot,
-  buildLevelViewState
+  buildLevelViewState,
+  resolveUnitResourceId
 } = require('../../utils/plan-preview')
 
 // 预解码三张吉祥物图，避免首次切换组数时现加载导致的首帧跳动
@@ -82,7 +83,7 @@ function buildLevelListItem(unit, index, words) {
   const count = toPositiveInt(unit.wordTotal, words.length || LEVEL_SIZE)
   return {
     sort,
-    unitId: unit.unitId || unit.id || '',
+    unitId: resolveUnitResourceId(unit),
     start: null,
     end: null,
     count: words.length || count,

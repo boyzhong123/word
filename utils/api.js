@@ -63,7 +63,9 @@ function bindPhoneNumber(phoneInfo) {
 function getUserBooks() {
   return new Promise(resolve => {
     util.request('GET', '/mini-app/user-books', {}, (data) => {
-      resolve(data)
+      resolve(Array.isArray(data) ? data : [])
+    }, () => {
+      resolve([])
     })
   })
 }
@@ -228,7 +230,9 @@ function getUnitResource(unitId) {
         unitId
       }
     }, (data) => {
-      resolve(data)
+      resolve(Array.isArray(data) && data.length ? data : buildDemoUnitResource(unitId))
+    }, () => {
+      resolve(buildDemoUnitResource(unitId))
     })
   })
 }

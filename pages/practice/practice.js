@@ -786,9 +786,26 @@ Page({
     })
   },
   swiperChanged(e) {
+    const detail = (e && e.detail) || {}
+    const current = detail.current
+    const source = detail.source || ''
+    // disable-touch 在开发者工具/部分机型不可靠；学习模式拦截手指滑动，只保留代码切题（自动下一词）。
+    if (this.data.from !== 'search' && (
+      source === 'touch' ||
+      source === 'touch-out-of-bounds' ||
+      (source === '' && this._allowRecitationSwiperChange !== current)
+    )) {
+      const revertTo = Number.isFinite(this.last) ? this.last : this.data.current
+      if (current !== revertTo) {
+        this.setData({ current: revertTo })
+      }
+      return
+    }
+    if (this._allowRecitationSwiperChange === current) {
+      this._allowRecitationSwiperChange = null
+    }
     this.hideTip()
     this.stopAutoNextCountdown()
-    const current = e.detail.current
     const item = this.data.contents[current]
     this.setData(Object.assign({
       current: current,
@@ -803,6 +820,10 @@ Page({
     this.dx = 0
   },
   touchEnd(e) {
+    // 学习模式不在最后一词用手势提交；跟搜索查词一致走按钮/自动流程。
+    if (this.data.from !== 'search') {
+      return
+    }
     if (!this.wordId && this.last == this.data.contents.length - 1 && this.dx > 20) {
       this.goFinishPage()
     }
@@ -857,6 +878,7 @@ Page({
     this.hideTip()
     this.stopAutoNextCountdown()
     const item = this.data.contents[next]
+    this._allowRecitationSwiperChange = next
     this.setData(Object.assign({
       current: next,
       autoNextPaused: false

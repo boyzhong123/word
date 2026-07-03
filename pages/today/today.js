@@ -14,7 +14,7 @@ const { withMockTextbooks } = require('../../utils/mock-textbooks')
 const { normalizeBookCover, getFallbackBookCover } = require('../../utils/book-cover')
 const { isNewStandardBook } = require('../../utils/book-tags')
 const { appendReturnTabQuery } = require('../../utils/return-tab')
-const { LEVEL_SIZE, getDailyGoal, getTodayDone, getTodayDoneUnitIds } = require('../../utils/checkin-progress')
+const { LEVEL_SIZE, getDailyGoal, getTodayDone, getTodayDoneUnitIds, recordLevelDone } = require('../../utils/checkin-progress')
 const { getMembership, isMember } = require('../../utils/membership')
 const { navigateToVipPurchase, promptVipPurchase } = require('../../utils/vip-purchase')
 const { isLevelUnlocked, isFreeLevel } = require('../../utils/level-access')
@@ -37,6 +37,7 @@ const {
   buildDisplayUnits,
   buildListUnits,
   buildStageStars,
+  DEMO_COMPLETED_LEVEL_COUNT,
   UNLOCK_ALL_TASKS_FOR_DEV
 } = require('../home/home-units')
 const { FALLBACK_UNITS } = require('../../utils/fallback-units')
@@ -354,6 +355,43 @@ function selectTodayTargets(listUnits, goal, doneUnitIds) {
   return selected
 }
 
+function prepareTodayProgress(resBookId, listUnits) {
+  if (!DEMO_COMPLETED_LEVEL_COUNT) {
+    return {
+      todayDone: getTodayDone(resBookId),
+      todayDoneUnitIds: getTodayDoneUnitIds(resBookId)
+    }
+  }
+  ;(listUnits || []).forEach(unit => {
+    if (unit.isReview || Number(unit.sort) > DEMO_COMPLETED_LEVEL_COUNT) {
+      return
+    }
+    if (unit.mapState !== 'completed') {
+      return
+    }
+    recordLevelDone(resBookId, getTargetUnitId(unit))
+  })
+  return {
+    todayDone: getTodayDone(resBookId),
+    todayDoneUnitIds: getTodayDoneUnitIds(resBookId)
+  }
+}
+
+function sumDemoCompletedLearning(listUnits) {
+  if (!DEMO_COMPLETED_LEVEL_COUNT) {
+    return { words: 0, sentences: 0 }
+  }
+  const completedLevels = (listUnits || [])
+    .filter(unit => !unit.isReview &&
+      Number(unit.sort) <= DEMO_COMPLETED_LEVEL_COUNT &&
+      unit.mapState === 'completed')
+    .map(level => ({
+      levelWords: level.levelWords,
+      tasks: (level.tasks || []).map(task => Object.assign({}, task, { stepState: 'completed' }))
+    }))
+  return sumTodayLearning(completedLevels)
+}
+
 Page({
   data: {
     statusBarHeight: getStatusBarHeight(),
@@ -524,28 +562,28 @@ Page({
   loadUnits(book) {
     const resBookId = book.resBookId
     const todayGoal = DEMO_TODAY_ROUTE ? DEMO_TODAY_GOAL : getDailyGoal(resBookId)
-    const todayDone = DEMO_TODAY_ROUTE ? DEMO_ACTIVE_LEVEL_INDEX : getTodayDone(resBookId)
-    const todayDoneUnitIds = DEMO_TODAY_ROUTE ? [] : getTodayDoneUnitIds(resBookId)
+
+    const finishLoad = (listUnits) => {
+      const progress = DEMO_TODAY_ROUTE
+        ? { todayDone: DEMO_ACTIVE_LEVEL_INDEX, todayDoneUnitIds: [] }
+        : prepareTodayProgress(resBookId, listUnits)
+      const targets = DEMO_TODAY_ROUTE
+        ? listUnits.filter(unit => !unit.isReview).slice(0, DEMO_TODAY_GOAL)
+        : selectTodayTargets(listUnits, todayGoal, progress.todayDoneUnitIds)
+      this.applyTargets(book, targets, todayGoal, progress.todayDone, listUnits)
+    }
 
     getUnits(resBookId).then(data => {
       const apiUnits = data && Array.isArray(data.list) ? data.list : []
       const displayUnits = buildDisplayUnits(apiUnits, FALLBACK_UNITS)
-      const listUnits = buildListUnits(displayUnits)
-      const targets = DEMO_TODAY_ROUTE
-        ? listUnits.filter(unit => !unit.isReview).slice(0, DEMO_TODAY_GOAL)
-        : selectTodayTargets(listUnits, todayGoal, todayDoneUnitIds)
-      this.applyTargets(book, targets, todayGoal, todayDone)
+      finishLoad(buildListUnits(displayUnits))
     }).catch(() => {
       const displayUnits = buildDisplayUnits([], FALLBACK_UNITS)
-      const listUnits = buildListUnits(displayUnits)
-      const targets = DEMO_TODAY_ROUTE
-        ? listUnits.filter(unit => !unit.isReview).slice(0, DEMO_TODAY_GOAL)
-        : selectTodayTargets(listUnits, todayGoal, todayDoneUnitIds)
-      this.applyTargets(book, targets, todayGoal, todayDone)
+      finishLoad(buildListUnits(displayUnits))
     })
   },
 
-  applyTargets(book, targets, todayGoal, todayDone) {
+  applyTargets(book, targets, todayGoal, todayDone, listUnits) {
     // 把今天要练的每个关卡拆成「单词新学 → 跟读背诵 → 关卡小测」三步，串成一条
     // 自上而下的学习路线：全局只有一个「现在练」的步骤被放大成 spotlight，已完成
     // 收成小勾，后面的变小变灰，营造「学完再学下一个」的一步步任务感。
@@ -675,11 +713,15 @@ Page({
     const membership = getMembership()
     const showVipFloatingGuide = shouldShowVipFloatingGuide(membership)
 
+    const demoStats = sumDemoCompletedLearning(listUnits)
+    const todayWords = Math.max(getTodayWords(targetLevels, todayDone), demoStats.words)
+    const todaySentences = Math.max(getTodaySentences(targetLevels), demoStats.sentences)
+
     this.setData({
       loading: false,
       book,
-      todayWords: getTodayWords(targetLevels, todayDone),
-      todaySentences: getTodaySentences(targetLevels),
+      todayWords,
+      todaySentences,
       todayGoal,
       todayDone,
       totalSteps,
