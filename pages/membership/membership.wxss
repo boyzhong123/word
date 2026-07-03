@@ -52,6 +52,22 @@ page {
   padding: 12rpx 28rpx 40rpx;
 }
 
+.audit-poster-list {
+  padding-bottom: 36rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.audit-poster-image {
+  display: block;
+  width: 100%;
+  border-radius: 24rpx;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 14rpx 32rpx rgba(56, 87, 150, 0.12);
+}
+
 .scroll-footer-spacer {
   width: 100%;
   flex: none;

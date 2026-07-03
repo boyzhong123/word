@@ -17,6 +17,7 @@ const {
   buildPaymentSuccessMessageData,
   requestSubscribeForEvent
 } = require('../../utils/subscribe')
+const { isServiceRightsReviewMode } = require('../../utils/vip-purchase')
 
 const REDEEM_CODE_TIERS = {
   '2818M32': 'm1',
@@ -85,6 +86,12 @@ const BENEFITS = [
   { icon: imageUrl('/images/home/icon-benefit-report.svg'), title: '学习报告与复习', desc: '掌握度、待复习词和环节表现一目了然' }
 ]
 
+const AUDIT_POSTER_IMAGES = [
+  imageUrl('/images/vip/service-rights-word-sentence.png'),
+  imageUrl('/images/vip/service-rights-online-user.png'),
+  imageUrl('/images/vip/service-rights-ten-minutes.png')
+]
+
 const COMPARE_ROWS = [
   { label: '同步教材数量', free: '当前教材试学', vip: '100+ 本' },
   { label: '教材第 1 关', free: '完整体验', vip: '完整体验' },
@@ -115,10 +122,12 @@ function getCachedProfile() {
 Page({
   data: {
     safeAreaBottom: 0,
+    auditMode: false,
     profileAvatar: '',
     profileName: '英语学习者',
     fallbackAvatar: '/images/app-logo.png',
     membershipHeroImage: imageUrl('/images/vip/membership-family-hero-v2.jpg'),
+    auditPosterImages: AUDIT_POSTER_IMAGES,
     vipBadgeActiveImage: imageUrl('/images/home/vip-name-badge.png'),
     vipBadgeInactiveImage: imageUrl('/images/home/vip-name-badge-inactive.png'),
     learningSteps: LEARNING_STEPS,
@@ -148,10 +157,12 @@ Page({
       ? Math.max(info.windowHeight - info.safeArea.bottom, 0)
       : 0
     const tierId = options && getTier(options.tierId) ? options.tierId : DEFAULT_TIER_ID
-    const showConfirm = !!(options && (options.openSku === '1' || options.openSku === true))
+    const auditMode = isServiceRightsReviewMode(options || {})
+    const showConfirm = !auditMode && !!(options && (options.openSku === '1' || options.openSku === true))
     const cachedProfile = getCachedProfile()
     this.setData({
       safeAreaBottom,
+      auditMode,
       profileAvatar: cachedProfile.avatar,
       profileName: cachedProfile.name || '英语学习者',
       selectedTierId: tierId,
@@ -207,7 +218,7 @@ Page({
   },
 
   openConfirm(event) {
-    if (this.data.paid) {
+    if (this.data.paid || this.data.auditMode) {
       return
     }
     const mode = event && event.currentTarget && event.currentTarget.dataset

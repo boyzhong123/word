@@ -533,6 +533,22 @@
       {
         "type": "glob",
         "value": "images/vip/membership-success.jpg"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/membership-records-empty.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/service-rights-online-user.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/service-rights-ten-minutes.png"
+      },
+      {
+        "type": "glob",
+        "value": "images/vip/service-rights-word-sentence.png"
       }
     ],
     "include": []

@@ -22,10 +22,17 @@ function getTaskResumeIndex(unitsData, unitId, taskType) {
   if (!task) {
     return 0
   }
-  if (task.mapState === 'completed' || task.stepState === 'completed') {
+  const total = toNonNegativeInteger(task.total)
+  const current = toNonNegativeInteger(task.current)
+  if (
+    task.mapState === 'completed' ||
+    task.stepState === 'completed' ||
+    toNonNegativeInteger(task.percent) >= 100 ||
+    (total > 0 && current >= total)
+  ) {
     return 0
   }
-  return toNonNegativeInteger(task.current)
+  return current
 }
 
 function getWordId(item) {

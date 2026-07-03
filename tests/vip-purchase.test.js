@@ -78,13 +78,59 @@ test('navigateToVipPurchase opens membership page and preserves the sku intent',
   assert.match(calls[0].url, /\/pages\/membership\/membership\?/)
   assert.match(calls[0].url, /resBookId=demo/)
   assert.match(calls[0].url, /openSku=1/)
+  assert.match(calls[0].url, /audit=1/)
 })
 
-test('membership page opens the sku confirmation when requested by an entry point', () => {
-  const page = loadMembershipPage({ tierId: 'm2', openSku: '1' })
+test('buildVipPurchaseQuery supports audit display mode', () => {
+  const query = buildVipPurchaseQuery(
+    { resBookId: 'demo', name: 'Demo', locked: true },
+    { audit: true }
+  )
+
+  assert.match(query, /audit=1/)
+})
+
+test('vip purchase query enters service rights review mode by default', () => {
+  const query = buildVipPurchaseQuery(
+    { resBookId: 'demo', name: 'Demo', locked: true }
+  )
+
+  assert.match(query, /audit=1/)
+})
+
+test('promptVipPurchase uses service rights copy in review mode', () => {
+  const calls = []
+  global.wx = {
+    showModal(options) {
+      calls.push(options)
+    }
+  }
+
+  const { promptVipPurchase } = require('../utils/vip-purchase')
+  promptVipPurchase({ resBookId: 'demo', name: 'Demo', locked: true })
+
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].title, '产品介绍')
+  assert.equal(calls[0].confirmText, '查看')
+  assert.doesNotMatch(calls[0].content, /会员|开通/)
+})
+
+test('membership page can still open the sku confirmation when review mode is disabled explicitly', () => {
+  const page = loadMembershipPage({ tierId: 'm2', openSku: '1', audit: '0' })
 
   assert.equal(page.data.selectedTierId, 'm2')
   assert.equal(page.data.showConfirm, true)
+})
+
+test('membership page enters audit display mode by default without opening payment sheet', () => {
+  const page = loadMembershipPage({ tierId: 'm2', openSku: '1' })
+
+  assert.equal(page.data.auditMode, true)
+  assert.equal(page.data.showConfirm, false)
+  assert.equal(page.data.auditPosterImages.length, 3)
+  assert.match(page.data.auditPosterImages[0], /service-rights-word-sentence\.png\?v=20260703-service-rights-v1$/)
+  assert.match(page.data.auditPosterImages[1], /service-rights-online-user\.png\?v=20260703-service-rights-v1$/)
+  assert.match(page.data.auditPosterImages[2], /service-rights-ten-minutes\.png\?v=20260703-service-rights-v1$/)
 })
 
 test('membership payment success requests the payment success template with order fields', async () => {
@@ -221,6 +267,31 @@ test('membership status copy and footer action stay on one line with compact spa
   assert.match(style, /\.member-copy\s*{[^}]*gap:\s*4rpx/s)
   assert.match(style, /\.footer-open\s*{[^}]*flex-wrap:\s*nowrap/s)
   assert.match(style, /\.footer-action-label\s*{[^}]*white-space:\s*nowrap/s)
+})
+
+test('membership audit mode shows only service rights posters', () => {
+  const template = fs.readFileSync(
+    path.join(projectRoot, 'pages/membership/membership.wxml'),
+    'utf8'
+  )
+  const script = fs.readFileSync(
+    path.join(projectRoot, 'pages/membership/membership.js'),
+    'utf8'
+  )
+  const style = fs.readFileSync(
+    path.join(projectRoot, 'pages/membership/membership.wxss'),
+    'utf8'
+  )
+
+  assert.match(template, /auditMode \? '产品介绍'/)
+  assert.match(template, /wx:if="\{\{auditMode\}\}" class="audit-poster-list"/)
+  assert.match(template, /wx:for="\{\{auditPosterImages\}\}"/)
+  assert.match(template, /wx:else class="member-content"/)
+  assert.match(template, /wx:if="\{\{!auditMode\}\}" class="footer"/)
+  assert.match(script, /'\/images\/vip\/service-rights-word-sentence\.png'/)
+  assert.match(script, /'\/images\/vip\/service-rights-online-user\.png'/)
+  assert.match(script, /'\/images\/vip\/service-rights-ten-minutes\.png'/)
+  assert.match(style, /\.audit-poster-image\s*{[^}]*width:\s*100%/s)
 })
 
 test('membership records page reflects active membership state in profile badge', () => {

@@ -65,7 +65,10 @@ const REMOTE_IMAGE_PATHS = {
   '/images/plan/plan-mascot-normal.png': true,
   '/images/vip/membership-family-hero-v2.jpg': true,
   '/images/vip/membership-records-empty.png': true,
-  '/images/vip/membership-success.jpg': true
+  '/images/vip/membership-success.jpg': true,
+  '/images/vip/service-rights-online-user.png': true,
+  '/images/vip/service-rights-ten-minutes.png': true,
+  '/images/vip/service-rights-word-sentence.png': true
 }
 
 const REMOTE_IMAGE_VERSIONS = {
@@ -94,7 +97,10 @@ const REMOTE_IMAGE_VERSIONS = {
   '/images/plan/plan-mascot-normal.png': '20260620-plan-mascot-color-v7',
   '/images/vip/membership-family-hero-v2.jpg': '20260625-family-hero-v3',
   '/images/vip/membership-records-empty.png': '20260625-records-empty-v4',
-  '/images/vip/membership-success.jpg': '20260624-vip-crown-v1'
+  '/images/vip/membership-success.jpg': '20260624-vip-crown-v1',
+  '/images/vip/service-rights-online-user.png': '20260703-service-rights-v1',
+  '/images/vip/service-rights-ten-minutes.png': '20260703-service-rights-v1',
+  '/images/vip/service-rights-word-sentence.png': '20260703-service-rights-v1'
 }
 
 // These files exist locally but are currently missing on COS.

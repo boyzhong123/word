@@ -1,0 +1,57 @@
+<svg width="750" height="260" viewBox="0 0 750 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="bg" x1="56" y1="24" x2="694" y2="248" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#F3ECFF"/>
+    <stop offset="0.52" stop-color="#EAF4FF"/>
+    <stop offset="1" stop-color="#D7ECFF"/>
+  </linearGradient>
+  <linearGradient id="card" x1="72" y1="36" x2="670" y2="224" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#FFFFFF" stop-opacity="0.94"/>
+    <stop offset="1" stop-color="#F7FBFF" stop-opacity="0.9"/>
+  </linearGradient>
+  <linearGradient id="badge" x1="520" y1="52" x2="652" y2="88" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#FFE6A8"/>
+    <stop offset="1" stop-color="#FFD085"/>
+  </linearGradient>
+  <filter id="shadow" x="40" y="18" width="670" height="224" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+    <feOffset dy="10"/>
+    <feGaussianBlur stdDeviation="16"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0.294118 0 0 0 0 0.407843 0 0 0 0 0.741176 0 0 0 0.16 0"/>
+    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+  </filter>
+</defs>
+<rect x="24" y="16" width="702" height="228" rx="34" fill="url(#bg)"/>
+<g filter="url(#shadow)">
+  <rect x="56" y="32" width="638" height="196" rx="28" fill="url(#card)"/>
+</g>
+<circle cx="124" cy="96" r="36" fill="#8CCBFF"/>
+<circle cx="110" cy="86" r="20" fill="#5FA8FF"/>
+<path d="M110 122C126.569 122 140 108.569 140 92C140 75.4315 126.569 62 110 62C93.4315 62 80 75.4315 80 92C80 108.569 93.4315 122 110 122Z" fill="#77B7FF"/>
+<path d="M99 87C102.866 87 106 83.866 106 80C106 76.134 102.866 73 99 73C95.134 73 92 76.134 92 80C92 83.866 95.134 87 99 87Z" fill="#1D3E73"/>
+<path d="M121 87C124.866 87 128 83.866 128 80C128 76.134 124.866 73 121 73C117.134 73 114 76.134 114 80C114 83.866 117.134 87 121 87Z" fill="#1D3E73"/>
+<path d="M98 96C103 103 117 105 124 96" stroke="#1D3E73" stroke-width="5" stroke-linecap="round"/>
+<path d="M146 76L156 58L172 72L164 90L146 76Z" fill="#FFD66E"/>
+<path d="M156 58L163 50L178 63L172 72L156 58Z" fill="#FFB84C"/>
+<rect x="520" y="52" width="132" height="36" rx="18" fill="url(#badge)"/>
+<text x="586" y="76" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="700" fill="#8A5A00">审核展示版</text>
+<text x="182" y="86" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="42" font-weight="700" fill="#18212D">会员权益展示</text>
+<text x="182" y="120" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="500" fill="#5E6B7A">解锁完整教材学习闭环，展示核心学习能力与会员价值</text>
+<rect x="182" y="146" width="146" height="38" rx="19" fill="#EFF6FF"/>
+<rect x="338" y="146" width="146" height="38" rx="19" fill="#FFF6DE"/>
+<rect x="182" y="192" width="146" height="38" rx="19" fill="#EEFCEF"/>
+<rect x="338" y="192" width="146" height="38" rx="19" fill="#F5EEFF"/>
+<text x="255" y="170" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#255BAA">全部关卡解锁</text>
+<text x="411" y="170" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#9C6A00">跟读评分纠音</text>
+<text x="255" y="216" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#1F8A52">随身听全开</text>
+<text x="411" y="216" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="20" font-weight="600" fill="#7A4CD1">学习报告复习</text>
+<circle cx="564" cy="156" r="11" fill="#7A4CD1" fill-opacity="0.14"/>
+<circle cx="592" cy="156" r="11" fill="#1F8A52" fill-opacity="0.14"/>
+<circle cx="620" cy="156" r="11" fill="#255BAA" fill-opacity="0.14"/>
+<path d="M564 156L568 160L575 151" stroke="#7A4CD1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M592 156L596 160L603 151" stroke="#1F8A52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M620 156L624 160L631 151" stroke="#255BAA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="560" y="206" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="18" font-weight="500" fill="#6C7786">购买能力以正式版本为准</text>
+</svg>

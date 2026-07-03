@@ -18,6 +18,8 @@ test('me page keeps the menu focused on common actions', () => {
   assert.doesNotMatch(meScript, /label: '消息授权状态'/)
 
   assert.doesNotMatch(meScript, /label: '会员中心'/)
+  assert.doesNotMatch(meScript, /label: '服务权益'/)
+  assert.doesNotMatch(meScript, /action: 'membership'/)
   assert.doesNotMatch(meScript, /label: '错词本'/)
   assert.doesNotMatch(meScript, /label: '学习成就'/)
   assert.doesNotMatch(meScript, /label: '意见反馈'/)
@@ -34,9 +36,11 @@ test('me page shows VIP badge beside nickname when membership is active', () => 
   assert.match(meScript, /getMembership/)
   assert.match(meScript, /refreshMembership\(\)/)
   assert.match(meScript, /vipNameBadgeInactiveUrl/)
+  assert.match(meScript, /navigateToVipPurchase\(null, \{ locked: true \}\)/)
   assert.doesNotMatch(meTemplate, /bindtap="goVip"/)
   assert.doesNotMatch(meScript, /goVip/)
   assert.doesNotMatch(meStyle, /menu-ic-vip/)
+  assert.doesNotMatch(meStyle, /menu-ic-service/)
   assert.doesNotMatch(meTemplate, /开通/)
 })
 

@@ -2,7 +2,7 @@
 <view class="page">
   <navigation class="membership-nav" background="#e7e1f0">
     <view class="nav-title-wrap">
-      <view class="nav-title-text">{{membership.active ? '会员续费' : '开通会员'}}</view>
+      <view class="nav-title-text">{{auditMode ? '产品介绍' : (membership.active ? '会员续费' : '会员权益')}}</view>
     </view>
   </navigation>
 
@@ -13,6 +13,17 @@
     show-scrollbar="{{false}}"
   >
     <view class="content">
+      <view wx:if="{{auditMode}}" class="audit-poster-list">
+        <image
+          wx:for="{{auditPosterImages}}"
+          wx:key="*this"
+          class="audit-poster-image"
+          src="{{item}}"
+          mode="widthFix"
+        />
+      </view>
+
+      <view wx:else class="member-content">
       <view class="member-card">
         <view class="member-avatar-shell">
           <image
@@ -166,31 +177,32 @@
         </view>
       </view>
       <view class="scroll-footer-spacer" style="height: {{safeAreaBottom + 224}}rpx;"></view>
+      </view>
     </view>
   </scroll-view>
 
-  <view class="footer" style="padding-bottom: {{safeAreaBottom + 18}}rpx;">
-    <view class="footer-actions">
-      <view class="footer-redeem" data-mode="redeem" bindtap="openConfirm">
-        <text>{{redeemApplied ? '已应用' : '兑换码'}}</text>
+  <view wx:if="{{!auditMode}}" class="footer" style="padding-bottom: {{safeAreaBottom + 18}}rpx;">
+      <view class="footer-actions">
+        <view class="footer-redeem" data-mode="redeem" bindtap="openConfirm">
+          <text>{{redeemApplied ? '已应用' : '兑换码'}}</text>
+        </view>
+        <view class="footer-open" bindtap="openConfirm">
+          <text class="footer-price">¥{{redeemApplied ? 0 : currentTier.price}}</text>
+          <text class="footer-action-label">{{redeemApplied ? (membership.active ? '确认延期' : '确认兑换') : (membership.active ? '续费延期' : '开通')}}</text>
+        </view>
       </view>
-      <view class="footer-open" bindtap="openConfirm">
-        <text class="footer-price">¥{{redeemApplied ? 0 : currentTier.price}}</text>
-        <text class="footer-action-label">{{redeemApplied ? (membership.active ? '确认延期' : '确认兑换') : (membership.active ? '续费延期' : '开通')}}</text>
+      <view class="agreement {{agreementAttention ? 'agreement-attention' : ''}}">
+        <view class="agreement-check {{agreementChecked ? 'agreement-check-on' : ''}}" bindtap="toggleAgreement">
+          <text wx:if="{{agreementChecked}}">✓</text>
+        </view>
+        <view class="agreement-text">
+          <text class="agreement-copy">{{membership.active ? '续费前' : '开通会员前'}}请阅读</text>
+          <text class="agreement-link" bindtap="openPaidAgreement">《用户付费协议》</text>
+        </view>
       </view>
-    </view>
-    <view class="agreement {{agreementAttention ? 'agreement-attention' : ''}}">
-      <view class="agreement-check {{agreementChecked ? 'agreement-check-on' : ''}}" bindtap="toggleAgreement">
-        <text wx:if="{{agreementChecked}}">✓</text>
-      </view>
-      <view class="agreement-text">
-        <text class="agreement-copy">{{membership.active ? '续费前' : '开通会员前'}}请阅读</text>
-        <text class="agreement-link" bindtap="openPaidAgreement">《用户付费协议》</text>
-      </view>
-    </view>
   </view>
 
-  <view wx:if="{{showConfirm}}" class="sheet-mask" bindtap="closeConfirm">
+  <view wx:if="{{showConfirm && !auditMode}}" class="sheet-mask" bindtap="closeConfirm">
     <view class="confirm-sheet" style="padding-bottom: {{safeAreaBottom + 26}}rpx;" catchtap="preventClose">
       <view class="sheet-handle"></view>
       <view class="sheet-head">

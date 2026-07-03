@@ -25,6 +25,15 @@ test('getTaskResumeIndex returns 0 for completed tasks', () => {
   assert.equal(getTaskResumeIndex(buildUnits(10, 'completed'), 'u1', 'word'), 0)
 })
 
+test('getTaskResumeIndex returns 0 when raw task progress is complete', () => {
+  assert.equal(getTaskResumeIndex({
+    list: [{
+      unitId: 'u1',
+      tasks: [{ type: 'word', current: 10, total: 10, percent: 100 }]
+    }]
+  }, 'u1', 'word'), 0)
+})
+
 test('resolveWordMarkStatus prefers mistaken over known', () => {
   assert.equal(resolveWordMarkStatus({ known: true, mistaken: true }), 'mistaken')
   assert.equal(resolveWordMarkStatus({ known: true }), 'known')

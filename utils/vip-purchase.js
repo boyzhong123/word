@@ -1,7 +1,17 @@
 // 统一跳转会员购买页，保证首页、今日、我的和学习门禁使用同一套购买流程。
+// 提审时打开此开关，所有 VIP / 会员入口都会进入「产品介绍」展示页。
+const ENABLE_SERVICE_RIGHTS_REVIEW_MODE = true
+
 function getCurrentBook() {
   const app = getApp()
   return (app && app.globalData && app.globalData.book) || {}
+}
+
+function isServiceRightsReviewMode(options = {}) {
+  if (options.audit === false || options.audit === '0') {
+    return false
+  }
+  return ENABLE_SERVICE_RIGHTS_REVIEW_MODE || options.audit === true || options.audit === '1'
 }
 
 function buildVipPurchaseQuery(book, options = {}) {
@@ -29,6 +39,9 @@ function buildVipPurchaseQuery(book, options = {}) {
   if (options.openSku) {
     parts.push('openSku=1')
   }
+  if (isServiceRightsReviewMode(options)) {
+    parts.push('audit=1')
+  }
   return parts.join('&')
 }
 
@@ -51,10 +64,13 @@ function navigateToVipPurchase(book, options = {}) {
 // 非会员点击被锁内容（关卡 / 伴读 / 图书）时：先弹确认框提示「未开通会员」，
 // 用户点「去开通」再跳会员购买页；点取消则不打扰。options 透传给 navigateToVipPurchase。
 function promptVipPurchase(book, options = {}) {
+  const reviewMode = isServiceRightsReviewMode(options)
   wx.showModal({
-    title: options.title || '会员专享内容',
-    content: options.content || '你还不是会员，开通会员后可解锁全部关卡与伴读内容。',
-    confirmText: options.confirmText || '去开通',
+    title: options.title || (reviewMode ? '产品介绍' : '会员专享内容'),
+    content: options.content || (reviewMode
+      ? '查看当前产品提供的学习服务与功能说明。'
+      : '你还不是会员，开通会员后可解锁全部关卡与伴读内容。'),
+    confirmText: options.confirmText || (reviewMode ? '查看' : '去开通'),
     cancelText: options.cancelText || '再想想',
     success(res) {
       if (res.confirm) {
@@ -65,7 +81,9 @@ function promptVipPurchase(book, options = {}) {
 }
 
 module.exports = {
+  ENABLE_SERVICE_RIGHTS_REVIEW_MODE,
   getCurrentBook,
+  isServiceRightsReviewMode,
   buildVipPurchaseQuery,
   navigateToVipPurchase,
   promptVipPurchase
