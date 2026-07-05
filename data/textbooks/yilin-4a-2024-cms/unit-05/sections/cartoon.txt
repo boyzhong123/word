@@ -1,0 +1,12 @@
+Bobby: These robots are cool!
+Sam: Look at this robot. His face is cute.
+Robot: Hello. What's your name?
+Bobby: I'm Bobby.
+Bobby: Can you dance?
+Sam: Wow! You can talk!
+Robot: Yes, I can. Look!
+Robot: I can dance too!
+Sam: Wow!
+Sam: You're so tall! Your legs are long.
+Robot: Now my legs are short!
+Sam: Ha ha! It's great fun.

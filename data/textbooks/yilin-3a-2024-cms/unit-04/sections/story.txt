@@ -1,0 +1,12 @@
+# This is Zhang Hua
+Liu Tao: Hello, Wang Bing.
+Wang Bing: Hi, Liu Tao. This is my friend, Zhang Hua.
+Wang Bing: Zhang Hua, this is Liu Tao. He's my friend.
+Liu Tao: Hello, Zhang Hua.
+Zhang Hua: Nice to meet you.
+Liu Tao: Nice to meet you too.
+Wang Bing: It's good!
+Zhang Hua: Thank you.
+Zhang Hua: Hi, I'm Zhang Hua.
+Wang Bing: This is Su Hai. She's my friend. I have many friends in my class.
+Su Hai: Nice to meet you.

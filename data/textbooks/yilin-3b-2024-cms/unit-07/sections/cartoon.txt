@@ -1,0 +1,9 @@
+# High five!
+Bobby: It's lunchtime. Do you like cakes?
+Sam: No, I don't. Do you like bananas?
+Max: No, I don't.
+Bobby: Do you like fish?
+Sam: Yes, I do!
+Max: Me too!
+Bobby: High five!
+Max: High five. Five?

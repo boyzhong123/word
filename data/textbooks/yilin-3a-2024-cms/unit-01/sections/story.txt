@@ -1,0 +1,9 @@
+# First day at school
+Liu Tao: Good morning, Miss Li.
+Miss Li: Good morning, Liu Tao.
+Liu Tao: Hi, Yang Ling.
+Yang Ling: Hello, Liu Tao.
+Students: Good afternoon, Miss Li.
+Miss Li: Good afternoon, class.
+Students: Goodbye, Miss Li.
+Miss Li: Bye!

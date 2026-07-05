@@ -1,0 +1,8 @@
+# Hi, I'm Bobby
+Bobby: Good morning.
+Friends: Good morning, Bobby.
+Friend: Hi, Sam.
+Sam: Hello!
+Sam: Hi, I'm Sam.
+Bobby: Hi, I'm Bobby.
+Friends: Ah! A cat!

@@ -1,0 +1,89 @@
+ 1. weather
+    释义：天气，气象
+    例句：What's the weather like today?
+    例句中：今天天气怎么样？
+
+ 2. cloudy
+    释义：多云的，阴天的
+    例句：On Friday, it is cloudy.
+    例句中：星期五多云。
+
+ 3. sunny
+    释义：晴朗的
+    例句：On Sunday, it is sunny.
+    例句中：星期天晴朗。
+
+ 4. cool
+    释义：凉的，凉爽的
+    例句：It is cool today.
+    例句中：今天很凉爽。
+
+ 5. rainy
+    释义：阴雨的，多雨的
+    例句：On Saturday, it is rainy.
+    例句中：星期六下雨。
+
+ 6. hot
+    释义：温度高的，热的
+    例句：It is hot in summer.
+    例句中：夏天很热。
+
+ 7. windy
+    释义：多风的，风大的
+    例句：It is windy today.
+    例句中：今天风很大。
+
+ 8. warm
+    释义：温暖的，暖和的
+    例句：It is warm in spring.
+    例句中：春天很温暖。
+
+ 9. save ... for a rainy day *
+    释义：未雨绸缪
+    例句：Save your money for a rainy day.
+    例句中：把钱存起来以备不时之需。
+
+10. money
+    释义：钱
+    例句：Save your money for a rainy day.
+    例句中：把钱存起来以备不时之需。
+
+11. What's the weather like today?
+    释义：今天天气怎么样？
+    例句：What's the weather like today?
+    例句中：今天天气怎么样？
+
+12. park
+    释义：公园
+    例句：Let's go to the park.
+    例句中：我们去公园吧。
+
+13. meet
+    释义：（与……）会面，集合
+    例句：Let's meet at the park.
+    例句中：我们在公园见面吧。
+
+14. fly a kite
+    释义：放风筝
+    例句：We can fly a kite on a windy day.
+    例句中：刮风天我们可以放风筝。
+
+15. It's raining.
+    释义：下雨了。
+    例句：It's raining. Take an umbrella.
+    例句中：下雨了，带把伞。
+
+16. worry
+    释义：担心，担忧
+    例句：Don't worry.
+    例句中：别担心。
+
+17. umbrella
+    释义：伞，雨伞
+    例句：Take an umbrella with you.
+    例句中：你带把伞吧。
+
+18. there
+    释义：到那里，在那里
+    例句：Let's meet there.
+    例句中：我们在那里见面吧。

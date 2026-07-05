@@ -1,0 +1,9 @@
+# My name is Beibei
+Bobby: Good afternoon, Sam!
+Sam: Good afternoon, Bobby!
+Beibei: Hello!
+Sam: Hello, I'm Sam. What's your name?
+Beibei: My name is Beibei.
+Bobby: Hello, Beibei. I'm Bobby.
+Beibei: Nice to meet you!
+Bobby and Sam: Nice to meet you too.

@@ -1,4 +1,17 @@
 /* pages/finish/today.wxss */
+.finish-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.finish-container {
+  min-height: 100%;
+  height: auto;
+  box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 40rpx);
+}
+
 .finish-header {
   display: block;
   width: 100%;
@@ -209,13 +222,15 @@
 }
 
 .box {
-  position: absolute;
+  position: relative;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
-  height: 100%;
+  min-height: 100vh;
   background-color: #2f80ed;
+  box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 220rpx);
 }
 
 .pic {

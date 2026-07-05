@@ -1,0 +1,7 @@
+# This is Sam
+Bobby: Goodbye, Max and Willy!
+Max and Willy: Goodbye!
+Tina: Hello, Bobby!
+Bobby: Hi, Tina!
+Bobby: This is Sam. He's my friend.
+Tina: Hi. Nice to meet you.

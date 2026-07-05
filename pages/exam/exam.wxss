@@ -14,6 +14,8 @@
   position: relative;
   z-index: 99;
   flex-shrink: 0;
+  box-sizing: border-box;
+  padding-bottom: 32rpx;
 }
 
 .nav-title-wrap {
@@ -63,7 +65,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -12rpx;
+  bottom: 0;
   height: 8rpx;
   z-index: 2;
   overflow: hidden;
@@ -72,9 +74,16 @@
 }
 
 /* ---------------- 开始页 ---------------- */
-.intro {
+.intro-scroll {
   flex: 1;
   min-height: 0;
+  height: 0;
+  box-sizing: border-box;
+}
+
+.intro {
+  min-height: 100%;
+  box-sizing: border-box;
   padding: 24rpx 40rpx 0;
   display: flex;
   flex-direction: column;
@@ -310,6 +319,13 @@
   padding: 60rpx 54rpx 0;
 }
 
+.quiz-scroll {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  box-sizing: border-box;
+}
+
 .quiz-tags {
   display: flex;
   gap: 12rpx;
@@ -334,12 +350,11 @@
 
 /* 题干 + 选项整体：题干在上，选项贴底（呼应练习页 wn-choice-stage） */
 .quiz-stage {
-  flex: 1;
-  min-height: 0;
+  min-height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding: 40rpx 54rpx 0;
-  overflow: hidden;
 }
 
 .stem {

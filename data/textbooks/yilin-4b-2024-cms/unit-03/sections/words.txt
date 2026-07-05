@@ -1,0 +1,14 @@
+road
+safety
+bus
+traffic light
+take
+busy
+stay
+close
+cross
+stop
+wait
+left
+right
+safe

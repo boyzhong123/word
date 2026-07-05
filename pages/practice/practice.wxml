@@ -25,51 +25,53 @@
             <!-- ===================== 认识不 · 问答 ===================== -->
             <block wx:if="{{item.wordNewStage == 'recognition'}}">
               <view class="wn-quiz">
-                <view class="wn-quiz-body">
-                  <view class="wn-head">
-                    <text class="wn-word">{{item.word.content}}</text>
-                    <view class="wn-dots">
-                      <view class="{{item.readCount >= 1 ? 'wn-dot-on' : ''}}"></view>
-                      <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
-                      <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
-                    </view>
-                    <view wx:if="{{item.wordHint && !item.revealed}}" class="wn-jelly-hint wn-jelly-hint-{{item.wordHint}} wn-jelly-hint-pop">
-                      <image class="wn-jelly-hint-img" src="../../images/word-new/toast-{{item.wordHint}}.png" mode="aspectFit" />
-                      <text class="wn-jelly-hint-label">{{item.wordHintLabel}}</text>
-                    </view>
-                  </view>
-                  <view class="wn-ipa-row">
-                    <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
-                      <view class="wn-pron-pill">
-                        <text class="wn-lang">{{pron.label}}</text>
-                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio && item.word.activeAccent == pron.key ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
+                <scroll-view scroll-y class="word-new-stage-scroll word-new-recognition-scroll" enhanced show-scrollbar="{{false}}">
+                  <view class="wn-quiz-body">
+                    <view class="wn-head">
+                      <text class="wn-word">{{item.word.content}}</text>
+                      <view class="wn-dots">
+                        <view class="{{item.readCount >= 1 ? 'wn-dot-on' : ''}}"></view>
+                        <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
+                        <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
                       </view>
-                      <text class="wn-ipa">/{{pron.symbol}}/</text>
+                      <view wx:if="{{item.wordHint && !item.revealed}}" class="wn-jelly-hint wn-jelly-hint-{{item.wordHint}} wn-jelly-hint-pop">
+                        <image class="wn-jelly-hint-img" src="../../images/word-new/toast-{{item.wordHint}}.png" mode="aspectFit" />
+                        <text class="wn-jelly-hint-label">{{item.wordHintLabel}}</text>
+                      </view>
                     </view>
-                  </view>
-                  <view class="wn-bars">
-                    <view class="wn-bar wn-bar-1"></view>
-                    <view class="wn-bar wn-bar-2"></view>
-                  </view>
-                  <view class="wn-card wn-example" wx:if="{{item.proverb && item.proverb.length}}">
-                    <view class="wn-ex-block">
-                      <view class="wn-ex-en {{item.hinted ? 'wn-ex-en-with-speaker' : ''}}">
-                        <view wx:if="{{item.hinted}}" class="wn-ex-spk" catchtap="showHint">
-                          <image class="wn-ex-spk-img {{playingSrc && playingSrc == item.proverb[0].audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small_hint.png" mode="aspectFit" />
+                    <view class="wn-ipa-row">
+                      <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
+                        <view class="wn-pron-pill">
+                          <text class="wn-lang">{{pron.label}}</text>
+                          <image class="wn-spk {{playingSrc && playingSrc == pron.audio && item.word.activeAccent == pron.key ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
                         </view>
-                        <text class="wn-ex-text"><text wx:for="{{paintHandler.markWord(item.proverb[0].label ? item.proverb[0].label : item.proverb[0].content, item.word.content, item.word.exchange)}}" wx:for-item="seg" wx:for-index="sIndex" wx:key="sIndex" class="{{seg.bold ? 'wn-ex-bold' : ''}}">{{seg.value}}</text></text>
+                        <text class="wn-ipa">/{{pron.symbol}}/</text>
                       </view>
-                      <view wx:if="{{item.hinted}}" class="wn-ex-cn">{{item.proverb[0].translation}}</view>
+                    </view>
+                    <view class="wn-bars">
+                      <view class="wn-bar wn-bar-1"></view>
+                      <view class="wn-bar wn-bar-2"></view>
+                    </view>
+                    <view class="wn-card wn-example" wx:if="{{item.proverb && item.proverb.length}}">
+                      <view class="wn-ex-block">
+                        <view class="wn-ex-en {{item.hinted ? 'wn-ex-en-with-speaker' : ''}}">
+                          <view wx:if="{{item.hinted}}" class="wn-ex-spk" catchtap="showHint">
+                            <image class="wn-ex-spk-img {{playingSrc && playingSrc == item.proverb[0].audio ? 'wn-spk-playing' : ''}}" src="../../images/audio_small_hint.png" mode="aspectFit" />
+                          </view>
+                          <text class="wn-ex-text"><text wx:for="{{paintHandler.markWord(item.proverb[0].label ? item.proverb[0].label : item.proverb[0].content, item.word.content, item.word.exchange)}}" wx:for-item="seg" wx:for-index="sIndex" wx:key="sIndex" class="{{seg.bold ? 'wn-ex-bold' : ''}}">{{seg.value}}</text></text>
+                        </view>
+                        <view wx:if="{{item.hinted}}" class="wn-ex-cn">{{item.proverb[0].translation}}</view>
+                      </view>
+                    </view>
+                    <view class="wn-hint" catchtap="showHint">
+                      <view class="wn-hint-btn">
+                        <image class="wn-hint-icon" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
+                      </view>
+                      <text class="wn-hint-label">提示一下</text>
                     </view>
                   </view>
-                  <view class="wn-hint" catchtap="showHint">
-                    <view class="wn-hint-btn">
-                      <image class="wn-hint-icon" src="../../images/word-new/hint-bulb.png" mode="aspectFit" />
-                    </view>
-                    <text class="wn-hint-label">提示一下</text>
-                  </view>
-                </view>
-                <view class="wn-quiz-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+                </scroll-view>
+                <view class="wn-quiz-foot" style="padding-bottom: {{safeAreaBottom + 48}}px;">
                   <view class="wn-foot-col" catchtap="answerKnow">
                     <text class="wn-foot-text">认识</text>
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
@@ -85,65 +87,67 @@
             <!-- ===================== 释义选择题 ===================== -->
             <block wx:elif="{{item.wordNewStage == 'choice'}}">
               <view class="wn-choice">
-                <view class="wn-choice-stage">
-                  <view class="wn-head">
-                    <text class="wn-word">{{item.word.content}}</text>
-                    <view class="wn-dots">
-                      <view class="{{item.readCount >= 1 ? 'wn-dot-on' : ''}}"></view>
-                      <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
-                      <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
-                    </view>
-                  </view>
-                  <view class="wn-ipa-row">
-                    <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
-                      <view class="wn-pron-pill">
-                        <text class="wn-lang">{{pron.label}}</text>
-                        <image class="wn-spk {{playingSrc && playingSrc == pron.audio && item.word.activeAccent == pron.key ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
+                <scroll-view scroll-y class="word-new-stage-scroll word-new-choice-scroll" enhanced show-scrollbar="{{false}}">
+                  <view class="wn-choice-stage">
+                    <view class="wn-head">
+                      <text class="wn-word">{{item.word.content}}</text>
+                      <view class="wn-dots">
+                        <view class="{{item.readCount >= 1 ? 'wn-dot-on' : ''}}"></view>
+                        <view class="{{item.readCount >= 2 ? 'wn-dot-on' : ''}}"></view>
+                        <view class="{{item.readCount >= 3 ? 'wn-dot-on' : ''}}"></view>
                       </view>
-                      <text class="wn-ipa">/{{pron.symbol}}/</text>
                     </view>
-                  </view>
-                  <view class="wn-choice-tip">先回想词义再选择，想不起来「看答案」</view>
-
-                  <view class="wn-choice-list">
-                    <view
-                      wx:for="{{item.wordChoiceOptions}}"
-                      wx:for-item="option"
-                      wx:for-index="optionIndex"
-                      wx:key="optionIndex"
-                      data-index="{{optionIndex}}"
-                      catchtap="selectWordChoice"
-                      class="wn-choice-card {{item.wordChoiceSelectedIndex != null && option.isAnswer ? 'wn-choice-card-correct' : ''}} {{item.wordChoiceSelectedIndex != null && item.wordChoiceSelectedIndex == optionIndex && !option.isAnswer ? 'wn-choice-card-wrong' : ''}} {{item.wordChoiceSelectedIndex != null && item.wordChoiceSelectedIndex != optionIndex && !option.isAnswer ? 'wn-choice-card-muted' : ''}}"
-                    >
-                      <view class="wn-choice-card-body">
-                        <view class="wn-choice-word-row">
-                          <text wx:if="{{item.wordChoiceSelectedIndex != null}}" class="wn-choice-word">{{option.content}}</text>
-                          <text wx:else class="wn-choice-pos wn-choice-pos-text">{{option.pos}}</text>
+                    <view class="wn-ipa-row">
+                      <view wx:for="{{item.word.pronunciations}}" wx:for-item="pron" wx:key="key" class="wn-pron {{item.word.activeAccent == pron.key ? 'wn-pron-active' : ''}}" data-key="{{pron.key}}" data-src="{{pron.audio}}" catchtap="switchWordAccent">
+                        <view class="wn-pron-pill">
+                          <text class="wn-lang">{{pron.label}}</text>
+                          <image class="wn-spk {{playingSrc && playingSrc == pron.audio && item.word.activeAccent == pron.key ? 'wn-spk-playing' : ''}}" src="{{item.word.activeAccent == pron.key ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
                         </view>
-                        <view class="wn-choice-meaning {{item.wordChoiceSelectedIndex != null ? 'wn-choice-meaning-inline' : ''}}">
-                          <block wx:if="{{item.wordChoiceSelectedIndex != null}}">
-                            <text class="wn-choice-pos">{{option.pos}}</text>
-                            <text class="wn-choice-term wn-choice-term-text">{{option.termText}}</text>
-                          </block>
-                          <block wx:else>
-                            <text class="wn-choice-term wn-choice-term-text">{{option.termText}}</text>
-                          </block>
-                        </view>
+                        <text class="wn-ipa">/{{pron.symbol}}/</text>
                       </view>
-                      <view wx:if="{{option.audio && playingSrc && playingSrc == option.audio}}" class="wn-choice-audio">
-                        <image class="wn-choice-audio-img wn-spk-playing" src="../../images/audio_small_hint.png" mode="aspectFit" />
+                    </view>
+                    <view class="wn-choice-tip">先回想词义再选择，想不起来「看答案」</view>
+
+                    <view class="wn-choice-list">
+                      <view
+                        wx:for="{{item.wordChoiceOptions}}"
+                        wx:for-item="option"
+                        wx:for-index="optionIndex"
+                        wx:key="optionIndex"
+                        data-index="{{optionIndex}}"
+                        catchtap="selectWordChoice"
+                        class="wn-choice-card {{item.wordChoiceSelectedIndex != null && option.isAnswer ? 'wn-choice-card-correct' : ''}} {{item.wordChoiceSelectedIndex != null && item.wordChoiceSelectedIndex == optionIndex && !option.isAnswer ? 'wn-choice-card-wrong' : ''}} {{item.wordChoiceSelectedIndex != null && item.wordChoiceSelectedIndex != optionIndex && !option.isAnswer ? 'wn-choice-card-muted' : ''}}"
+                      >
+                        <view class="wn-choice-card-body">
+                          <view class="wn-choice-word-row">
+                            <text wx:if="{{item.wordChoiceSelectedIndex != null}}" class="wn-choice-word">{{option.content}}</text>
+                            <text wx:else class="wn-choice-pos wn-choice-pos-text">{{option.pos}}</text>
+                          </view>
+                          <view class="wn-choice-meaning {{item.wordChoiceSelectedIndex != null ? 'wn-choice-meaning-inline' : ''}}">
+                            <block wx:if="{{item.wordChoiceSelectedIndex != null}}">
+                              <text class="wn-choice-pos">{{option.pos}}</text>
+                              <text class="wn-choice-term wn-choice-term-text">{{option.termText}}</text>
+                            </block>
+                            <block wx:else>
+                              <text class="wn-choice-term wn-choice-term-text">{{option.termText}}</text>
+                            </block>
+                          </view>
+                        </view>
+                        <view wx:if="{{option.audio && playingSrc && playingSrc == option.audio}}" class="wn-choice-audio">
+                          <image class="wn-choice-audio-img wn-spk-playing" src="../../images/audio_small_hint.png" mode="aspectFit" />
+                        </view>
                       </view>
                     </view>
                   </view>
-                </view>
+                </scroll-view>
 
-                <view wx:if="{{item.wordChoiceSelectedIndex == null}}" class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+                <view wx:if="{{item.wordChoiceSelectedIndex == null}}" class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 48}}px;">
                   <view class="wn-foot-col" catchtap="revealWordChoiceAnswer">
                     <text class="wn-foot-text">看答案</text>
                     <view class="wn-foot-underline-img wn-foot-underline-wrong"></view>
                   </view>
                 </view>
-                <view wx:elif="{{item.wordChoiceOrigin == 'known' && item.wordChoiceCorrect}}" class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+                <view wx:elif="{{item.wordChoiceOrigin == 'known' && item.wordChoiceCorrect}}" class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 48}}px;">
                   <view class="wn-foot-col" catchtap="continueUnderstandWord">
                     <text class="wn-foot-text">继续了解</text>
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
@@ -153,13 +157,13 @@
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
                   </view>
                 </view>
-                <view wx:elif="{{item.wordChoiceOrigin == 'known' && !item.wordChoiceCorrect}}" class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+                <view wx:elif="{{item.wordChoiceOrigin == 'known' && !item.wordChoiceCorrect}}" class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 48}}px;">
                   <view class="wn-foot-col" catchtap="continueUnderstandWord">
                     <text class="wn-foot-text">继续</text>
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
                   </view>
                 </view>
-                <view wx:else class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+                <view wx:else class="wn-quiz-foot wn-choice-foot" style="padding-bottom: {{safeAreaBottom + 48}}px;">
                   <view class="wn-foot-col" catchtap="goNextWord">
                     <text class="wn-foot-text">{{current >= contents.length - 1 ? '提交' : '下一词'}}</text>
                     <view class="wn-foot-underline-img wn-foot-underline-known"></view>
@@ -265,7 +269,7 @@
 
                 <view class="wn-detail-bottom-space"></view>
               </scroll-view>
-              <view wx:if="{{from != 'search'}}" class="wn-detail-foot wn-detail-foot-single" style="padding-bottom: {{safeAreaBottom + 20}}px;">
+              <view wx:if="{{from != 'search'}}" class="wn-detail-foot wn-detail-foot-single" style="padding-bottom: {{safeAreaBottom + 48}}px;">
                 <view wx:if="{{item.wordChoiceOrigin == 'unknown' && item.wordChoiceSelectedIndex == null}}" class="wn-foot-col wn-detail-action" catchtap="continueFromWordDetail">
                   <text class="wn-next">继续</text>
                   <view class="wn-foot-underline-img wn-foot-underline-known"></view>

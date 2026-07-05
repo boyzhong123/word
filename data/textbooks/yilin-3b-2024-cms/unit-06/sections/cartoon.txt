@@ -1,0 +1,8 @@
+# A "big" carrot
+Ruby: Hello, Sam. Hello, Bobby. Welcome to my home!
+Sam: Hello, Ruby!
+Bobby: Hello, Ruby!
+Sam: What are these?
+Ruby: Yes, they are. They're carrots.
+Bobby: Are those carrots too?
+Ruby: Oh! Help me, please!

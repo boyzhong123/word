@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>今日路线 · 昨晚完成单词新学</title>
+<style>
+  :root {
+    --green: #22c55e;
+    --green-dark: #18b35f;
+    --ink: #111318;
+    --gray: #66707a;
+    --line: #e1e4e8;
+    --bg: #eef1f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    width: 390px;
+    margin: 0 auto;
+    padding: 16px 14px 24px;
+  }
+
+  .route-card {
+    padding: 14px 13px 16px;
+    background: linear-gradient(160deg, #e9fff3 0%, #f3fff9 55%, #fff 100%);
+    border: 1.5px solid #aee9c2;
+    border-radius: 24px;
+    box-shadow: 0 8px 20px rgba(18, 160, 80, 0.10);
+  }
+
+  .seg-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    min-height: 52px;
+  }
+  .seg-marker {
+    flex: none;
+    width: 89px;
+    height: 52px;
+    position: relative;
+  }
+  .seg-marker img {
+    width: 89px;
+    height: 52px;
+    object-fit: contain;
+    display: block;
+  }
+  .seg-sign {
+    flex: 1;
+    min-width: 0;
+    margin-left: 4px;
+    padding-top: 2px;
+  }
+  .seg-title-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .seg-stage-stars {
+    display: flex;
+    align-items: center;
+    gap: 1.5px;
+  }
+  .seg-stage-star {
+    width: 13px;
+    height: 13px;
+  }
+  .seg-report-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.5px;
+    height: 18px;
+    padding: 0 7px 0 4.5px;
+    color: #a15b00;
+    font-size: 10.5px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff3d0 0%, #ffe6a8 100%);
+    border: 1px solid #ffd27a;
+    border-radius: 11px;
+  }
+  .seg-report-icon {
+    width: 14px;
+    height: 14px;
+  }
+  .seg-title {
+    font-size: 14.5px;
+    line-height: 19px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .seg-state {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink);
+    font-size: 10.5px;
+    line-height: 14px;
+    font-weight: 800;
+  }
+
+  .seg-steps {
+    position: relative;
+    margin-top: 7px;
+  }
+  .seg-rail {
+    position: absolute;
+    left: 20px;
+    top: 21px;
+    bottom: 21px;
+    width: 2px;
+    background: var(--line);
+    border-radius: 1px;
+  }
+
+  .step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    min-height: 44px;
+    padding: 4px 0;
+  }
+  .step-dot {
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-dot-icon {
+    width: 25px;
+    height: 25px;
+  }
+  .step-dot-completed { background: #edf7f0; }
+  .step-dot-active { background: #ffedd5; box-shadow: 0 4px 9px rgba(34, 197, 94, 0.16); }
+  .step-dot-upcoming { background: #f3f4f6; }
+
+  .step-row {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 9px;
+    min-height: 36px;
+    margin-top: 3px;
+    padding: 6px 0;
+  }
+  .step-name {
+    color: #4b5560;
+    font-size: 13.5px;
+    line-height: 18px;
+    font-weight: 800;
+  }
+  .step-status {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    line-height: 15px;
+    font-weight: 700;
+  }
+  .step-status-completed { color: #20a957; }
+  .step-status-upcoming { color: #9aa3ad; }
+
+  .spot {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 12px 10px;
+    background: linear-gradient(155deg, #dcffec 0%, #ffffff 48%, #eefbf3 100%);
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(34, 197, 94, 0.16);
+  }
+  .spot-pin {
+    position: absolute;
+    top: -11px;
+    right: -3px;
+    width: 28px;
+    height: 28px;
+    z-index: 2;
+  }
+  .spot-eyebrow-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+  }
+  .spot-eyebrow-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: rgba(255, 154, 46, 0.16);
+    border: 1px solid rgba(255, 122, 26, 0.28);
+    border-radius: 999px;
+  }
+  .spot-eyebrow {
+    font-size: 11px;
+    line-height: 15px;
+    font-weight: 900;
+    color: #e86a00;
+    letter-spacing: 0.25px;
+  }
+  .spot-progress {
+    flex: none;
+    padding: 1px 7px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #199651;
+    font-size: 10px;
+    line-height: 15px;
+    font-weight: 800;
+    border-radius: 999px;
+  }
+  .spot-title {
+    margin-top: 2px;
+    font-size: 18px;
+    line-height: 22px;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .spot-hint {
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 16px;
+    color: var(--gray);
+  }
+  .spot-btn {
+    width: 100%;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #18b35f 0%, #0f9b4e 100%);
+    box-shadow: 0 5px 9px rgba(24, 179, 95, 0.24);
+    margin-top: 2px;
+  }
+
+  .caption {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 12px;
+    color: #6a7686;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <div class="route-card">
+    <div class="seg-head">
+      <div class="seg-marker">
+        <img src="../assets/pk-build/frames/student-monster-pk-frame-01.png" alt="对战">
+      </div>
+      <div class="seg-sign">
+        <div class="seg-title-row">
+          <div class="seg-title">关卡 2 · 12词</div>
+          <div class="seg-stage-stars">
+            <img class="seg-stage-star" src="../images/home/stage-star-empty.png" alt="">
+            <img class="seg-stage-star" src="../images/home/stage-star-empty.png" alt="">
+            <img class="seg-stage-star" src="../images/home/stage-star-empty.png" alt="">
+          </div>
+        </div>
+        <span class="seg-state">正在闯</span>
+      </div>
+    </div>
+
+    <div class="seg-steps">
+      <div class="seg-rail"></div>
+
+      <!-- 昨晚已完成：单词新学 -->
+      <div class="step">
+        <div class="step-dot step-dot-completed">
+          <img class="step-dot-icon" src="../images/home/task-word-muted.svg" alt="">
+        </div>
+        <div class="step-row">
+          <span class="step-name">单词新学</span>
+          <span class="step-status step-status-completed">
+            <span>✓</span><span>已完成</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- 今天当前步骤：跟读背诵 -->
+      <div class="step">
+        <div class="step-dot step-dot-active">
+          <img class="step-dot-icon" src="../images/home/task-recitation-active.svg" alt="">
+        </div>
+        <div class="spot">
+          <img class="spot-pin" src="../images/home/icon-today-pin-jelly.png" alt="">
+          <div class="spot-eyebrow-row">
+            <div class="spot-eyebrow-pill"><span class="spot-eyebrow">现在做</span></div>
+            <span class="spot-progress">0/12 词</span>
+          </div>
+          <div class="spot-title">跟读背诵</div>
+          <div class="spot-hint">12 个单词，跟着读一遍</div>
+          <div class="spot-btn">开始</div>
+        </div>
+      </div>
+
+      <!-- 待练：关卡小测 -->
+      <div class="step">
+        <div class="step-dot step-dot-upcoming">
+          <img class="step-dot-icon" src="../images/home/task-listening-muted.svg" alt="">
+        </div>
+        <div class="step-row">
+          <span class="step-name">关卡小测</span>
+          <span class="step-status step-status-upcoming">
+            <span>○</span><span>待练</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">示意：昨晚完成「单词新学」→ 标题旁仍 ☆☆☆（三星等整关结算）；三环节全做完才亮星 + 报告</p>
+</body>
+</html>

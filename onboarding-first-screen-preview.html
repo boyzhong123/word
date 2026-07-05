@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>首屏预览 v2 · 配图精简版</title>
+  <style>
+    /* 按 750rpx = 375px 设备换算预览。v2：修正定位为「背单词背句子」，精简文字 + 配图。 */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #2a3340; padding: 32px;
+      display: flex; gap: 40px; justify-content: center; align-items: flex-start; flex-wrap: wrap;
+    }
+    .phone {
+      width: 375px; height: 760px; border-radius: 36px; overflow: hidden; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,.45);
+      background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
+      display: flex; flex-direction: column;
+    }
+    .statusbar { height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; font-size: 13px; font-weight: 700; color: #16211b; }
+    .scroll { flex: 1; overflow-y: auto; }
+    .scroll::-webkit-scrollbar { display: none; }
+    .panel { padding: 0 20px 16px; }
+
+    /* ===== hero ===== */
+    .banner { position: relative; width: 100%; height: 188px; overflow: hidden; border-radius: 18px; }
+    .banner img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 58%; display: block; }
+    .banner-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 50px; background: linear-gradient(180deg, rgba(231,225,240,0) 0%, rgba(218,220,244,.72) 68%, rgba(231,225,240,.92) 100%); }
+    .banner-badge { position: absolute; top: 11px; left: 11px; padding: 5px 9px; border-radius: 999px; background: rgba(255,255,255,.9); color: #375041; font-size: 11px; font-weight: 700; box-shadow: 0 4px 9px rgba(51,74,60,.12); }
+
+    .card { border-radius: 16px; background: rgba(255,255,255,.94); border: 1px solid rgba(233,239,236,.96); box-shadow: 0 9px 20px rgba(29,39,45,.08); }
+
+    /* ===== ① 定位卡（配 mascot）===== */
+    .intro-card { position: relative; z-index: 2; margin-top: 8px; padding: 16px 14px 14px; overflow: hidden; }
+    .intro-mascot { position: absolute; right: -6px; bottom: -10px; width: 96px; height: auto; opacity: .96; pointer-events: none; }
+    .intro-brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 50px; height: 50px; flex-shrink: 0; border-radius: 13px; box-shadow: 0 8px 15px rgba(17,19,24,.12); }
+    .app-name { font-size: 13px; font-weight: 800; color: #5b6b61; line-height: 1.25; }
+    .intro-title { margin-top: 4px; font-size: 24px; font-weight: 800; color: #16211b; line-height: 1.25; letter-spacing: 1px; }
+    .intro-title em { font-style: normal; color: #17b65a; }
+    .intro-sub { margin-top: 10px; max-width: 230px; font-size: 13px; line-height: 1.5; color: #67756e; }
+    .intro-sub b { color: #16211b; font-weight: 800; }
+    .proof-row { display: flex; gap: 6px; margin-top: 14px; position: relative; z-index: 2; }
+    .proof { flex: 1; padding: 7px 4px 8px; border-radius: 10px; background: linear-gradient(180deg, #f3fff6 0%, #ebfff1 100%); border: 1px solid #d9f3df; text-align: center; }
+    .proof .picon { width: 28px; height: 28px; display: block; margin: 0 auto 4px; }
+    .proof b { display: block; font-size: 13px; font-weight: 800; color: #16211b; line-height: 1.2; }
+    .proof span { display: block; margin-top: 3px; font-size: 10px; font-weight: 700; color: #1f8e4c; line-height: 1.2; }
+
+    /* ===== ② 痛点卡（精简，icon + 短句）===== */
+    .pain-card { margin-top: 12px; padding: 13px 12px; }
+    .pain-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 11px; }
+    .pain-title { font-size: 16px; font-weight: 800; color: #16211b; }
+    .pain-sub { font-size: 11px; font-weight: 700; color: #9aa6a0; }
+    .pain-grid { display: flex; gap: 8px; }
+    .pain { flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; background: #fbfbf7; border: 1px solid #f0ecdf; }
+    .pain .picon { width: 52px; height: 52px; display: block; margin: 0 auto; }
+    .pain .t { margin-top: 5px; font-size: 12px; font-weight: 700; color: #5e6d7a; line-height: 1.35; }
+
+    /* ===== ③ 亮点卡（2×2 配图网格）===== */
+    .hl-card { margin-top: 12px; padding: 14px 12px; }
+    .hl-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 11px; }
+    .hl-title { font-size: 16px; font-weight: 800; color: #16211b; }
+    .hl-kicker { font-size: 11px; font-weight: 700; color: #1f8e4c; }
+    .hl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .hl { display: flex; align-items: center; gap: 9px; padding: 11px 10px; border-radius: 14px; border: 1px solid #eef2f0; }
+    .hl-ico { flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; }
+    .hl-ico img { width: 22px; height: 22px; }
+    .hl-tx b { display: block; font-size: 13px; font-weight: 800; color: #16211b; line-height: 1.2; }
+    .hl-tx span { display: block; margin-top: 3px; font-size: 10px; font-weight: 600; color: #8b96a3; line-height: 1.25; }
+    .h0 { background: #fffaf0; } .h0 .hl-ico { background: linear-gradient(180deg,#fff3dd,#ffe5c3); }
+    .h1 { background: #faf7ff; } .h1 .hl-ico { background: linear-gradient(180deg,#f3ebff,#e8d8ff); }
+    .h2 { background: #f3fff7; } .h2 .hl-ico { background: linear-gradient(180deg,#e8fff0,#d2f7df); }
+    .h3 { background: #f4faff; } .h3 .hl-ico { background: linear-gradient(180deg,#e9f5ff,#d7eaff); }
+    .hl-tag { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 999px; background: #eaf8ef; color: #24a957; font-size: 9px; font-weight: 700; vertical-align: middle; }
+
+    /* 痛点 → 解决 的衔接箭头 */
+    .bridge { margin: 10px 0 2px; text-align: center; }
+    .bridge .line { font-size: 12px; font-weight: 800; color: #1f8e4c; letter-spacing: .5px; }
+    .bridge .arrow { display: block; margin: 2px auto 0; font-size: 13px; color: #9fc7ad; line-height: 1; }
+
+    .start-tip { margin-top: 12px; text-align: center; font-size: 12px; line-height: 1.5; font-weight: 600; color: #3f5f7c; }
+
+    .footer { flex-shrink: 0; padding: 8px 20px 16px; }
+    .next-btn { width: 100%; height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#171b20,#0f1114); color: #fff; font-size: 15px; font-weight: 700; box-shadow: 0 8px 14px rgba(17,19,24,.18); }
+
+    .note { width: 320px; color: #cfd8e3; font-size: 14px; line-height: 1.7; }
+    .note h2 { color: #fff; font-size: 18px; margin-bottom: 12px; }
+    .note .row { background: rgba(255,255,255,.08); border-radius: 8px; padding: 9px 12px; margin-bottom: 8px; }
+    .note b { color: #8ee7b2; }
+    .note .old { color: #ff9d9d; text-decoration: line-through; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="statusbar"><span>9:41</span><span>● ● ●</span></div>
+    <div class="scroll">
+      <div class="panel">
+        <div class="banner">
+          <img src="images/onboarding/onboard-intro-hero.png" alt="">
+          <div class="banner-fade"></div>
+          <div class="banner-badge">同步教材 · 每天 10 分钟</div>
+        </div>
+
+        <!-- ① 定位：这是什么（修正为背单词背句子）-->
+        <div class="card intro-card">
+          <img class="intro-mascot" src="images/home/mascot-report-jelly.png" alt="">
+          <div class="intro-brand">
+            <img class="logo" src="images/app-logo.png" alt="">
+            <div>
+              <div class="app-name">词句刷刷刷</div>
+              <div class="intro-title">同步教材<br><em>背单词 · 背句子 · 记谚语</em></div>
+            </div>
+          </div>
+          <div class="intro-sub">选好年级和课本，每天 10 分钟，把这一单元的词句<b>听读背测一遍记牢</b>。</div>
+          <div class="proof-row">
+            <div class="proof"><img class="picon" src="images/onboarding/onboard-proof-textbook.png" alt=""><b>不乱学</b><span>按教材单元</span></div>
+            <div class="proof"><img class="picon" src="images/onboarding/onboard-proof-mic.png" alt=""><b>不瞎读</b><span>驰声 AI 纠音</span></div>
+            <div class="proof"><img class="picon" src="images/onboarding/onboard-proof-review.png" alt=""><b>不白背</b><span>错词自动复习</span></div>
+          </div>
+        </div>
+
+        <!-- ② 痛点：精简成 3 个 icon + 短句 -->
+        <div class="card pain-card">
+          <div class="pain-head">
+            <div class="pain-title">背单词，常卡在这三步</div>
+            <div class="pain-sub">家长不用陪</div>
+          </div>
+          <div class="pain-grid">
+            <div class="pain"><img class="picon" src="images/onboarding/onboard-pain-plan.png" alt=""><div class="t">不知道<br>今天该背哪些</div></div>
+            <div class="pain"><img class="picon" src="images/onboarding/onboard-pain-pronounce.png" alt=""><div class="t">读得准不准<br>没人帮听</div></div>
+            <div class="pain"><img class="picon" src="images/onboarding/onboard-pain-forget.png" alt=""><div class="t">背完没几天<br>就忘光</div></div>
+          </div>
+        </div>
+
+        <!-- 痛点 → 亮点 的衔接 -->
+        <div class="bridge">
+          <div class="line">这三步，App 一条龙帮你接住</div>
+          <div class="arrow">▼</div>
+        </div>
+
+        <!-- ③ 亮点：2×2 配图网格，文字最小化 -->
+        <div class="card hl-card">
+          <div class="hl-head">
+            <div class="hl-title">听读背测，循环记牢</div>
+            <div class="hl-kicker">一关约 10 分钟</div>
+          </div>
+          <div class="hl-grid">
+            <div class="hl h0">
+              <div class="hl-ico"><img src="images/home/icon-today-feature-listen.png" alt=""></div>
+              <div class="hl-tx"><b>① 听例句</b><span>标准音先磨耳朵</span></div>
+            </div>
+            <div class="hl h1">
+              <div class="hl-ico"><img src="images/home/icon-today-feature-read.png" alt=""></div>
+              <div class="hl-tx"><b>② 跟读<span class="hl-tag">驰声 AI</span></b><span>读错的音帮你标</span></div>
+            </div>
+            <div class="hl h2">
+              <div class="hl-ico"><img src="images/home/icon-today-feature-recite.png" alt=""></div>
+              <div class="hl-tx"><b>③ 闯关背<span class="hl-tag">不超量</span></b><span>每天就背这一关</span></div>
+            </div>
+            <div class="hl h3">
+              <div class="hl-ico"><img src="images/home/icon-today-feature-quiz.png" alt=""></div>
+              <div class="hl-tx"><b>④ 测+复习<span class="hl-tag">出报告</span></b><span>错词自动再练熟</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="start-tip">先用 3 步完成设置，再开始今天的学习</div>
+      </div>
+    </div>
+    <div class="footer"><div class="next-btn">开始设置</div></div>
+  </div>
+
+  <div class="note">
+    <h2>v3 把亮点痛点讲明白</h2>
+    <div class="row"><b>痛点→亮点连起来</b><br>中间加一句衔接「<b>这三步，App 一条龙帮你接住</b>」+ 箭头，把上面的痛点和下面的功能串成一个故事，不再是两张孤立的卡。</div>
+    <div class="row"><b>痛点更像家长的原话</b><br><span class="old">不知道今天背哪些 / 发音准不准没人听</span><br>→ 标题改成「<b>背单词，常卡在这三步</b>」，三句都是真实卡点。</div>
+    <div class="row"><b>亮点改成「卖点 + 一句话」</b><br><span class="old">磨耳朵预习 / 按关卡推进</span>（像功能名）<br>→ 每格点明差异化卖点：②<b>驰声 AI</b>标错音、③<b>不超量</b>每天一关、④<b>出报告</b>错词自动再练。</div>
+    <div class="row"><b>补回最关键的「复习」</b><br>原来 4 个亮点是听读背测，<b>偏偏漏了「复习」</b>——而最痛的痛点正是「背完就忘」。第④格改成「测 + 复习」，痛点才有对应解法。</div>
+    <div class="row" style="color:#9fb0c0">备注：①②③④ 序号 + 副标题「循环记牢」让「听读背测是一个闭环」一眼看懂。文案确认后可同步进 onboarding.js 常量。</div>
+  </div>
+</body>
+</html>

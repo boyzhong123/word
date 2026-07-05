@@ -1,0 +1,15 @@
+# I can sing
+Narrator: It's New Year's Day. The children want to do things for the family.
+Child: I can sing.
+Child: I can sing too.
+Child: I can take pictures.
+Family: Great!
+Child: I can dance.
+Child: I can dance too.
+Family: How lovely!
+Child: I can draw.
+Child: I can draw too.
+Child: Look! This is my picture.
+Children: We can clean the table.
+Children: We can clean the table too.
+Family: Great! Thank you.

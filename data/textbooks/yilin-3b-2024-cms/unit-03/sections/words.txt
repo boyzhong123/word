@@ -1,0 +1,15 @@
+rule
+library
+talk
+eat
+run
+Mrs
+sit down
+late
+look out of
+on
+fun
+quiet
+Would you like ...?
+look at
+That's all right.

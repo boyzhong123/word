@@ -78,7 +78,7 @@ test('navigateToVipPurchase opens membership page and preserves the sku intent',
   assert.match(calls[0].url, /\/pages\/membership\/membership\?/)
   assert.match(calls[0].url, /resBookId=demo/)
   assert.match(calls[0].url, /openSku=1/)
-  assert.match(calls[0].url, /audit=1/)
+  assert.doesNotMatch(calls[0].url, /audit=1/)
 })
 
 test('buildVipPurchaseQuery supports audit display mode', () => {
@@ -90,15 +90,15 @@ test('buildVipPurchaseQuery supports audit display mode', () => {
   assert.match(query, /audit=1/)
 })
 
-test('vip purchase query enters service rights review mode by default', () => {
+test('vip purchase query does not enter service rights review mode by default', () => {
   const query = buildVipPurchaseQuery(
     { resBookId: 'demo', name: 'Demo', locked: true }
   )
 
-  assert.match(query, /audit=1/)
+  assert.doesNotMatch(query, /audit=1/)
 })
 
-test('promptVipPurchase uses service rights copy in review mode', () => {
+test('promptVipPurchase uses membership copy by default', () => {
   const calls = []
   global.wx = {
     showModal(options) {
@@ -108,6 +108,23 @@ test('promptVipPurchase uses service rights copy in review mode', () => {
 
   const { promptVipPurchase } = require('../utils/vip-purchase')
   promptVipPurchase({ resBookId: 'demo', name: 'Demo', locked: true })
+
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].title, '会员专享内容')
+  assert.equal(calls[0].confirmText, '去开通')
+  assert.match(calls[0].content, /会员|开通/)
+})
+
+test('promptVipPurchase uses service rights copy when audit mode is enabled', () => {
+  const calls = []
+  global.wx = {
+    showModal(options) {
+      calls.push(options)
+    }
+  }
+
+  const { promptVipPurchase } = require('../utils/vip-purchase')
+  promptVipPurchase({ resBookId: 'demo', name: 'Demo', locked: true }, { audit: true })
 
   assert.equal(calls.length, 1)
   assert.equal(calls[0].title, '产品介绍')
@@ -122,8 +139,15 @@ test('membership page can still open the sku confirmation when review mode is di
   assert.equal(page.data.showConfirm, true)
 })
 
-test('membership page enters audit display mode by default without opening payment sheet', () => {
+test('membership page opens payment sheet by default when openSku is set', () => {
   const page = loadMembershipPage({ tierId: 'm2', openSku: '1' })
+
+  assert.equal(page.data.auditMode, false)
+  assert.equal(page.data.showConfirm, true)
+})
+
+test('membership page enters audit display mode when audit=1 without opening payment sheet', () => {
+  const page = loadMembershipPage({ tierId: 'm2', openSku: '1', audit: '1' })
 
   assert.equal(page.data.auditMode, true)
   assert.equal(page.data.showConfirm, false)

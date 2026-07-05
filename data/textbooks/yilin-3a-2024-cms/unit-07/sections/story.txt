@@ -1,0 +1,18 @@
+# Thanks, Dad!
+Liu Tao: Look! How lovely!
+Liu Hao: One, two, three, four, five!
+Assistant: Hello! Can I help you?
+Dad: Yes, please. I want some toys for my boys.
+Assistant: OK! How old are you?
+Liu Tao: I'm nine.
+Liu Hao: Cool! I love this.
+Assistant: Please come here.
+Assistant: How old are you?
+Liu Hao: Three. I want this, please.
+Assistant: OK!
+Assistant: Here you are.
+Liu Hao: Thank you!
+Assistant: You're welcome.
+Liu Hao: Hi! How old are you?
+Dad: Happy Birthday, Taotao.
+Liu Tao: Thanks, Dad! I love you.

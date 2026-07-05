@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>单词拼写 mockup</title>
+<style>
+  :root{
+    --ink:#111318;
+    --ink2:#263f45;
+    --ink3:#434a56;
+    --hint:#3a505f;
+    --green:#0eaf30;
+    --red:#e64d3d;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;
+    font-family:-apple-system,"PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    background:#2a2730;
+    display:flex;gap:40px;flex-wrap:wrap;justify-content:center;
+    padding:40px 20px;
+  }
+  .label{color:#9aa0ad;font-size:13px;text-align:center;margin-bottom:10px}
+
+  .phone{
+    width:390px;height:780px;border-radius:46px;overflow:hidden;position:relative;
+    box-shadow:0 30px 80px rgba(0,0,0,.5);
+    background:linear-gradient(180deg,#d8d2ec 0%,#dfe1f1 55%,#cfd9f1 100%);
+    display:flex;flex-direction:column;
+  }
+
+  /* 顶部导航 */
+  .nav{padding:54px 22px 10px;position:relative;text-align:center;flex:none}
+  .nav .back{position:absolute;left:20px;top:52px;font-size:26px;color:#1c2024;font-weight:300}
+  .nav .title{font-size:21px;font-weight:700;color:#15171c;line-height:1.2}
+  .nav .sub{font-size:14px;color:#6a7480;margin-top:4px;font-weight:600}
+  .nav-progress{height:3px;border-radius:3px;margin:12px 22px 0;background:rgba(40,60,70,.16);position:relative;overflow:hidden}
+  .nav-progress::after{content:"";position:absolute;left:0;top:0;bottom:0;width:34%;border-radius:3px;background:#111318}
+
+  .page{flex:1;min-height:0;padding:18px 17px 0;display:flex;flex-direction:column}
+
+  /* 步骤条 */
+  .step-row{margin-top:6px;display:flex;align-items:center;justify-content:center;gap:7px}
+  .step{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.30)}
+  .step.done{opacity:.72}
+  .step.active{background:#111318;box-shadow:0 5px 11px rgba(17,19,24,.14)}
+  .step .no{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(17,19,24,.08);color:#263f45;font-size:12px;font-weight:600;line-height:1}
+  .step.active .no{background:rgba(255,255,255,.18);color:#fff}
+  .step .lbl{color:#263f45;font-size:13px;font-weight:600;line-height:1}
+  .step.active .lbl{color:#fff}
+  .step-line{width:22px;height:1.5px;background:rgba(30,53,60,.18)}
+
+  .tip{margin-top:16px;color:#263f45;font-size:14px;line-height:1.4}
+
+  /* 卡片 */
+  .card{
+    position:relative;margin-top:18px;padding:30px 20px 28px;
+    background:rgba(255,255,255,.34);border:1px solid rgba(255,255,255,.48);
+    border-radius:22px;box-shadow:0 8px 22px rgba(74,126,132,.12);
+  }
+  .guide{color:#263f45;font-size:14px;line-height:1.4}
+
+  /* 拼写空：单词抽掉一段字母 */
+  .spell{
+    margin-top:22px;text-align:center;color:var(--ink2);font-weight:700;
+    font-size:42px;line-height:1.2;letter-spacing:2px;
+    display:flex;align-items:flex-end;justify-content:center;flex-wrap:wrap;
+  }
+  .spell .gap{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:100px;margin:0 6px;padding:0 6px 4px;
+    color:#9aa6ad;border-bottom:4px solid rgba(38,63,69,.30);letter-spacing:6px;
+  }
+  .spell .gap.correct{color:var(--green);border-bottom-color:var(--green)}
+  .spell .gap.wrong{color:var(--red);border-bottom-color:var(--red)}
+
+  /* 音标行：紧贴单词下方，小喇叭点击播放读音（题目本体） */
+  .ipa-row{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .ipa-row .spk{
+    width:34px;height:34px;border-radius:50%;background:rgba(17,19,24,.06);
+    display:flex;align-items:center;justify-content:center;flex:none;
+  }
+  .ipa-row .spk svg{width:18px;height:18px}
+  .ipa-row .ipa{color:#4e6a70;font-size:17px;letter-spacing:.5px}
+
+  .word-cn{margin-top:14px;text-align:center;color:#434a56;font-size:14px;line-height:1.4}
+  .verdict{margin-top:12px;text-align:center;font-size:14px;line-height:1.4;font-weight:600}
+  .verdict.ok{color:var(--green)}
+  .verdict.no{color:var(--red)}
+
+  /* 字母块选项 */
+  .options{margin-top:26px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+  .opt{
+    min-width:88px;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:center;
+    color:#111318;font-size:26px;font-weight:700;letter-spacing:3px;
+    background:rgba(255,255,255,.46);border:1px solid rgba(255,255,255,.55);
+    border-radius:18px;box-shadow:0 6px 14px rgba(74,126,132,.10);
+  }
+  .opt.is-correct{color:var(--green);border-color:rgba(14,175,48,.55);background:rgba(14,175,48,.12);box-shadow:none}
+  .opt.is-wrong{color:var(--red);border-color:rgba(230,77,61,.55);background:rgba(230,77,61,.12);box-shadow:none}
+  .opt.muted{opacity:.5}
+
+  /* 底部大播放键：听音拼写的读音主入口（醒目、可重复播放） */
+  .play{margin-top:auto;padding:40px 0 44px;display:flex;flex-direction:column;align-items:center}
+  .play .btn{
+    width:72px;height:72px;border-radius:50%;background:#111318;color:#fff;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(17,19,24,.22);
+  }
+  .play .btn svg{width:34px;height:34px}
+  .play .t{margin-top:14px;font-size:14px;color:var(--hint)}
+</style>
+</head>
+<body>
+
+<!-- ============ A：初始 ============ -->
+<div>
+  <div class="label">A · 初始（点字母块，选完即判分）</div>
+  <div class="phone">
+    <div class="nav">
+      <div class="back">‹</div><div class="title">关卡1</div><div class="sub">1/42</div>
+      <div class="nav-progress"></div>
+    </div>
+    <div class="page">
+      <div class="step-row">
+        <div class="step done"><span class="no">1</span><span class="lbl">听音填空</span></div>
+        <div class="step-line"></div>
+        <div class="step done"><span class="no">2</span><span class="lbl">背诵评测</span></div>
+        <div class="step-line"></div>
+        <div class="step active"><span class="no">3</span><span class="lbl">单词拼写</span></div>
+      </div>
+
+      <div class="tip">听单词读音，选出缺失的字母</div>
+
+      <div class="card">
+        <div class="guide">点击下方字母块完成拼写</div>
+        <div class="spell"><span>sp</span><span class="gap">&nbsp;</span></div>
+        <div class="ipa-row">
+          <div class="spk"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#263f45"/><path d="M16 9a3.5 3.5 0 0 1 0 6" stroke="#263f45" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div class="ipa">/speɪd/</div>
+        </div>
+        <div class="word-cn">n. 铁锹；黑桃</div>
+
+        <div class="options">
+          <div class="opt">ade</div>
+          <div class="opt">aid</div>
+          <div class="opt">ide</div>
+          <div class="opt">ode</div>
+        </div>
+      </div>
+
+      <div class="play">
+        <div class="btn"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#fff"/><path d="M16 8.5a4 4 0 0 1 0 7M18.5 6a7 7 0 0 1 0 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="t">播放读音</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ B：选对 ============ -->
+<div>
+  <div class="label">B · 选对（绿色 + 完整单词）</div>
+  <div class="phone">
+    <div class="nav">
+      <div class="back">‹</div><div class="title">关卡1</div><div class="sub">1/42</div>
+      <div class="nav-progress"></div>
+    </div>
+    <div class="page">
+      <div class="step-row">
+        <div class="step done"><span class="no">1</span><span class="lbl">听音填空</span></div>
+        <div class="step-line"></div>
+        <div class="step done"><span class="no">2</span><span class="lbl">背诵评测</span></div>
+        <div class="step-line"></div>
+        <div class="step active"><span class="no">3</span><span class="lbl">单词拼写</span></div>
+      </div>
+
+      <div class="tip">听单词读音，选出缺失的字母</div>
+
+      <div class="card">
+        <div class="guide">点击下方字母块完成拼写</div>
+        <div class="spell"><span>sp</span><span class="gap correct">ade</span></div>
+        <div class="ipa-row">
+          <div class="spk"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#263f45"/><path d="M16 9a3.5 3.5 0 0 1 0 6" stroke="#263f45" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div class="ipa">/speɪd/</div>
+        </div>
+        <div class="word-cn">spade · n. 铁锹；黑桃</div>
+        <div class="verdict ok">拼写正确</div>
+
+        <div class="options">
+          <div class="opt is-correct">ade</div>
+          <div class="opt muted">aid</div>
+          <div class="opt muted">ide</div>
+          <div class="opt muted">ode</div>
+        </div>
+      </div>
+
+      <div class="play">
+        <div class="btn"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#fff"/><path d="M16 8.5a4 4 0 0 1 0 7M18.5 6a7 7 0 0 1 0 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="t">播放读音</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ C：选错 ============ -->
+<div>
+  <div class="label">C · 选错（标红 + 显示正确答案）</div>
+  <div class="phone">
+    <div class="nav">
+      <div class="back">‹</div><div class="title">关卡1</div><div class="sub">1/42</div>
+      <div class="nav-progress"></div>
+    </div>
+    <div class="page">
+      <div class="step-row">
+        <div class="step done"><span class="no">1</span><span class="lbl">听音填空</span></div>
+        <div class="step-line"></div>
+        <div class="step done"><span class="no">2</span><span class="lbl">背诵评测</span></div>
+        <div class="step-line"></div>
+        <div class="step active"><span class="no">3</span><span class="lbl">单词拼写</span></div>
+      </div>
+
+      <div class="tip">听单词读音，选出缺失的字母</div>
+
+      <div class="card">
+        <div class="guide">点击下方字母块完成拼写</div>
+        <div class="spell"><span>sp</span><span class="gap wrong">aid</span></div>
+        <div class="ipa-row">
+          <div class="spk"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#263f45"/><path d="M16 9a3.5 3.5 0 0 1 0 6" stroke="#263f45" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div class="ipa">/speɪd/</div>
+        </div>
+        <div class="word-cn">spade · n. 铁锹；黑桃</div>
+        <div class="verdict no">正确答案：spade</div>
+
+        <div class="options">
+          <div class="opt is-correct">ade</div>
+          <div class="opt is-wrong">aid</div>
+          <div class="opt muted">ide</div>
+          <div class="opt muted">ode</div>
+        </div>
+      </div>
+
+      <div class="play">
+        <div class="btn"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#fff"/><path d="M16 8.5a4 4 0 0 1 0 7M18.5 6a7 7 0 0 1 0 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="t">播放读音</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

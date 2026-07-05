@@ -13,54 +13,56 @@
   </view>
 
   <!-- 开始页 -->
-  <view wx:if="{{stage === 'intro'}}" class="intro">
-    <view class="intro-card">
-      <view class="intro-hero">
-        <image class="intro-hero-img" src="{{introHeroSrc}}" mode="aspectFill" />
-      </view>
-      <view class="intro-title">{{title}}</view>
-      <view class="intro-subtitle">{{subtitle}}</view>
-      <view class="intro-total">共 {{total}} 题</view>
+  <scroll-view wx:if="{{stage === 'intro'}}" class="intro-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="intro">
+      <view class="intro-card">
+        <view class="intro-hero">
+          <image class="intro-hero-img" src="{{introHeroSrc}}" mode="aspectFill" />
+        </view>
+        <view class="intro-title">{{title}}</view>
+        <view class="intro-subtitle">{{subtitle}}</view>
+        <view class="intro-total">共 {{total}} 题</view>
 
-      <view class="intro-sections">
-        <view class="intro-section" wx:for="{{sections}}" wx:key="key">
-          <view class="intro-section-head">
-            <text class="intro-section-name">{{item.name}}</text>
-            <text class="intro-section-count">{{item.count}} 题</text>
+        <view class="intro-sections">
+          <view class="intro-section" wx:for="{{sections}}" wx:key="key">
+            <view class="intro-section-head">
+              <text class="intro-section-name">{{item.name}}</text>
+              <text class="intro-section-count">{{item.count}} 题</text>
+            </view>
+            <text class="intro-section-desc">{{item.desc}}</text>
           </view>
-          <text class="intro-section-desc">{{item.desc}}</text>
         </view>
       </view>
-    </view>
-    <view class="intro-benefits">
-      <view class="intro-benefit">
-        <image class="intro-benefit-icon" src="../../images/home/icon-exam-target.svg" mode="aspectFit" />
-        <text>定位水平</text>
-      </view>
-      <view class="intro-benefit">
-        <image class="intro-benefit-icon" src="../../images/home/icon-exam-diagnose.svg" mode="aspectFit" />
-        <text>发现薄弱项</text>
-      </view>
-      <view class="intro-benefit">
-        <image class="intro-benefit-icon" src="../../images/home/icon-exam-report.svg" mode="aspectFit" />
-        <text>生成报告</text>
-      </view>
-    </view>
-    <view wx:if="{{entryCompleted && lastResult}}" class="intro-result">
-      <view class="intro-result-main">
-        <text class="intro-result-label">上次成绩</text>
-        <view class="intro-result-score">
-          <text class="intro-result-num">{{lastResult.accuracy}}</text>
-          <text class="intro-result-unit">%</text>
+      <view class="intro-benefits">
+        <view class="intro-benefit">
+          <image class="intro-benefit-icon" src="../../images/home/icon-exam-target.svg" mode="aspectFit" />
+          <text>定位水平</text>
+        </view>
+        <view class="intro-benefit">
+          <image class="intro-benefit-icon" src="../../images/home/icon-exam-diagnose.svg" mode="aspectFit" />
+          <text>发现薄弱项</text>
+        </view>
+        <view class="intro-benefit">
+          <image class="intro-benefit-icon" src="../../images/home/icon-exam-report.svg" mode="aspectFit" />
+          <text>生成报告</text>
         </view>
       </view>
-      <view class="intro-result-meta">答对 {{lastResult.correct}}/{{lastResult.total}} 题 · 已生成测评报告</view>
+      <view wx:if="{{entryCompleted && lastResult}}" class="intro-result">
+        <view class="intro-result-main">
+          <text class="intro-result-label">上次成绩</text>
+          <view class="intro-result-score">
+            <text class="intro-result-num">{{lastResult.accuracy}}</text>
+            <text class="intro-result-unit">%</text>
+          </view>
+        </view>
+        <view class="intro-result-meta">答对 {{lastResult.correct}}/{{lastResult.total}} 题 · 已生成测评报告</view>
+      </view>
+      <view class="intro-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
+        <view class="intro-tip">{{introTip}}</view>
+        <view class="intro-btn" bindtap="startExam">{{introBtnText}}</view>
+      </view>
     </view>
-    <view class="intro-foot" style="padding-bottom: {{safeAreaBottom + 24}}px;">
-      <view class="intro-tip">{{introTip}}</view>
-      <view class="intro-btn" bindtap="startExam">{{introBtnText}}</view>
-    </view>
-  </view>
+  </scroll-view>
 
   <!-- 答题页 -->
   <view wx:if="{{stage === 'quiz'}}" class="quiz">
@@ -71,81 +73,83 @@
       </view>
     </view>
 
-    <view class="quiz-stage">
-      <!-- 题干 -->
-      <view class="stem">
-        <!-- 听音辨词：英/美 喇叭药丸 -->
-        <block wx:if="{{question.type === 'word-audio'}}">
-          <view class="stem-audio-row" bindtap="playAudio">
-            <view class="stem-pron {{audioPlaying ? 'stem-pron-active' : ''}}">
-              <view class="stem-pron-pill">
-                <text class="stem-lang">发音</text>
-                <image class="stem-spk {{audioPlaying ? 'wn-spk-playing' : ''}}" src="{{audioPlaying ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
+    <scroll-view class="quiz-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="quiz-stage">
+        <!-- 题干 -->
+        <view class="stem">
+          <!-- 听音辨词：英/美 喇叭药丸 -->
+          <block wx:if="{{question.type === 'word-audio'}}">
+            <view class="stem-audio-row" bindtap="playAudio">
+              <view class="stem-pron {{audioPlaying ? 'stem-pron-active' : ''}}">
+                <view class="stem-pron-pill">
+                  <text class="stem-lang">发音</text>
+                  <image class="stem-spk {{audioPlaying ? 'wn-spk-playing' : ''}}" src="{{audioPlaying ? '../../images/audio_small_white.png' : '../../images/audio_small_hint.png'}}" mode="aspectFit" />
+                </view>
               </view>
             </view>
-          </view>
-          <view class="stem-tip">{{question.stemSub}}</view>
-        </block>
-
-        <!-- 词义理解：英文单词 + 音标药丸 -->
-        <block wx:elif="{{question.type === 'word-cn'}}">
-          <view class="stem-word">{{question.stem}}</view>
-          <view wx:if="{{question.stemSub}}" class="stem-ipa-row">
-            <view class="stem-pron stem-pron-active">
-              <view class="stem-pron-pill">
-                <text class="stem-lang">英</text>
-                <image class="stem-spk" src="../../images/audio_small_white.png" mode="aspectFit" />
-              </view>
-            </view>
-            <text class="stem-ipa">{{question.stemSub}}</text>
-          </view>
-        </block>
-
-        <!-- 其它题型 -->
-        <block wx:else>
-          <view wx:if="{{question.stem}}" class="stem-main">{{question.stem}}</view>
-          <view wx:if="{{question.stemSub}}" class="stem-sub">{{question.stemSub}}</view>
-        </block>
-      </view>
-
-      <!-- 选择题 -->
-      <view wx:if="{{question.interaction === 'choice'}}" class="choice-list">
-        <view
-          class="choice-card {{selected === index ? 'choice-card-active' : ''}}"
-          wx:for="{{question.options}}"
-          wx:key="index"
-          data-idx="{{index}}"
-          bindtap="selectOption"
-        >
-          <text class="choice-text">{{item}}</text>
-        </view>
-      </view>
-
-      <!-- 连词成句 -->
-      <view wx:if="{{question.interaction === 'order'}}" class="order">
-        <view class="order-answer {{ordered.length ? '' : 'order-answer-empty'}}">
-          <block wx:if="{{ordered.length}}">
-            <text
-              class="chip chip-answer"
-              wx:for="{{ordered}}"
-              wx:key="key"
-              data-key="{{item.key}}"
-              bindtap="removeToken"
-            >{{item.text}}</text>
+            <view class="stem-tip">{{question.stemSub}}</view>
           </block>
-          <text wx:else class="order-placeholder">点击下方词块组句，点已选词可撤回</text>
+
+          <!-- 词义理解：英文单词 + 音标药丸 -->
+          <block wx:elif="{{question.type === 'word-cn'}}">
+            <view class="stem-word">{{question.stem}}</view>
+            <view wx:if="{{question.stemSub}}" class="stem-ipa-row">
+              <view class="stem-pron stem-pron-active">
+                <view class="stem-pron-pill">
+                  <text class="stem-lang">英</text>
+                  <image class="stem-spk" src="../../images/audio_small_white.png" mode="aspectFit" />
+                </view>
+              </view>
+              <text class="stem-ipa">{{question.stemSub}}</text>
+            </view>
+          </block>
+
+          <!-- 其它题型 -->
+          <block wx:else>
+            <view wx:if="{{question.stem}}" class="stem-main">{{question.stem}}</view>
+            <view wx:if="{{question.stemSub}}" class="stem-sub">{{question.stemSub}}</view>
+          </block>
         </view>
-        <view class="order-bank">
-          <text
-            wx:for="{{bank}}"
-            wx:key="key"
-            class="chip chip-bank {{item.used ? 'chip-used' : ''}}"
-            data-key="{{item.key}}"
-            bindtap="pickToken"
-          >{{item.text}}</text>
+
+        <!-- 选择题 -->
+        <view wx:if="{{question.interaction === 'choice'}}" class="choice-list">
+          <view
+            class="choice-card {{selected === index ? 'choice-card-active' : ''}}"
+            wx:for="{{question.options}}"
+            wx:key="index"
+            data-idx="{{index}}"
+            bindtap="selectOption"
+          >
+            <text class="choice-text">{{item}}</text>
+          </view>
+        </view>
+
+        <!-- 连词成句 -->
+        <view wx:if="{{question.interaction === 'order'}}" class="order">
+          <view class="order-answer {{ordered.length ? '' : 'order-answer-empty'}}">
+            <block wx:if="{{ordered.length}}">
+              <text
+                class="chip chip-answer"
+                wx:for="{{ordered}}"
+                wx:key="key"
+                data-key="{{item.key}}"
+                bindtap="removeToken"
+              >{{item.text}}</text>
+            </block>
+            <text wx:else class="order-placeholder">点击下方词块组句，点已选词可撤回</text>
+          </view>
+          <view class="order-bank">
+            <text
+              wx:for="{{bank}}"
+              wx:key="key"
+              class="chip chip-bank {{item.used ? 'chip-used' : ''}}"
+              data-key="{{item.key}}"
+              bindtap="pickToken"
+            >{{item.text}}</text>
+          </view>
         </view>
       </view>
-    </view>
+    </scroll-view>
 
     <!-- 底部操作 -->
     <view class="quiz-foot {{index > 0 ? 'quiz-foot-two' : ''}}" style="padding-bottom: {{safeAreaBottom + 24}}px;">

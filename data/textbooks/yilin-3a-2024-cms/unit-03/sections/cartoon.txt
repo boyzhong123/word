@@ -1,0 +1,8 @@
+# Are you Jake?
+Friends: Hi, Bobby!
+Bobby: Are you Jake?
+John: No, I'm not. I'm John.
+Bobby: Are you Jake?
+Jake: Yes!
+Friends: Ha ha!
+Jake: Ha ha! Here I am!

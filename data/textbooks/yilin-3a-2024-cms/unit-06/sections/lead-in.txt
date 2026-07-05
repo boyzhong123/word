@@ -1,0 +1,6 @@
+Narrator: Grandpa, grandma,
+Narrator: Father, mother,
+Narrator: Brother, sister,
+Narrator: Uncle, aunt and cousin.
+Narrator: We all love each other!
+Narrator: We are happy together!

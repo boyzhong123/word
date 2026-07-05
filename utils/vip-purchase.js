@@ -1,6 +1,6 @@
 // 统一跳转会员购买页，保证首页、今日、我的和学习门禁使用同一套购买流程。
 // 提审时打开此开关，所有 VIP / 会员入口都会进入「产品介绍」展示页。
-const ENABLE_SERVICE_RIGHTS_REVIEW_MODE = true
+const ENABLE_SERVICE_RIGHTS_REVIEW_MODE = false
 
 function getCurrentBook() {
   const app = getApp()

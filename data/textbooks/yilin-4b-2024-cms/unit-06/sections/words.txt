@@ -1,0 +1,19 @@
+job
+driver
+nurse
+worker
+teacher
+doctor
+farmer
+cook
+police officer
+hospital
+parent
+work
+sick
+people
+busy
+taxi
+train
+place
+way

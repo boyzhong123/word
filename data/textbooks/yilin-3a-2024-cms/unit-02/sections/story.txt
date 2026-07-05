@@ -1,0 +1,11 @@
+# A new classmate
+Mike Brown: Hello, I'm Mike Brown.
+Yang Ling: Hi, Mike. I'm Yang Ling.
+Mike Brown: Nice to meet you, Yang Ling.
+Yang Ling: Nice to meet you too.
+Mike Brown: Hello. What's your name?
+Liu Tao: My name is Liu Tao.
+Wang Bing: I'm Wang Bing. Nice to meet you.
+Mike Brown: Hi!
+Mr Green: Good morning, boys and girls.
+Students: Good morning, Mr Green.

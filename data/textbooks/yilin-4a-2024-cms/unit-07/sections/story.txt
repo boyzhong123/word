@@ -1,0 +1,17 @@
+Narrator: We have four seasons in a year.
+Narrator: In spring, it is warm.
+Narrator: We plant trees.
+Narrator: We go boating.
+Narrator: We like spring.
+Narrator: In summer, it is hot.
+Narrator: We eat ice cream.
+Narrator: We go swimming.
+Narrator: We like summer.
+Narrator: In autumn, it is cool.
+Narrator: We pick fruit.
+Narrator: We go climbing.
+Narrator: We like autumn.
+Narrator: In winter, it is cold.
+Narrator: We play in the snow.
+Narrator: We go skating.
+Narrator: We like winter.

@@ -1,0 +1,15 @@
+colour
+yellow
+blue
+red
+orange
+pink
+green
+brown
+black
+white
+buy
+sure
+little
+What colour is ...?
+How come?

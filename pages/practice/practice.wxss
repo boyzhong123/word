@@ -203,6 +203,8 @@ page {
   position: relative;
   z-index: 99;
   flex-shrink: 0;
+  box-sizing: border-box;
+  padding-bottom: 32rpx;
 }
 
 /* 标题相对整屏水平居中（覆盖 app.wxss 里 nav-title 的 margin-right 偏移） */
@@ -251,7 +253,7 @@ page {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -12rpx;
+  bottom: 0;
   height: 8rpx;
   z-index: 2;
   overflow: hidden;
@@ -287,6 +289,13 @@ page {
   height: 100%;
   font-family: PingFang SC, PingFangSC-Regular, sans-serif;
   background: transparent;
+}
+
+.word-new-stage-scroll {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  box-sizing: border-box;
 }
 
 /* 顶部单词 + 音标 */
@@ -682,11 +691,11 @@ page {
 }
 
 .wn-quiz-body {
-  flex: 1;
+  min-height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding: 50rpx 54rpx 0;
-  overflow: hidden;
 }
 
 .wn-quiz-foot {
@@ -732,11 +741,11 @@ page {
 }
 
 .wn-choice-stage {
-  flex: 1;
+  min-height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding: 50rpx 32rpx 0;
-  overflow: hidden;
 }
 
 .wn-choice-tip {

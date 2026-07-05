@@ -1,0 +1,114 @@
+ 1. subject
+    释义：学科，科目
+    例句：What subject do you like best?
+    例句中：你最喜欢什么学科？
+
+ 2. Chinese
+    释义：语文（课）；中国的
+    例句：I like Chinese best.
+    例句中：我最喜欢语文。
+
+ 3. English
+    释义：英语（课）；英语的
+    例句：I like reading English stories.
+    例句中：我喜欢读英语故事。
+
+ 4. Maths
+    释义：数学（课）
+    例句：I like Maths. I'm good at it.
+    例句中：我喜欢数学，我很擅长。
+
+ 5. PE
+    释义：体育（课）
+    例句：It's time for PE.
+    例句中：该上体育课了。
+
+ 6. Art
+    释义：美术（课）
+    例句：We also have Art, PE and Music.
+    例句中：我们还有美术、体育和音乐课。
+
+ 7. Science
+    释义：科学（课）
+    例句：Science is interesting.
+    例句中：科学课很有趣。
+
+ 8. IT *
+    释义：信息科技（课）
+    例句：I also like IT.
+    例句中：我也喜欢信息科技课。
+
+ 9. Music
+    释义：音乐（课）
+    例句：I like Music best.
+    例句中：我最喜欢音乐课。
+
+10. Labour *
+    释义：劳动（课）
+    例句：We have Chinese, Maths, English and Science.
+    例句中：我们有语文、数学、英语和科学课。
+
+11. best
+    释义：最，最高程度地
+    例句：What subject do you like best?
+    例句中：你最喜欢什么学科？
+
+12. also
+    释义：也
+    例句：We also have Art, PE and Music.
+    例句中：我们还有美术、体育和音乐课。
+
+13. It's time for ...
+    释义：是……的时候了。
+    例句：It's time for PE.
+    例句中：该上体育课了。
+
+14. mouse
+    释义：鼠标；老鼠
+    例句：Mouse? I'm here!
+    例句中：老鼠？我在这儿！
+
+15. Welcome back to ...
+    释义：欢迎回到……
+    例句：Welcome back to school, class.
+    例句中：欢迎回到学校，同学们。
+
+16. be good at
+    释义：擅长
+    例句：I'm good at Maths.
+    例句中：我擅长数学。
+
+17. interesting
+    释义：有趣的，有吸引力的
+    例句：Science is interesting.
+    例句中：科学课很有趣。
+
+18. learn about
+    释义：学习
+    例句：I want to learn about Chinese culture.
+    例句中：我想了解中国文化。
+
+19. culture *
+    释义：文化，文明
+    例句：I want to learn about Chinese culture.
+    例句中：我想了解中国文化。
+
+20. read
+    释义：阅读
+    例句：I like reading English stories.
+    例句中：我喜欢读英语故事。
+
+21. story
+    释义：故事
+    例句：I like reading English stories.
+    例句中：我喜欢读英语故事。
+
+22. all
+    释义：全部，都
+    例句：We all like PE!
+    例句中：我们都喜欢体育课！
+
+23. sports ground *
+    释义：操场，运动场
+    例句：Let's go to the sports ground!
+    例句中：我们去操场吧！

@@ -1,0 +1,14 @@
+farm
+cow
+sheep
+rabbit
+chicken
+carrot
+pig
+Welcome to ...
+home
+these
+those
+help
+cute
+move

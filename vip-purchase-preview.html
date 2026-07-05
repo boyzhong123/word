@@ -1,0 +1,1657 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>VIP购买页预览</title>
+  <style>
+    :root {
+      --ink: #111318;
+      --sub: rgba(38, 63, 69, 0.72);
+      --muted: rgba(47, 67, 78, 0.58);
+      --glass: rgba(255, 255, 255, 0.44);
+      --glass-strong: rgba(255, 255, 255, 0.62);
+      --line: rgba(255, 255, 255, 0.42);
+      --green: #3f9581;
+      --green-bright: #4dd9a0;
+      --red: #fb5632;
+      --red-soft: #ffe2d3;
+      --blue: #5e8ff0;
+      --dark: #111318;
+      --gold: #ffce7a;
+      --shadow: 0 12px 32px rgba(77, 108, 180, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #dce4f6;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .phone {
+      position: relative;
+      width: min(430px, 100vw);
+      height: min(932px, 100vh);
+      overflow: hidden;
+      background: linear-gradient(180deg, #e7e1f0 0%, #dadcf4 28%, #bcd0f8 50%, #97bdf6 72%, #78acf4 100%);
+      box-shadow: 0 24px 80px rgba(41, 59, 96, 0.22);
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(146deg, rgba(251, 86, 50, 0.18) 0%, rgba(251, 86, 50, 0) 28%),
+        linear-gradient(220deg, rgba(78, 126, 236, 0.3) 6%, rgba(78, 126, 236, 0) 48%);
+    }
+
+    .status {
+      position: relative;
+      z-index: 2;
+      height: 44px;
+      padding: 12px 34px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 800;
+      font-size: 17px;
+      color: #050915;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .signal {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 16px;
+    }
+
+    .signal i {
+      width: 3px;
+      border-radius: 3px;
+      background: #050915;
+      display: block;
+    }
+
+    .signal i:nth-child(1) { height: 5px; }
+    .signal i:nth-child(2) { height: 8px; }
+    .signal i:nth-child(3) { height: 11px; }
+    .signal i:nth-child(4) { height: 14px; opacity: 0.35; }
+
+    .wifi {
+      width: 18px;
+      height: 14px;
+      border: 4px solid #050915;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-bottom: 0;
+      border-radius: 18px 18px 0 0;
+      position: relative;
+    }
+
+    .wifi::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      bottom: -7px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #050915;
+    }
+
+    .battery {
+      min-width: 28px;
+      height: 16px;
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(5, 9, 21, 0.35);
+      color: #fff;
+      font-size: 12px;
+      line-height: 14px;
+      text-align: center;
+    }
+
+    .nav {
+      position: relative;
+      z-index: 2;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 22px;
+    }
+
+    .back {
+      position: absolute;
+      left: 16px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      font-size: 34px;
+      line-height: 1;
+      transform: translateY(-1px);
+    }
+
+    .nav-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #263f45;
+    }
+
+    .scroll {
+      position: relative;
+      z-index: 1;
+      height: calc(100% - 88px);
+      overflow-y: auto;
+      padding: 6px 0 128px;
+      scrollbar-width: none;
+    }
+
+    .scroll::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .hero {
+      padding: 6px 18px 0;
+    }
+
+    .member-card,
+    .learning-loop {
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .member-card {
+      padding: 14px;
+    }
+
+    .profile-row {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #f3fff6, #e1f8e8);
+      border: 4px solid rgba(255, 255, 255, 0.86);
+      color: #0f9b4e;
+      font-size: 24px;
+      font-weight: 950;
+      box-shadow: 0 8px 18px rgba(71, 118, 86, 0.12);
+    }
+
+    .member-name-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .member-name {
+      color: #111318;
+      font-size: 23px;
+      line-height: 1.08;
+      font-weight: 950;
+    }
+
+    .vip-pill {
+      flex: none;
+      height: 23px;
+      padding: 0 10px 0 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #4b4c5a;
+      color: #f7f8fa;
+      font-size: 13px;
+      line-height: 1;
+      font-weight: 900;
+      font-style: italic;
+      margin-bottom: 1px;
+    }
+
+    .vip-pill::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 4px rgba(255, 206, 122, 0.18);
+    }
+
+    .member-sub {
+      margin-top: 6px;
+      color: var(--sub);
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .learning-loop {
+      margin-top: 10px;
+      padding: 12px;
+    }
+
+    .loop-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .loop-title {
+      color: #151923;
+      font-size: 17px;
+      line-height: 1.25;
+      font-weight: 950;
+    }
+
+    .loop-desc {
+      max-width: 190px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 650;
+      text-align: right;
+    }
+
+    .loop-steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .loop-step {
+      height: 34px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.62);
+      color: #151923;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .loop-step:nth-child(1),
+    .loop-step:nth-child(4) {
+      box-shadow: inset 4px 0 0 rgba(63, 149, 129, 0.75);
+    }
+
+    .loop-step:nth-child(2),
+    .loop-step:nth-child(3) {
+      box-shadow: inset 4px 0 0 rgba(251, 86, 50, 0.72);
+    }
+
+    .hero-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 54px;
+    }
+
+    .hero-word {
+      font-size: 48px;
+      line-height: 0.95;
+      font-weight: 900;
+      color: #111318;
+      letter-spacing: 0;
+    }
+
+    .hero-dots {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      transform: translateY(7px);
+    }
+
+    .hero-dots i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(77, 217, 160, 0.38);
+    }
+
+    .hero-dots i:first-child {
+      background: var(--green-bright);
+    }
+
+    .vip-mark {
+      align-self: flex-start;
+      margin-top: 3px;
+      height: 26px;
+      padding: 0 10px 0 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #4b4c5a;
+      color: #f7f8fa;
+      font-size: 13px;
+      font-weight: 900;
+      font-style: italic;
+    }
+
+    .vip-mark::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 4px rgba(255, 206, 122, 0.2);
+    }
+
+    .hero-sub {
+      margin-top: 6px;
+      color: var(--sub);
+      font-size: 14px;
+      line-height: 1.36;
+      font-weight: 600;
+    }
+
+    .pron-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pron {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 29px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.66);
+      color: rgba(49, 56, 68, 0.7);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(120, 140, 180, 0.05);
+    }
+
+    .pron.active {
+      background: #4b4c5a;
+      color: #f7f8fa;
+    }
+
+    .hero-card {
+      margin-top: 12px;
+      padding: 12px;
+      min-height: 0;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .flow-line {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .flow-chip {
+      height: 32px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.62);
+      color: #151923;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .flow-arrow {
+      color: rgba(38, 63, 69, 0.5);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .flow-caption {
+      margin-top: 9px;
+      color: rgba(47, 67, 78, 0.72);
+      font-size: 12px;
+      line-height: 1.38;
+      font-weight: 650;
+    }
+
+    .hero-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .hero-action {
+      border: 0;
+      background: transparent;
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      color: #1f2730;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .hero-action i {
+      width: 32px;
+      height: 5px;
+      border-radius: 999px;
+      display: block;
+    }
+
+    .hero-action.free i {
+      background: var(--green);
+    }
+
+    .hero-action.vip i {
+      background: var(--red);
+    }
+
+    .section {
+      padding: 0 18px;
+      margin-top: 12px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: #263f45;
+      font-size: 17px;
+      font-weight: 950;
+    }
+
+    .section-title i {
+      width: 20px;
+      height: 20px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.56);
+      color: #263f45;
+      font-style: normal;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .plans {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 18px 3px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .plans::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    .plan {
+      position: relative;
+      width: 128px;
+      min-width: 128px;
+      height: 132px;
+      border: 2px solid rgba(255, 255, 255, 0.46);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.5);
+      overflow: hidden;
+      scroll-snap-align: start;
+      box-shadow: 0 10px 24px rgba(77, 108, 180, 0.1);
+    }
+
+    .plan.active {
+      border-color: #111318;
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 16px 34px rgba(17, 19, 24, 0.12);
+    }
+
+    .plan:disabled:not(.active) {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .tag {
+      position: absolute;
+      left: -2px;
+      top: -2px;
+      padding: 5px 10px;
+      border-radius: 16px 0 16px 0;
+      background: var(--red-soft);
+      color: #c85a34;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .plan-inner {
+      height: 98px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 8px;
+      padding-top: 12px;
+    }
+
+    .plan-name {
+      color: #263f45;
+      font-size: 17px;
+      font-weight: 950;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      color: #111318;
+    }
+
+    .price span {
+      font-size: 17px;
+      font-weight: 800;
+      margin-right: 2px;
+    }
+
+    .price strong {
+      font-size: 34px;
+      font-weight: 520;
+      letter-spacing: 0;
+    }
+
+    .plan-foot {
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: #111318;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .entitlement-card {
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .entitlement-row {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      padding: 11px 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.38);
+    }
+
+    .entitlement-row:first-child {
+      border-top: 0;
+    }
+
+    .entitlement-no {
+      width: 30px;
+      height: 30px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.68);
+      color: #263f45;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .entitlement-title {
+      color: #151923;
+      font-size: 15px;
+      line-height: 1.28;
+      font-weight: 950;
+    }
+
+    .entitlement-desc {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+
+    .compare {
+      overflow: hidden;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: var(--shadow);
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: minmax(112px, 1.25fr) minmax(74px, 0.75fr) minmax(82px, 0.8fr);
+      border-top: 1px solid rgba(255, 255, 255, 0.48);
+    }
+
+    .compare-row:first-child {
+      border-top: 0;
+    }
+
+    .compare-cell {
+      min-height: 47px;
+      padding: 9px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: rgba(38, 63, 69, 0.68);
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 750;
+      border-left: 1px solid rgba(255, 255, 255, 0.46);
+    }
+
+    .compare-cell:first-child {
+      color: #263f45;
+      font-weight: 900;
+      border-left: 0;
+    }
+
+    .compare-cell.vip {
+      background: rgba(255, 206, 122, 0.12);
+      color: #c9943f;
+      font-weight: 900;
+    }
+
+    .compare-row.head .compare-cell {
+      min-height: 40px;
+      color: #263f45;
+      font-weight: 950;
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .compare-row.head .compare-cell.vip {
+      color: #111318;
+      background: var(--gold);
+    }
+
+    .compare-status {
+      display: inline-grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+      border-radius: 50%;
+      background: rgba(63, 149, 129, 0.14);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .compare-cell.vip .compare-status {
+      background: rgba(255, 206, 122, 0.2);
+      color: #c9943f;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .feature {
+      min-height: 74px;
+      border-radius: 18px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 10px 24px rgba(77, 108, 180, 0.08);
+    }
+
+    .feature-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #151923;
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .feature-dot {
+      flex: none;
+      width: 23px;
+      height: 23px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .feature:nth-child(1) .feature-dot,
+    .feature:nth-child(4) .feature-dot {
+      background: var(--green);
+    }
+
+    .feature:nth-child(2) .feature-dot,
+    .feature:nth-child(3) .feature-dot {
+      background: var(--red);
+    }
+
+    .feature-desc {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.32;
+      font-weight: 650;
+    }
+
+    .empty-record {
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 11px;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .empty-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.68);
+      color: #5b83db;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .empty-title {
+      color: #151923;
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    .empty-desc {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+
+    .agreement {
+      min-height: 24px;
+      padding: 7px 2px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: rgba(38, 63, 69, 0.62);
+      font-size: 11px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .agreement.attention {
+      color: #d94b34;
+      font-weight: 850;
+    }
+
+    .check {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 1px solid rgba(69, 88, 122, 0.22);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .check.on {
+      border-color: var(--green);
+      background: var(--green);
+      box-shadow: inset 0 0 0 3px #e9f4f1;
+    }
+
+    .footer {
+      position: fixed;
+      left: 50%;
+      width: min(430px, 100vw);
+      bottom: 0;
+      z-index: 3;
+      transform: translateX(-50%);
+      padding: 9px 16px calc(11px + env(safe-area-inset-bottom));
+      background: rgba(235, 241, 254, 0.92);
+      border-top: 1px solid rgba(255, 255, 255, 0.76);
+      box-shadow: 0 -12px 30px rgba(45, 80, 150, 0.14);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .footer-actions {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .redeem-footer {
+      height: 50px;
+      border: 0;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #263f45;
+      font-weight: 900;
+      box-shadow: inset 0 0 0 1px rgba(92, 126, 190, 0.1);
+    }
+
+    .redeem-footer {
+      padding: 0 5px;
+      font-size: 13px;
+    }
+
+    .cta {
+      width: 100%;
+      height: 50px;
+      border: 0;
+      border-radius: 999px;
+      background: #111318;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 850;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 22px rgba(17, 19, 24, 0.2);
+    }
+
+    .cta i {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: grid;
+      place-items: center;
+      color: #111318;
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 950;
+    }
+
+    .cta strong {
+      color: var(--gold);
+      font-size: 20px;
+      font-weight: 560;
+    }
+
+    .sheet-mask {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      align-items: flex-end;
+      background: rgba(17, 19, 24, 0.36);
+    }
+
+    .sheet-mask.show {
+      display: flex;
+    }
+
+    .sheet {
+      width: 100%;
+      border-radius: 28px 28px 0 0;
+      background: linear-gradient(180deg, #eef1fb, #f9fbff);
+      padding: 20px 20px 26px;
+      box-shadow: 0 -20px 60px rgba(21, 40, 76, 0.22);
+    }
+
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .sheet-title {
+      color: #263f45;
+      font-size: 20px;
+      font-weight: 950;
+    }
+
+    .close {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.68);
+      color: #586982;
+      font-size: 22px;
+    }
+
+    .redeem-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 18px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.48);
+    }
+
+    .redeem-box input {
+      flex: 1;
+      min-width: 0;
+      height: 44px;
+      border: 0;
+      outline: none;
+      padding: 0 8px;
+      color: var(--ink);
+      font-size: 16px;
+      text-transform: uppercase;
+      background: transparent;
+    }
+
+    .redeem-box button {
+      height: 44px;
+      border: 0;
+      border-radius: 14px;
+      padding: 0 18px;
+      background: #111318;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .redeem-box button.remove {
+      background: #fff0eb;
+      color: #d94b34;
+    }
+
+    .redeem-box input:disabled {
+      color: #263f45;
+      opacity: 1;
+      font-weight: 800;
+    }
+
+    .redeem-msg {
+      min-height: 28px;
+      padding: 11px 3px 0;
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .redeem-msg.ok {
+      color: #218f62;
+      font-weight: 850;
+    }
+
+    .redeem-msg.err {
+      color: #d94b34;
+      font-weight: 850;
+    }
+
+    .confirm-card {
+      overflow: hidden;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.56);
+    }
+
+    .confirm-label {
+      margin-bottom: 8px;
+      color: #263f45;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .confirm-plans {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .confirm-plan {
+      min-width: 0;
+      height: 72px;
+      padding: 9px 5px;
+      border: 2px solid rgba(91, 126, 195, 0.12);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.7);
+      color: #263f45;
+    }
+
+    .confirm-plan span {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .confirm-plan strong {
+      color: #111318;
+      font-size: 20px;
+      font-weight: 850;
+    }
+
+    .confirm-plan.active {
+      border-color: #fb5632;
+      background: #fff1eb;
+      color: #d94b34;
+      box-shadow: 0 8px 18px rgba(251, 86, 50, 0.14);
+    }
+
+    .confirm-plan.active strong {
+      color: #fb5632;
+    }
+
+    .confirm-plan:disabled:not(.active) {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+
+    .confirm-row {
+      min-height: 48px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid rgba(91, 126, 195, 0.1);
+      color: #667085;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .confirm-row[hidden],
+    .confirm-redeem[hidden] {
+      display: none;
+    }
+
+    .confirm-row:first-child {
+      border-top: 0;
+    }
+
+    .confirm-row strong {
+      color: #151923;
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    .confirm-code-value {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .confirm-code-remove {
+      height: 28px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 10px;
+      background: #fff0eb;
+      color: #d94b34;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .confirm-redeem {
+      margin-bottom: 12px;
+    }
+
+    .confirm-redeem .redeem-box {
+      padding: 7px;
+      border-radius: 16px;
+    }
+
+    .confirm-redeem .redeem-msg {
+      min-height: 22px;
+      padding-top: 7px;
+    }
+
+    .confirm-row.total strong {
+      color: var(--red);
+      font-size: 22px;
+    }
+
+    .confirm-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+      font-weight: 650;
+    }
+
+    .confirm-actions {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .confirm-actions button {
+      height: 50px;
+      border: 0;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .confirm-back {
+      background: rgba(91, 126, 195, 0.1);
+      color: #263f45;
+    }
+
+    .confirm-submit {
+      background: #111318;
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(17, 19, 24, 0.16);
+    }
+
+    @media (max-width: 430px) {
+      body {
+        display: block;
+        background: #78acf4;
+      }
+
+      .phone {
+        width: 100vw;
+        height: 100vh;
+        box-shadow: none;
+      }
+
+      .footer {
+        left: 0;
+        width: 100vw;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="status">
+      <div>23:14</div>
+      <div class="status-icons">
+        <div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="wifi" aria-hidden="true"></div>
+        <div class="battery">38</div>
+      </div>
+    </div>
+
+    <header class="nav">
+      <button class="back" aria-label="返回">‹</button>
+      <div class="nav-title">开通会员</div>
+    </header>
+
+    <section class="scroll">
+      <section class="hero">
+        <div class="member-card">
+          <div class="profile-row">
+            <div class="avatar">凌</div>
+            <div>
+              <div class="member-name-row">
+                <div class="member-name">凌动</div>
+                <div class="vip-pill">VIP</div>
+              </div>
+              <div class="member-sub">开通会员，解锁后续全部教材关卡和随身听。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="learning-loop">
+          <div class="loop-head">
+            <div class="loop-title">完整学习闭环</div>
+            <div class="loop-desc">每个教材关卡都按同一套流程练完</div>
+          </div>
+          <div class="loop-steps">
+            <div class="loop-step">单词新学</div>
+            <div class="loop-step">跟读背诵</div>
+            <div class="loop-step">关卡小测</div>
+            <div class="loop-step">报告复习</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><i>¥</i>选择时长</div>
+        <div class="plans" aria-label="会员套餐">
+          <button class="plan active" data-plan-option data-name="1年" data-price="109">
+            <div class="tag">推荐</div>
+            <div class="plan-inner">
+              <div class="plan-name">1年</div>
+              <div class="price"><span>¥</span><strong>109</strong></div>
+            </div>
+            <div class="plan-foot">低至9元/月</div>
+          </button>
+          <button class="plan" data-plan-option data-name="2个月" data-price="59">
+            <div class="tag">超值</div>
+            <div class="plan-inner">
+              <div class="plan-name">2个月</div>
+              <div class="price"><span>¥</span><strong>59</strong></div>
+            </div>
+            <div class="plan-foot">超值之选</div>
+          </button>
+          <button class="plan" data-plan-option data-name="1个月" data-price="39">
+            <div class="plan-inner">
+              <div class="plan-name">1个月</div>
+              <div class="price"><span>¥</span><strong>39</strong></div>
+            </div>
+            <div class="plan-foot">尝鲜体验</div>
+          </button>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><i>锁</i>会员权益</div>
+        <div class="entitlement-card">
+          <div class="entitlement-row">
+            <div class="entitlement-no">01</div>
+            <div>
+              <div class="entitlement-title">全部关卡解锁</div>
+              <div class="entitlement-desc">免费版可完整体验第 1 关；会员解锁第 2 关起所有教材关卡。</div>
+            </div>
+          </div>
+          <div class="entitlement-row">
+            <div class="entitlement-no">02</div>
+            <div>
+              <div class="entitlement-title">随身听全开</div>
+              <div class="entitlement-desc">后续关卡的课文听力、单词句子音频和听力小测入口完整开放。</div>
+            </div>
+          </div>
+          <div class="entitlement-row">
+            <div class="entitlement-no">03</div>
+            <div>
+              <div class="entitlement-title">跟读评分纠音</div>
+              <div class="entitlement-desc">在背诵跟读里使用语音评测，查看得分和逐句练习反馈。</div>
+            </div>
+          </div>
+          <div class="entitlement-row">
+            <div class="entitlement-no">04</div>
+            <div>
+              <div class="entitlement-title">学习报告与复习</div>
+              <div class="entitlement-desc">完成关卡后查看掌握度、待复习词和环节表现，持续跟踪学习结果。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><i>比</i>免费版对比</div>
+        <div class="compare">
+          <div class="compare-row head">
+            <div class="compare-cell">学习权益</div>
+            <div class="compare-cell">免费版</div>
+            <div class="compare-cell vip">VIP</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell">教材第 1 关</div>
+            <div class="compare-cell"><span class="compare-status">✓</span>完整</div>
+            <div class="compare-cell vip"><span class="compare-status">✓</span>完整</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell">后续教材关卡</div>
+            <div class="compare-cell">锁定</div>
+            <div class="compare-cell vip"><span class="compare-status">✓</span>全部</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell">随身听</div>
+            <div class="compare-cell">仅第 1 关</div>
+            <div class="compare-cell vip"><span class="compare-status">✓</span>全开</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell">跟读评分纠音</div>
+            <div class="compare-cell">仅第 1 关</div>
+            <div class="compare-cell vip"><span class="compare-status">✓</span>全开</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell">报告与复习</div>
+            <div class="compare-cell">仅第 1 关</div>
+            <div class="compare-cell vip"><span class="compare-status">✓</span>全开</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><i>学</i>真实学习路径</div>
+        <div class="feature-grid">
+          <div class="feature">
+            <div class="feature-top"><span class="feature-dot">词</span>单词新学</div>
+            <div class="feature-desc">识记、释义选择、例句和详情页串起来。</div>
+          </div>
+          <div class="feature">
+            <div class="feature-top"><span class="feature-dot">说</span>跟读背诵</div>
+            <div class="feature-desc">开口练句子，结合语音评测反馈。</div>
+          </div>
+          <div class="feature">
+            <div class="feature-top"><span class="feature-dot">听</span>随身听小测</div>
+            <div class="feature-desc">听课文和单词句子，配合听力练习。</div>
+          </div>
+          <div class="feature">
+            <div class="feature-top"><span class="feature-dot">报</span>报告复习</div>
+            <div class="feature-desc">看正确率、已掌握和待复习内容。</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><i>记</i>购买记录</div>
+        <div class="empty-record">
+          <div class="empty-icon">□</div>
+          <div>
+            <div class="empty-title">暂无购买记录</div>
+            <div class="empty-desc">开通成功后，会在这里展示套餐、开通时间、支付方式和订单编号。</div>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+    <footer class="footer">
+      <div class="footer-actions">
+        <button class="redeem-footer" data-sheet="redeem" id="redeemSummary">兑换码</button>
+        <button class="cta" id="payBtn"><i>◆</i><strong>¥109</strong> 开通</button>
+      </div>
+      <div class="agreement" id="agree">
+        <span class="check on" aria-hidden="true"></span>
+        <span>开通会员前请阅读《会员服务协议》</span>
+      </div>
+    </footer>
+
+    <div class="sheet-mask" id="recordSheet">
+      <div class="sheet">
+        <div class="sheet-head">
+          <div class="sheet-title">购买记录</div>
+          <button class="close" data-close>×</button>
+        </div>
+        <div class="empty-record">
+          <div class="empty-icon">□</div>
+          <div>
+            <div class="empty-title">暂无购买记录</div>
+            <div class="empty-desc">当前账号还没有会员开通记录。完成开通后可查看订单编号和有效期。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet-mask" id="redeemSheet">
+      <div class="sheet">
+        <div class="sheet-head">
+          <div class="sheet-title">兑换码</div>
+          <button class="close" data-close>×</button>
+        </div>
+        <div class="redeem-box">
+          <input id="redeemInput" placeholder="请输入兑换码" maxlength="12" />
+          <button id="redeemBtn">使用</button>
+        </div>
+        <div class="redeem-msg" id="redeemMsg">可用示例：2818M32</div>
+      </div>
+    </div>
+
+    <div class="sheet-mask" id="confirmSheet">
+      <div class="sheet">
+        <div class="sheet-head">
+          <div class="sheet-title">确认开通</div>
+          <button class="close" data-close>×</button>
+        </div>
+        <div class="confirm-label">选择会员套餐</div>
+        <div class="confirm-plans" aria-label="确认套餐">
+          <button class="confirm-plan active" data-plan-option data-name="1年" data-price="109">
+            <span>1年</span><strong>¥109</strong>
+          </button>
+          <button class="confirm-plan" data-plan-option data-name="2个月" data-price="59">
+            <span>2个月</span><strong>¥59</strong>
+          </button>
+          <button class="confirm-plan" data-plan-option data-name="1个月" data-price="39">
+            <span>1个月</span><strong>¥39</strong>
+          </button>
+        </div>
+        <div class="confirm-redeem" id="confirmRedeemEntry">
+          <div class="confirm-label">兑换码</div>
+          <div class="redeem-box">
+            <input id="confirmRedeemInput" placeholder="请输入兑换码" maxlength="12" />
+            <button id="confirmRedeemBtn">使用</button>
+          </div>
+          <div class="redeem-msg" id="confirmRedeemMsg">兑换码会自动匹配对应套餐</div>
+        </div>
+        <div class="confirm-card">
+          <div class="confirm-row" id="confirmCodeRow" hidden>
+            <span>兑换码</span>
+            <div class="confirm-code-value">
+              <strong id="confirmCode">2818M32</strong>
+              <button class="confirm-code-remove" id="confirmCodeRemove">删除</button>
+            </div>
+          </div>
+          <div class="confirm-row total">
+            <span>实付金额</span>
+            <strong id="confirmAmount">¥109</strong>
+          </div>
+        </div>
+        <div class="confirm-note">请确认套餐和金额，确认后将按当前选择开通会员。</div>
+        <div class="confirm-actions">
+          <button class="confirm-back" data-close>取消</button>
+          <button class="confirm-submit" id="confirmSubmit">确认支付 ¥109</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const plans = [...document.querySelectorAll('[data-plan-option]')];
+    const payButton = document.querySelector('#payBtn');
+    const payBtn = document.querySelector('#payBtn strong');
+    const agreement = document.querySelector('#agree');
+    const agreementCheck = agreement.querySelector('.check');
+    const redeemSummary = document.querySelector('#redeemSummary');
+    const redeemInput = document.querySelector('#redeemInput');
+    const redeemMsg = document.querySelector('#redeemMsg');
+    const redeemBtn = document.querySelector('#redeemBtn');
+    const confirmSheet = document.querySelector('#confirmSheet');
+    const confirmRedeemEntry = document.querySelector('#confirmRedeemEntry');
+    const confirmRedeemInput = document.querySelector('#confirmRedeemInput');
+    const confirmRedeemBtn = document.querySelector('#confirmRedeemBtn');
+    const confirmRedeemMsg = document.querySelector('#confirmRedeemMsg');
+    const confirmCodeRow = document.querySelector('#confirmCodeRow');
+    const confirmCode = document.querySelector('#confirmCode');
+    const confirmCodeRemove = document.querySelector('#confirmCodeRemove');
+    const confirmAmount = document.querySelector('#confirmAmount');
+    const confirmSubmit = document.querySelector('#confirmSubmit');
+    const redeemSku = { name: '1个月', price: 39 };
+    let selectedPrice = 109;
+    let redeemed = false;
+
+    function updatePay() {
+      const amount = redeemed ? 0 : selectedPrice;
+      payBtn.textContent = `¥${amount}`;
+    }
+
+    function updateConfirm() {
+      const amount = redeemed ? 0 : selectedPrice;
+      confirmAmount.textContent = `¥${amount}`;
+      confirmCodeRow.hidden = !redeemed;
+      confirmRedeemEntry.hidden = redeemed;
+      confirmCode.textContent = redeemInput.value || '2818M32';
+      confirmSubmit.textContent = redeemed ? '确认兑换' : `确认支付 ¥${amount}`;
+    }
+
+    function selectPlan(price) {
+      selectedPrice = price;
+      plans.forEach((item) => {
+        item.classList.toggle('active', Number(item.dataset.price) === selectedPrice);
+      });
+      updatePay();
+      updateConfirm();
+    }
+
+    function updatePlanLock() {
+      plans.forEach((item) => {
+        const isRedeemSku = Number(item.dataset.price) === redeemSku.price;
+        item.disabled = redeemed && !isRedeemSku;
+      });
+    }
+
+    function removeRedeemCode() {
+      redeemed = false;
+      redeemInput.disabled = false;
+      redeemInput.value = '';
+      confirmRedeemInput.value = '';
+      redeemBtn.textContent = '使用';
+      redeemBtn.classList.remove('remove');
+      redeemSummary.textContent = '兑换码';
+      redeemMsg.className = 'redeem-msg';
+      redeemMsg.textContent = '兑换码已删除，现在可以重新选择套餐';
+      confirmRedeemMsg.className = 'redeem-msg';
+      confirmRedeemMsg.textContent = '兑换码已删除，现在可以重新选择套餐';
+      updatePlanLock();
+      updatePay();
+      updateConfirm();
+    }
+
+    function applyRedeemCode(rawCode, messageTarget) {
+      const code = rawCode.trim().toUpperCase();
+      messageTarget.className = 'redeem-msg';
+      if (!code) {
+        messageTarget.textContent = '请输入兑换码';
+        messageTarget.classList.add('err');
+        return;
+      }
+      if (code !== '2818M32') {
+        messageTarget.textContent = '兑换码无效或已使用';
+        messageTarget.classList.add('err');
+        return;
+      }
+
+      redeemed = true;
+      redeemInput.value = code;
+      confirmRedeemInput.value = code;
+      redeemInput.disabled = true;
+      redeemBtn.textContent = '删除';
+      redeemBtn.classList.add('remove');
+      redeemSummary.textContent = '已应用';
+      redeemMsg.className = 'redeem-msg ok';
+      redeemMsg.textContent = `该兑换码对应${redeemSku.name}会员，已锁定套餐`;
+      confirmRedeemMsg.className = 'redeem-msg ok';
+      confirmRedeemMsg.textContent = `已匹配${redeemSku.name}会员`;
+      selectPlan(redeemSku.price);
+      updatePlanLock();
+      updateConfirm();
+    }
+
+    plans.forEach((plan) => {
+      plan.addEventListener('click', () => {
+        if (redeemed) return;
+        selectPlan(Number(plan.dataset.price || 0));
+      });
+    });
+
+    document.querySelectorAll('[data-sheet]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const id = `${button.dataset.sheet}Sheet`;
+        document.getElementById(id).classList.add('show');
+      });
+    });
+
+    document.querySelectorAll('[data-close], .sheet-mask').forEach((item) => {
+      item.addEventListener('click', (event) => {
+        if (event.target === item || event.target.hasAttribute('data-close')) {
+          item.closest('.sheet-mask').classList.remove('show');
+        }
+      });
+    });
+
+    redeemBtn.addEventListener('click', () => {
+      if (redeemed) {
+        removeRedeemCode();
+        return;
+      }
+      applyRedeemCode(redeemInput.value, redeemMsg);
+    });
+
+    confirmRedeemBtn.addEventListener('click', () => {
+      applyRedeemCode(confirmRedeemInput.value, confirmRedeemMsg);
+    });
+
+    confirmCodeRemove.addEventListener('click', removeRedeemCode);
+
+    agreement.addEventListener('click', () => {
+      agreementCheck.classList.toggle('on');
+      agreement.classList.remove('attention');
+    });
+
+    payButton.addEventListener('click', () => {
+      if (!agreementCheck.classList.contains('on')) {
+        agreement.classList.add('attention');
+        return;
+      }
+
+      updateConfirm();
+      confirmSheet.classList.add('show');
+    });
+
+    confirmSubmit.addEventListener('click', () => {
+      confirmSubmit.textContent = redeemed ? '兑换已确认（演示）' : '支付已确认（演示）';
+    });
+
+    updatePlanLock();
+    updatePay();
+    updateConfirm();
+  </script>
+</body>
+</html>

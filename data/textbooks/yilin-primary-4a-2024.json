@@ -1,0 +1,1175 @@
+{
+  "meta": {
+    "press": "牛津译林版",
+    "edition": "译林版（三起）（2024）",
+    "grade": "四年级",
+    "semester": "上册",
+    "sourcePdf": "18365106.pdf",
+    "sourcePages": "Word lists p78-82; sentences from Story time / Cartoon time",
+    "unitCount": 8,
+    "wordCount": 159
+  },
+  "units": [
+    {
+      "unit": 1,
+      "title": "Our school subjects",
+      "words": [
+        {
+          "content": "subject",
+          "translation": "学科，科目",
+          "core": true,
+          "sentence": "What subject do you like best?",
+          "sentenceCn": "你最喜欢什么学科？"
+        },
+        {
+          "content": "Chinese",
+          "translation": "语文（课）；中国的",
+          "core": true,
+          "sentence": "I like Chinese best.",
+          "sentenceCn": "我最喜欢语文。"
+        },
+        {
+          "content": "English",
+          "translation": "英语（课）；英语的",
+          "core": true,
+          "sentence": "I like reading English stories.",
+          "sentenceCn": "我喜欢读英语故事。"
+        },
+        {
+          "content": "Maths",
+          "translation": "数学（课）",
+          "core": true,
+          "sentence": "I like Maths. I'm good at it.",
+          "sentenceCn": "我喜欢数学，我很擅长。"
+        },
+        {
+          "content": "PE",
+          "translation": "体育（课）",
+          "core": true,
+          "sentence": "It's time for PE.",
+          "sentenceCn": "该上体育课了。"
+        },
+        {
+          "content": "Art",
+          "translation": "美术（课）",
+          "core": true,
+          "sentence": "We also have Art, PE and Music.",
+          "sentenceCn": "我们还有美术、体育和音乐课。"
+        },
+        {
+          "content": "Science",
+          "translation": "科学（课）",
+          "core": true,
+          "sentence": "Science is interesting.",
+          "sentenceCn": "科学课很有趣。"
+        },
+        {
+          "content": "IT",
+          "translation": "信息科技（课）",
+          "core": false,
+          "sentence": "I also like IT.",
+          "sentenceCn": "我也喜欢信息科技课。"
+        },
+        {
+          "content": "Music",
+          "translation": "音乐（课）",
+          "core": true,
+          "sentence": "I like Music best.",
+          "sentenceCn": "我最喜欢音乐课。"
+        },
+        {
+          "content": "Labour",
+          "translation": "劳动（课）",
+          "core": false,
+          "sentence": "We have Chinese, Maths, English and Science.",
+          "sentenceCn": "我们有语文、数学、英语和科学课。"
+        },
+        {
+          "content": "best",
+          "translation": "最，最高程度地",
+          "core": true,
+          "sentence": "What subject do you like best?",
+          "sentenceCn": "你最喜欢什么学科？"
+        },
+        {
+          "content": "also",
+          "translation": "也",
+          "core": true,
+          "sentence": "We also have Art, PE and Music.",
+          "sentenceCn": "我们还有美术、体育和音乐课。"
+        },
+        {
+          "content": "It's time for ...",
+          "translation": "是……的时候了。",
+          "core": true,
+          "sentence": "It's time for PE.",
+          "sentenceCn": "该上体育课了。"
+        },
+        {
+          "content": "mouse",
+          "translation": "鼠标；老鼠",
+          "core": true,
+          "sentence": "Mouse? I'm here!",
+          "sentenceCn": "老鼠？我在这儿！"
+        },
+        {
+          "content": "Welcome back to ...",
+          "translation": "欢迎回到……",
+          "core": true,
+          "sentence": "Welcome back to school, class.",
+          "sentenceCn": "欢迎回到学校，同学们。"
+        },
+        {
+          "content": "be good at",
+          "translation": "擅长",
+          "core": true,
+          "sentence": "I'm good at Maths.",
+          "sentenceCn": "我擅长数学。"
+        },
+        {
+          "content": "interesting",
+          "translation": "有趣的，有吸引力的",
+          "core": true,
+          "sentence": "Science is interesting.",
+          "sentenceCn": "科学课很有趣。"
+        },
+        {
+          "content": "learn about",
+          "translation": "学习",
+          "core": true,
+          "sentence": "I want to learn about Chinese culture.",
+          "sentenceCn": "我想了解中国文化。"
+        },
+        {
+          "content": "culture",
+          "translation": "文化，文明",
+          "core": false,
+          "sentence": "I want to learn about Chinese culture.",
+          "sentenceCn": "我想了解中国文化。"
+        },
+        {
+          "content": "read",
+          "translation": "阅读",
+          "core": true,
+          "sentence": "I like reading English stories.",
+          "sentenceCn": "我喜欢读英语故事。"
+        },
+        {
+          "content": "story",
+          "translation": "故事",
+          "core": true,
+          "sentence": "I like reading English stories.",
+          "sentenceCn": "我喜欢读英语故事。"
+        },
+        {
+          "content": "all",
+          "translation": "全部，都",
+          "core": true,
+          "sentence": "We all like PE!",
+          "sentenceCn": "我们都喜欢体育课！"
+        },
+        {
+          "content": "sports ground",
+          "translation": "操场，运动场",
+          "core": false,
+          "sentence": "Let's go to the sports ground!",
+          "sentenceCn": "我们去操场吧！"
+        }
+      ]
+    },
+    {
+      "unit": 2,
+      "title": "My day",
+      "words": [
+        {
+          "content": "day",
+          "translation": "一天，一日",
+          "core": true,
+          "sentence": "What do you do every day?",
+          "sentenceCn": "你每天做什么？"
+        },
+        {
+          "content": "get up",
+          "translation": "起床",
+          "core": true,
+          "sentence": "Bobby, get up! It's seven o'clock.",
+          "sentenceCn": "博比，起床！七点了。"
+        },
+        {
+          "content": "wash",
+          "translation": "洗",
+          "core": true,
+          "sentence": "Wash your face first, Bobby.",
+          "sentenceCn": "博比，先洗脸。"
+        },
+        {
+          "content": "face",
+          "translation": "脸，面孔",
+          "core": true,
+          "sentence": "Wash your face first, Bobby.",
+          "sentenceCn": "博比，先洗脸。"
+        },
+        {
+          "content": "have lessons",
+          "translation": "上课",
+          "core": true,
+          "sentence": "We have lessons at school.",
+          "sentenceCn": "我们在学校上课。"
+        },
+        {
+          "content": "have",
+          "translation": "吃，喝",
+          "core": true,
+          "sentence": "It's time for breakfast.",
+          "sentenceCn": "该吃早餐了。"
+        },
+        {
+          "content": "dinner",
+          "translation": "正餐（常指晚餐）",
+          "core": true,
+          "sentence": "We have dinner in the evening.",
+          "sentenceCn": "我们晚上吃正餐。"
+        },
+        {
+          "content": "breakfast",
+          "translation": "早餐，早饭",
+          "core": true,
+          "sentence": "It's time for breakfast.",
+          "sentenceCn": "该吃早餐了。"
+        },
+        {
+          "content": "lunch",
+          "translation": "午餐，午饭",
+          "core": true,
+          "sentence": "We have lunch at twelve o'clock.",
+          "sentenceCn": "我们十二点吃午餐。"
+        },
+        {
+          "content": "go to bed",
+          "translation": "上床睡觉",
+          "core": true,
+          "sentence": "I go to bed at nine o'clock.",
+          "sentenceCn": "我九点上床睡觉。"
+        },
+        {
+          "content": "o'clock",
+          "translation": "（表示整点）……点钟",
+          "core": true,
+          "sentence": "It's seven o'clock.",
+          "sentenceCn": "七点了。"
+        },
+        {
+          "content": "early",
+          "translation": "早的，早",
+          "core": true,
+          "sentence": "It's early.",
+          "sentenceCn": "还早呢。"
+        },
+        {
+          "content": "thirty",
+          "translation": "三十",
+          "core": true,
+          "sentence": "It's seven thirty!",
+          "sentenceCn": "七点半了！"
+        },
+        {
+          "content": "first",
+          "translation": "首先，第一",
+          "core": true,
+          "sentence": "Wash your face first, Bobby.",
+          "sentenceCn": "博比，先洗脸。"
+        },
+        {
+          "content": "hurry up",
+          "translation": "快点",
+          "core": true,
+          "sentence": "Bobby, hurry up!",
+          "sentenceCn": "博比，快点！"
+        },
+        {
+          "content": "What time is it?",
+          "translation": "几点了？",
+          "core": true,
+          "sentence": "What time is it now?",
+          "sentenceCn": "现在几点了？"
+        },
+        {
+          "content": "I'm coming!",
+          "translation": "我来了！",
+          "core": true,
+          "sentence": "I'm coming!",
+          "sentenceCn": "我来了！"
+        },
+        {
+          "content": "twenty",
+          "translation": "二十",
+          "core": true,
+          "sentence": "It's twenty past seven.",
+          "sentenceCn": "七点二十分。"
+        },
+        {
+          "content": "Come on!",
+          "translation": "赶快！加把劲！",
+          "core": true,
+          "sentence": "Come on! Let's go!",
+          "sentenceCn": "快点！我们走吧！"
+        },
+        {
+          "content": "class",
+          "translation": "课，上课",
+          "core": true,
+          "sentence": "Welcome back to school, class.",
+          "sentenceCn": "欢迎回到学校，同学们。"
+        },
+        {
+          "content": "eleven",
+          "translation": "十一",
+          "core": true,
+          "sentence": "It's eleven o'clock.",
+          "sentenceCn": "十一点了。"
+        },
+        {
+          "content": "sport",
+          "translation": "体育运动",
+          "core": true,
+          "sentence": "Sport is good for us.",
+          "sentenceCn": "体育运动对我们有好处。"
+        },
+        {
+          "content": "fifteen",
+          "translation": "十五",
+          "core": true,
+          "sentence": "It's fifteen past eight.",
+          "sentenceCn": "八点十五分。"
+        },
+        {
+          "content": "It's time to ...",
+          "translation": "到了……的时间了。",
+          "core": true,
+          "sentence": "Get up now—it's time to go.",
+          "sentenceCn": "现在起床——该走了。"
+        },
+        {
+          "content": "bed",
+          "translation": "床",
+          "core": true,
+          "sentence": "Bobby is still in bed.",
+          "sentenceCn": "博比还在床上。"
+        },
+        {
+          "content": "Good night!",
+          "translation": "晚安！",
+          "core": true,
+          "sentence": "Good night, Mum!",
+          "sentenceCn": "晚安，妈妈！"
+        }
+      ]
+    },
+    {
+      "unit": 3,
+      "title": "My week",
+      "words": [
+        {
+          "content": "week",
+          "translation": "周，星期",
+          "core": true,
+          "sentence": "How do you plan your week?",
+          "sentenceCn": "你怎么制订一周计划？"
+        },
+        {
+          "content": "Monday",
+          "translation": "星期一",
+          "core": true,
+          "sentence": "I have a dancing lesson on Monday.",
+          "sentenceCn": "我星期一有舞蹈课。"
+        },
+        {
+          "content": "Tuesday",
+          "translation": "星期二",
+          "core": true,
+          "sentence": "We go to the cinema on Tuesday.",
+          "sentenceCn": "我们星期二去电影院。"
+        },
+        {
+          "content": "Wednesday",
+          "translation": "星期三",
+          "core": true,
+          "sentence": "What do you want to do on Wednesday?",
+          "sentenceCn": "你星期三想做什么？"
+        },
+        {
+          "content": "Thursday",
+          "translation": "星期四",
+          "core": true,
+          "sentence": "I walk my dog on Thursday.",
+          "sentenceCn": "我星期四遛狗。"
+        },
+        {
+          "content": "Friday",
+          "translation": "星期五",
+          "core": true,
+          "sentence": "It's Friday today.",
+          "sentenceCn": "今天是星期五。"
+        },
+        {
+          "content": "Saturday",
+          "translation": "星期六",
+          "core": true,
+          "sentence": "I am free on Saturday.",
+          "sentenceCn": "我星期六有空。"
+        },
+        {
+          "content": "Sunday",
+          "translation": "星期天",
+          "core": true,
+          "sentence": "We fly a kite on Sunday.",
+          "sentenceCn": "我们星期天放风筝。"
+        },
+        {
+          "content": "when",
+          "translation": "什么时候",
+          "core": true,
+          "sentence": "When do you go to the cinema?",
+          "sentenceCn": "你什么时候去电影院？"
+        },
+        {
+          "content": "every",
+          "translation": "每一个，每个",
+          "core": true,
+          "sentence": "What do you do every day?",
+          "sentenceCn": "你每天做什么？"
+        },
+        {
+          "content": "at",
+          "translation": "在（某时间）",
+          "core": true,
+          "sentence": "I go to bed at nine o'clock.",
+          "sentenceCn": "我九点上床睡觉。"
+        },
+        {
+          "content": "up",
+          "translation": "起床",
+          "core": true,
+          "sentence": "Get up now—it's time to go.",
+          "sentenceCn": "现在起床——该走了。"
+        },
+        {
+          "content": "early",
+          "translation": "提早，提前",
+          "core": true,
+          "sentence": "I want to go to school early.",
+          "sentenceCn": "我想早点去学校。"
+        },
+        {
+          "content": "today",
+          "translation": "在今天",
+          "core": true,
+          "sentence": "What day is it today?",
+          "sentenceCn": "今天星期几？"
+        },
+        {
+          "content": "What day is it today?",
+          "translation": "今天星期几？",
+          "core": true,
+          "sentence": "What day is it today?",
+          "sentenceCn": "今天星期几？"
+        },
+        {
+          "content": "cinema",
+          "translation": "电影院",
+          "core": true,
+          "sentence": "Let's go to the cinema after school.",
+          "sentenceCn": "放学后我们去看电影吧。"
+        },
+        {
+          "content": "after school",
+          "translation": "放学后",
+          "core": true,
+          "sentence": "I walk my dog after school.",
+          "sentenceCn": "我放学后遛狗。"
+        },
+        {
+          "content": "dancing",
+          "translation": "跳舞，舞蹈",
+          "core": true,
+          "sentence": "I have a dancing lesson on Monday.",
+          "sentenceCn": "我星期一有舞蹈课。"
+        },
+        {
+          "content": "lesson",
+          "translation": "一节课，一课时",
+          "core": true,
+          "sentence": "I have a dancing lesson on Monday.",
+          "sentenceCn": "我星期一有舞蹈课。"
+        },
+        {
+          "content": "walk",
+          "translation": "牵着（动物）走，遛",
+          "core": true,
+          "sentence": "I walk my dog after school.",
+          "sentenceCn": "我放学后遛狗。"
+        },
+        {
+          "content": "dog",
+          "translation": "狗",
+          "core": true,
+          "sentence": "I walk my dog after school.",
+          "sentenceCn": "我放学后遛狗。"
+        },
+        {
+          "content": "tomorrow",
+          "translation": "明天；在明天",
+          "core": true,
+          "sentence": "See you tomorrow!",
+          "sentenceCn": "明天见！"
+        },
+        {
+          "content": "free",
+          "translation": "空闲的",
+          "core": true,
+          "sentence": "I am free tomorrow.",
+          "sentenceCn": "我明天有空。"
+        },
+        {
+          "content": "See you tomorrow!",
+          "translation": "明天见！",
+          "core": true,
+          "sentence": "See you tomorrow!",
+          "sentenceCn": "明天见！"
+        }
+      ]
+    },
+    {
+      "unit": 4,
+      "title": "I like sport",
+      "words": [
+        {
+          "content": "play",
+          "translation": "打（球），踢（球）",
+          "core": true,
+          "sentence": "Let's go and play.",
+          "sentenceCn": "我们去玩吧。"
+        },
+        {
+          "content": "football",
+          "translation": "足球运动；足球",
+          "core": true,
+          "sentence": "Do you like playing football?",
+          "sentenceCn": "你喜欢踢足球吗？"
+        },
+        {
+          "content": "ping-pong",
+          "translation": "乒乓球运动",
+          "core": true,
+          "sentence": "Ping-pong is fun.",
+          "sentenceCn": "乒乓球很有趣。"
+        },
+        {
+          "content": "basketball",
+          "translation": "篮球运动；篮球",
+          "core": true,
+          "sentence": "I like playing basketball.",
+          "sentenceCn": "我喜欢打篮球。"
+        },
+        {
+          "content": "great",
+          "translation": "非常的",
+          "core": true,
+          "sentence": "You play so well!",
+          "sentenceCn": "你打得真好！"
+        },
+        {
+          "content": "swimming",
+          "translation": "游泳；游泳运动",
+          "core": true,
+          "sentence": "I like swimming and playing ping-pong.",
+          "sentenceCn": "我喜欢游泳和打乒乓球。"
+        },
+        {
+          "content": "so",
+          "translation": "（表示程度）这么，那么",
+          "core": true,
+          "sentence": "You play so well!",
+          "sentenceCn": "你打得真好！"
+        },
+        {
+          "content": "well",
+          "translation": "好",
+          "core": true,
+          "sentence": "You play so well!",
+          "sentenceCn": "你打得真好！"
+        },
+        {
+          "content": "Have a go!",
+          "translation": "试一试！",
+          "core": true,
+          "sentence": "Have a go!",
+          "sentenceCn": "试一试！"
+        },
+        {
+          "content": "hard",
+          "translation": "难做的，不易的",
+          "core": true,
+          "sentence": "Ping-pong is fun, but I can't play well.",
+          "sentenceCn": "乒乓球很有趣，但我打得不好。"
+        },
+        {
+          "content": "It's OK.",
+          "translation": "没关系。",
+          "core": true,
+          "sentence": "It's OK. Try again.",
+          "sentenceCn": "没关系，再试一次。"
+        },
+        {
+          "content": "try",
+          "translation": "试",
+          "core": true,
+          "sentence": "It's OK. Try again.",
+          "sentenceCn": "没关系，再试一次。"
+        },
+        {
+          "content": "Well played!",
+          "translation": "好球！",
+          "core": true,
+          "sentence": "Well played!",
+          "sentenceCn": "好球！"
+        }
+      ]
+    },
+    {
+      "unit": 5,
+      "title": "Different toys, same fun",
+      "words": [
+        {
+          "content": "different",
+          "translation": "不同的，有区别的",
+          "core": false,
+          "sentence": "Our toys are different.",
+          "sentenceCn": "我们的玩具各不相同。"
+        },
+        {
+          "content": "same",
+          "translation": "相同的，同一的",
+          "core": false,
+          "sentence": "Different toys, same fun.",
+          "sentenceCn": "玩具不同，乐趣相同。"
+        },
+        {
+          "content": "hair",
+          "translation": "头发",
+          "core": true,
+          "sentence": "Her hair is long.",
+          "sentenceCn": "她的头发很长。"
+        },
+        {
+          "content": "eye",
+          "translation": "眼睛",
+          "core": true,
+          "sentence": "Her eyes are big.",
+          "sentenceCn": "她的眼睛很大。"
+        },
+        {
+          "content": "ear",
+          "translation": "耳朵",
+          "core": true,
+          "sentence": "The robot has small ears.",
+          "sentenceCn": "这个机器人耳朵很小。"
+        },
+        {
+          "content": "nose",
+          "translation": "鼻子",
+          "core": true,
+          "sentence": "Her nose is small.",
+          "sentenceCn": "她的鼻子很小。"
+        },
+        {
+          "content": "mouth",
+          "translation": "嘴，口",
+          "core": true,
+          "sentence": "Her nose and mouth are small.",
+          "sentenceCn": "她的鼻子和嘴巴都很小。"
+        },
+        {
+          "content": "arm",
+          "translation": "手臂",
+          "core": true,
+          "sentence": "His arms are long.",
+          "sentenceCn": "他的手臂很长。"
+        },
+        {
+          "content": "leg",
+          "translation": "腿",
+          "core": true,
+          "sentence": "You're so tall! Your legs are long.",
+          "sentenceCn": "你真高！你的腿很长。"
+        },
+        {
+          "content": "robot",
+          "translation": "机器人",
+          "core": true,
+          "sentence": "These robots are cool!",
+          "sentenceCn": "这些机器人很酷！"
+        },
+        {
+          "content": "his",
+          "translation": "他的",
+          "core": true,
+          "sentence": "His face is lovely.",
+          "sentenceCn": "他的脸很可爱。"
+        },
+        {
+          "content": "tall",
+          "translation": "高的",
+          "core": true,
+          "sentence": "You're so tall!",
+          "sentenceCn": "你真高！"
+        },
+        {
+          "content": "short",
+          "translation": "短的",
+          "core": true,
+          "sentence": "His legs are long, not short.",
+          "sentenceCn": "他的腿很长，不短。"
+        },
+        {
+          "content": "doll",
+          "translation": "玩具娃娃",
+          "core": true,
+          "sentence": "Mum, do you like our dolls?",
+          "sentenceCn": "妈妈，你喜欢我们的娃娃吗？"
+        },
+        {
+          "content": "her",
+          "translation": "她的",
+          "core": true,
+          "sentence": "Look at her lovely face.",
+          "sentenceCn": "看她可爱的脸。"
+        },
+        {
+          "content": "small",
+          "translation": "小的",
+          "core": true,
+          "sentence": "Her nose and mouth are small.",
+          "sentenceCn": "她的鼻子和嘴巴都很小。"
+        },
+        {
+          "content": "bring",
+          "translation": "带来",
+          "core": true,
+          "sentence": "The toys bring you lots of fun.",
+          "sentenceCn": "这些玩具给你带来很多乐趣。"
+        },
+        {
+          "content": "lots of",
+          "translation": "大量，许多",
+          "core": true,
+          "sentence": "The toys bring you lots of fun.",
+          "sentenceCn": "这些玩具给你带来很多乐趣。"
+        },
+        {
+          "content": "have",
+          "translation": "组织，举办",
+          "core": true,
+          "sentence": "Let's have a puppet show.",
+          "sentenceCn": "我们来办一场木偶表演吧。"
+        },
+        {
+          "content": "show",
+          "translation": "表演，演出",
+          "core": true,
+          "sentence": "Let's have a puppet show.",
+          "sentenceCn": "我们来办一场木偶表演吧。"
+        }
+      ]
+    },
+    {
+      "unit": 6,
+      "title": "Weather",
+      "words": [
+        {
+          "content": "weather",
+          "translation": "天气，气象",
+          "core": true,
+          "sentence": "What's the weather like today?",
+          "sentenceCn": "今天天气怎么样？"
+        },
+        {
+          "content": "cloudy",
+          "translation": "多云的，阴天的",
+          "core": true,
+          "sentence": "On Friday, it is cloudy.",
+          "sentenceCn": "星期五多云。"
+        },
+        {
+          "content": "sunny",
+          "translation": "晴朗的",
+          "core": true,
+          "sentence": "On Sunday, it is sunny.",
+          "sentenceCn": "星期天晴朗。"
+        },
+        {
+          "content": "cool",
+          "translation": "凉的，凉爽的",
+          "core": true,
+          "sentence": "It is cool today.",
+          "sentenceCn": "今天很凉爽。"
+        },
+        {
+          "content": "rainy",
+          "translation": "阴雨的，多雨的",
+          "core": true,
+          "sentence": "On Saturday, it is rainy.",
+          "sentenceCn": "星期六下雨。"
+        },
+        {
+          "content": "hot",
+          "translation": "温度高的，热的",
+          "core": true,
+          "sentence": "It is hot in summer.",
+          "sentenceCn": "夏天很热。"
+        },
+        {
+          "content": "windy",
+          "translation": "多风的，风大的",
+          "core": true,
+          "sentence": "It is windy today.",
+          "sentenceCn": "今天风很大。"
+        },
+        {
+          "content": "warm",
+          "translation": "温暖的，暖和的",
+          "core": true,
+          "sentence": "It is warm in spring.",
+          "sentenceCn": "春天很温暖。"
+        },
+        {
+          "content": "save ... for a rainy day",
+          "translation": "未雨绸缪",
+          "core": false,
+          "sentence": "Save your money for a rainy day.",
+          "sentenceCn": "把钱存起来以备不时之需。"
+        },
+        {
+          "content": "money",
+          "translation": "钱",
+          "core": true,
+          "sentence": "Save your money for a rainy day.",
+          "sentenceCn": "把钱存起来以备不时之需。"
+        },
+        {
+          "content": "What's the weather like today?",
+          "translation": "今天天气怎么样？",
+          "core": true,
+          "sentence": "What's the weather like today?",
+          "sentenceCn": "今天天气怎么样？"
+        },
+        {
+          "content": "park",
+          "translation": "公园",
+          "core": true,
+          "sentence": "Let's go to the park.",
+          "sentenceCn": "我们去公园吧。"
+        },
+        {
+          "content": "meet",
+          "translation": "（与……）会面，集合",
+          "core": true,
+          "sentence": "Let's meet at the park.",
+          "sentenceCn": "我们在公园见面吧。"
+        },
+        {
+          "content": "fly a kite",
+          "translation": "放风筝",
+          "core": true,
+          "sentence": "We can fly a kite on a windy day.",
+          "sentenceCn": "刮风天我们可以放风筝。"
+        },
+        {
+          "content": "It's raining.",
+          "translation": "下雨了。",
+          "core": true,
+          "sentence": "It's raining. Take an umbrella.",
+          "sentenceCn": "下雨了，带把伞。"
+        },
+        {
+          "content": "worry",
+          "translation": "担心，担忧",
+          "core": true,
+          "sentence": "Don't worry.",
+          "sentenceCn": "别担心。"
+        },
+        {
+          "content": "umbrella",
+          "translation": "伞，雨伞",
+          "core": true,
+          "sentence": "Take an umbrella with you.",
+          "sentenceCn": "你带把伞吧。"
+        },
+        {
+          "content": "there",
+          "translation": "到那里，在那里",
+          "core": true,
+          "sentence": "Let's meet there.",
+          "sentenceCn": "我们在那里见面吧。"
+        }
+      ]
+    },
+    {
+      "unit": 7,
+      "title": "Seasons",
+      "words": [
+        {
+          "content": "season",
+          "translation": "季节",
+          "core": true,
+          "sentence": "What do you do in different seasons?",
+          "sentenceCn": "你在不同季节做什么？"
+        },
+        {
+          "content": "spring",
+          "translation": "春天，春季",
+          "core": true,
+          "sentence": "In spring, it is warm.",
+          "sentenceCn": "春天很温暖。"
+        },
+        {
+          "content": "go boating",
+          "translation": "去划船",
+          "core": true,
+          "sentence": "We go boating in spring.",
+          "sentenceCn": "春天我们去划船。"
+        },
+        {
+          "content": "winter",
+          "translation": "冬天，冬季",
+          "core": true,
+          "sentence": "It is cold in winter.",
+          "sentenceCn": "冬天很冷。"
+        },
+        {
+          "content": "go skating",
+          "translation": "去溜冰，去滑冰",
+          "core": false,
+          "sentence": "We go skating in winter.",
+          "sentenceCn": "冬天我们去滑冰。"
+        },
+        {
+          "content": "summer",
+          "translation": "夏天，夏季",
+          "core": true,
+          "sentence": "In summer, we eat ice cream.",
+          "sentenceCn": "夏天我们吃冰激凌。"
+        },
+        {
+          "content": "ice cream",
+          "translation": "冰激凌",
+          "core": true,
+          "sentence": "In summer, we eat ice cream.",
+          "sentenceCn": "夏天我们吃冰激凌。"
+        },
+        {
+          "content": "go swimming",
+          "translation": "去游泳",
+          "core": true,
+          "sentence": "We go swimming in summer.",
+          "sentenceCn": "夏天我们去游泳。"
+        },
+        {
+          "content": "autumn",
+          "translation": "秋天，秋季",
+          "core": true,
+          "sentence": "In autumn, it is cool.",
+          "sentenceCn": "秋天很凉爽。"
+        },
+        {
+          "content": "go climbing",
+          "translation": "去爬山",
+          "core": false,
+          "sentence": "We go climbing in autumn.",
+          "sentenceCn": "秋天我们去爬山。"
+        },
+        {
+          "content": "new",
+          "translation": "新的",
+          "core": true,
+          "sentence": "Spring is a new season.",
+          "sentenceCn": "春天是一个新的季节。"
+        },
+        {
+          "content": "cold",
+          "translation": "寒冷的，冷的",
+          "core": true,
+          "sentence": "It is cold in winter.",
+          "sentenceCn": "冬天很冷。"
+        },
+        {
+          "content": "bird",
+          "translation": "鸟",
+          "core": true,
+          "sentence": "The birds come back in spring.",
+          "sentenceCn": "鸟儿在春天回来。"
+        },
+        {
+          "content": "back",
+          "translation": "回原处",
+          "core": true,
+          "sentence": "The birds come back in spring.",
+          "sentenceCn": "鸟儿在春天回来。"
+        },
+        {
+          "content": "in",
+          "translation": "在（某段时间）内",
+          "core": true,
+          "sentence": "In spring, we plant trees.",
+          "sentenceCn": "春天我们种树。"
+        },
+        {
+          "content": "year",
+          "translation": "年",
+          "core": true,
+          "sentence": "There are four seasons in a year.",
+          "sentenceCn": "一年有四个季节。"
+        },
+        {
+          "content": "plant",
+          "translation": "栽种，种植",
+          "core": true,
+          "sentence": "In spring, we plant trees.",
+          "sentenceCn": "春天我们种树。"
+        },
+        {
+          "content": "pick",
+          "translation": "采，摘",
+          "core": false,
+          "sentence": "In autumn, we pick fruit.",
+          "sentenceCn": "秋天我们摘果子。"
+        },
+        {
+          "content": "snow",
+          "translation": "雪，积雪",
+          "core": true,
+          "sentence": "It snows in winter.",
+          "sentenceCn": "冬天下雪。"
+        }
+      ]
+    },
+    {
+      "unit": 8,
+      "title": "What we wear",
+      "words": [
+        {
+          "content": "wear",
+          "translation": "穿，戴",
+          "core": true,
+          "sentence": "What do you wear for special days?",
+          "sentenceCn": "特殊日子里你穿什么？"
+        },
+        {
+          "content": "cap",
+          "translation": "（尤指有帽舌的）便帽",
+          "core": true,
+          "sentence": "You look cool in the cap.",
+          "sentenceCn": "你戴这顶帽子看起来很酷。"
+        },
+        {
+          "content": "coat",
+          "translation": "外套，外衣",
+          "core": true,
+          "sentence": "This is my mother's coat.",
+          "sentenceCn": "这是我妈妈的外套。"
+        },
+        {
+          "content": "skirt",
+          "translation": "半身裙",
+          "core": true,
+          "sentence": "She wears a new skirt.",
+          "sentenceCn": "她穿了一条新半身裙。"
+        },
+        {
+          "content": "trousers",
+          "translation": "裤子",
+          "core": true,
+          "sentence": "Whose trousers are these?",
+          "sentenceCn": "这是谁的裤子？"
+        },
+        {
+          "content": "dress",
+          "translation": "连衣裙",
+          "core": true,
+          "sentence": "She wears a red dress.",
+          "sentenceCn": "她穿了一条红色连衣裙。"
+        },
+        {
+          "content": "shirt",
+          "translation": "（男式）衬衫",
+          "core": true,
+          "sentence": "This is my father's new shirt.",
+          "sentenceCn": "这是我爸爸的新衬衫。"
+        },
+        {
+          "content": "whose",
+          "translation": "谁的",
+          "core": true,
+          "sentence": "Whose cap is it?",
+          "sentenceCn": "它是谁的帽子？"
+        },
+        {
+          "content": "shorts",
+          "translation": "短裤",
+          "core": true,
+          "sentence": "Whose shorts are these?",
+          "sentenceCn": "这是谁的短裤？"
+        },
+        {
+          "content": "look",
+          "translation": "看来好像，显得",
+          "core": true,
+          "sentence": "You look cool in the cap.",
+          "sentenceCn": "你戴这顶帽子看起来很酷。"
+        },
+        {
+          "content": "in",
+          "translation": "穿着，戴着",
+          "core": true,
+          "sentence": "You look cool in the cap.",
+          "sentenceCn": "你戴这顶帽子看起来很酷。"
+        },
+        {
+          "content": "sunglasses",
+          "translation": "太阳镜，墨镜",
+          "core": false,
+          "sentence": "I wear sunglasses because they're cool.",
+          "sentenceCn": "我戴太阳镜因为它很酷。"
+        },
+        {
+          "content": "why",
+          "translation": "为什么",
+          "core": true,
+          "sentence": "Why do I wear sunglasses today?",
+          "sentenceCn": "我今天为什么戴太阳镜？"
+        },
+        {
+          "content": "because",
+          "translation": "因为",
+          "core": true,
+          "sentence": "I wear sunglasses because they're cool.",
+          "sentenceCn": "我戴太阳镜因为它很酷。"
+        },
+        {
+          "content": "bright",
+          "translation": "聪明的；明亮的",
+          "core": false,
+          "sentence": "My students are very bright!",
+          "sentenceCn": "我的学生们非常聪明！"
+        },
+        {
+          "content": "clothes",
+          "translation": "衣服",
+          "core": true,
+          "sentence": "What clothes do you wear?",
+          "sentenceCn": "你穿什么衣服？"
+        }
+      ]
+    }
+  ]
+}
