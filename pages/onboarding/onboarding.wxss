@@ -571,7 +571,7 @@
 }
 
 .onboard-section--phone {
-  margin-bottom: 8rpx;
+  margin-bottom: 28rpx;
 }
 
 .onboard-section--last {
@@ -825,6 +825,81 @@
   font-size: 26rpx;
   font-weight: 600;
   color: #1f7a4d;
+}
+
+/* 邀请码（选填）：扫码/分享自动填入可修改，完成引导后绑定锁定 */
+.invite-code-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 88rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 22rpx;
+  background: #fbfcfc;
+  border: 1rpx solid #e7ece9;
+  box-shadow: inset 0 -4rpx 12rpx rgba(255, 255, 255, 0.4);
+}
+
+.invite-code-row--valid {
+  border-color: rgba(30, 208, 103, 0.55);
+  background: rgba(30, 208, 103, 0.05);
+}
+
+.invite-code-row--invalid {
+  border-color: rgba(224, 82, 82, 0.55);
+  background: rgba(224, 82, 82, 0.04);
+}
+
+.invite-code-input {
+  flex: 1;
+  min-width: 0;
+  height: 48rpx;
+  font-size: 32rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  font-family: Menlo, Consolas, monospace;
+  color: #16211b;
+}
+
+.invite-code-clear {
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #c9d2e0;
+  color: #ffffff;
+  font-size: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.invite-inviter-preview {
+  margin-top: 10rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 16rpx;
+  background: rgba(30, 208, 103, 0.1);
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #1f7a4d;
+}
+
+.invite-error {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
+  color: #d05252;
+}
+
+.invite-lock-tip {
+  margin-top: 10rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 16rpx;
+  background: rgba(240, 138, 47, 0.1);
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #b98134;
 }
 
 .onboard-footer {

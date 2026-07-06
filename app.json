@@ -13,6 +13,7 @@
     "pages/study-record/record",
     "pages/me/me",
     "pages/me/book",
+    "pages/invite/invite",
     "pages/me/notify",
     "pages/me/contact",
     "pages/me/privacy",

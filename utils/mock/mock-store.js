@@ -49,6 +49,10 @@ function defaultState() {
     subscribeQuota: {},
     // 听音小测错词本（学习数据，接后端上报错词 / 复习走 review-words）：[{ wordId|word, ... }]
     listeningWrongWords: [],
+    // 邀请关系（GET /mini-app/invite/summary）：myCode 首次访问时生成；
+    // inviter = { code, nickName, avatarUrl, source, boundAt } | null，完成引导绑定后锁定；
+    // invitees = [{ nickName, avatarUrl, source, at, status: 'success'|'pending' }]
+    invite: { myCode: '', inviter: null, invitees: [] },
     // 入门测/结业测成绩（学习评测数据，接后端 exam-result）：{ ['<resBookId>_<type>']: result }
     examResults: {}
   }

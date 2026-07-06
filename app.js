@@ -1,5 +1,6 @@
 const { getSubscribeTmplIds } = require('./utils/subscribe')
 const { resetVipFloatingGuideDismissed } = require('./utils/vip-floating-guide')
+const { captureInviteLaunch } = require('./utils/invite')
 
 const baseUrl = wx.getAccountInfoSync().miniProgram.envVersion === 'release' ? 'https://pb10.91tszx.com' : 'https://pb10.91tszx.com'
 
@@ -116,6 +117,11 @@ App({
         platform === 'android' ? 48 : 40
       )
     }
+  },
+  // 冷启动/热启动统一捕获邀请参数（海报码 scene / 分享卡片 inviteCode），
+  // 新用户暂存待新手引导第 3 步确认，老用户忽略。见 utils/invite.js
+  onShow(options) {
+    captureInviteLaunch(options)
   },
   globalData: {
     book: {},

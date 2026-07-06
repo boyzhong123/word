@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邀请好友 · 功能设计示意</title>
+<style>
+  :root{
+    --blue:#2f80ed; --blue-d:#1f6fd6; --ink:#151515; --ink-2:#17406f;
+    --gray:#8a94a6; --line:#eef1f6; --cream:#fffdf8; --warn:#ff9f43;
+    --green:#19c37d; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#e7ebf2;color:var(--ink);padding:30px 18px 60px}
+  h1.page-title{text-align:center;font-size:20px;font-weight:700;margin-bottom:6px}
+  p.page-sub{text-align:center;color:var(--gray);font-size:13px;margin-bottom:6px}
+  .legend{text-align:center;font-size:12px;color:#5a6678;margin-bottom:26px}
+  .legend b{color:var(--blue)}
+  .stage{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;align-items:flex-start}
+  .col{width:340px}
+  .caption{text-align:center;font-size:13px;color:#5a6678;margin-top:14px;font-weight:600}
+  .caption small{display:block;font-weight:400;color:var(--gray);margin-top:4px;font-size:11.5px;line-height:1.6}
+  .anno{display:inline-block;background:#e8f1ff;color:var(--blue);font-size:10.5px;font-weight:700;
+    padding:2px 8px;border-radius:8px;vertical-align:2px;margin-left:6px}
+
+  /* ---- 手机壳 ---- */
+  .phone{background:var(--cream);border-radius:30px;overflow:hidden;box-shadow:0 16px 50px rgba(31,39,51,.18);border:1px solid #e3e6ee}
+  .statusbar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:700;color:var(--ink)}
+  .navbar{height:42px;display:flex;align-items:center;padding:0 16px;font-size:16px;font-weight:700;position:relative}
+  .navbar .back{width:26px;height:26px;border-radius:50%;border:1.5px solid #d9dee8;display:grid;place-items:center;font-size:14px;margin-right:10px;color:#5a6678}
+  .screen{padding:12px 14px 20px;min-height:560px}
+
+  /* ============ ① 我的页入口 ============ */
+  .dim{opacity:.38;pointer-events:none}
+  .section-title{font-size:15px;font-weight:800;margin:16px 4px 10px}
+  .menu-group{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 4px 14px rgba(23,64,111,.06)}
+  .menu-item{display:flex;align-items:center;padding:14px;gap:12px;border-bottom:1px solid var(--line)}
+  .menu-item:last-child{border-bottom:none}
+  .menu-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:17px;flex:none}
+  .menu-copy{flex:1;min-width:0}
+  .menu-label{font-size:14.5px;font-weight:700}
+  .menu-desc{font-size:11.5px;color:var(--gray);margin-top:3px}
+  .menu-status{font-size:12px;color:var(--blue);font-weight:700;flex:none}
+  .menu-arrow{color:#c3c9d6;font-size:16px;flex:none}
+  .hl{outline:2.5px dashed var(--blue);outline-offset:3px;border-radius:16px;position:relative}
+  .hl-tag{position:absolute;top:-11px;right:12px;background:var(--blue);color:#fff;font-size:10.5px;font-weight:700;
+    padding:2px 10px;border-radius:10px;z-index:5}
+  .profile-mini{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#dcecff,#f2f8ff);border-radius:18px;padding:16px 14px}
+  .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(140deg,#ffd66b,#ff9f43);display:grid;place-items:center;font-size:20px;border:2px solid #fff;flex:none}
+  .avatar.sm{width:34px;height:34px;font-size:15px}
+  .profile-mini .nick{font-size:16px;font-weight:800;color:var(--ink-2)}
+  .profile-mini .sub{font-size:11.5px;color:#5a7ba6;margin-top:3px}
+
+  /* ============ ② 邀请好友页 ============ */
+  .invite-hero{background:linear-gradient(135deg,#2f80ed,#56a8ff 60%,#7cc3ff);border-radius:20px;padding:20px 16px 18px;color:#fff;position:relative;overflow:hidden}
+  .invite-hero::after{content:"🎁";position:absolute;right:10px;top:8px;font-size:52px;opacity:.28;transform:rotate(12deg)}
+  .invite-hero .h-kicker{font-size:11px;font-weight:700;opacity:.85;letter-spacing:1px}
+  .invite-hero .h-title{font-size:20px;font-weight:800;margin-top:6px;line-height:1.35}
+  .invite-hero .h-sub{font-size:12px;opacity:.88;margin-top:8px;line-height:1.6}
+  .code-card{margin-top:14px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:14px;
+    padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .code-card .lab{font-size:11px;opacity:.85}
+  .code-card .code{font-size:22px;font-weight:800;letter-spacing:3px;font-family:ui-monospace,Menlo,monospace;flex:1}
+  .chip-btn{background:#fff;color:var(--blue);font-size:12px;font-weight:800;padding:6px 14px;border-radius:20px;flex:none}
+  .invite-acts{display:flex;gap:12px;margin-top:14px}
+  .act{flex:1;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:14.5px;font-weight:800}
+  .act.poster{background:#fff;color:var(--blue);box-shadow:0 6px 16px rgba(23,64,111,.18)}
+  .act.share2{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.55);color:#fff}
+
+  .card{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 4px 14px rgba(23,64,111,.06)}
+  .card + .card{margin-top:0}
+  .card-title{font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+  .card-title .more{font-size:11.5px;color:var(--gray);font-weight:400}
+  .inviter-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+  .inviter-row .who{flex:1}
+  .inviter-row .name{font-size:13.5px;font-weight:700}
+  .inviter-row .time{font-size:11px;color:var(--gray);margin-top:2px}
+  .badge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:9px;flex:none}
+  .badge.ok{background:#e6f9f0;color:#0fa968}
+  .badge.pend{background:#fff4e5;color:#e8890c}
+  .rec-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .rec-row:last-child{border-bottom:none}
+  .rec-row .who{flex:1;min-width:0}
+  .rec-row .name{font-size:13px;font-weight:700}
+  .rec-row .time{font-size:10.5px;color:var(--gray);margin-top:2px}
+  .empty-tip{font-size:11.5px;color:var(--gray);text-align:center;padding:14px 0 6px;line-height:1.7}
+  .rule-note{font-size:10.5px;color:#9aa3b5;line-height:1.7;margin-top:12px;padding:0 4px}
+  .rule-note b{color:#5a6678}
+
+  /* ============ ③ 海报弹窗 ============ */
+  .sheet{background:rgba(90,100,120,.62);padding:20px 20px 18px;min-height:560px;display:flex;flex-direction:column;justify-content:center}
+  .close{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(255,255,255,.85);color:#fff;display:grid;place-items:center;font-size:15px;margin:0 0 12px auto}
+  .poster{position:relative;border-radius:16px;overflow:hidden;color:#fff;
+    background:linear-gradient(165deg,#1f6fd6 0%,#2f80ed 38%,#4aa0f5 68%,#8ec8ff 100%)}
+  .poster .deco{position:absolute;font-size:60px;opacity:.16;right:-6px;top:34%;transform:rotate(-14deg)}
+  .poster .deco2{position:absolute;font-size:44px;opacity:.14;left:-4px;top:16%;transform:rotate(10deg)}
+  .p-pad{position:relative;z-index:2;padding:20px 18px 16px}
+  .p-brand{display:flex;align-items:center;gap:8px}
+  .p-logo{width:30px;height:30px;border-radius:9px;background:#fff;display:grid;place-items:center;font-size:16px}
+  .p-appname{font-size:14px;font-weight:800}
+  .p-user{display:flex;align-items:center;gap:10px;margin-top:18px}
+  .p-user .nick{font-size:15px;font-weight:800}
+  .p-user .from{font-size:10.5px;opacity:.85;margin-top:2px}
+  .p-claim{font-size:21px;font-weight:800;line-height:1.5;margin-top:12px}
+  .p-claim .em{color:#ffe08a}
+  .p-stats{display:flex;gap:8px;margin-top:14px}
+  .p-stat{flex:1;background:rgba(255,255,255,.14);border-radius:12px;padding:10px 8px;text-align:center}
+  .p-stat .n{font-size:19px;font-weight:800}
+  .p-stat .l{font-size:10px;opacity:.82;margin-top:4px}
+  .p-foot{display:flex;align-items:center;gap:12px;margin-top:16px;background:#fff;border-radius:12px;padding:12px}
+  .p-foot .txt{flex:1;color:var(--ink)}
+  .p-foot .t1{font-size:13px;font-weight:800}
+  .p-foot .t2{font-size:10.5px;color:var(--gray);margin-top:4px;line-height:1.5}
+  .p-foot .t3{font-size:11px;color:var(--blue);font-weight:800;margin-top:5px;font-family:ui-monospace,Menlo,monospace;letter-spacing:1px}
+  .qr{width:74px;height:74px;border-radius:10px;background:#fff;border:1px solid #e8ecf3;display:grid;place-items:center;flex:none}
+  .qr svg{width:64px;height:64px}
+  .sheet-acts{display:flex;gap:14px;margin-top:16px}
+  .sheet-acts .act.save{background:var(--warn);color:#fff}
+  .sheet-acts .act.wx{background:var(--green);color:#fff}
+
+  /* ============ ④ 新手引导第3步 ============ */
+  .ob-kicker{font-size:11px;color:var(--blue);font-weight:800;letter-spacing:1px;margin-top:8px}
+  .ob-title{font-size:20px;font-weight:800;margin-top:6px;color:var(--ink)}
+  .ob-sub{font-size:12px;color:var(--gray);margin-top:6px}
+  .ob-steps{display:flex;gap:6px;margin-top:12px}
+  .ob-steps i{height:4px;border-radius:2px;flex:1;background:#e3e9f2}
+  .ob-steps i.on{background:var(--blue)}
+  .form-card{background:var(--card);border-radius:18px;padding:16px 14px;margin-top:16px;box-shadow:0 4px 14px rgba(23,64,111,.06)}
+  .f-label{font-size:12.5px;font-weight:800;color:#5a6678}
+  .f-sec{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+  .f-sec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .gender-row{display:flex;gap:10px;margin-top:10px}
+  .g-chip{flex:1;height:40px;border-radius:12px;border:1.5px solid #e3e9f2;display:grid;place-items:center;font-size:13.5px;font-weight:700;color:#5a6678}
+  .g-chip.sel{border-color:var(--blue);background:#eaf3ff;color:var(--blue)}
+  .f-tip{font-size:10.5px;color:#9aa3b5;margin-top:8px}
+  .phone-row{display:flex;align-items:center;margin-top:10px;background:#f6f8fb;border-radius:12px;padding:10px 12px}
+  .phone-row .t{flex:1;font-size:12.5px;color:#5a6678}
+  .phone-row .b{background:var(--blue);color:#fff;font-size:12px;font-weight:800;padding:6px 14px;border-radius:18px}
+  .code-input-wrap{display:flex;gap:8px;margin-top:10px}
+  .code-input{flex:1;background:#f6f8fb;border:1.5px solid var(--blue);border-radius:12px;padding:11px 12px;
+    font-size:16px;font-weight:800;letter-spacing:3px;font-family:ui-monospace,Menlo,monospace;color:var(--ink-2);display:flex;align-items:center;justify-content:space-between}
+  .code-input .clear{width:18px;height:18px;border-radius:50%;background:#c9d2e0;color:#fff;font-size:11px;display:grid;place-items:center;letter-spacing:0}
+  .inviter-preview{display:flex;align-items:center;gap:8px;margin-top:10px;background:#eaf6ef;border-radius:10px;padding:8px 10px}
+  .inviter-preview .t{font-size:11.5px;color:#0fa968;font-weight:700;flex:1}
+  .lock-tip{display:flex;gap:6px;align-items:flex-start;margin-top:10px;font-size:10.5px;color:#b98134;background:#fff7ea;border-radius:10px;padding:8px 10px;line-height:1.6}
+  .ob-footer{margin-top:18px}
+  .btn-primary{height:48px;border-radius:24px;background:var(--blue);color:#fff;font-size:16px;font-weight:800;display:grid;place-items:center;box-shadow:0 8px 18px rgba(47,128,237,.32)}
+  .skip{text-align:center;font-size:12.5px;color:var(--gray);margin-top:12px}
+
+  /* ============ 机制说明区 ============ */
+  .doc{max-width:1100px;margin:60px auto 0}
+  .doc h2{font-size:17px;font-weight:800;margin:34px 0 14px;padding-left:12px;border-left:4px solid var(--blue)}
+  .doc-card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 4px 14px rgba(23,64,111,.06)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{background:#f2f6fc;text-align:left;padding:10px 12px;font-weight:800;color:#33415a;white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid var(--line);color:#3d4a60;line-height:1.7;vertical-align:top}
+  code{background:#f2f5fa;color:#c7254e;padding:1px 6px;border-radius:5px;font-size:11.5px;font-family:ui-monospace,Menlo,monospace}
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;justify-content:center}
+  .f-node{background:#eaf3ff;border:1.5px solid #bcd8fb;border-radius:14px;padding:12px 14px;width:172px;text-align:center}
+  .f-node .n1{font-size:12.5px;font-weight:800;color:var(--ink-2)}
+  .f-node .n2{font-size:10.5px;color:#5a7ba6;margin-top:6px;line-height:1.6}
+  .f-node.gold{background:#fff7ea;border-color:#f5d9a8}
+  .f-node.gold .n1{color:#b98134}
+  .f-node.gold .n2{color:#c99a55}
+  .f-node.green{background:#eaf6ef;border-color:#bce5cd}
+  .f-node.green .n1{color:#0fa968}
+  .f-node.green .n2{color:#4aa877}
+  .f-arrow{display:grid;place-items:center;padding:0 8px;color:#9db4d4;font-size:18px;font-weight:800}
+  .rules{list-style:none}
+  .rules li{padding:9px 0 9px 26px;position:relative;font-size:13px;color:#3d4a60;line-height:1.75;border-bottom:1px dashed var(--line)}
+  .rules li:last-child{border-bottom:none}
+  .rules li::before{content:"✓";position:absolute;left:2px;top:9px;width:17px;height:17px;border-radius:50%;
+    background:#e6f9f0;color:#0fa968;font-size:11px;font-weight:800;display:grid;place-items:center}
+  .rules li.warn::before{content:"!";background:#fff4e5;color:#e8890c}
+</style>
+</head>
+<body>
+
+<h1 class="page-title">「邀请好友」功能设计示意</h1>
+<p class="page-sub">我的页入口 → 邀请主页 → 生成海报 → 新手引导第 3 步填写/修改邀请码 → 完成引导锁定关系</p>
+<p class="legend">蓝色虚线框为<b>本次新增</b>内容 · 其余为现有页面的简化还原</p>
+
+<div class="stage">
+
+  <!-- ① 我的页入口 -->
+  <div class="col">
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+      <div class="navbar">我的</div>
+      <div class="screen">
+        <div class="profile-mini dim">
+          <div class="avatar">👦</div>
+          <div>
+            <div class="nick">豆豆 <span style="font-size:10px;background:#ffd66b;color:#8a5a00;padding:1px 7px;border-radius:8px;font-weight:800;">VIP</span></div>
+            <div class="sub">三年级下 · 人教PEP</div>
+          </div>
+        </div>
+        <div class="section-title dim" style="margin-top:18px;">学习打卡</div>
+        <div class="menu-group dim" style="padding:12px 14px;font-size:12px;color:var(--gray);">连续打卡 12 天 · 累计学词 236 ……</div>
+
+        <div class="section-title">常用</div>
+        <div class="menu-group">
+          <div class="menu-item dim">
+            <div class="menu-ic" style="background:#eaf3ff;">📒</div>
+            <div class="menu-copy">
+              <div class="menu-label">学习记录</div>
+              <div class="menu-desc">查看学习周期与每天记录</div>
+            </div>
+            <div class="menu-arrow">›</div>
+          </div>
+          <div class="hl" style="border-radius:0;">
+            <span class="hl-tag">新增入口</span>
+            <div class="menu-item">
+              <div class="menu-ic" style="background:#fff2e5;">🎁</div>
+              <div class="menu-copy">
+                <div class="menu-label">邀请好友</div>
+                <div class="menu-desc">生成专属海报，和好友一起学</div>
+              </div>
+              <div class="menu-status">已邀 3 人</div>
+              <div class="menu-arrow">›</div>
+            </div>
+          </div>
+          <div class="menu-item dim">
+            <div class="menu-ic" style="background:#eaf6ef;">🎧</div>
+            <div class="menu-copy">
+              <div class="menu-label">联系客服</div>
+              <div class="menu-desc">使用问题与建议反馈</div>
+            </div>
+            <div class="menu-arrow">›</div>
+          </div>
+        </div>
+
+        <div class="section-title dim">账号设置</div>
+        <div class="menu-group dim" style="padding:12px 14px;font-size:12px;color:var(--gray);">年级教材 · 学习形象 · 隐私协议 ……</div>
+      </div>
+    </div>
+    <div class="caption">① 我的页 · 新增「邀请好友」入口
+      <small>放在「常用」分组学习记录下方；右侧状态文案实时显示已成功邀请人数，无邀请时不显示或显示「去邀请」</small>
+    </div>
+  </div>
+
+  <!-- ② 邀请好友主页 -->
+  <div class="col">
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+      <div class="navbar"><span class="back">‹</span>邀请好友</div>
+      <div class="screen" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="invite-hero">
+          <div class="h-kicker">INVITE FRIENDS</div>
+          <div class="h-title">邀好友一起学英语<br>每天 10 分钟记牢</div>
+          <div class="h-sub">好友通过你的海报 / 分享进入小程序，<b>完成新手引导</b>即算邀请成功</div>
+          <div class="code-card">
+            <div>
+              <div class="lab">我的邀请码</div>
+              <div class="code">A7K2MQ</div>
+            </div>
+            <div style="flex:1;"></div>
+            <div class="chip-btn">复制</div>
+          </div>
+          <div class="invite-acts">
+            <div class="act poster">🖼 生成邀请海报</div>
+            <div class="act share2">➦ 转发给好友</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">我的邀请人</div>
+          <div class="inviter-row">
+            <div class="avatar sm" style="background:linear-gradient(140deg,#8ec8ff,#2f80ed);">👩</div>
+            <div class="who">
+              <div class="name">朵朵妈妈</div>
+              <div class="time">2026-06-28 20:14 通过扫码邀请</div>
+            </div>
+            <div class="badge ok">已绑定</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">我邀请的好友（3）<span class="more">按时间倒序</span></div>
+          <div class="rec-row">
+            <div class="avatar sm" style="background:linear-gradient(140deg,#b3e5c8,#19c37d);">👧</div>
+            <div class="who">
+              <div class="name">turbo小猫</div>
+              <div class="time">2026-07-03 18:22 · 扫海报码</div>
+            </div>
+            <div class="badge ok">邀请成功</div>
+          </div>
+          <div class="rec-row">
+            <div class="avatar sm" style="background:linear-gradient(140deg,#ffd6d6,#ff8a8a);">👦</div>
+            <div class="who">
+              <div class="name">Leo</div>
+              <div class="time">2026-07-01 09:40 · 分享卡片</div>
+            </div>
+            <div class="badge ok">邀请成功</div>
+          </div>
+          <div class="rec-row">
+            <div class="avatar sm" style="background:linear-gradient(140deg,#e3d6ff,#a58aff);">🙂</div>
+            <div class="who">
+              <div class="name">微信用户_8k2</div>
+              <div class="time">2026-07-05 08:15 · 填邀请码</div>
+            </div>
+            <div class="badge pend">待完成引导</div>
+          </div>
+        </div>
+
+        <div class="rule-note">
+          <b>规则说明</b>：好友需为新用户；进入后在新手引导中确认邀请码，<b>完成引导后邀请关系生效且不可更改</b>；同一好友只能被绑定一次。
+        </div>
+      </div>
+    </div>
+    <div class="caption">② 邀请好友主页
+      <small>顶部：我的邀请码 + 两个主操作（生成海报 / open-type="share" 转发）。中部「我的邀请人」显示被谁邀请（无则显示空态）。下部邀请记录：昵称、时间、来源渠道、状态（邀请成功 / 待完成引导）</small>
+    </div>
+  </div>
+
+  <!-- ③ 海报弹窗 -->
+  <div class="col">
+    <div class="phone">
+      <div class="sheet">
+        <div class="close">✕</div>
+        <div class="poster">
+          <div class="deco">🅰️</div>
+          <div class="deco2">📚</div>
+          <div class="p-pad">
+            <div class="p-brand">
+              <div class="p-logo">📖</div>
+              <div class="p-appname">刷刷英语<span style="opacity:.7;font-weight:400;font-size:11px;"> · 小学同步教材</span></div>
+            </div>
+            <div class="p-user">
+              <div class="avatar" style="width:40px;height:40px;">👦</div>
+              <div>
+                <div class="nick">豆豆</div>
+                <div class="from">邀请你一起学英语</div>
+              </div>
+            </div>
+            <div class="p-claim">我在这里坚持打卡 <span class="em">12</span> 天<br>记牢了 <span class="em">236</span> 个单词</div>
+            <div class="p-stats">
+              <div class="p-stat"><div class="n">12</div><div class="l">连续打卡</div></div>
+              <div class="p-stat"><div class="n">236</div><div class="l">累计学词</div></div>
+              <div class="p-stat"><div class="n">380</div><div class="l">学习分钟</div></div>
+            </div>
+            <div class="p-foot">
+              <div class="txt">
+                <div class="t1">长按识别小程序码</div>
+                <div class="t2">和我一起每天 10 分钟<br>同步教材听读背测</div>
+                <div class="t3">邀请码 A7K2MQ</div>
+              </div>
+              <div class="qr">
+                <svg viewBox="0 0 29 29" xmlns="http://www.w3.org/2000/svg" fill="#151515">
+                  <rect x="1" y="1" width="7" height="7" fill="none" stroke="#151515" stroke-width="1.6"/><rect x="3" y="3" width="3" height="3"/>
+                  <rect x="21" y="1" width="7" height="7" fill="none" stroke="#151515" stroke-width="1.6"/><rect x="23" y="3" width="3" height="3"/>
+                  <rect x="1" y="21" width="7" height="7" fill="none" stroke="#151515" stroke-width="1.6"/><rect x="3" y="23" width="3" height="3"/>
+                  <circle cx="14.5" cy="14.5" r="4.4"/><circle cx="14.5" cy="14.5" r="2" fill="#2f80ed"/>
+                  <rect x="11" y="2" width="2" height="2"/><rect x="15" y="1" width="2" height="2"/><rect x="12" y="6" width="2" height="2"/><rect x="17" y="5" width="2" height="2"/>
+                  <rect x="2" y="11" width="2" height="2"/><rect x="6" y="13" width="2" height="2"/><rect x="1" y="16" width="2" height="2"/><rect x="5" y="17" width="2" height="2"/>
+                  <rect x="22" y="12" width="2" height="2"/><rect x="26" y="11" width="2" height="2"/><rect x="23" y="16" width="2" height="2"/><rect x="26" y="18" width="2" height="2"/>
+                  <rect x="11" y="22" width="2" height="2"/><rect x="14" y="26" width="2" height="2"/><rect x="17" y="23" width="2" height="2"/><rect x="21" y="26" width="2" height="2"/><rect x="26" y="23" width="2" height="2"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sheet-acts">
+          <div class="act save">⬇ 保存图片</div>
+          <div class="act wx">➦ 转发好友</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">③ 生成海报弹窗
+      <small>Canvas 2D 绘制：品牌 + 头像昵称 + 学习成绩（社交证明）+ 后端 getUnlimited 小程序码（scene 带邀请码）。保存走已有相册授权工具；转发走 open-type="share"，path 带 ?inviteCode=</small>
+    </div>
+  </div>
+
+  <!-- ④ 新手引导第3步（已带码） -->
+  <div class="col">
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+      <div class="navbar">刷刷英语</div>
+      <div class="screen">
+        <div class="ob-kicker">首次设置</div>
+        <div class="ob-title">再补充一点信息</div>
+        <div class="ob-sub">选填即可，方便推荐更适合的学习资料</div>
+        <div class="ob-steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+
+        <div class="form-card">
+          <div class="f-sec">
+            <div class="f-label">学习形象（选填）</div>
+            <div class="gender-row">
+              <div class="g-chip sel">男孩</div>
+              <div class="g-chip">女孩</div>
+            </div>
+          </div>
+          <div class="f-sec">
+            <div class="f-label">手机号（选填）</div>
+            <div class="phone-row">
+              <div class="t">用于推荐学习资料</div>
+              <div class="b">授权</div>
+            </div>
+          </div>
+          <div class="f-sec hl" style="border-radius:12px;padding:10px;margin:0 -10px;border-bottom:none;">
+            <span class="hl-tag">新增区块</span>
+            <div class="f-label">邀请码（选填）</div>
+            <div class="code-input-wrap">
+              <div class="code-input">A7K2MQ <span class="clear">✕</span></div>
+            </div>
+            <div class="inviter-preview">
+              <div class="avatar sm" style="width:26px;height:26px;font-size:12px;">👦</div>
+              <div class="t">邀请人：豆豆 · 扫码自动填入，可修改</div>
+            </div>
+            <div class="lock-tip">⚠️ 完成新手引导后，邀请关系将绑定且<b>不可再修改</b></div>
+          </div>
+        </div>
+
+        <div class="ob-footer">
+          <div class="btn-primary">完成，开始学习</div>
+          <div class="skip">跳过，先开始学习</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">④ 新手引导第 3 步 · 扫码进入（已自动填码）
+      <small>通过海报码 / 分享卡片进入时，邀请码自动填入并显示邀请人昵称做确认；输入框可清除、可改成别的码（失焦校验）。点「完成」或「跳过」都会用当前填写的码建立关系并锁定</small>
+    </div>
+  </div>
+
+  <!-- ⑤ 新手引导第3步（手动输入/校验失败） -->
+  <div class="col">
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+      <div class="navbar">刷刷英语</div>
+      <div class="screen">
+        <div class="ob-kicker">首次设置</div>
+        <div class="ob-title">再补充一点信息</div>
+        <div class="ob-sub">选填即可，方便推荐更适合的学习资料</div>
+        <div class="ob-steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+
+        <div class="form-card">
+          <div class="f-sec">
+            <div class="f-label">学习形象（选填）</div>
+            <div class="gender-row">
+              <div class="g-chip">男孩</div>
+              <div class="g-chip sel">女孩</div>
+            </div>
+          </div>
+          <div class="f-sec">
+            <div class="f-label">手机号（选填）</div>
+            <div class="phone-row">
+              <div class="t">用于推荐学习资料</div>
+              <div class="b">授权</div>
+            </div>
+          </div>
+          <div class="f-sec" style="border-bottom:none;">
+            <div class="f-label">邀请码（选填）</div>
+            <div class="code-input-wrap">
+              <div class="code-input" style="border-color:#e3e9f2;color:#b6bfce;letter-spacing:1px;font-size:13px;font-weight:400;">朋友的邀请码，没有可不填</div>
+            </div>
+            <div class="f-tip">在好友的「我的 → 邀请好友」页面可以找到邀请码</div>
+          </div>
+          <div style="margin-top:12px;background:#fdeeee;border-radius:10px;padding:8px 10px;font-size:10.5px;color:#d05252;line-height:1.6;">
+            ✕ 邀请码「ZZZZ99」不存在，请检查后重新输入（校验失败示例，不阻塞完成引导）
+          </div>
+        </div>
+
+        <div class="ob-footer">
+          <div class="btn-primary">完成，开始学习</div>
+          <div class="skip">跳过，先开始学习</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">⑤ 新手引导第 3 步 · 直接进入（手动输入）
+      <small>没带参数进入时显示空输入框 + 引导文案；校验失败给出提示但不阻塞流程（留空完成 = 无邀请人）。整个区块选填，不影响「跳过」</small>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 机制说明 ============ -->
+<div class="doc">
+
+  <h2>邀请关系建立流程</h2>
+  <div class="doc-card">
+    <div class="flow">
+      <div class="f-node">
+        <div class="n1">① 好友进入小程序</div>
+        <div class="n2">扫海报码（scene）<br>点分享卡片（query）<br>或自然进入（无参）</div>
+      </div>
+      <div class="f-arrow">→</div>
+      <div class="f-node">
+        <div class="n1">② 暂存待绑定码</div>
+        <div class="n2">app.onLaunch 解析参数<br>写入本地 pendingInviteCode<br>（老用户直接忽略）</div>
+      </div>
+      <div class="f-arrow">→</div>
+      <div class="f-node gold">
+        <div class="n1">③ 引导第 3 步展示</div>
+        <div class="n2">自动填入 + 显示邀请人昵称<br>可修改 / 清除 / 手动输入<br>失焦调接口校验</div>
+      </div>
+      <div class="f-arrow">→</div>
+      <div class="f-node green">
+        <div class="n1">④ 完成引导 → 锁定</div>
+        <div class="n2">finishOnboarding 时提交绑定<br>关系生效，不可再修改<br>邀请人列表出现该好友</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>三种邀请方式与小程序机制</h2>
+  <div class="doc-card" style="padding:0;overflow:hidden;">
+    <table>
+      <tr><th>方式</th><th>小程序机制</th><th>参数与获取</th><th>说明 / 限制</th></tr>
+      <tr>
+        <td><b>海报小程序码</b></td>
+        <td>后端调微信 <code>wxacode.getUnlimited</code> 生成带参小程序码，前端 Canvas 合成海报</td>
+        <td><code>scene: "i=A7K2MQ"</code>（≤32 个可见字符）；扫码后落地页 <code>onLoad(options)</code> 读 <code>options.scene</code>（需 decodeURIComponent）；场景值 1047/1048/1049</td>
+        <td>数量不限，适合海报；<code>page</code> 参数必须是<b>已发布版本</b>存在的页面（体验版可用 <code>check_path=false</code>）；生成需后端 access_token，前端只拿图</td>
+      </tr>
+      <tr>
+        <td><b>微信分享卡片</b></td>
+        <td>邀请页 / 海报弹窗按钮 <code>open-type="share"</code> 触发 <code>onShareAppMessage</code></td>
+        <td><code>path: "pages/onboarding/onboarding?inviteCode=A7K2MQ"</code>；点卡片进入后 <code>onLoad(options)</code> 直接读 query；场景值 1007/1008</td>
+        <td>现有技术文档口径是分享「不带邀请 scene」，本功能上线后<b>仅邀请场景的分享带码</b>，其余页面分享保持不变；朋友圈 <code>onShareTimeline</code> 只支持 query 不支持自定义 path</td>
+      </tr>
+      <tr>
+        <td><b>手动输入邀请码</b></td>
+        <td>新手引导第 3 步输入框（其他方式的兜底，也覆盖「口头/群里报码」场景）</td>
+        <td>失焦调 <code>GET /invite/validate?code=</code> 回显邀请人昵称</td>
+        <td>6 位大写字母+数字（去掉 0/O/1/I 易混字符），由后端按 userId 生成、全局唯一</td>
+      </tr>
+    </table>
+  </div>
+
+  <h2>绑定规则</h2>
+  <div class="doc-card">
+    <ul class="rules">
+      <li><b>只对新用户生效</b>：已完成新手引导的老用户，再扫别人的邀请码不建立关系（可考虑 toast 提示「仅新用户可绑定邀请关系」）。</li>
+      <li><b>引导完成即锁定</b>：点「完成，开始学习」或「跳过」时，以当时填写的邀请码为准提交绑定；之后邀请页只读展示，不可修改。</li>
+      <li><b>锁定前随便改</b>：扫 A 的码进入、引导里改成 B 的码，最终绑定 B；清空则不绑定。多次扫码以<b>最后一次</b>为准预填。</li>
+      <li>不能填自己的邀请码；邀请码校验失败不阻塞引导完成（按未填处理）。</li>
+      <li class="warn">邀请状态两档：<b>待完成引导</b>（已进入/已预填但未完成）、<b>邀请成功</b>（完成引导锁定）。「待完成」是否展示给邀请人可再定，展示能增强反馈感。</li>
+      <li class="warn">奖励体系本期不做承诺，页面文案先以「一起学」为主；后续接奖励（会员天数/学习道具）时在 hero 区和记录行加奖励字段即可。</li>
+    </ul>
+  </div>
+
+  <h2>数据与接口草案（后端）</h2>
+  <div class="doc-card" style="padding:0;overflow:hidden;">
+    <table>
+      <tr><th>接口</th><th>用途</th><th>要点</th></tr>
+      <tr><td><code>GET /mini-app/invite/summary</code></td><td>邀请页数据</td><td>返回我的邀请码、邀请人（昵称/头像/时间/来源）、邀请记录列表（昵称/时间/来源/状态）、成功计数</td></tr>
+      <tr><td><code>GET /mini-app/invite/validate?code=</code></td><td>校验邀请码</td><td>返回邀请人昵称+头像用于引导页回显；自邀/不存在返回错误码</td></tr>
+      <tr><td><code>POST /mini-app/invite/bind</code></td><td>完成引导时绑定</td><td>入参 code + source(qrcode/share/manual)；服务端校验：新用户、非自邀、未绑定过；成功后不可变更</td></tr>
+      <tr><td><code>GET /mini-app/invite/qrcode</code></td><td>取带参小程序码</td><td>服务端调 getUnlimited（scene=i=码，page=引导页），可按 userId 缓存图片 URL</td></tr>
+    </table>
+  </div>
+
+  <h2>前端改动点（对应现有代码）</h2>
+  <div class="doc-card" style="padding:0;overflow:hidden;">
+    <table>
+      <tr><th>位置</th><th>改动</th></tr>
+      <tr><td><code>app.js onLaunch/onShow</code></td><td>解析 <code>options.query.inviteCode</code> 与 <code>options.query.scene</code>，新用户时写入 <code>pendingInviteCode</code> 本地缓存（含来源渠道）</td></tr>
+      <tr><td><code>pages/me/me.js</code> menus</td><td>「常用」分组新增「邀请好友」项，状态文案取邀请成功数</td></tr>
+      <tr><td><code>pages/invite/invite</code>（新页面）</td><td>邀请主页 + 海报弹窗（Canvas 2D 绘制，复用 <code>photos-album-permission.js</code> 存图）；<code>onShareAppMessage</code> 带码</td></tr>
+      <tr><td><code>pages/onboarding/onboarding</code></td><td>step 3 表单卡新增邀请码区块（预填/校验/回显）；<code>finishOnboarding</code> 与 <code>skipOptionalStep</code> 中提交 bind（失败不阻塞，可静默重试）</td></tr>
+      <tr><td><code>utils/api.js</code></td><td>新增上表 4 个接口封装；沿用 mock-store 模式先出假数据联调</td></tr>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>

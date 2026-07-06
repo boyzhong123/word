@@ -16,7 +16,13 @@ const {
   setCharacterGender,
   getCharacterGender
 } = require('../../utils/character-gender')
-const { bindPhoneNumber, getUserBooks, toggleBook, saveUserInfo } = require('../../utils/api')
+const { bindPhoneNumber, getUserBooks, toggleBook, saveUserInfo, validateInviteCode, bindInviteCode } = require('../../utils/api')
+const {
+  INVITE_SOURCE_MANUAL,
+  clearPendingInvite,
+  getPendingInvite,
+  normalizeInviteCode
+} = require('../../utils/invite')
 const { login, fetchLoginCode } = require('../../utils/login')
 const { imageUrl } = require('../../utils/image-host')
 const { withTestBook, applyDevPurchaseToBooks } = require('../../utils/dev-books')
@@ -221,6 +227,12 @@ Page({
     selectedSemesterId: '',
     selectedVersion: '',
     selectedChildGender: '',
+    // 邀请码（选填）：扫码/分享进入时自动填入，完成引导前可改，完成后绑定锁定
+    inviteCode: '',
+    inviteSource: INVITE_SOURCE_MANUAL,
+    inviteState: 'idle',
+    inviteInviterName: '',
+    inviteError: '',
     phoneNumber: '',
     phoneVerified: false,
     maskedPhone: '',
@@ -248,6 +260,90 @@ Page({
     }
     this.setData({ logined: !!wx.getStorageSync('token') })
     this.syncStepUi(0)
+    this.initPendingInvite()
+  },
+
+  // 带参进入（扫海报码/点分享卡片）时预填邀请码，第 3 步回显、可修改
+  initPendingInvite() {
+    const pending = getPendingInvite()
+    if (!pending) {
+      return
+    }
+    this.setData({
+      inviteCode: pending.code,
+      inviteSource: pending.source
+    })
+    this.validateInvite(pending.code)
+  },
+
+  handleInviteCodeInput(event) {
+    const value = String((event && event.detail && event.detail.value) || '').toUpperCase()
+    this.setData({
+      inviteCode: value,
+      inviteSource: INVITE_SOURCE_MANUAL,
+      inviteState: 'idle',
+      inviteInviterName: '',
+      inviteError: ''
+    })
+  },
+
+  handleInviteCodeBlur() {
+    const code = normalizeInviteCode(this.data.inviteCode)
+    if (!this.data.inviteCode) {
+      return
+    }
+    if (!code) {
+      this.setData({ inviteState: 'invalid', inviteError: '邀请码格式不对，请检查后重新输入' })
+      return
+    }
+    this.validateInvite(code)
+  },
+
+  clearInviteCode() {
+    clearPendingInvite()
+    this.setData({
+      inviteCode: '',
+      inviteSource: INVITE_SOURCE_MANUAL,
+      inviteState: 'idle',
+      inviteInviterName: '',
+      inviteError: ''
+    })
+  },
+
+  // 失焦校验：回显邀请人昵称做确认；失败只提示不阻塞引导完成（按未填处理）
+  validateInvite(code) {
+    this.setData({ inviteState: 'checking', inviteError: '' })
+    validateInviteCode(code).then(inviter => {
+      if (this.data.inviteCode !== code) {
+        return
+      }
+      this.setData({
+        inviteState: 'valid',
+        inviteInviterName: (inviter && inviter.nickName) || '微信用户'
+      })
+    }).catch(error => {
+      if (this.data.inviteCode !== code) {
+        return
+      }
+      this.setData({
+        inviteState: 'invalid',
+        inviteInviterName: '',
+        inviteError: (error && error.message) || '邀请码不存在，请检查后重新输入'
+      })
+    })
+  },
+
+  // 完成引导时绑定邀请关系（含「跳过」）：以当时填写的码为准，绑定后锁定；
+  // 码为空/格式非法/绑定失败都不阻塞引导完成
+  submitInviteBind() {
+    const code = normalizeInviteCode(this.data.inviteCode)
+    clearPendingInvite()
+    if (!code) {
+      return
+    }
+    bindInviteCode(code, this.data.inviteSource).catch(error => {
+      console.log('[onboarding] bind invite failed', error)
+    })
   },
 
   syncStepUi(step) {
@@ -520,6 +616,9 @@ Page({
     }
     const profile = saveStudentProfile(profilePayload)
     const editMode = this.data.editMode
+    if (!editMode) {
+      this.submitInviteBind()
+    }
     // 教材联动：按 年级/学期/版本 匹配教材目录并自动设为默认词书，再进入今日页（最长等待 1.5s 不阻塞跳转）
     this.applyRecommendedBook(profile).then(() => {
       if (editMode) {

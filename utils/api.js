@@ -60,6 +60,127 @@ function bindPhoneNumber(phoneInfo) {
   })
 }
 
+// ── 邀请关系（演示走 mock-store.invite，接后端时 USE_MOCK=false 自动改走 /mini-app/invite/*）──
+// 邀请码字符集：去掉 0/O/1/I 易混字符；真实码由后端按 userId 生成、全局唯一
+const INVITE_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+
+function buildMockInviteCode() {
+  let code = ''
+  for (let i = 0; i < 6; i++) {
+    code += INVITE_CODE_CHARS[Math.floor(Math.random() * INVITE_CODE_CHARS.length)]
+  }
+  return code
+}
+
+function normalizeInviteSummary(data) {
+  data = data || {}
+  const invitees = Array.isArray(data.invitees) ? data.invitees : []
+  return {
+    myCode: data.myCode || '',
+    inviter: data.inviter || null,
+    invitees,
+    successCount: invitees.filter(item => item && item.status === 'success').length
+  }
+}
+
+// mock 模式首次访问时生成并持久化本机邀请码
+function ensureMockInvite() {
+  const invite = mockStore.getSlice('invite') || {}
+  if (!invite.myCode) {
+    invite.myCode = buildMockInviteCode()
+    mockStore.setSlice('invite', invite)
+  }
+  return invite
+}
+
+function getInviteSummary() {
+  if (mockStore.USE_MOCK) {
+    return Promise.resolve(normalizeInviteSummary(ensureMockInvite()))
+  }
+  return new Promise(resolve => {
+    util.request('GET', '/mini-app/invite/summary', {}, (data) => {
+      if (data && typeof data === 'object') {
+        mockStore.hydrate({ invite: data })
+      }
+      resolve(normalizeInviteSummary(mockStore.getSlice('invite')))
+    }, () => {
+      resolve(normalizeInviteSummary(mockStore.getSlice('invite')))
+    })
+  })
+}
+
+// 校验邀请码并返回邀请人信息（引导第 3 步回显用）；自邀/不存在走 reject
+function validateInviteCode(code) {
+  if (mockStore.USE_MOCK) {
+    const invite = ensureMockInvite()
+    if (code === invite.myCode) {
+      return Promise.reject({ message: '不能填自己的邀请码' })
+    }
+    // 演示假后端：任意格式合法的码都视为有效，邀请人昵称按码尾生成
+    return Promise.resolve({
+      code,
+      nickName: '刷刷学伴' + code.slice(-2),
+      avatarUrl: ''
+    })
+  }
+  return new Promise((resolve, reject) => {
+    util.request('GET', '/mini-app/invite/validate', {
+      data: { code }
+    }, (data) => {
+      resolve(data)
+    }, (status, data, message) => {
+      reject({ status, data, message: message || '邀请码不存在，请检查后重新输入' })
+    })
+  })
+}
+
+// 完成新手引导时绑定邀请关系（服务端需校验：新用户、非自邀、未绑定过；成功后不可变更）
+function bindInviteCode(code, source) {
+  if (mockStore.USE_MOCK) {
+    const invite = ensureMockInvite()
+    if (invite.inviter) {
+      return Promise.reject({ message: '邀请关系已绑定，不可修改' })
+    }
+    if (code === invite.myCode) {
+      return Promise.reject({ message: '不能填自己的邀请码' })
+    }
+    invite.inviter = {
+      code,
+      nickName: '刷刷学伴' + code.slice(-2),
+      avatarUrl: '',
+      source: source || 'manual',
+      boundAt: Date.now()
+    }
+    mockStore.setSlice('invite', invite)
+    return Promise.resolve(invite.inviter)
+  }
+  return new Promise((resolve, reject) => {
+    util.request('POST', '/mini-app/invite/bind', {
+      data: { code, source }
+    }, (data) => {
+      resolve(data)
+    }, (status, data, message) => {
+      reject({ status, data, message: message || '邀请绑定失败' })
+    })
+  })
+}
+
+// 取带参小程序码图片地址（后端调 getUnlimited：scene = "i=<邀请码>"，page 为已发布页面）。
+// mock/失败兜底：返回占位码图，保证海报可生成。
+function getInviteQrcode() {
+  const fallback = '/images/checkin/share-qrcode.png'
+  if (mockStore.USE_MOCK) {
+    return Promise.resolve(fallback)
+  }
+  return new Promise(resolve => {
+    util.request('GET', '/mini-app/invite/qrcode', {}, (data) => {
+      resolve((data && (data.url || data.qrcodeUrl)) || fallback)
+    }, () => {
+      resolve(fallback)
+    })
+  })
+}
+
 function getUserBooks() {
   return new Promise(resolve => {
     util.request('GET', '/mini-app/user-books', {}, (data) => {
@@ -307,6 +428,10 @@ function reportSubscribeMessageQuota(payload) {
 
 module.exports = {
   fetchMembership,
+  getInviteSummary,
+  validateInviteCode,
+  bindInviteCode,
+  getInviteQrcode,
   saveUserInfo,
   bindPhoneNumber,
   getUserInfo,

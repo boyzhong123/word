@@ -1,4 +1,4 @@
-const { getUserInfo, getUserBooks, saveUserInfo, bindPhoneNumber } = require('../../utils/api')
+const { getUserInfo, getUserBooks, saveUserInfo, bindPhoneNumber, getInviteSummary } = require('../../utils/api')
 const { login, fetchLoginCode } = require('../../utils/login')
 const { upload } = require('../../utils/util')
 const { IMAGE_BASE_URL, imageUrl } = require('../../utils/image-host')
@@ -211,6 +211,15 @@ Page({
     },
     menus: [
       {
+        id: 'invite',
+        label: '邀请好友',
+        desc: '生成专属海报，和好友一起学',
+        url: '/pages/invite/invite',
+        action: 'invite',
+        statusText: '去邀请',
+        statusType: 'pending'
+      },
+      {
         id: 'book',
         label: '已学书本',
         desc: '查看已学完第一关的书本',
@@ -265,6 +274,22 @@ Page({
     this.refreshMembership()
     this.refreshStudentProfile()
     this.loadCheckin()
+    this.refreshInviteStatus()
+  },
+
+  // 「邀请好友」入口状态：显示邀请成功人数，无邀请时提示去邀请
+  refreshInviteStatus() {
+    getInviteSummary().then(summary => {
+      const index = this.data.menus.findIndex(item => item.id === 'invite')
+      if (index < 0) {
+        return
+      }
+      const count = Number(summary && summary.successCount) || 0
+      this.setData({
+        ['menus[' + index + '].statusText']: count > 0 ? '已邀 ' + count + ' 人' : '去邀请',
+        ['menus[' + index + '].statusType']: count > 0 ? 'verified' : 'pending'
+      })
+    }).catch(() => {})
   },
 
   refreshStudentProfile() {

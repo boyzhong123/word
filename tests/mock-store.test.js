@@ -14,6 +14,7 @@ const EXPECTED_SLICES = [
   'subscribePrefs',
   'subscribeQuota',
   'listeningWrongWords',
+  'invite',
   'examResults'
 ]
 
@@ -32,7 +33,7 @@ function loadMockStore(initialStorage) {
   }
 }
 
-test('mock store exposes the 13 documented business-state slices', () => {
+test('mock store exposes the 14 documented business-state slices', () => {
   const { mockStore } = loadMockStore()
   const state = mockStore.defaultState()
 

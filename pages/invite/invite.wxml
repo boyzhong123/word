@@ -1,0 +1,84 @@
+<view class="sub-page">
+  <navigation background="#fffdf8">
+    <view class="nav-title">邀请好友</view>
+  </navigation>
+
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <!-- 顶部：邀请码 + 主操作 -->
+    <view class="invite-hero">
+      <view class="hero-kicker">INVITE FRIENDS</view>
+      <view class="hero-title">邀好友一起学英语</view>
+      <view class="hero-title">每天 10 分钟记牢</view>
+      <view class="hero-sub">好友通过你的海报或分享进入小程序，<text class="hero-sub-em">完成新手引导</text>即算邀请成功</view>
+      <view class="code-card">
+        <view class="code-copywrap">
+          <view class="code-label">我的邀请码</view>
+          <view class="code-value">{{myCode || '——'}}</view>
+        </view>
+        <view class="code-copy-btn" hover-class="code-copy-btn-hover" bindtap="copyInviteCode">复制</view>
+      </view>
+      <view class="hero-actions">
+        <view class="hero-action hero-action-poster" hover-class="hero-action-hover" bindtap="openPosterDialog">生成邀请海报</view>
+        <button class="hero-action hero-action-share" hover-class="hero-action-hover" open-type="share" plain>转发给好友</button>
+      </view>
+    </view>
+
+    <!-- 我的邀请人 -->
+    <view class="invite-card">
+      <view class="invite-card-title">我的邀请人</view>
+      <view wx:if="{{inviter}}" class="inviter-row">
+        <image wx:if="{{inviter.avatarUrl}}" class="person-avatar" src="{{inviter.avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="person-avatar person-avatar-empty">👤</view>
+        <view class="person-copy">
+          <view class="person-name">{{inviter.nickName}}</view>
+          <view class="person-meta">{{inviter.timeText}}{{inviter.sourceText ? ' · ' + inviter.sourceText : ''}}</view>
+        </view>
+        <view class="invite-badge invite-badge-success">已绑定</view>
+      </view>
+      <view wx:else class="invite-empty">未绑定邀请人</view>
+    </view>
+
+    <!-- 我邀请的好友 -->
+    <view class="invite-card">
+      <view class="invite-card-title">
+        <text>我邀请的好友{{invitees.length ? '（' + invitees.length + '）' : ''}}</text>
+        <text wx:if="{{invitees.length}}" class="invite-card-note">邀请成功 {{successCount}} 人</text>
+      </view>
+      <block wx:if="{{invitees.length}}">
+        <view wx:for="{{invitees}}" wx:key="index" class="invitee-row">
+          <image wx:if="{{item.avatarUrl}}" class="person-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+          <view wx:else class="person-avatar person-avatar-empty">👤</view>
+          <view class="person-copy">
+            <view class="person-name">{{item.nickName}}</view>
+            <view class="person-meta">{{item.timeText}}{{item.sourceText ? ' · ' + item.sourceText : ''}}</view>
+          </view>
+          <view class="invite-badge invite-badge-{{item.statusType}}">{{item.statusText}}</view>
+        </view>
+      </block>
+      <view wx:else class="invite-empty">还没有邀请记录，生成海报发给好友吧</view>
+    </view>
+
+    <view class="invite-rules">
+      <text class="invite-rules-strong">规则说明：</text>好友需为新用户；进入后在新手引导中确认邀请码，完成引导后邀请关系生效且不可更改；同一好友只能被绑定一次。
+    </view>
+
+    <view class="scroll-spacer"></view>
+  </scroll-view>
+
+  <!-- 海报弹窗 -->
+  <view class="poster-dialog-mask" wx:if="{{showPosterDialog}}" bindtap="closePosterDialog">
+    <view class="poster-dialog" catchtap="noop">
+      <view class="poster-frame">
+        <image wx:if="{{posterPath}}" class="poster-image" src="{{posterPath}}" mode="widthFix" show-menu-by-longpress />
+        <view wx:else class="poster-loading">海报生成中…</view>
+      </view>
+      <view class="poster-actions">
+        <button class="poster-action poster-action-save" hover-class="poster-action-hover" bindtap="savePoster">保存图片</button>
+        <button class="poster-action poster-action-send" hover-class="poster-action-hover" bindtap="sendPoster">分享到微信</button>
+      </view>
+      <view class="poster-close" bindtap="closePosterDialog">✕</view>
+    </view>
+  </view>
+
+  <canvas id="invite-poster" type="2d" class="invite-poster-canvas"></canvas>
+</view>

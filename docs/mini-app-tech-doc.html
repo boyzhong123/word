@@ -306,7 +306,7 @@
           <span class="brand-mark">词</span>
           <span>词句刷刷刷 · 技术文档</span>
         </div>
-        <div class="date">MINI APP API · v1.2.2 · 交付版 · 2026-06-30</div>
+        <div class="date">MINI APP API · v1.2.8 · 交付版 · 2026-07-06</div>
       </header>
 
       <section class="hero">
@@ -319,6 +319,17 @@
             搜索查词等已下线能力不再收录。
           </p>
           <div class="scope-note" style="margin-top:10px;border-color:rgba(255,107,107,.5);background:rgba(239,68,68,.1)">
+            <strong style="color:#ff9b9b">v1.2.8 相较 v1.2.2（标红）</strong>
+            <span>
+              <strong>① 邀请好友功能上线（前端 + Mock）</strong>：我的页「常用」新增「邀请好友」入口（显示已邀成功人数）→ 新页面 <code>pages/invite/invite</code>：我的邀请码（复制）、生成邀请海报（canvas 600×960 + 带参小程序码）、转发好友、我的邀请人、邀请记录（时间/来源/状态）。<br/>
+              <strong>② 新手引导第 3 步新增邀请码（选填）</strong>：扫码/分享进入自动填入、失焦校验回显邀请人昵称、可修改可清除；<strong>点「完成」或「跳过」即以当时填写的码绑定邀请关系并锁定，之后不可更改</strong>；校验失败不阻塞引导（按未填处理）。<br/>
+              <strong>③ 三种拉新入口统一捕获</strong>：海报小程序码 <code>scene="i=&lt;邀请码&gt;"</code>（场景值 1047/1048/1049）、分享卡片 <code>?inviteCode=</code>（1007/1008）、手动填码；<code>app.onShow</code> 统一解析（<code>utils/invite.js</code>），<strong>老用户忽略、新用户暂存 pendingInvite</strong>（多次进入以最后一次为准）。<br/>
+              <strong>④ 分享归因口径更新</strong>：<strong>仅邀请场景</strong>（invite 页转发 / 邀请海报码）带邀请参数；其余页面分享维持 v1.2.2「全局不归因」口径不变（见接口对照表 share-card-config 红字）。<br/>
+              <strong>⑤ mock-store 新增第 14 个 slice <code>invite</code></strong>（myCode / inviter / invitees），演示模式全链路可走通；邀请码 6 位大写字母+数字、去掉 0/O/1/I 易混字符。<br/>
+              <strong>⑥ 待后端新增 4 个接口</strong>：<code>GET invite/summary</code> · <code>GET invite/validate</code> · <code>POST invite/bind</code> · <code>GET invite/qrcode</code>（getwxacodeunlimit 带参码），请求/响应约定与服务端校验规则见「⑦ 邀请好友」章。
+            </span>
+          </div>
+          <div class="scope-note" style="margin-top:10px;border-color:rgba(255,107,107,.42);background:rgba(239,68,68,.08)">
             <strong style="color:#ff9b9b">v1.2.2 相较 v1.1.6（标红）</strong>
             <span>
               <strong>① 订阅消息正式接入</strong>：<code>POST subscribe-message/report</code> 已从预留改为前端实际调用；打卡累计订阅固定 <code>08:30</code>，并上报 <code>remindTime/page</code> 供后端定时发送。<br/>
@@ -328,7 +339,7 @@
               <strong>⑤ Share 单文件版</strong>：同步生成 <code>docs/mini-app-tech-doc.share.html</code>，用于微信发送给后端同学核对。
             </span>
           </div>
-          <div class="scope-note" style="margin-top:10px;border-color:rgba(255,107,107,.42);background:rgba(239,68,68,.08)">
+          <div class="scope-note" style="margin-top:10px;border-color:rgba(255,107,107,.25);background:rgba(239,68,68,.06)">
             <strong style="color:#ff9b9b">v1.1.6 相较 v1.1.5（标红）</strong>
             <span>
               <strong>① 业务状态统一收口</strong>：会员、订单、档案、形象、学习计划、今日进度、订阅、错词、测评成绩等 <strong>13 个 slice</strong> 统一进入 <code>utils/mock/mock-store.js</code>；Mock 模式只落一个 <code>__mock_state__</code>，接后端后为纯内存缓存。首次升级若没有该快照，会清理旧散落业务键并回到干净 Mock 初始态（不是保值迁移）。<br/>
@@ -359,7 +370,7 @@
             </span>
           </div>
           <div class="scope-note">
-            <strong>待后端实现的接口口径（截至 v1.2.2）</strong>
+            <strong>待后端实现的接口口径（截至 v1.2.8）</strong>
             <span>
               <strong>① 会员制</strong>（新）：<code>GET/POST membership/*</code> 替换当前 mock-store 的 <code>membership</code> slice；第 1 关免费，会员解锁全部关卡与伴读。<br/>
               <strong>② 学生档案 + 教材联动</strong>（新）：<code>POST student-profile</code>（或扩展 <code>user/info-update</code>）同步 onboarding 采集的年级/学期/教材版本，并<strong>按 version+gradeId+semesterId 匹配 user-books 中的真实教材，自动设为默认词书</strong>（返回 <code>recommendedResBookId</code>）。词书须带年级/学期标签；<strong>无学期标签的书按上学期处理</strong>。<br/>
@@ -367,7 +378,8 @@
               <strong>④ 复习关</strong>：<code>review-words</code> <strong>必出且至少 10 词</strong> —— 详见 <code>docs/level-score-review-spec.md §6.4</code>。<br/>
               <strong>⑤ 打卡领取</strong>：「立即领取」仍为本地演示，待 <code>gift-claim</code>。<br/>
               <strong>⑥ 订阅额度</strong>：前端已调用 <code>POST subscribe-message/report</code>（<code>SUBSCRIBE_REPORT_ENABLED=true</code>）；后端需记账并按模板发送。模板 ID 在 <code>utils/subscribe.js</code>。<br/>
-              <strong>⑦ 手机号授权</strong>：实现并部署 <code>POST user/phone-number</code>，服务端消费微信 <code>getPhoneNumber</code> 动态 code、保存验证手机号并返回 <code>phoneVerified</code>；客户端不回退资料更新接口。
+              <strong>⑦ 手机号授权</strong>：实现并部署 <code>POST user/phone-number</code>，服务端消费微信 <code>getPhoneNumber</code> 动态 code、保存验证手机号并返回 <code>phoneVerified</code>；客户端不回退资料更新接口。<br/>
+              <strong style="color:#ff9b9b">⑧ 邀请关系</strong><span style="color:#ff9b9b">（v1.2.8 新增）：<code>GET invite/summary</code>（邀请码+邀请人+邀请记录）、<code>GET invite/validate</code>（校验回显昵称）、<code>POST invite/bind</code>（完成引导时绑定，服务端校验新用户/非自邀/未绑定过并保证幂等）、<code>GET invite/qrcode</code>（getwxacodeunlimit 生成 <code>scene="i=&lt;邀请码&gt;"</code> 带参码存 CDN）。详见「⑦ 邀请好友」章。</span>
             </span>
           </div>
           <div class="scope-note" style="margin-top:10px">
@@ -383,7 +395,7 @@
         <aside class="hero-side">
           <div>
             <div class="eyebrow">Quick Count</div>
-            <p class="side-note" style="margin-top:12px">红标覆盖最近三个版本：v1.1.5（notify 与订阅链路）、v1.1.6（文档导航/内容导入规则 + 本地状态收口）、v1.2.2（订阅模板发送链路与接口文档补齐）。标题徽标会显示具体版本归属。</p>
+            <p class="side-note" style="margin-top:12px">红标覆盖最近三个版本：v1.1.6（文档导航/内容导入规则 + 本地状态收口）、v1.2.2（订阅模板发送链路与接口文档补齐）、v1.2.8（邀请好友与拉新归因）。标题徽标会显示具体版本归属。</p>
           </div>
           <div class="stats" id="stats"></div>
         </aside>
@@ -397,11 +409,11 @@
         <div class="nav-modules" id="moduleNav"></div>
       </section>
 
-      <section class="section changed-section" id="conventions" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6">
+      <section class="section changed-section" id="conventions" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6 / v1.2.8">
         <div class="section-head"><div><h2>通用约定</h2><p class="section-desc">所有 <code>/mini-app/*</code> 接口共享</p></div></div>
         <div class="callout tip" style="margin-bottom:14px">
-          <strong style="color:var(--blue)">v1.1.6 单一业务状态层 · 13 个 slice 对照</strong><br/>
-          本次迁移覆盖的 13 类业务态不再由各工具分别读写 Storage。当前 <code>USE_MOCK=true</code> 时统一通过
+          <strong style="color:var(--blue)">v1.1.6 单一业务状态层 · slice 对照</strong><strong style="color:#ff9b9b">（v1.2.8 起新增 invite，共 14 个）</strong><br/>
+          v1.1.6 迁移覆盖的 13 类业务态不再由各工具分别读写 Storage。当前 <code>USE_MOCK=true</code> 时统一通过
           <code>utils/mock/mock-store.js</code> 读写，并仅持久化到 <code>__mock_state__</code>；
           接后端时将 <code>USE_MOCK=false</code>，由 <code>utils/api.js</code> 拉取真实接口并
           <code>hydrate()</code> 到内存，写操作改调对应 POST/PATCH 接口。
@@ -423,9 +435,10 @@
             <tr><td style="padding:6px 8px"><code>subscribePrefs</code></td><td><code>GET/PATCH subscribe-message/preferences</code> 或 <code>user/info</code></td><td>打卡、支付、报告提醒偏好</td></tr>
             <tr><td style="padding:6px 8px"><code>subscribeQuota</code></td><td><code>POST subscribe-message/report</code></td><td>一次性订阅累计可用次数</td></tr>
             <tr><td style="padding:6px 8px"><code>listeningWrongWords</code></td><td><code>POST listening-quiz-result</code> 汇入错词池 + <code>GET review-words</code></td><td>Mock 下的听音错词镜像；正式词表以后端聚合为准</td></tr>
+            <tr style="background:rgba(239,68,68,.06)"><td style="padding:6px 8px;color:#ff9b9b"><code style="color:#ff9b9b">invite</code></td><td style="color:#ff9b9b"><code style="color:#ff9b9b">GET invite/summary</code> + <code style="color:#ff9b9b">POST invite/bind</code></td><td style="color:#ff9b9b">v1.2.8 新增：我的邀请码、邀请人（绑定后锁定）、邀请记录</td></tr>
             <tr><td style="padding:6px 8px"><code>examResults</code></td><td><code>POST exam-submit</code> + <code>GET exam-result</code></td><td>按书保存入门测/结业测成绩</td></tr>
           </table>
-          <span style="display:block;margin-top:8px"><strong>当前接线状态：</strong>13 个 slice 已完成 Mock 收口，但还没有完成 13 组真实接口 hydrate。<code>fetchMembership()</code> 已封装、尚未在 <code>app.onLaunch</code> 或页面调用；<code>characterAssets</code> 已有消费逻辑、尚未把 <code>user/info.characterAssets</code> 灌入 slice；其余 slice 仍待各自 GET/POST 接线。表格描述的是后端联调目标，不表示接口已经上线。</span>
+          <span style="display:block;margin-top:8px"><strong>当前接线状态：</strong>14 个 slice 已完成 Mock 收口<span style="color:#ff9b9b">（v1.2.8 新增 <code style="color:#ff9b9b">invite</code>，utils/api.js 四个接口封装已就绪、USE_MOCK=false 即自动走真实接口）</span>，但还没有完成对应真实接口 hydrate。<code>fetchMembership()</code> 已封装、尚未在 <code>app.onLaunch</code> 或页面调用；<code>characterAssets</code> 已有消费逻辑、尚未把 <code>user/info.characterAssets</code> 灌入 slice；其余 slice 仍待各自 GET/POST 接线。表格描述的是后端联调目标，不表示接口已经上线。</span>
           <span style="display:block;margin-top:8px"><strong>升级行为：</strong>首次加载且不存在 <code>__mock_state__</code> 时，<code>migrateLegacy()</code> 会删除旧 <code>membership / membership_orders / studentProfile / characterGender / studyPlan_* / dailyProgress_* / subscribePref_* / exam_result_*</code> 等键，并创建默认非会员、无档案、无计划的 Mock 快照。若要保留线上用户数据，接后端版本必须先从服务器 hydrate，不能依赖这些旧本地键。</span>
           <span style="display:block;margin-top:8px"><strong>不迁移的客户端态：</strong>系统尺寸、安全区、网络、登录 token、引导已读标记、debug 开关和“不再提醒”等设备/UI 偏好仍可留 Storage。<strong>内容类数据</strong>（教材、关卡、题目、单词、课文、复习词表、测评试卷）保持后端只读下发，不进入业务状态持久化。</span>
           <span style="display:block;margin-top:8px"><strong>范围外遗留：</strong><code>membership.js</code> 与 <code>membership-records.js</code> 的头像/昵称展示仍保留 <code>userInfo</code> Storage 只读兜底；主数据优先来自 <code>globalData.userInfo / GET user/info</code>。这两处不属于本次 13-slice 迁移，后续可单独清理。</span>
@@ -743,7 +756,7 @@
         </div>
       </section>
 
-      <section class="section changed-section" id="page-inventory" data-change-versions="v1.1.5 / v1.1.6 / v1.2.2">
+      <section class="section changed-section" id="page-inventory" data-change-versions="v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8">
         <div class="section-head"><div><h2>全站页面清单 · 交付对照</h2><p class="section-desc"><code>app.json</code> 注册路由 + 关键组件；联调时按「待接 API」列逐项关闭 Mock</p></div></div>
         <div class="callout" style="margin-bottom:14px">
           <strong>图例</strong> · <span class="badge ok" style="display:inline;padding:2px 8px;font-size:11px">已接</span> 页面已调真实接口 ·
@@ -755,7 +768,7 @@
           <table>
             <thead><tr><th>路由</th><th>模块</th><th>职责</th><th>主要接口</th><th>状态</th><th>联调待办</th></tr></thead>
             <tbody>
-              <tr><td><code>pages/onboarding/onboarding</code></td><td>引导</td><td>首访：产品介绍 → 年级/学期/教材 → 形象/手机号（选填）</td><td>student-profile（待接）；phone-number；login</td><td><span class="badge partial">部分</span></td><td>档案/形象已收口 mock-store；联调改 POST student-profile，并按 version+年级+学期匹配 user-books 自动切默认教材</td></tr>
+              <tr><td><code>pages/onboarding/onboarding</code></td><td>引导</td><td>首访：产品介绍 → 年级/学期/教材 → 形象/手机号/<span style="color:#ff9b9b">邀请码（v1.2.8 新增）</span>（选填）</td><td>student-profile（待接）；phone-number；login；<span style="color:#ff9b9b">invite/validate、invite/bind（待接）</span></td><td><span class="badge partial">部分</span></td><td>档案/形象已收口 mock-store；联调改 POST student-profile，并按 version+年级+学期匹配 user-books 自动切默认教材；<span style="color:#ff9b9b">完成/跳过时提交 invite/bind 绑定并锁定</span></td></tr>
               <tr><td><code>pages/today/today</code></td><td>今日</td><td>Tab 首页：今日路线、任务关卡、教材胶囊、会员引导、入门测提示</td><td>user/info, user-books, book-units, info-update, exam-result(entry), entry-exam-prompt（待接）</td><td><span class="badge partial">部分</span></td><td>今日进度/会员/入门测频控已收口 mock-store；联调改由后端 hydrate</td></tr>
               <tr><td><code>pages/home/home</code></td><td>成长</td><td>Tab「成长」：闯关列表/地图、教材弹窗、打卡摘要、测评 Banner、报告 pill</td><td>user/info, user-books, book-units, switch-default-book, info-update</td><td><span class="badge partial">部分</span></td><td>goUnitReport→unit-report；exam→exam-paper；会员门禁</td></tr>
               <tr><td><code>pages/plan/plan</code></td><td>成长</td><td>每日目标关数、关卡预览（含单词）、打卡预告、强度小怪兽</td><td>book-units, unit-words（既有未变）；study-plan（新增，待实现，当前 mock-store）</td><td><span class="badge partial">部分</span></td><td>studyPlans slice 改 GET/POST study-plan；活动文案读 user/info</td></tr>
@@ -777,6 +790,7 @@
               <tr><td><code>pages/me/contact</code></td><td>我的</td><td>FAQ、微信客服</td><td>无</td><td><span class="badge missing">无后端</span></td><td>—</td></tr>
               <tr><td><code>pages/me/privacy</code></td><td>我的</td><td>隐私协议</td><td>无</td><td><span class="badge missing">无后端</span></td><td>—</td></tr>
               <tr><td><code>pages/me/web-src</code></td><td>我的</td><td>公众号文章 web-view</td><td>无（URL query）</td><td><span class="badge missing">无后端</span></td><td>—</td></tr>
+              <tr style="background:rgba(239,68,68,.06)"><td><code style="color:#ff9b9b">pages/invite/invite</code></td><td style="color:#ff9b9b">邀请</td><td style="color:#ff9b9b">v1.2.8 新增：我的邀请码（复制）、生成邀请海报（canvas + 带参小程序码）、转发好友、我的邀请人、邀请记录</td><td style="color:#ff9b9b">invite/summary、invite/qrcode（均待接，现走 mock-store.invite）</td><td><span class="badge partial">部分</span></td><td style="color:#ff9b9b">4 个 invite/* 接口待后端实现；海报小程序码现为占位图 images/checkin/share-qrcode.png</td></tr>
               <tr><td><code>custom-tab-bar</code> + <code>listen-player</code></td><td>组件</td><td>底栏四 Tab（今日/伴读/成长/我的）+ 全局迷你播放条</td><td>同 listen/player；student-profile（首访判断）</td><td><span class="badge partial">部分</span></td><td>listen-duration</td></tr>
               <tr><td><code>checkin/share-poster</code></td><td>打卡</td><td>海报 Canvas（内嵌 calendar）：背景图 + 文案 + 数据</td><td>share-poster-config（后端待实现）；user/info</td><td><span class="badge partial">部分</span></td><td>背景图/二维码/励志语/数据均后端下发</td></tr>
             </tbody>
@@ -793,7 +807,7 @@
         <div class="gallery" id="gallery"></div>
       </section>
 
-      <section class="section changed-section" id="matrix" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2">
+      <section class="section changed-section" id="matrix" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8">
         <div class="section-head"><div><h2>接口 ↔ 页面对照表</h2><p class="section-desc">可按模块、状态筛选；点击「详情」查看字段与渲染说明。</p></div></div>
         <div class="matrix-layout">
           <aside class="page-nav"><div class="page-nav-title">模块</div><div class="page-nav-list" id="pageNav"></div></aside>
@@ -859,11 +873,11 @@
         <div class="cards" id="coreFlowPages"></div>
       </section>
 
-      <section class="section changed-section" id="module-today" data-change-versions="v1.1.6 有改动">
+      <section class="section changed-section" id="module-today" data-change-versions="v1.1.6 / v1.2.8">
         <div class="section-head"><div><h2>⓪ 新手引导 · 今日</h2><p class="section-desc">首访 <code>pages/onboarding/onboarding</code> → Tab「今日」<code>pages/today/today</code></p></div></div>
         <div class="callout" style="margin-bottom:14px">
           <strong>新手引导 onboarding</strong><br/>
-          四步：产品介绍长图 → 年级+学期 → 教材版本 → 学习形象/手机号（选填）。完成后通过 <code>utils/student-profile.js</code> 写入 mock-store 的 <code>studentProfile</code> slice 并切到推荐教材。入门测提示<strong>不由引导单独触发</strong>，而是落到今日页后按「该书有无 entry 成绩」统一判定（口径见 today 页「入门测提示弹窗触发」）。<br/>
+          四步：产品介绍长图 → 年级+学期 → 教材版本 → 学习形象/手机号/<span style="color:#ff9b9b">邀请码（v1.2.8 新增，扫码/分享自动填入可修改，完成引导即绑定锁定，见 ⑦ 邀请好友章）</span>（选填）。完成后通过 <code>utils/student-profile.js</code> 写入 mock-store 的 <code>studentProfile</code> slice 并切到推荐教材。入门测提示<strong>不由引导单独触发</strong>，而是落到今日页后按「该书有无 entry 成绩」统一判定（口径见 today 页「入门测提示弹窗触发」）。<br/>
           手机号走 <code>POST user/phone-number</code>；年级/学期/版本<strong>待接</strong> <code>POST student-profile</code>（或扩展 <code>user/info-update</code>）。编辑模式从「我的」进入，可只改档案不回 Tab。<br/>
           年级清单见 <code>GRADE_GROUPS</code>（小学 g1–g6 / 初中 g7–g9 / 高中 g10–g12），学期 <code>SEMESTERS</code>（<code>first</code> 上学期 / <code>second</code> 下学期），版本按学段取 <code>VERSIONS_BY_STAGE</code>。
         </div>
@@ -979,9 +993,9 @@
         <div class="cards" id="listenPages"></div>
       </section>
 
-      <section class="section changed-section" id="module-me" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2">
+      <section class="section changed-section" id="module-me" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8">
         <div class="section-head"><div><h2>④ 我的</h2><p class="section-desc">Tab「我的」· 路由 <code>pages/me/me</code> 及子页</p></div></div>
-        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计（已学词数 / 学习时长 / 连续打卡）；子页含<strong>已学教材</strong>（<code>me/book</code>，UI 文案「已学书本」，仅列首关已完成的书）、学习记录、<strong>消息授权（notify）</strong>、联系客服、隐私协议、学习形象、手机号验证。<strong>宠物（me/pet）</strong>为本地演示，不同步后端。</div>
+        <div class="callout" style="margin-bottom:14px"><strong>页面职责</strong><br/>微信登录、头像昵称、学习统计（已学词数 / 学习时长 / 连续打卡）；子页含<strong>已学教材</strong>（<code>me/book</code>，UI 文案「已学书本」，仅列首关已完成的书）、学习记录、<strong>消息授权（notify）</strong>、联系客服、隐私协议、学习形象、手机号验证；<span style="color:#ff9b9b">「常用」新增<strong style="color:#ff9b9b">邀请好友</strong>入口（v1.2.8，状态列「已邀 N 人」读 invite/summary，见 ⑦ 邀请好友章）</span>。<strong>宠物（me/pet）</strong>为本地演示，不同步后端。</div>
         <div class="callout tip" style="margin-bottom:14px">
           <strong style="color:var(--blue)">订阅消息 · 三类模板</strong><br/>
           配置在 <code>utils/subscribe.js</code>（模板 ID 已填入公众平台申请结果）。微信一次性订阅<strong>前端查不到剩余次数</strong>，须由后端记账并在到点时调用微信下发接口扣减额度。
@@ -1178,12 +1192,115 @@
         <div class="cards" id="examRecordPages"></div>
       </section>
 
+      <section class="section changed-section" id="module-invite" data-change-versions="v1.2.8 新增">
+        <div class="section-head"><div><h2>⑦ 邀请好友<span style="color:#ff9b9b">（v1.2.8 新增）</span></h2><p class="section-desc"><code>pages/invite/invite</code> · 我的页入口 · 新手引导第 3 步邀请码 · <code>utils/invite.js</code></p></div></div>
+        <div class="callout" style="margin-bottom:14px">
+          <strong>页面职责</strong><br/>
+          我的页「常用」新增<strong>邀请好友</strong>入口（状态列显示「已邀 N 人 / 去邀请」）→ 邀请页：我的邀请码（复制）、<strong>生成邀请海报</strong>（canvas 600×960：品牌 + 头像昵称 + 学习数据 + 带参小程序码 + 邀请码，保存相册 / <code>showShareImageMenu</code> 转发）、<code>open-type="share"</code> 转发卡片、我的邀请人卡片、邀请记录列表（昵称 / 时间 / 来源 / 状态）。视觉稿见 <code>mockups/invite-friends-mockup.html</code>。
+        </div>
+        <div class="callout tip" style="margin-bottom:14px">
+          <strong style="color:var(--blue)">邀请机制 · 三种入口与绑定时序</strong><br/>
+          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:12px">
+            <tr style="border-bottom:1px solid rgba(148,163,184,.2)"><th style="text-align:left;padding:6px 8px">入口</th><th style="text-align:left;padding:6px 8px">参数携带</th><th style="text-align:left;padding:6px 8px">场景值</th><th style="text-align:left;padding:6px 8px">前端解析</th></tr>
+            <tr><td style="padding:6px 8px">海报小程序码</td><td><code>scene="i=&lt;邀请码&gt;"</code>（≤32 可见字符）</td><td>1047 / 1048 / 1049</td><td><code>app.onShow(options)</code> 读 <code>query.scene</code>，decodeURIComponent 后取 <code>i=</code></td></tr>
+            <tr><td style="padding:6px 8px">微信分享卡片</td><td><code>path="pages/today/today?inviteCode=&lt;邀请码&gt;"</code>；朋友圈 <code>query="inviteCode=&lt;邀请码&gt;"</code></td><td>1007 / 1008 / 1154</td><td><code>app.onShow(options)</code> 读 <code>query.inviteCode</code></td></tr>
+            <tr><td style="padding:6px 8px">手动输入</td><td>新手引导第 3 步输入框（兜底，覆盖口头/群里报码）</td><td>—</td><td>失焦调 <code>GET invite/validate</code> 回显邀请人昵称</td></tr>
+          </table>
+          <span style="display:block;margin-top:8px"><strong>时序</strong>：带参进入 → <code>utils/invite.js captureInviteLaunch</code> 暂存本地 <code>pendingInvite</code>（<strong>老用户直接忽略</strong>；多次进入以最后一次为准）→ 引导第 3 步自动填入并回显邀请人、可修改可清除 → 点「完成」或「跳过」时前端调 <code>POST invite/bind</code> 绑定并锁定 → 邀请人的邀请记录里出现该好友（状态 success）。</span>
+          <span style="display:block;margin-top:8px"><strong>邀请码规格</strong>：6 位大写字母 + 数字，字符集去掉 <code>0/O/1/I</code> 易混字符；<strong>由后端按 userId 生成、全局唯一、终身不变</strong>（Mock 模式当前由前端随机生成并持久化，联调后以 summary 下发为准）。</span>
+        </div>
+        <div class="callout danger" style="margin-bottom:14px">
+          <strong style="color:var(--red)">绑定规则（服务端必须校验，前端已按此实现）</strong><br/>
+          ① <strong>只对新用户生效</strong>：仅「首次完成新手引导」的用户可绑定；已完成引导的老用户再扫码/填码一律不建立关系。<br/>
+          ② <strong>绑定即锁定</strong>：<code>invite/bind</code> 成功后邀请关系不可变更；重复提交<strong>同一码需幂等返回成功</strong>，提交不同码返回「已绑定」错误。<br/>
+          ③ <strong>非自邀</strong>：code 等于本人邀请码时拒绝（validate 与 bind 都要拦）。<br/>
+          ④ <strong>失败不阻塞</strong>：码不存在/格式非法时 validate 返回错误即可，前端只提示、不阻塞引导完成（按未填处理）；bind 失败前端静默记录，不回滚引导。<br/>
+          ⑤ 同一好友只能被绑定一次；「待完成引导」（pending）状态是否下发给邀请人可选，前端两种状态都能展示。
+        </div>
+        <div class="api-detail-grid">
+          <article class="api-box wide">
+            <h3>GET /mini-app/invite/summary <span style="color:#ff9b9b">（待实现 · v1.2.8）</span></h3>
+            <p>邀请页与我的页入口数据。请求：无参（token 识别用户）。<strong>首次调用时若用户还没有邀请码，服务端生成并落库后一并返回。</strong></p>
+            <pre>{
+  "myCode": "A7K2MQ",              // 本人邀请码：6 位大写字母+数字（去 0/O/1/I），按 userId 生成、终身不变
+  "inviter": {                      // 我的邀请人；未绑定返回 null
+    "code": "B8XY3N",
+    "nickName": "朵朵妈妈",
+    "avatarUrl": "https://…",
+    "source": "qrcode | share | manual",   // 绑定时的进入渠道
+    "boundAt": 1751700000000        // 毫秒时间戳
+  },
+  "invitees": [                     // 我邀请的好友，按时间倒序
+    {
+      "nickName": "turbo小猫",
+      "avatarUrl": "https://…",
+      "source": "qrcode | share | manual",
+      "at": 1751700000000,
+      "status": "success | pending" // success=已完成引导（绑定生效）；pending=已进入未完成（可选下发）
+    }
+  ]
+}</pre>
+            <p>调用方：<code>pages/invite/invite.js loadSummary</code>；<code>pages/me/me.js refreshInviteStatus</code>（入口「已邀 N 人」按 <code>status==="success"</code> 计数）。</p>
+          </article>
+          <article class="api-box wide">
+            <h3>GET /mini-app/invite/validate?code=A7K2MQ <span style="color:#ff9b9b">（待实现 · v1.2.8）</span></h3>
+            <p>引导第 3 步失焦校验：回显邀请人昵称让孩子/家长确认填对了人。<strong>只读、不产生绑定</strong>。</p>
+            <pre>// 成功（status=success）
+{ "code": "A7K2MQ", "nickName": "豆豆", "avatarUrl": "https://…" }
+
+// 失败走通用错误结构（status!=success + message），例：
+//   码不存在 → message: "邀请码不存在，请检查后重新输入"
+//   自己的码 → message: "不能填自己的邀请码"</pre>
+            <p>调用方：<code>pages/onboarding/onboarding.js validateInvite</code>。失败仅前端提示，<strong>不阻塞</strong>引导完成。</p>
+          </article>
+          <article class="api-box wide">
+            <h3>POST /mini-app/invite/bind <span style="color:#ff9b9b">（待实现 · v1.2.8）</span></h3>
+            <p>完成新手引导时绑定邀请关系（「完成」与「跳过」都会触发；码为空不调用）。</p>
+            <pre>// 请求
+{ "code": "A7K2MQ", "source": "qrcode | share | manual" }
+
+// 响应（成功）
+{
+  "inviter": { "code": "A7K2MQ", "nickName": "豆豆", "avatarUrl": "https://…" },
+  "boundAt": 1751700000000
+}
+
+// 服务端校验（缺一不可）：
+//   ① 当前用户为新用户（首次完成引导）；老用户返回错误
+//   ② 非自邀（code != 本人邀请码）
+//   ③ 未绑定过：同码重复提交幂等返回成功；不同码返回 "邀请关系已绑定，不可修改"
+//   ④ code 存在且有效
+// 成功后：写入被邀方 inviter（锁定），给邀请方 invitees 追加/更新一条 status=success 记录</pre>
+            <p>调用方：<code>pages/onboarding/onboarding.js submitInviteBind</code>（<code>finishOnboarding</code> 内）。bind 失败前端静默 log，不回滚引导。</p>
+          </article>
+          <article class="api-box wide">
+            <h3>GET /mini-app/invite/qrcode <span style="color:#ff9b9b">（待实现 · v1.2.8）</span></h3>
+            <p>返回本人专属带参小程序码图片地址（邀请海报右下角用）。请求：无参（token 识别用户）。</p>
+            <pre>// 响应
+{ "url": "https://cdn…/invite-qr-&lt;userId&gt;.png" }
+
+// 后端生成步骤（与打卡海报全局码同一套 getwxacodeunlimit 流程，差别只在 scene 带参）：
+//   ① 取 access_token（GET /cgi-bin/stable_token，缓存 7200s 全局复用）
+//   ② POST https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=TOKEN
+//      body: { "page": "pages/today/today",      // 不带前导斜杠，且必须是已发布页面
+//              "scene": "i=A7K2MQ",              // ≤32 可见字符；前端按 i=<code> 解析
+//              "width": 280, "check_path": true, "env_version": "release" }
+//   ③ 返回是二进制图片流（Content-Type image/*；失败才是 JSON {errcode,errmsg}）
+//      → 存 OSS/CDN，按 userId 只生成一次、长期缓存复用
+// 注意：图片域名须进小程序 downloadFile 合法域名白名单（canvas createImage 加载要用）；
+//      体验版联调可 check_path=false 或 env_version=trial</pre>
+            <p>调用方：<code>utils/api.getInviteQrcode</code> → <code>pages/invite/invite-poster.js</code>（海报 canvas）。Mock/失败兜底占位图 <code>images/checkin/share-qrcode.png</code>，<strong>上线前必须替换</strong>。</p>
+          </article>
+        </div>
+        <div class="cards" id="invitePages"></div>
+      </section>
+
       <section class="section changed-section" id="roadmap" data-change-versions="v1.1.5 / v1.1.6">
         <div class="section-head"><div><h2>开发计划 · 三期</h2><p class="section-desc">按依赖捆绑交付；含产品已确认口径（见上文 callout / level-score-review-spec）</p></div></div>
         <div class="cards" id="roadmapCards"></div>
       </section>
 
-      <section class="section changed-section" id="pending" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2">
+      <section class="section changed-section" id="pending" data-change-versions="v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8">
         <div class="section-head"><div><h2>待补齐 · 细项</h2><p class="section-desc">三期内的具体 Mock / 未接接口（随联调勾选关闭）</p></div></div>
         <div class="cards" id="pendingCards"></div>
       </section>
@@ -1230,14 +1347,15 @@
 
     <script>
       const MODULES = [
-        { id: "today", label: "⓪ 今日/引导", anchor: "module-today", pages: "onboarding · today", versions: "v1.1.6" },
+        { id: "today", label: "⓪ 今日/引导", anchor: "module-today", pages: "onboarding · today", versions: "v1.1.6 / v1.2.8" },
         { id: "core", label: "★ 核心三环节", anchor: "module-core-flow", pages: "practice → listen → finish", versions: "v1.1.6" },
         { id: "home", label: "① 成长闯关", anchor: "module-home", pages: "home · 选择教材 · plan", versions: "v1.1.4 / v1.1.6" },
         { id: "checkin", label: "② 打卡", anchor: "module-checkin", pages: "pages/checkin/calendar", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2" },
         { id: "listen", label: "③ 伴读", anchor: "module-listen", pages: "listen · mini-player", versions: "v1.1.4 / v1.1.6" },
         { id: "commerce", label: "⑤ 会员", anchor: "module-commerce", pages: "membership · records", versions: "v1.1.4 / v1.1.6 / v1.2.2" },
-        { id: "me", label: "④ 我的", anchor: "module-me", pages: "me · notify · book · contact", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2" },
-        { id: "exam", label: "⑥ 测评/报告", anchor: "module-exam-record", pages: "入门测 · 结业测 · 报告", versions: "v1.1.5 / v1.1.6 / v1.2.2" }
+        { id: "me", label: "④ 我的", anchor: "module-me", pages: "me · notify · book · contact", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8" },
+        { id: "exam", label: "⑥ 测评/报告", anchor: "module-exam-record", pages: "入门测 · 结业测 · 报告", versions: "v1.1.5 / v1.1.6 / v1.2.2" },
+        { id: "invite", label: "⑦ 邀请好友", anchor: "module-invite", pages: "invite · onboarding第3步 · me入口", versions: "v1.2.8 新增" }
       ];
 
       const DOC_SECTIONS = [
@@ -1245,7 +1363,7 @@
           group: "总览",
           items: [
             { id: "module-overview", label: "模块导航", versions: "v1.1.6" },
-            { id: "conventions", label: "通用约定", versions: "v1.1.4 / v1.1.5 / v1.1.6" }
+            { id: "conventions", label: "通用约定", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.8" }
           ]
         },
         {
@@ -1257,29 +1375,30 @@
         {
           group: "页面与接口",
           items: [
-            { id: "page-inventory", label: "页面清单", versions: "v1.1.5 / v1.1.6 / v1.2.2" },
+            { id: "page-inventory", label: "页面清单", versions: "v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8" },
             { id: "gallery-section", label: "页面截图", versions: "v1.1.6 / v1.2.2" },
-            { id: "matrix", label: "接口对照表", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2" }
+            { id: "matrix", label: "接口对照表", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8" }
           ]
         },
         {
           group: "业务模块",
           items: [
-            { id: "module-today", label: "⓪ 今日/引导", versions: "v1.1.6" },
+            { id: "module-today", label: "⓪ 今日/引导", versions: "v1.1.6 / v1.2.8" },
             { id: "module-core-flow", label: "★ 核心三环节", versions: "v1.1.6" },
             { id: "module-home", label: "① 成长闯关", versions: "v1.1.4 / v1.1.6" },
             { id: "module-checkin", label: "② 打卡", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2" },
             { id: "module-listen", label: "③ 伴读", versions: "v1.1.4 / v1.1.6" },
-            { id: "module-me", label: "④ 我的", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2" },
+            { id: "module-me", label: "④ 我的", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8" },
             { id: "module-commerce", label: "⑤ 会员开通", versions: "v1.1.4 / v1.1.6 / v1.2.2" },
-            { id: "module-exam-record", label: "⑥ 测评/报告", versions: "v1.1.5 / v1.1.6 / v1.2.2" }
+            { id: "module-exam-record", label: "⑥ 测评/报告", versions: "v1.1.5 / v1.1.6 / v1.2.2" },
+            { id: "module-invite", label: "⑦ 邀请好友", versions: "v1.2.8 新增" }
           ]
         },
         {
           group: "交付",
           items: [
             { id: "roadmap", label: "开发计划", versions: "v1.1.5 / v1.1.6" },
-            { id: "pending", label: "待补齐", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2" }
+            { id: "pending", label: "待补齐", versions: "v1.1.4 / v1.1.5 / v1.1.6 / v1.2.2 / v1.2.8" }
           ]
         }
       ];
@@ -1639,7 +1758,7 @@
             request: "无参或 { mode?: \"today\"|\"streak\" }；主题由前端本地切换，不必带 theme（见下）",
             response: '建议 { backgrounds: { today: {monster,pk,words,monsterLight,pkLight,wordsLight}, streak: {…同 6 键} }, qrcodeUrl, quotes?: [{en,cn}], title?, dataItems? }。<strong>backgrounds 必须是整组下发</strong>（mode × 6 主题共 12 张），不能只给一张——UI 支持本地切模式/主题（calendar 缓存 sharePosterPaths），单 backgroundUrl 一切主题就抓瞎。',
             callers: "pages/checkin/share-poster.js — 当前 <strong>POSTER_BACKGROUNDS 全是预设本地图</strong> images/checkin/share-bg-*.png（monster/pk/words × today/streak × 明暗）+ POSTER_QR_SRC share-qrcode.png（占位）；励志语走本地 DAILY_QUOTES，stats 走本地 buildPosterText。计算入口 calendar.js drawSharePoster",
-            fields: "【数据来源·已定】<strong>后端下发优先，缺失回退本地，本地预设保留不删</strong>：① backgrounds 后端有则用、无则 POSTER_BACKGROUNDS 本地图；② quote 后端 quotes 有则按当日取、无则本地 DAILY_QUOTES；③ stats <strong>仍前端本地算</strong>（buildPosterText 读 user/info：continuousDays/totalDays/todayWords/learnedWords + 本地 book），dataItems 仅作覆盖兜底，后端给了才用。<br/>【小程序码·已定】<strong>暂不做拉新归因，先用全局码</strong>：qrcodeUrl 由后端 getwxacodeunlimit 生成一张<strong>全局静态</strong>小程序码（scene 固定/留空，落地首页），可长期缓存、所有用户共用；上线前替换 images/checkin/share-qrcode.png 占位图。<br/>【后端·小程序码怎么生成】<strong>步骤</strong>：① 取 access_token（<code>GET /cgi-bin/stable_token</code> 或 getAccessToken，缓存 7200s，全局复用别每次拉）；② <code>POST https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=TOKEN</code>，body <code>{ \"page\": \"pages/index/index\", \"scene\": \"from=poster\", \"width\": 280, \"check_path\": true, \"env_version\": \"release\", \"is_hyaline\": false }</code>。<strong>要点</strong>：page <strong>不带前导斜杠</strong>且必须是<strong>已发布</strong>页面（未发布时 check_path=false 或 env_version=trial 才能生成）；scene ≤32 字符、仅限部分字符（全局码可固定或留空）；用 <strong>getwxacodeunlimit（不限量）</strong>，别用有 10 万上限的 getwxacode。<strong>返回</strong>：成功直接是<strong>二进制图片流</strong>（Content-Type image/*，非 JSON），失败才返回 JSON <code>{errcode,errmsg}</code>——后端要按 Content-Type 判，把图存 OSS/CDN 返回 qrcodeUrl。全局码<strong>只生成一次</strong>缓存复用，运营换落地页才重生成。<br/>【真机坑】backgroundUrl/qrcodeUrl 为远程 URL 时，域名须进 downloadFile 合法域名白名单，canvas 2d createImage 才能直接加载；本地路径走 toCanvasImageSrc 把 ../../ 转 /。<br/>【尺寸】底图按 600×960 画布比例裁切（drawBackgroundImage 居中裁剪），口径见 mockups/checkin-share-mockup.html。运营换底图/二维码/文案不发版。",
+            fields: "【数据来源·已定】<strong>后端下发优先，缺失回退本地，本地预设保留不删</strong>：① backgrounds 后端有则用、无则 POSTER_BACKGROUNDS 本地图；② quote 后端 quotes 有则按当日取、无则本地 DAILY_QUOTES；③ stats <strong>仍前端本地算</strong>（buildPosterText 读 user/info：continuousDays/totalDays/todayWords/learnedWords + 本地 book），dataItems 仅作覆盖兜底，后端给了才用。<br/>【小程序码·已定】<strong>暂不做拉新归因，先用全局码</strong>：qrcodeUrl 由后端 getwxacodeunlimit 生成一张<strong>全局静态</strong>小程序码（scene 固定/留空，落地首页），可长期缓存、所有用户共用；上线前替换 images/checkin/share-qrcode.png 占位图。<br/>【后端·小程序码怎么生成】<strong>步骤</strong>：① 取 access_token（<code>GET /cgi-bin/stable_token</code> 或 getAccessToken，缓存 7200s，全局复用别每次拉）；② <code>POST https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=TOKEN</code>，body <code>{ \"page\": \"pages/index/index\", \"scene\": \"from=poster\", \"width\": 280, \"check_path\": true, \"env_version\": \"release\", \"is_hyaline\": false }</code>。<strong>要点</strong>：page <strong>不带前导斜杠</strong>且必须是<strong>已发布</strong>页面（未发布时 check_path=false 或 env_version=trial 才能生成）；scene ≤32 字符、仅限部分字符（全局码可固定或留空）；用 <strong>getwxacodeunlimit（不限量）</strong>，别用有 10 万上限的 getwxacode。<strong>返回</strong>：成功直接是<strong>二进制图片流</strong>（Content-Type image/*，非 JSON），失败才返回 JSON <code>{errcode,errmsg}</code>——后端要按 Content-Type 判，把图存 OSS/CDN 返回 qrcodeUrl。全局码<strong>只生成一次</strong>缓存复用，运营换落地页才重生成。<span style=\"color:#ff9b9b\">邀请海报另走 GET invite/qrcode 按 userId 生成带参码（scene=i=邀请码，v1.2.8 新增，见 ⑦ 邀请好友章），与本全局码互不影响。</span><br/>【真机坑】backgroundUrl/qrcodeUrl 为远程 URL 时，域名须进 downloadFile 合法域名白名单，canvas 2d createImage 才能直接加载；本地路径走 toCanvasImageSrc 把 ../../ 转 /。<br/>【尺寸】底图按 600×960 画布比例裁切（drawBackgroundImage 居中裁剪），口径见 mockups/checkin-share-mockup.html。运营换底图/二维码/文案不发版。",
             render: "分享海报 canvas（背景 + 文案 + 数据列 + 小程序码）→ 保存相册"
           }
         },
@@ -1651,8 +1770,56 @@
             request: "无参或 { scene?: \"checkin\"|\"practice\"|\"home\" }（按页面取对应卡片配置）",
             response: '建议 { items: { checkin: {title,imageUrl,path?}, practice: {title,imageUrl}, … }, timeline?: {title,imageUrl,query?} }；title=转发标题，imageUrl=自定义封面图（5:4），path=转发落地路径',
             callers: "pages/practice/practice.js onShareAppMessage 当前<strong>仅前端硬编码 path</strong>（带 id/resBookId/unitId/name/taskType）、无自定义 title/imageUrl；打卡页/首页暂未实现 onShareAppMessage / onShareTimeline",
-            fields: "【数据来源·已定】<strong>后端下发优先，缺失回退本地</strong>：title/imageUrl 后端有则用、无则前端默认文案；path/query 仍由前端按上下文拼业务参数（如 practice 的 id/resBookId），后端只配文案与封面。<br/>【暂不做拉新】path/query <strong>不带邀请人 scene</strong>，与小程序码口径一致（先全局，不归因）。<br/>【封面图规格】onShareAppMessage 的 imageUrl <strong>显示比例固定 5:4</strong>（宽:高），后端出图就按 5:4 切、否则微信会裁切变形；建议 <strong>500×400</strong>（或等比 2 倍 1000×800）、jpg/png、单图 <strong>≤ 128KB</strong> 利于秒开；title 建议 ≤ 20 字（超出微信会省略）。朋友圈 onShareTimeline 封面同样走 imageUrl、比例 1:1 更稳妥，可单独配 timeline.imageUrl。<br/>【真机坑】imageUrl 远程图须进 downloadFile 合法域名白名单；朋友圈 onShareTimeline 仅支持 query 字符串、不支持自定义 path。",
+            fields: "【数据来源·已定】<strong>后端下发优先，缺失回退本地</strong>：title/imageUrl 后端有则用、无则前端默认文案；path/query 仍由前端按上下文拼业务参数（如 practice 的 id/resBookId），后端只配文案与封面。<br/>【拉新口径 <strong style=\"color:#ff9b9b\">v1.2.8 更新</strong>】<span style=\"color:#ff9b9b\"><strong>仅邀请场景带参</strong>：pages/invite/invite 的 onShareAppMessage path 带 ?inviteCode=、onShareTimeline query 带 inviteCode（见 ⑦ 邀请好友章）；其余页面分享仍不带邀请参数（全局不归因，与 v1.2.2 口径一致）。</span><br/>【封面图规格】onShareAppMessage 的 imageUrl <strong>显示比例固定 5:4</strong>（宽:高），后端出图就按 5:4 切、否则微信会裁切变形；建议 <strong>500×400</strong>（或等比 2 倍 1000×800）、jpg/png、单图 <strong>≤ 128KB</strong> 利于秒开；title 建议 ≤ 20 字（超出微信会省略）。朋友圈 onShareTimeline 封面同样走 imageUrl、比例 1:1 更稳妥，可单独配 timeline.imageUrl。<br/>【真机坑】imageUrl 远程图须进 downloadFile 合法域名白名单；朋友圈 onShareTimeline 仅支持 query 字符串、不支持自定义 path。",
             render: "右上角胶囊「转发给好友/分享到朋友圈」卡片"
+          }
+        },
+        {
+          id: "invite-summary", module: "邀请", moduleId: "invite", page: "invite 邀请好友 · 我的页入口计数", status: "missing",
+          endpoints: [{ method: "GET", path: "/mini-app/invite/summary", note: "待实现·v1.2.8" }],
+          summary: "<strong style=\"color:#ff9b9b\">v1.2.8 新增</strong>：我的邀请码 + 邀请人 + 邀请记录（首次调用生成邀请码）",
+          detail: {
+            request: "无参（token 识别用户）；用户尚无邀请码时服务端生成并落库后返回",
+            response: '{ "myCode": "A7K2MQ", "inviter": { code, nickName, avatarUrl, source: "qrcode|share|manual", boundAt } | null, "invitees": [{ nickName, avatarUrl, source, at, status: "success|pending" }] }。myCode 6 位大写字母+数字（去 0/O/1/I），按 userId 生成、终身不变；invitees 按时间倒序',
+            callers: "pages/invite/invite.js loadSummary；pages/me/me.js refreshInviteStatus（入口「已邀 N 人」按 status=success 计数）；Mock 走 mock-store.invite slice",
+            fields: "status=success 表示好友完成新手引导（绑定生效）；pending=已进入未完成，是否下发可选（前端两种状态都能展示）。完整口径见「⑦ 邀请好友」章。",
+            render: "邀请页 hero 邀请码 + 邀请人卡片 + 邀请记录列表；我的页入口状态列"
+          }
+        },
+        {
+          id: "invite-validate", module: "邀请", moduleId: "invite", page: "onboarding 第 3 步 · 邀请码校验", status: "missing",
+          endpoints: [{ method: "GET", path: "/mini-app/invite/validate", note: "待实现·v1.2.8" }],
+          summary: "<strong style=\"color:#ff9b9b\">v1.2.8 新增</strong>：校验邀请码并回显邀请人昵称（只读，不产生绑定）",
+          detail: {
+            request: '{ "code": "A7K2MQ" }（query 参数）',
+            response: '成功 { "code", "nickName", "avatarUrl" }；失败走通用错误结构（码不存在 / "不能填自己的邀请码"）',
+            callers: "pages/onboarding/onboarding.js validateInvite（第 3 步输入框失焦触发）",
+            fields: "失败仅前端提示、<strong>不阻塞</strong>引导完成（按未填处理）；自邀在 validate 和 bind 都要拦。",
+            render: "引导第 3 步邀请码输入框下方「邀请人：XXX」绿色确认条 / 红色错误提示"
+          }
+        },
+        {
+          id: "invite-bind", module: "邀请", moduleId: "invite", page: "onboarding 完成/跳过 · 绑定邀请关系", status: "missing",
+          endpoints: [{ method: "POST", path: "/mini-app/invite/bind", note: "待实现·v1.2.8" }],
+          summary: "<strong style=\"color:#ff9b9b\">v1.2.8 新增</strong>：完成新手引导时绑定邀请关系，成功后锁定不可变更",
+          detail: {
+            request: '{ "code": "A7K2MQ", "source": "qrcode|share|manual" }',
+            response: '{ "inviter": { code, nickName, avatarUrl }, "boundAt": 1751700000000 }',
+            callers: "pages/onboarding/onboarding.js submitInviteBind（finishOnboarding 内，「完成」与「跳过」都会触发；码为空不调用）",
+            fields: "服务端必须校验：① 新用户（首次完成引导，老用户拒绝）② 非自邀 ③ 未绑定过（<strong>同码重复提交幂等返回成功</strong>，不同码返回「邀请关系已绑定，不可修改」）④ code 存在。成功后写被邀方 inviter（锁定）+ 给邀请方 invitees 追加 status=success 记录。bind 失败前端静默 log，不回滚引导。",
+            render: "无 UI（后台绑定）；结果体现在邀请页「我的邀请人」与对方邀请记录"
+          }
+        },
+        {
+          id: "invite-qrcode", module: "邀请", moduleId: "invite", page: "invite · 邀请海报带参小程序码", status: "missing",
+          endpoints: [{ method: "GET", path: "/mini-app/invite/qrcode", note: "待实现·v1.2.8" }],
+          summary: "<strong style=\"color:#ff9b9b\">v1.2.8 新增</strong>：本人专属带参小程序码（getwxacodeunlimit，scene=i=邀请码）",
+          detail: {
+            request: "无参（token 识别用户）",
+            response: '{ "url": "https://cdn…/invite-qr-<userId>.png" }',
+            callers: "utils/api.getInviteQrcode → pages/invite/invite-poster.js（海报 canvas 右下角）；Mock/失败兜底占位图 images/checkin/share-qrcode.png（上线前必须替换）",
+            fields: "生成：stable_token 取 access_token → POST getwxacodeunlimit，body { page: \"pages/today/today\"（不带前导斜杠、须已发布）, scene: \"i=A7K2MQ\"（≤32 可见字符）, width: 280, check_path: true, env_version: \"release\" }；返回二进制图片流（失败才是 JSON），存 OSS/CDN 按 userId 只生成一次缓存复用。图片域名须进 downloadFile 白名单。体验版联调 check_path=false 或 env_version=trial。",
+            render: "邀请海报右下白卡内小程序码；扫码进入后 app.onShow 解析 scene 建立待绑定关系"
           }
         },
         {
@@ -1907,6 +2074,11 @@
           { title: "关卡学习报告", desc: "GET unit-report(resBookId, unitId)。<strong>现状 Mock</strong>：home 未传 unitId；listen 已传 unitId 但 report.js 忽略。联调后统一入口参数。", paths: ["pages/report/report", "home.goUnitReport", "listen.openQuizReport"], apis: ["unit-report"] },
           { title: "听力小测报告", desc: "listen quiz「生成听力报告」→ report 页；query 含 unitId/sort/words，<strong>仍走 Mock buildReport</strong>，联调同 unit-report。", paths: ["listen.openQuizReport", "pages/report/report"], apis: ["unit-report"] },
           { title: "study-record 学习记录", desc: "按日聚合 minutes、audioMinutes；入门/结业测次数可跳转 exam-report。", paths: ["pages/study-record/record"], apis: ["study-records"] }
+        ],
+        invite: [
+          { title: "invite 邀请好友", desc: "<strong style=\"color:#ff9b9b\">v1.2.8 新增</strong>：我的邀请码（复制）、生成邀请海报（canvas 600×960 + 带参小程序码）、open-type=share 转发、我的邀请人、邀请记录（时间/来源/状态）。", paths: ["pages/invite/invite", "pages/invite/invite-poster.js"], apis: ["invite/summary 待接", "invite/qrcode 待接"] },
+          { title: "onboarding 第 3 步 · 邀请码", desc: "<strong style=\"color:#ff9b9b\">v1.2.8 新增</strong>：扫码/分享自动填入、可修改可清除；失焦 validate 回显邀请人；「完成/跳过」时 bind 绑定并锁定；失败不阻塞引导。", paths: ["pages/onboarding/onboarding"], apis: ["invite/validate 待接", "invite/bind 待接"] },
+          { title: "启动参数捕获", desc: "<strong style=\"color:#ff9b9b\">v1.2.8 新增</strong>：app.onShow 解析 query.inviteCode 与 query.scene（i=码）；老用户忽略、新用户暂存 pendingInvite（多次进入取最后一次）。", paths: ["app.js", "utils/invite.js"], apis: ["无（本地暂存）"] }
         ]
       };
 
@@ -1948,7 +2120,8 @@
         { title: "student-profile 上云", desc: "onboarding 采集的年级/学期/版本改 POST student-profile，替换 mock-store.studentProfile。" },
         { title: "gift-claim 本地领取", desc: "calendar claimReward 仅 setData 演示，须改 POST gift-claim 后再展示兑换码。" },
         { title: "订阅消息上报", desc: "reportSubscribeMessageQuota 已开启；后端需实现 subscribe-message/report 记账、幂等和微信模板发送。" },
-        { title: "单词分析 word-info", desc: "后续做；入口未定，倾向跟读背诵页；不做首页 search。" }
+        { title: "单词分析 word-info", desc: "后续做；入口未定，倾向跟读背诵页；不做首页 search。" },
+        { title: "<span style=\"color:#ff9b9b\">邀请关系 invite/*（v1.2.8 新增）</span>", desc: "<span style=\"color:#ff9b9b\">summary / validate / bind / qrcode 四接口待实现；bind 需服务端幂等 + 新用户/非自邀/未绑定校验；qrcode 走 getwxacodeunlimit（scene=i=邀请码）存 CDN；上线前替换海报占位码图 images/checkin/share-qrcode.png。</span>" }
       ];
 
       const statusLabel = { ok: "已接入", partial: "部分/Mock", missing: "未使用", external: "外部" };
@@ -2716,6 +2889,7 @@ POST { "groupsPerDay": 3 }
       renderPageCards("me", "#mePages");
       renderPageCards("commerce", "#commercePages");
       renderPageCards("examRecord", "#examRecordPages");
+      renderPageCards("invite", "#invitePages");
       renderCoreFlowSchema();
       renderDurationSchema();
       renderBookPickerSchema();
