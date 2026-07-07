@@ -7,7 +7,8 @@ const { describeInviteSource } = require('../../utils/invite')
 const { saveImageWithAlbumPermission } = require('../../utils/photos-album-permission')
 const { sumLearnedWords } = require('../../utils/learned-progress')
 const { APP_LOGO_SRC } = require('../../utils/app-brand')
-const { drawInvitePoster } = require('./invite-poster')
+const { imageUrl } = require('../../utils/image-host')
+const { drawInvitePoster, POSTER_THEMES } = require('./invite-poster')
 
 const DEFAULT_NICKNAME = '爱学习的小词友'
 const DEFAULT_AVATAR = '../../images/home/mascot-report-jelly.png'
@@ -71,6 +72,9 @@ function formatInviter(inviter) {
 
 Page({
   data: {
+    heroCoverBg: imageUrl('/images/invite/invite-hero-cover.png'),
+    shareCoverImage: imageUrl('/images/invite/invite-share-cover.jpg'),
+    emptyStateImage: imageUrl('/images/invite/invite-empty-state.png'),
     loading: true,
     myCode: '',
     inviter: null,
@@ -84,7 +88,14 @@ Page({
       studyMinutes: 0
     },
     showPosterDialog: false,
-    posterPath: ''
+    posterThemes: POSTER_THEMES,
+    posterThemeIndex: 0,
+    posterTheme: POSTER_THEMES[0],
+    posterPaths: {
+      gift: '',
+      study: '',
+      campus: ''
+    }
   },
 
   onLoad() {
@@ -145,8 +156,19 @@ Page({
       wx.showToast({ title: '邀请码加载中…', icon: 'none' })
       return
     }
-    this.setData({ showPosterDialog: true })
-    this.renderPoster()
+    this.posterCache = {}
+    this.setData({
+      showPosterDialog: true,
+      posterThemeIndex: 0,
+      posterTheme: POSTER_THEMES[0],
+      posterPaths: {
+        gift: '',
+        study: '',
+        campus: ''
+      }
+    })
+    this.posterRenderQueue = Promise.resolve()
+    POSTER_THEMES.forEach(theme => this.enqueuePosterRender(theme))
   },
 
   closePosterDialog() {
@@ -174,14 +196,42 @@ Page({
     return this.posterCanvasPromise
   },
 
-  renderPoster() {
-    if (this.data.posterPath || this.posterRendering) {
+  onPosterThemeSwipe(event) {
+    const index = Number(event.detail.current)
+    const theme = POSTER_THEMES[index]
+    if (!theme || index === this.data.posterThemeIndex) {
       return
     }
-    this.posterRendering = true
+    this.setData({
+      posterThemeIndex: index,
+      posterTheme: theme
+    })
+    if (!this.data.posterPaths[theme]) {
+      this.enqueuePosterRender(theme)
+    }
+  },
+
+  enqueuePosterRender(theme) {
+    const targetTheme = theme || this.data.posterTheme
+    if (POSTER_THEMES.indexOf(targetTheme) < 0) {
+      return
+    }
+    const cache = this.posterCache || {}
+    if (cache[targetTheme]) {
+      this.setData({ ['posterPaths.' + targetTheme]: cache[targetTheme] })
+      return
+    }
+    this.posterRenderQueue = this.posterRenderQueue || Promise.resolve()
+    this.posterRenderQueue = this.posterRenderQueue.then(() => this.renderPoster(targetTheme))
+  },
+
+  renderPoster(theme) {
+    const targetTheme = theme || this.data.posterTheme
+    const cache = this.posterCache || {}
     const systemInfo = wx.getSystemInfoSync()
-    getInviteQrcode().then(qrSrc => {
+    return getInviteQrcode().then(qrSrc => {
       const options = {
+        theme: targetTheme,
         nickName: this.data.nickName,
         avatarSrc: toCanvasImageSrc(this.data.avatarSrc),
         logoSrc: APP_LOGO_SRC,
@@ -202,48 +252,62 @@ Page({
         fail: reject
       })
     })).then(path => {
-      this.posterRendering = false
-      this.setData({ posterPath: path })
+      cache[targetTheme] = path
+      if (this.data.showPosterDialog) {
+        this.setData({ ['posterPaths.' + targetTheme]: path })
+      }
     }).catch(error => {
-      this.posterRendering = false
-      console.log('[invite] render poster failed', error)
-      wx.showToast({ title: '海报生成失败，请重试', icon: 'none' })
+      console.log('[invite] render poster failed', targetTheme, error)
+      if (targetTheme === this.data.posterTheme) {
+        wx.showToast({ title: '海报生成失败，请重试', icon: 'none' })
+      }
     })
   },
 
+  getFreshPosterPath() {
+    const cache = this.posterCache || {}
+    const theme = this.data.posterTheme
+    const path = this.data.posterPaths[theme]
+    return path && cache[theme] === path ? path : ''
+  },
+
   savePoster() {
-    if (!this.data.posterPath) {
+    const path = this.getFreshPosterPath()
+    if (!path) {
       wx.showToast({ title: '海报生成中…', icon: 'none' })
       return
     }
-    saveImageWithAlbumPermission(this.data.posterPath)
+    saveImageWithAlbumPermission(path)
   },
 
   sendPoster() {
-    if (!this.data.posterPath) {
+    const path = this.getFreshPosterPath()
+    if (!path) {
       wx.showToast({ title: '海报生成中…', icon: 'none' })
       return
     }
     if (typeof wx.showShareImageMenu === 'function') {
-      wx.showShareImageMenu({ path: this.data.posterPath })
+      wx.showShareImageMenu({ path })
     } else {
       // 低版本基础库兜底：预览后长按可转发
-      wx.previewImage({ urls: [this.data.posterPath] })
+      wx.previewImage({ urls: [path] })
     }
   },
 
   // 分享卡片带邀请码：落地今日页，app.onShow 统一捕获 inviteCode（老用户忽略）
   onShareAppMessage() {
     return {
-      title: '和我一起每天 10 分钟，把英语学扎实',
-      path: '/pages/today/today?inviteCode=' + this.data.myCode
+      title: '每天10分钟，把英语学扎实',
+      path: '/pages/today/today?inviteCode=' + this.data.myCode,
+      imageUrl: this.data.shareCoverImage
     }
   },
 
   onShareTimeline() {
     return {
-      title: '和我一起每天 10 分钟，把英语学扎实',
-      query: 'inviteCode=' + this.data.myCode
+      title: '每天10分钟，把英语学扎实',
+      query: 'inviteCode=' + this.data.myCode,
+      imageUrl: this.data.shareCoverImage
     }
   }
 })

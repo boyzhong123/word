@@ -38,11 +38,34 @@ page {
 .invite-hero {
   position: relative;
   overflow: hidden;
-  padding: 40rpx 32rpx 32rpx;
   border-radius: 32rpx;
-  background: linear-gradient(135deg, #2f80ed 0%, #56a8ff 60%, #7cc3ff 100%);
   color: #ffffff;
   box-shadow: 0 16rpx 36rpx rgba(47, 128, 237, 0.25);
+}
+
+.invite-hero-bg {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.invite-hero-overlay {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(22, 74, 165, 0.56) 0%, rgba(28, 98, 196, 0.28) 48%, rgba(47, 128, 237, 0.1) 100%),
+    linear-gradient(0deg, rgba(20, 62, 130, 0.22), rgba(20, 62, 130, 0));
+  pointer-events: none;
+}
+
+.invite-hero-body {
+  position: relative;
+  z-index: 2;
+  padding: 40rpx 32rpx 32rpx;
 }
 
 .hero-kicker {
@@ -118,26 +141,27 @@ page {
 
 .hero-actions {
   display: flex;
-  gap: 20rpx;
+  gap: 18rpx;
   margin-top: 26rpx;
 }
 
 .hero-action {
   flex: 1;
   height: 88rpx;
-  border-radius: 24rpx;
+  border-radius: 26rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
+  font-size: 27rpx;
   font-weight: 800;
   box-sizing: border-box;
+  border: 2rpx solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 12rpx 28rpx rgba(16, 54, 115, 0.2);
 }
 
 .hero-action-poster {
-  background: #ffffff;
-  color: #2f80ed;
-  box-shadow: 0 10rpx 24rpx rgba(23, 64, 111, 0.18);
+  background: linear-gradient(180deg, #ffffff 0%, #f2f8ff 100%);
+  color: #1f73df;
 }
 
 /* button 复位：转发按钮与普通视图按钮观感一致 */
@@ -145,10 +169,15 @@ page {
   margin: 0;
   padding: 0;
   line-height: 88rpx;
-  background: rgba(255, 255, 255, 0.18);
-  border: 2rpx solid rgba(255, 255, 255, 0.55);
+  background: linear-gradient(180deg, #29d592 0%, #11bd73 100%);
   color: #ffffff;
-  border-radius: 24rpx;
+  border: 0;
+  border-radius: 26rpx;
+}
+
+button.hero-action-share[plain] {
+  color: #ffffff;
+  border: 0;
 }
 
 .hero-action-share::after {
@@ -250,10 +279,28 @@ page {
 }
 
 .invite-empty {
-  padding: 30rpx 0 36rpx;
-  font-size: 24rpx;
-  color: #8b9098;
+  padding: 18rpx 0 32rpx;
   text-align: center;
+}
+
+.invite-empty-art {
+  width: 188rpx;
+  height: 150rpx;
+  margin: 2rpx auto 4rpx;
+  display: block;
+}
+
+.invite-empty-title {
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #5a6678;
+}
+
+.invite-empty-desc {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  line-height: 1.45;
+  color: #9aa3b5;
 }
 
 .invite-rules {
@@ -289,15 +336,42 @@ page {
 
 .poster-dialog {
   position: relative;
-  width: 600rpx;
+  width: 728rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.poster-swiper {
+  width: 728rpx;
+  height: 896rpx;
+  margin-bottom: 16rpx;
+}
+
+.poster-theme-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.poster-theme-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.poster-theme-dot-active {
+  width: 28rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.92);
+}
+
 .poster-frame {
-  width: 600rpx;
-  height: 960rpx;
+  width: 560rpx;
+  height: 896rpx;
+  margin: 0 auto;
   border-radius: 24rpx;
   overflow: hidden;
   background: #2f80ed;
@@ -308,7 +382,7 @@ page {
 }
 
 .poster-image {
-  width: 600rpx;
+  width: 560rpx;
   display: block;
 }
 
@@ -320,8 +394,8 @@ page {
 .poster-actions {
   display: flex;
   gap: 24rpx;
-  margin-top: 30rpx;
-  width: 100%;
+  margin-top: 14rpx;
+  width: 600rpx;
 }
 
 .poster-action {

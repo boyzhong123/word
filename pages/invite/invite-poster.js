@@ -1,9 +1,16 @@
-// 邀请海报：品牌蓝渐变背景 + 头像昵称 + 学习数据（社交证明）+ 带参小程序码 + 邀请码。
+// 邀请海报：怪兽风主题背景 + 头像昵称 + 学习数据（社交证明）+ 带参小程序码 + 邀请码。
 // 布局基于 600x960 逻辑像素，导出时按 dpr 放大。视觉稿见 mockups/invite-friends-mockup.html
 const { APP_NAME } = require('../../utils/app-brand')
+const { imageUrl } = require('../../utils/image-host')
 
 const POSTER_WIDTH = 600
 const POSTER_HEIGHT = 960
+const POSTER_THEMES = ['gift', 'study', 'campus']
+const POSTER_BACKGROUNDS = {
+  gift: imageUrl('/images/invite/invite-poster-bg-gift.png'),
+  study: imageUrl('/images/invite/invite-poster-bg-study.png'),
+  campus: imageUrl('/images/invite/invite-poster-bg-campus.png')
+}
 
 function loadCanvasImage(canvas, src) {
   return new Promise(resolve => {
@@ -29,7 +36,27 @@ function roundRectPath(ctx, x, y, width, height, radius) {
   ctx.closePath()
 }
 
-function drawBackground(ctx) {
+function drawBackground(ctx, backgroundImage) {
+  if (backgroundImage) {
+    const targetRatio = POSTER_WIDTH / POSTER_HEIGHT
+    const srcRatio = backgroundImage.width / backgroundImage.height
+    let sx = 0
+    let sy = 0
+    let sw = backgroundImage.width
+    let sh = backgroundImage.height
+    if (srcRatio > targetRatio) {
+      sh = backgroundImage.height
+      sw = backgroundImage.height * targetRatio
+      sx = (backgroundImage.width - sw) / 2
+    } else {
+      sw = backgroundImage.width
+      sh = backgroundImage.width / targetRatio
+      sy = (backgroundImage.height - sh) / 2
+    }
+    ctx.drawImage(backgroundImage, sx, sy, sw, sh, 0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+    return
+  }
+
   const sky = ctx.createLinearGradient(0, 0, 0, POSTER_HEIGHT)
   sky.addColorStop(0, '#1f6fd6')
   sky.addColorStop(0.38, '#2f80ed')
@@ -51,6 +78,31 @@ function drawBackground(ctx) {
   ctx.beginPath()
   ctx.arc(480, 520, 60, 0, Math.PI * 2)
   ctx.fill()
+  ctx.restore()
+}
+
+function drawReadabilityLayer(ctx) {
+  ctx.save()
+  const leftShade = ctx.createLinearGradient(0, 0, 440, 0)
+  leftShade.addColorStop(0, 'rgba(13, 64, 146, 0.58)')
+  leftShade.addColorStop(0.58, 'rgba(13, 64, 146, 0.26)')
+  leftShade.addColorStop(1, 'rgba(13, 64, 146, 0)')
+  ctx.fillStyle = leftShade
+  ctx.fillRect(0, 0, POSTER_WIDTH, 600)
+
+  const topShade = ctx.createLinearGradient(0, 0, 0, 460)
+  topShade.addColorStop(0, 'rgba(8, 44, 112, 0.34)')
+  topShade.addColorStop(0.66, 'rgba(8, 44, 112, 0.08)')
+  topShade.addColorStop(1, 'rgba(8, 44, 112, 0)')
+  ctx.fillStyle = topShade
+  ctx.fillRect(0, 0, POSTER_WIDTH, 520)
+
+  roundRectPath(ctx, 32, 32, 378, 420, 30)
+  ctx.fillStyle = 'rgba(17, 90, 182, 0.2)'
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)'
+  ctx.lineWidth = 1
+  ctx.stroke()
   ctx.restore()
 }
 
@@ -91,9 +143,9 @@ function drawHeader(ctx, logoImage) {
   ctx.fillStyle = '#ffffff'
   ctx.font = 'bold 30px sans-serif'
   ctx.fillText(APP_NAME, logoImage ? 114 : 48, 82)
-  ctx.font = '20px sans-serif'
+  ctx.font = 'bold 20px sans-serif'
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
-  ctx.fillText('小学英语 · 同步教材', 114, 112)
+  ctx.fillText('教材同步 · 听读背测', 114, 112)
   ctx.restore()
 }
 
@@ -121,9 +173,12 @@ function drawIdentity(ctx, options, avatarImage) {
   ctx.fillStyle = '#ffffff'
   ctx.font = 'bold 30px sans-serif'
   ctx.fillText(options.nickName, 138, 214)
-  ctx.font = '22px sans-serif'
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'
-  ctx.fillText('邀请你一起学英语', 138, 248)
+  ctx.font = 'bold 22px sans-serif'
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'
+  ctx.fillText('一起每天 10 分钟', 138, 248)
+  ctx.font = '20px sans-serif'
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.82)'
+  ctx.fillText('把课本英语练扎实', 138, 278)
 }
 
 // 主文案分段绘制：数字用金色高亮
@@ -181,8 +236,11 @@ function drawStats(ctx, options) {
   stats.forEach((stat, index) => {
     const x = startX + index * (chipWidth + gap)
     roundRectPath(ctx, x, top, chipWidth, chipHeight, 18)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.16)'
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)'
     ctx.fill()
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)'
+    ctx.lineWidth = 1
+    ctx.stroke()
     ctx.fillStyle = '#ffffff'
     ctx.font = 'bold 38px sans-serif'
     ctx.fillText(String(stat.value), x + chipWidth / 2, top + 56)
@@ -216,8 +274,8 @@ function drawFooterCard(ctx, options, qrImage) {
   ctx.fillText('长按识别小程序码', cardX + 32, cardY + 66)
   ctx.fillStyle = '#8a94a6'
   ctx.font = '21px sans-serif'
-  ctx.fillText('和我一起每天 10 分钟', cardX + 32, cardY + 108)
-  ctx.fillText('同步教材 · 听读背测', cardX + 32, cardY + 142)
+  ctx.fillText('同步教材，每天练 10 分钟', cardX + 32, cardY + 108)
+  ctx.fillText('听读背测，一次练扎实', cardX + 32, cardY + 142)
   ctx.fillStyle = '#2f80ed'
   ctx.font = 'bold 26px sans-serif'
   ctx.fillText('邀请码 ' + (options.inviteCode || ''), cardX + 32, cardY + 198)
@@ -243,8 +301,13 @@ function drawFooterCard(ctx, options, qrImage) {
   ctx.textAlign = 'center'
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
   ctx.font = '19px sans-serif'
-  ctx.fillText('好友完成新手引导，即算邀请成功', POSTER_WIDTH / 2, cardY + cardHeight + 42)
+  ctx.fillText('完成新手引导，邀请即生效', POSTER_WIDTH / 2, cardY + cardHeight + 42)
   ctx.restore()
+}
+
+function getPosterBackgroundSrc(theme) {
+  const key = POSTER_THEMES.indexOf(theme) >= 0 ? theme : POSTER_THEMES[0]
+  return POSTER_BACKGROUNDS[key] || POSTER_BACKGROUNDS.gift
 }
 
 // 绘制完整海报，resolve 时画布已就绪可导出
@@ -256,12 +319,16 @@ function drawInvitePoster(canvas, options) {
   ctx.setTransform(1, 0, 0, 1, 0, 0)
   ctx.scale(dpr, dpr)
 
+  const backgroundSrc = getPosterBackgroundSrc(options.theme)
+
   return Promise.all([
     loadCanvasImage(canvas, options.avatarSrc),
     loadCanvasImage(canvas, options.logoSrc),
-    loadCanvasImage(canvas, options.qrSrc)
+    loadCanvasImage(canvas, options.qrSrc),
+    loadCanvasImage(canvas, backgroundSrc)
   ]).then(images => {
-    drawBackground(ctx)
+    drawBackground(ctx, images[3])
+    drawReadabilityLayer(ctx)
     drawHeader(ctx, images[1])
     drawIdentity(ctx, options, images[0])
     drawClaim(ctx, options)
@@ -273,5 +340,6 @@ function drawInvitePoster(canvas, options) {
 module.exports = {
   POSTER_WIDTH,
   POSTER_HEIGHT,
+  POSTER_THEMES,
   drawInvitePoster
 }

@@ -6,20 +6,24 @@
   <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <!-- 顶部：邀请码 + 主操作 -->
     <view class="invite-hero">
-      <view class="hero-kicker">INVITE FRIENDS</view>
-      <view class="hero-title">邀好友一起学英语</view>
-      <view class="hero-title">每天 10 分钟记牢</view>
-      <view class="hero-sub">好友通过你的海报或分享进入小程序，<text class="hero-sub-em">完成新手引导</text>即算邀请成功</view>
-      <view class="code-card">
-        <view class="code-copywrap">
-          <view class="code-label">我的邀请码</view>
-          <view class="code-value">{{myCode || '——'}}</view>
+      <image class="invite-hero-bg" src="{{heroCoverBg}}" mode="aspectFill" />
+      <view class="invite-hero-overlay"></view>
+      <view class="invite-hero-body">
+        <view class="hero-kicker">INVITE FRIENDS</view>
+        <view class="hero-title">邀好友一起学英语</view>
+        <view class="hero-title">每天 10 分钟记牢</view>
+        <view class="hero-sub">好友通过你的海报或分享进入小程序，<text class="hero-sub-em">完成新手引导</text>即算邀请成功</view>
+        <view class="code-card">
+          <view class="code-copywrap">
+            <view class="code-label">我的邀请码</view>
+            <view class="code-value">{{myCode || '——'}}</view>
+          </view>
+          <view class="code-copy-btn" hover-class="code-copy-btn-hover" bindtap="copyInviteCode">复制</view>
         </view>
-        <view class="code-copy-btn" hover-class="code-copy-btn-hover" bindtap="copyInviteCode">复制</view>
-      </view>
-      <view class="hero-actions">
-        <view class="hero-action hero-action-poster" hover-class="hero-action-hover" bindtap="openPosterDialog">生成邀请海报</view>
-        <button class="hero-action hero-action-share" hover-class="hero-action-hover" open-type="share" plain>转发给好友</button>
+        <view class="hero-actions">
+          <view class="hero-action hero-action-poster" hover-class="hero-action-hover" bindtap="openPosterDialog">生成邀请海报</view>
+          <button class="hero-action hero-action-share" hover-class="hero-action-hover" open-type="share" plain>转发给好友</button>
+        </view>
       </view>
     </view>
 
@@ -35,7 +39,11 @@
         </view>
         <view class="invite-badge invite-badge-success">已绑定</view>
       </view>
-      <view wx:else class="invite-empty">未绑定邀请人</view>
+      <view wx:else class="invite-empty">
+        <image class="invite-empty-art" src="{{emptyStateImage}}" mode="aspectFit" />
+        <view class="invite-empty-title">还未绑定邀请人</view>
+        <view class="invite-empty-desc">好友的邀请码确认成功后，会显示在这里</view>
+      </view>
     </view>
 
     <!-- 我邀请的好友 -->
@@ -55,7 +63,11 @@
           <view class="invite-badge invite-badge-{{item.statusType}}">{{item.statusText}}</view>
         </view>
       </block>
-      <view wx:else class="invite-empty">还没有邀请记录，生成海报发给好友吧</view>
+      <view wx:else class="invite-empty">
+        <image class="invite-empty-art" src="{{emptyStateImage}}" mode="aspectFit" />
+        <view class="invite-empty-title">还没有邀请记录</view>
+        <view class="invite-empty-desc">生成海报或直接转发，邀请好友一起学</view>
+      </view>
     </view>
 
     <view class="invite-rules">
@@ -68,9 +80,33 @@
   <!-- 海报弹窗 -->
   <view class="poster-dialog-mask" wx:if="{{showPosterDialog}}" bindtap="closePosterDialog">
     <view class="poster-dialog" catchtap="noop">
-      <view class="poster-frame">
-        <image wx:if="{{posterPath}}" class="poster-image" src="{{posterPath}}" mode="widthFix" show-menu-by-longpress />
-        <view wx:else class="poster-loading">海报生成中…</view>
+      <swiper
+        class="poster-swiper"
+        current="{{posterThemeIndex}}"
+        bindchange="onPosterThemeSwipe"
+        previous-margin="56rpx"
+        next-margin="56rpx"
+        duration="280"
+      >
+        <swiper-item wx:for="{{posterThemes}}" wx:key="*this">
+          <view class="poster-frame">
+            <image
+              wx:if="{{posterPaths[item]}}"
+              class="poster-image"
+              src="{{posterPaths[item]}}"
+              mode="widthFix"
+              show-menu-by-longpress
+            />
+            <view wx:else class="poster-loading">海报生成中…</view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <view class="poster-theme-dots">
+        <view
+          wx:for="{{posterThemes}}"
+          wx:key="*this"
+          class="poster-theme-dot {{posterThemeIndex === index ? 'poster-theme-dot-active' : ''}}"
+        />
       </view>
       <view class="poster-actions">
         <button class="poster-action poster-action-save" hover-class="poster-action-hover" bindtap="savePoster">保存图片</button>
