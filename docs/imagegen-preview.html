@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imagegen 生成预览 · 2026-07-08</title>
+  <style>
+    :root { --bg:#f4f2eb; --card:#fff; --ink:#1a1f18; --muted:#6b7368; --line:#e6e2d8; --acc:#24aa66; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 20px 16px 48px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .lead { color: var(--muted); font-size: 14px; margin: 0 0 24px; line-height: 1.6; }
+    .badge { display: inline-block; background: #e8f8ee; color: var(--acc); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; margin-bottom: 18px; }
+    section { margin-bottom: 28px; }
+    h2 { font-size: 16px; margin: 0 0 12px; padding-left: 10px; border-left: 4px solid var(--acc); }
+    .grid { display: grid; gap: 14px; }
+    .grid.heroes { grid-template-columns: 1fr; }
+    .grid.icons { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .grid.posters { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px -12px rgba(30,50,30,.18); }
+    .card img { width: 100%; display: block; background: #faf8f3; cursor: zoom-in; }
+    .card.hero img { max-height: 280px; object-fit: cover; object-position: center right; }
+    .card.poster img { aspect-ratio: 5/8; object-fit: cover; }
+    .card.icon img { aspect-ratio: 1; object-fit: contain; padding: 12px; }
+    .cap { padding: 10px 12px 12px; font-size: 12.5px; line-height: 1.45; }
+    .cap b { display: block; font-size: 13px; margin-bottom: 2px; }
+    .cap span { color: var(--muted); word-break: break-all; font-size: 11px; }
+    #lightbox { position: fixed; inset: 0; background: rgba(10,14,10,.92); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 100; cursor: zoom-out; }
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 100%; max-height: 92vh; border-radius: 14px; }
+    .note { background: #fff8e6; border: 1px solid #f0d89a; border-radius: 12px; padding: 12px 14px; font-size: 13px; color: #7a5d12; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">本轮已生成 · 可点击放大</span>
+    <h1>Imagegen 生成预览</h1>
+    <p class="lead">以下是今天批量任务里已经成功落盘的 Hero / 图标 / 邀请素材。批处理已结束，这里展示的是本轮最终结果。</p>
+    <div class="note">本轮补跑后，`growth-hero` 和 `invite-poster campus` 已成功。当前剩余未完成项只有 `exam-entry-banners`、`share-poster-bg`，原因是缺有效 OpenAI key。</div>
+
+    <section>
+      <h2>Hero 横幅</h2>
+      <div class="grid heroes">
+        <div class="card hero"><img src="../images/home/hero-campus-jelly-v5-trio.png" alt="" /><div class="cap"><b>首页 · 三人组</b><span>images/home/hero-campus-jelly-v5-trio.png</span></div></div>
+        <div class="card hero"><img src="../images/home/hero-campus-jelly-v5.png" alt="" /><div class="cap"><b>成长 / 记录 · 男生</b><span>images/home/hero-campus-jelly-v5.png</span></div></div>
+        <div class="card hero"><img src="../images/home/hero-campus-jelly-v5-girl.png" alt="" /><div class="cap"><b>成长 / 记录 · 女生</b><span>images/home/hero-campus-jelly-v5-girl.png</span></div></div>
+        <div class="card hero"><img src="../images/onboarding/onboard-intro-hero.png" alt="" /><div class="cap"><b>新手引导首屏</b><span>images/onboarding/onboard-intro-hero.png</span></div></div>
+        <div class="card hero"><img src="../images/invite/invite-hero-cover.png" alt="" /><div class="cap"><b>邀请页 Hero</b><span>images/invite/invite-hero-cover.png</span></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>今日页图标</h2>
+      <div class="grid icons">
+        <div class="card icon"><img src="../images/home/icon-today-route-jelly.png" alt="" /><div class="cap"><b>学习路线</b><span>icon-today-route-jelly.png</span></div></div>
+        <div class="card icon"><img src="../images/home/icon-today-summary-jelly.png" alt="" /><div class="cap"><b>今日小结</b><span>icon-today-summary-jelly.png</span></div></div>
+        <div class="card icon"><img src="../images/home/icon-today-route-bar-whistle-jelly.png" alt="" /><div class="cap"><b>进度条 · 起点哨</b><span>icon-today-route-bar-whistle-jelly.png</span></div></div>
+        <div class="card icon"><img src="../images/home/icon-today-route-bar-flag-jelly.png" alt="" /><div class="cap"><b>进度条 · 终点旗</b><span>icon-today-route-bar-flag-jelly.png</span></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>邀请海报背景</h2>
+      <div class="grid posters">
+        <div class="card poster"><img src="../images/invite/invite-poster-bg-campus.png" alt="" /><div class="cap"><b>校园主题</b><span>invite-poster-bg-campus.png</span></div></div>
+        <div class="card poster"><img src="../images/invite/invite-poster-bg-gift.png" alt="" /><div class="cap"><b>礼物主题</b><span>invite-poster-bg-gift.png</span></div></div>
+        <div class="card poster"><img src="../images/invite/invite-poster-bg-study.png" alt="" /><div class="cap"><b>书桌主题</b><span>invite-poster-bg-study.png</span></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>引导贴纸源图</h2>
+      <div class="grid icons">
+        <div class="card icon"><img src="../assets/onboard-pain-plan-source.png" alt="" /><div class="cap"><b>痛点 · 计划</b></div></div>
+        <div class="card icon"><img src="../assets/onboard-pain-pronounce-source.png" alt="" /><div class="cap"><b>痛点 · 发音</b></div></div>
+        <div class="card icon"><img src="../assets/onboard-pain-forget-source.png" alt="" /><div class="cap"><b>痛点 · 遗忘</b></div></div>
+        <div class="card icon"><img src="../assets/onboard-proof-textbook-source.png" alt="" /><div class="cap"><b>证明 · 教材</b></div></div>
+        <div class="card icon"><img src="../assets/onboard-proof-mic-source.png" alt="" /><div class="cap"><b>证明 · 麦克风</b></div></div>
+        <div class="card icon"><img src="../assets/onboard-proof-review-source.png" alt="" /><div class="cap"><b>证明 · 复习</b></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Onboarding 已构建图标</h2>
+      <div class="grid icons">
+        <div class="card icon"><img src="../images/onboarding/onboard-pain-plan.png" alt="" /><div class="cap"><b>痛点 · 计划</b><span>images/onboarding/onboard-pain-plan.png</span></div></div>
+        <div class="card icon"><img src="../images/onboarding/onboard-pain-pronounce.png" alt="" /><div class="cap"><b>痛点 · 发音</b><span>images/onboarding/onboard-pain-pronounce.png</span></div></div>
+        <div class="card icon"><img src="../images/onboarding/onboard-pain-forget.png" alt="" /><div class="cap"><b>痛点 · 遗忘</b><span>images/onboarding/onboard-pain-forget.png</span></div></div>
+        <div class="card icon"><img src="../images/onboarding/onboard-proof-textbook.png" alt="" /><div class="cap"><b>证明 · 教材</b><span>images/onboarding/onboard-proof-textbook.png</span></div></div>
+        <div class="card icon"><img src="../images/onboarding/onboard-proof-mic.png" alt="" /><div class="cap"><b>证明 · 麦克风</b><span>images/onboarding/onboard-proof-mic.png</span></div></div>
+        <div class="card icon"><img src="../images/onboarding/onboard-proof-review.png" alt="" /><div class="cap"><b>证明 · 复习</b><span>images/onboarding/onboard-proof-review.png</span></div></div>
+      </div>
+    </section>
+  </div>
+  <div id="lightbox" role="dialog"><img alt="" /></div>
+  <script>
+    var lb = document.getElementById('lightbox'), img = lb.querySelector('img');
+    document.querySelectorAll('.card img').forEach(function (el) {
+      el.addEventListener('click', function () { img.src = el.src; img.alt = el.alt; lb.classList.add('open'); });
+    });
+    lb.addEventListener('click', function () { lb.classList.remove('open'); });
+  </script>
+</body>
+</html>

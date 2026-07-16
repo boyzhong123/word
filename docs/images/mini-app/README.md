@@ -22,8 +22,8 @@
 | `01-home-book-picker.png` | 成长 · 切换教材 | 学段/版本/词书选择弹窗 |
 | `02-checkin-calendar.png` | 打卡日历 | 月历 + 连续打卡天数 + 奖励进度 |
 | `02-checkin-poster.png` | 打卡分享海报 | 生成海报预览页 |
-| `03-listen-player.png` | 伴读 · 播放 | 黑胶封面 + 播放控制条 |
-| `03-listen-follow.png` | 随身听 · 跟读 | 课文列表 + 展开跟读评测 |
+| `03-listen-player.png` | 伴读 · 播放 | 黑胶封面 + 播放控制条（无新手引导） |
+| `03-listen-follow.png` | 伴读 · 课文跟读 | 课文列表 + 展开跟读 + 评分结果 |
 | `03-listen-quiz.png` | 关卡小测 | 听音填空 / 背诵评测 |
 | `04-me-profile.png` | 我的 | 头像、统计、菜单入口 |
 | `04-me-book.png` | 我的教材 | 已购/可用词书列表 |

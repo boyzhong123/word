@@ -86,6 +86,25 @@ async function seedVipState(miniProgram) {
   }, demoVipState())
 }
 
+async function dismissListenGuide(miniProgram) {
+  await miniProgram.evaluate(() => {
+    wx.setStorageSync('listen-first-guide-done', true)
+  })
+}
+
+async function dismissPracticeTips(miniProgram) {
+  await miniProgram.evaluate(() => {
+    ;[
+      'anchor-page',
+      'anchor-record',
+      'anchor-replay',
+      'anchor-proverb',
+      'anchor-stress',
+      'anchor-tone'
+    ].forEach((key) => wx.setStorageSync(key, true))
+  })
+}
+
 async function waitHomeReady(page, timeoutMs = 20000) {
   const start = Date.now()
   while (Date.now() - start < timeoutMs) {
@@ -208,8 +227,38 @@ function makeShots(ctx) {
       key: 'listen',
       file: '03-listen-player.png',
       label: '随身听播放',
+      prepareBeforeNavigate: async (_page, mp) => dismissListenGuide(mp),
       navigate: (mp) => mp.navigateTo(`/pages/listen/listen?${listenQuery}`),
       waitMs: 7000
+    },
+    {
+      key: 'listen-follow',
+      file: '03-listen-follow.png',
+      label: '伴读 · 课文跟读',
+      prepareBeforeNavigate: async (_page, mp) => dismissListenGuide(mp),
+      navigate: (mp) => mp.navigateTo(`/pages/listen/listen?${listenQuery}`),
+      waitMs: 7000,
+      prepare: async (page, mp) => {
+        await page.waitFor(2500)
+        await mp.evaluate(() => {
+          const listenPage = getCurrentPages().slice(-1)[0]
+          if (!listenPage || !Array.isArray(listenPage.data.tracks)) return
+          const tracks = listenPage.data.tracks
+          const idx = tracks.findIndex((item) => item && item.type === 'sentence')
+          const target = idx >= 0 ? idx : 0
+          listenPage.setData({
+            currentPage: 1,
+            expandedIndex: target,
+            listenGuideActive: false,
+            listenGuideStep: '',
+            trackScores: {
+              [target]: { score: 92, detail: { overall: 92 } }
+            }
+          })
+        })
+        await page.waitFor(1500)
+      },
+      minKb: 40
     },
     {
       key: 'quiz',
@@ -217,6 +266,47 @@ function makeShots(ctx) {
       label: '关卡小测',
       navigate: (mp) => mp.navigateTo(`/pages/listen/listen?${quizQuery}`),
       waitMs: 7000
+    },
+    {
+      key: 'quiz-recite',
+      file: '03-listen-quiz-recite.png',
+      label: '关卡小测 · 背诵评测',
+      navigate: (mp) => mp.navigateTo(`/pages/listen/listen?${quizQuery}`),
+      waitMs: 7000,
+      prepare: async (page, mp) => {
+        await page.waitFor(2500)
+        await mp.evaluate(() => {
+          const listenPage = getCurrentPages().slice(-1)[0]
+          if (!listenPage) return
+          listenPage.setData({
+            quizPhase: 'recite',
+            quizReciteScore: 88,
+            quizQuestionIndex: 0
+          })
+        })
+        await page.waitFor(1200)
+      },
+      minKb: 35
+    },
+    {
+      key: 'quiz-spell',
+      file: '03-listen-quiz-spell.png',
+      label: '关卡小测 · 单词拼写',
+      navigate: (mp) => mp.navigateTo(`/pages/listen/listen?${quizQuery}`),
+      waitMs: 7000,
+      prepare: async (page, mp) => {
+        await page.waitFor(2500)
+        await mp.evaluate(() => {
+          const listenPage = getCurrentPages().slice(-1)[0]
+          if (!listenPage) return
+          listenPage.setData({
+            quizPhase: 'spell',
+            quizQuestionIndex: 0
+          })
+        })
+        await page.waitFor(1200)
+      },
+      minKb: 35
     },
     {
       key: 'me',
@@ -230,7 +320,70 @@ function makeShots(ctx) {
       file: '04-me-book.png',
       label: '我的教材',
       navigate: (mp) => mp.navigateTo('/pages/me/book'),
-      waitMs: 4500
+      waitMs: 4500,
+      prepare: async (page, mp) => {
+        await page.waitFor(1200)
+        await mp.evaluate(() => {
+          const bookPage = getCurrentPages().slice(-1)[0]
+          if (!bookPage) return
+          const books = [
+            {
+              resBookId: 10111,
+              name: '牛津译林四上（24版）',
+              press: '译林出版社',
+              intro: '按关卡推进单词、跟读和听力小测。',
+              bookCover: '/images/home/mock-cover-02.png',
+              totalWords: 1413,
+              learnedWords: 216,
+              proverbCount: 84,
+              percent: 15,
+              progressStyle: 'width: 15%;',
+              current: true,
+              locked: false
+            },
+            {
+              resBookId: 20102,
+              name: 'PEP 五年级上册',
+              press: '人民教育出版社',
+              intro: '课本同步单词 + 例句跟读。',
+              bookCover: '/images/home/mock-cover-05.png',
+              totalWords: 1280,
+              learnedWords: 482,
+              proverbCount: 36,
+              percent: 38,
+              progressStyle: 'width: 38%;',
+              current: false,
+              locked: false
+            },
+            {
+              resBookId: 30103,
+              name: '外研版七年级上册',
+              press: '外语教学与研究出版社',
+              intro: '词句联练，按学习计划逐关推进。',
+              bookCover: '/images/home/mock-cover-08.png',
+              totalWords: 1650,
+              learnedWords: 990,
+              proverbCount: 52,
+              percent: 60,
+              progressStyle: 'width: 60%;',
+              current: false,
+              locked: false
+            }
+          ]
+          bookPage.setData({
+            loading: false,
+            empty: false,
+            books,
+            currentBook: books[0],
+            summary: {
+              bookCount: books.length,
+              learnedWords: books.reduce((sum, item) => sum + item.learnedWords, 0),
+              totalWords: books.reduce((sum, item) => sum + item.totalWords, 0)
+            }
+          })
+        })
+        await page.waitFor(800)
+      }
     },
     {
       key: 'notify',
@@ -277,7 +430,7 @@ function makeShots(ctx) {
     {
       key: 'practice',
       file: '05-practice-word.png',
-      label: '单词新学',
+      label: '单词新学 · 认识不认识',
       navigate: (mp) => mp.navigateTo(`/pages/practice/practice?${practiceQuery}`),
       waitMs: 8000,
       prepare: async (page) => {
@@ -290,9 +443,66 @@ function makeShots(ctx) {
       minKb: 40
     },
     {
+      key: 'practice-choice',
+      file: '05-practice-word-choice.png',
+      label: '单词新学 · 释义选择题',
+      navigate: (mp) => mp.navigateTo(`/pages/practice/practice?${practiceQuery}`),
+      waitMs: 8000,
+      prepare: async (page, mp) => {
+        await page.waitFor(2000)
+        const loading = await page.data('loading')
+        if (loading) {
+          await page.waitFor(4000)
+        }
+        await mp.evaluate(() => {
+          const practicePage = getCurrentPages().slice(-1)[0]
+          if (!practicePage || !practicePage.data.contents || !practicePage.data.contents.length) return
+          practicePage.setData({
+            current: 0,
+            ['contents[0].wordNewStage']: 'choice',
+            ['contents[0].wordChoiceOrigin']: 'known',
+            ['contents[0].wordChoiceSelectedIndex']: null,
+            ['contents[0].wordChoiceCorrect']: false,
+            ['contents[0].revealed']: false
+          })
+        })
+        await page.waitFor(1200)
+      },
+      minKb: 40
+    },
+    {
+      key: 'practice-detail',
+      file: '05-practice-word-detail.png',
+      label: '单词新学 · 单词详情页',
+      navigate: (mp) => mp.navigateTo(`/pages/practice/practice?${practiceQuery}`),
+      waitMs: 8000,
+      prepare: async (page, mp) => {
+        await page.waitFor(2000)
+        const loading = await page.data('loading')
+        if (loading) {
+          await page.waitFor(4000)
+        }
+        await mp.evaluate(() => {
+          const practicePage = getCurrentPages().slice(-1)[0]
+          if (!practicePage || !practicePage.data.contents || !practicePage.data.contents.length) return
+          practicePage.setData({
+            current: 0,
+            ['contents[0].wordNewStage']: 'detail',
+            ['contents[0].revealed']: true,
+            ['contents[0].known']: false,
+            ['contents[0].hinted']: true,
+            ['contents[0].word.activeDetailTab']: 'enEn'
+          })
+        })
+        await page.waitFor(1200)
+      },
+      minKb: 40
+    },
+    {
       key: 'recite',
       file: '05-practice-recite.png',
       label: '跟读背诵',
+      prepareBeforeNavigate: async (_page, mp) => dismissPracticeTips(mp),
       navigate: (mp) => mp.navigateTo(`/pages/practice/practice?${reciteQuery}`),
       waitMs: 8000,
       minKb: 40

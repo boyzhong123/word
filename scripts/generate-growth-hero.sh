@@ -7,8 +7,14 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 COMPOSE="$HOME/.claude/skills/image-compose/compose.py"
 HERO_BOY="$ROOT/images/home/hero-campus-jelly-v5.png"
 HERO_GIRL="$ROOT/images/home/hero-campus-jelly-v5-girl.png"
-PK_HERO_BOY="$ROOT/assets/growth-hero-backup-20260623/hero-campus-jelly-v5.png"
-PK_HERO_GIRL="$ROOT/assets/growth-hero-backup-20260623/hero-campus-jelly-v5-girl.png"
+PK_HERO_BOY="$ROOT/images/home/hero-campus-jelly-v5-pk.png"
+PK_HERO_GIRL="$ROOT/images/home/hero-campus-jelly-v5-pk-girl.png"
+if [[ ! -f "$PK_HERO_BOY" && -f "$ROOT/assets/growth-hero-backup-20260623/hero-campus-jelly-v5.png" ]]; then
+  PK_HERO_BOY="$ROOT/assets/growth-hero-backup-20260623/hero-campus-jelly-v5.png"
+fi
+if [[ ! -f "$PK_HERO_GIRL" && -f "$ROOT/assets/growth-hero-backup-20260623/hero-campus-jelly-v5-girl.png" ]]; then
+  PK_HERO_GIRL="$ROOT/assets/growth-hero-backup-20260623/hero-campus-jelly-v5-girl.png"
+fi
 JELLY_CROP="$ROOT/assets/hero-pk-jelly-crop-ref.png"
 JELLY_UI_REF="$ROOT/assets/hero-pk-jelly-identity-ref.png"
 IDENTITY="$ROOT/images/home/map/monsters/jelly-fighting.png"

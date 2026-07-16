@@ -1,0 +1,1485 @@
+<!doctype html>
+<!--
+  词句刷刷刷 · 使用教程（普通用户版 · 移动端 H5）
+  面向销售 / 新用户的图文上手指南。
+  结构：产品介绍 → 学习闭环示意 → 核心功能总览 → 各模块详细介绍（模块分色）。
+  交互：底部吸顶导航（滚动高亮）、截图点击放大、滚动显现、回到顶部、横滑指示点。
+  手机优先排版；发给销售或转 PDF 时保留本 HTML 与 docs/images/ 相对路径即可。
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>词句刷刷刷 · 使用教程</title>
+    <style>
+      :root {
+        --bg: #dfeff2;
+        --page: rgba(255, 255, 255, 0.82);
+        --ink: #24333a;
+        --ink-soft: #5f727b;
+        --faint: #8ea3ac;
+        --line: rgba(194, 218, 223, 0.72);
+        --shadow: 0 24px 56px -28px rgba(49, 86, 94, 0.3);
+        --shadow-sm: 0 12px 28px -18px rgba(49, 86, 94, 0.22);
+        --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", "Noto Sans SC", sans-serif;
+        --acc: #3cab83; --acc-deep: #218765; --acc-soft: #e8f8f1;
+        --score-good: #2da55b; --score-good-bg: #e8f7ee;
+        --score-mid: #7b8079; --score-mid-bg: #eff1ed;
+        --score-low: #dc5e5e; --score-low-bg: #fdeaea;
+      }
+      .t-green  { --acc:#3cab83; --acc-deep:#218765; --acc-soft:#e8f8f1; }
+      .t-blue   { --acc:#58a2f2; --acc-deep:#337fd6; --acc-soft:#eaf4ff; }
+      .t-teal   { --acc:#25b9ba; --acc-deep:#0f9397; --acc-soft:#e4fbfb; }
+      .t-amber  { --acc:#f3b34d; --acc-deep:#df8f18; --acc-soft:#fff3de; }
+      .t-purple { --acc:#9a79e6; --acc-deep:#7555c7; --acc-soft:#f3eeff; }
+      .t-coral  { --acc:#f07f9b; --acc-deep:#dc587a; --acc-soft:#ffeaf0; }
+      .t-indigo { --acc:#7480ea; --acc-deep:#5563cd; --acc-soft:#eef1ff; }
+
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background:
+          radial-gradient(circle at top left, rgba(122, 213, 185, 0.3), transparent 28%),
+          radial-gradient(circle at top right, rgba(118, 184, 255, 0.28), transparent 24%),
+          linear-gradient(180deg, #e7f5f7 0%, #edf6ef 48%, #f6f3eb 100%);
+        font-family: var(--font); color: var(--ink); line-height: 1.68; -webkit-font-smoothing: antialiased; font-size: 16px; }
+      img { max-width: 100%; display: block; }
+
+      .app {
+        max-width: 460px; margin: 0 auto; min-height: 100vh; position: relative; overflow: hidden;
+        padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+        background: linear-gradient(180deg, rgba(245, 252, 255, 0.92) 0%, rgba(246, 252, 248, 0.92) 34%, rgba(255, 251, 244, 0.9) 100%);
+        backdrop-filter: blur(12px);
+        border-left: 1px solid rgba(255,255,255,0.45);
+        border-right: 1px solid rgba(255,255,255,0.45);
+        box-shadow: 0 18px 70px -28px rgba(57, 91, 97, 0.22);
+      }
+
+      /* ===== 底部目录入口 ===== */
+      .appbar {
+        position: fixed;
+        left: max(16px, calc(50vw - 230px + 16px));
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        z-index: 70;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .tocfab {
+        width: 62px;
+        height: 62px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        box-shadow: 0 16px 28px -14px rgba(26, 101, 66, 0.42);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        position: relative;
+        overflow: visible;
+      }
+      .tocfab:hover {
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 20px 34px -14px rgba(26, 101, 66, 0.5);
+      }
+      .tocfab:active { transform: scale(0.96); }
+      .tocfab img {
+        width: 62px;
+        height: 62px;
+        display: block;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 10px rgba(26, 101, 66, 0.22));
+      }
+      .tocfab .close-badge {
+        position: absolute;
+        right: -2px;
+        top: -2px;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: #24333a;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 20px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(20, 30, 28, 0.28);
+        opacity: 0;
+        transform: scale(0.6);
+        transition: all 0.18s ease;
+        pointer-events: none;
+      }
+      .appbar.open .tocfab .close-badge {
+        opacity: 1;
+        transform: scale(1);
+      }
+      .appbar.open .tocfab {
+        filter: saturate(0.92) brightness(0.96);
+      }
+      .navpanel {
+        width: min(228px, calc(100vw - 28px));
+        max-height: min(62vh, 520px);
+        overflow: auto;
+        padding: 12px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(255, 253, 248, 0.97);
+        backdrop-filter: saturate(1.4) blur(12px);
+        box-shadow: 0 18px 40px -20px rgba(40, 60, 30, 0.35);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(8px) scale(0.98);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+      .appbar.open .navpanel {
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+      }
+      .navpanel-title {
+        margin: 0 0 10px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        color: var(--faint);
+        text-transform: uppercase;
+      }
+      .navchips { display: grid; gap: 8px; }
+      .chip {
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink-soft);
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 8px 10px;
+        transition: all 0.18s;
+      }
+      .chip .ci {
+        flex: none;
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        background: transparent;
+        border: 0;
+        overflow: visible;
+      }
+      .chip .ci img {
+        width: 30px;
+        height: 30px;
+        display: block;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 5px rgba(40, 70, 50, 0.18));
+      }
+      .chip .ct { display: block; line-height: 1.1; }
+      .chip.on { color: #fff; background: var(--acc-deep); border-color: var(--acc-deep); }
+      .chip.on .ci {
+        background: transparent;
+        border-color: transparent;
+        filter: brightness(1.08);
+      }
+
+      /* ===== 滚动显现 ===== */
+      .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
+      .rv.in { opacity: 1; transform: none; }
+      @media (prefers-reduced-motion: reduce) { .rv { opacity: 1 !important; transform: none !important; transition: none; } html { scroll-behavior: auto; } }
+
+      /* hero */
+      .hero { padding: 18px 22px 20px; }
+      .hero-brand { display: flex; align-items: center; gap: 13px; margin: 0 0 14px; }
+      .hero-brand img { width: 58px; height: 58px; border-radius: 16px; box-shadow: var(--shadow-sm); }
+      .hero-brand .hb b { display: block; font-size: 19px; }
+      .hero-brand .hb span { font-size: 12.5px; color: var(--faint); }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+        max-width: 100%;
+        margin-top: 2px;
+        padding: 4px 14px 4px 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(150, 214, 196, 0.7);
+        color: var(--acc-deep);
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 18px -14px rgba(33, 135, 101, 0.32);
+        overflow: visible;
+      }
+      .eyebrow img {
+        width: 32px;
+        height: 32px;
+        display: block;
+        object-fit: contain;
+        flex: none;
+        margin: -1px 0;
+        filter: drop-shadow(0 2px 5px rgba(40, 70, 50, 0.16));
+      }
+      .hero h1 { font-size: 26px; line-height: 1.26; margin: 12px 0 10px; letter-spacing: -0.02em; }
+      .hero h1 .hl { color: var(--acc-deep); }
+      .hero .lead { color: var(--ink-soft); font-size: 15px; margin: 0; max-width: 380px; }
+      .hero-visual { margin: 16px -4px 0; }
+      .hero-visual .frame {
+        border-radius: 26px;
+        padding: 7px;
+        background: linear-gradient(160deg, rgba(255,255,255,0.88), rgba(241,250,247,0.88));
+        border: 1px solid rgba(201, 225, 228, 0.72);
+        box-shadow: 0 24px 50px -26px rgba(64, 109, 118, 0.28);
+      }
+      .hero-visual img {
+        width: 100%;
+        display: block;
+        border-radius: 18px;
+      }
+      .hero-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+      .hero-visual + .hero-chips { margin-top: 14px; }
+      .hchip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(182, 219, 214, 0.7);
+        border-radius: 999px;
+        padding: 4px 14px 4px 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink-soft);
+        box-shadow: 0 8px 18px -14px rgba(49, 86, 94, 0.28);
+        backdrop-filter: blur(8px);
+        overflow: visible;
+        min-height: 40px;
+      }
+      .hchip img {
+        width: 36px;
+        height: 36px;
+        display: block;
+        object-fit: contain;
+        flex: none;
+        margin: -2px 0;
+        filter: drop-shadow(0 3px 6px rgba(40, 70, 50, 0.18));
+      }
+      .hchip b { color: var(--ink); }
+
+      section { padding: 28px 0 6px; }
+      .sec-tab { display: inline-flex; align-items: center; gap: 7px; margin: 0 18px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+      .sec-tab .i { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 12px; background: linear-gradient(135deg, var(--acc), var(--acc-deep)); overflow: visible; }
+      .sec-tab .i img { width: 18px; height: 18px; display: block; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12)); }
+      h2.sec-title { font-size: 21px; margin: 10px 22px 6px; letter-spacing: -0.02em; }
+      p.sec-desc { color: var(--ink-soft); font-size: 14.5px; margin: 4px 22px 16px; }
+
+      .values { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 22px; }
+      .vcard {
+        background: rgba(255,255,255,0.86);
+        border: 1px solid rgba(200, 222, 226, 0.72);
+        border-radius: 20px;
+        padding: 14px 13px 15px;
+        box-shadow: var(--shadow-sm);
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+      }
+      .vcard .ic {
+        width: 88px;
+        height: 88px;
+        border-radius: 0;
+        display: grid;
+        place-items: center;
+        margin: 0 0 6px -6px;
+        overflow: visible;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+      }
+      .vcard .ic img {
+        width: 88px;
+        height: 88px;
+        display: block;
+        object-fit: contain;
+        filter: drop-shadow(0 10px 16px rgba(40, 70, 50, 0.18));
+      }
+      .vcard h3 { margin: 0 0 4px; font-size: 15px; line-height: 1.25; }
+      .vcard p { margin: 0; color: var(--ink-soft); font-size: 12.5px; line-height: 1.5; }
+      .ic.g, .ic.a, .ic.b, .ic.p { background: transparent; }
+      .who {
+        margin: 16px 22px 0;
+        background: rgba(232, 248, 241, 0.95);
+        border: 1px solid rgba(60, 171, 131, 0.18);
+        border-radius: 16px;
+        padding: 13px 15px;
+        font-size: 13.5px;
+        color: var(--acc-deep);
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .who .who-ico {
+        flex: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 0;
+        display: grid;
+        place-items: center;
+        background: transparent;
+        border: 0;
+        margin-top: 0;
+      }
+      .who .who-ico img { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(40, 70, 50, 0.14)); }
+      .who .who-body { min-width: 0; }
+      .who b { font-weight: 800; }
+
+      /* 学习闭环 */
+      .loop-panel { margin: 6px 18px 0; border-radius: 22px; padding: 18px 14px 20px; background: linear-gradient(170deg, #ffffff, #f6faf3); border: 1px solid var(--line); box-shadow: var(--shadow-sm); text-align: center; }
+      .loop-panel svg { width: 100%; max-width: 340px; height: auto; margin: 2px auto 0; display: block; }
+      .loop-cap { margin: 8px 8px 0; font-size: 13px; color: var(--ink-soft); }
+      .loop-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; margin: 12px 6px 0; }
+      .lg { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-soft); font-weight: 600; }
+      .lg i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+
+      /* overview map */
+      .map { padding: 0 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .mcard { display: flex; align-items: center; gap: 10px; text-decoration: none; background: rgba(255,255,255,0.82); border: 1px solid rgba(200, 222, 226, 0.72); border-radius: 18px; padding: 12px; box-shadow: var(--shadow-sm); color: var(--ink); transition: transform 0.14s; backdrop-filter: blur(10px); }
+      .mcard:active { transform: scale(0.97); }
+      .mcard .no { flex: none; width: 28px; height: 28px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #fff; background: linear-gradient(135deg, var(--acc), var(--acc-deep)); }
+      .mcard .mi {
+        flex: none;
+        width: 52px;
+        height: 52px;
+        border-radius: 0;
+        display: grid;
+        place-items: center;
+        background: transparent;
+        border: 0;
+        overflow: visible;
+      }
+      .mcard .mi img {
+        width: 52px;
+        height: 52px;
+        display: block;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 8px rgba(40, 70, 50, 0.16));
+      }
+      .mcard .mt { display: block; font-size: 14px; font-weight: 700; line-height: 1.25; }
+      .mcard .ms { display: block; font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+      .flowline {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 12px;
+        font-weight: 700;
+        margin: 16px 22px 0;
+      }
+      .flowline span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.78);
+        border: 1px solid rgba(200, 222, 226, 0.8);
+      }
+
+      /* module */
+      .module { padding-top: 38px; }
+      .mod-head { display: flex; align-items: flex-start; gap: 12px; margin: 0 22px 8px; }
+      .mod-no { flex: none; width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; font-weight: 800; font-size: 17px; color: #fff; background: linear-gradient(135deg, var(--acc), var(--acc-deep)); box-shadow: 0 8px 15px -8px rgba(40,60,30,0.5); }
+      .mod-head h2 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
+      .mod-head .ek { font-size: 11.5px; font-weight: 800; color: var(--acc-deep); letter-spacing: 0.06em; text-transform: uppercase; }
+      .mod-desc { color: var(--ink-soft); font-size: 14.5px; margin: 6px 22px 18px 74px; }
+      .accbar { height: 4px; width: 52px; border-radius: 4px; background: linear-gradient(90deg, var(--acc), var(--acc-deep)); margin: 0 0 0 96px; }
+      .badge-soon { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; background: #fdf0dc; color: #b5701a; border: 1px solid #f4d6a4; font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; vertical-align: middle; }
+
+      /* 环节 sub-section */
+      .stage-block { margin: 22px 22px 0; border-radius: 22px; border: 1px solid rgba(200, 222, 226, 0.72); background: rgba(255,255,255,0.78); box-shadow: var(--shadow-sm); overflow: hidden; backdrop-filter: blur(10px); }
+      .stage-head { display: flex; align-items: center; gap: 10px; padding: 13px 15px 10px; }
+      .stage-head .sn { flex: none; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 14px; background: linear-gradient(135deg, var(--acc), var(--acc-deep)); }
+      .stage-head h3 { margin: 0; font-size: 16.5px; }
+      .stage-head .st { margin-left: auto; font-size: 11px; font-weight: 800; color: var(--acc-deep); background: var(--acc-soft); padding: 3px 9px; border-radius: 999px; }
+      .stage-body { padding: 0 15px 15px; }
+      .stage-body > .points { margin: 10px 0 0; }
+      .stage-note { margin: 2px 2px 10px; font-size: 13.5px; color: var(--ink-soft); }
+      .stage-note b { color: var(--ink); }
+
+      .score-panel {
+        margin: 12px 0 2px;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(246, 249, 244, 0.96));
+        padding: 12px;
+      }
+      .score-panel .hd {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .score-panel .hd b { font-size: 14px; }
+      .score-panel .hd span { font-size: 12px; color: var(--ink-soft); }
+      .score-legend { display: flex; flex-wrap: wrap; gap: 8px; }
+      .score-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 34px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 700;
+        border: 1px solid transparent;
+      }
+      .score-pill b { font-size: 13px; }
+      .score-pill.good { color: var(--score-good); background: var(--score-good-bg); border-color: rgba(45,165,91,0.18); }
+      .score-pill.mid { color: var(--score-mid); background: var(--score-mid-bg); border-color: rgba(123,128,121,0.14); }
+      .score-pill.low { color: var(--score-low); background: var(--score-low-bg); border-color: rgba(220,94,94,0.15); }
+      .score-sample {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 9px;
+        margin-top: 10px;
+      }
+      .score-card {
+        border-radius: 14px;
+        padding: 10px 10px 11px;
+        border: 1px solid transparent;
+      }
+      .score-card em {
+        display: block;
+        font-style: normal;
+        font-size: 11px;
+        font-weight: 800;
+        opacity: 0.82;
+        margin-bottom: 6px;
+      }
+      .score-card strong {
+        display: block;
+        font-size: 18px;
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+      .score-card span {
+        display: block;
+        font-size: 11.5px;
+        line-height: 1.45;
+      }
+      .score-card.good { color: var(--score-good); background: var(--score-good-bg); border-color: rgba(45,165,91,0.16); }
+      .score-card.mid { color: var(--score-mid); background: var(--score-mid-bg); border-color: rgba(123,128,121,0.12); }
+      .score-card.low { color: var(--score-low); background: var(--score-low-bg); border-color: rgba(220,94,94,0.13); }
+      .score-shot {
+        position: relative;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+      .score-float {
+        position: absolute;
+        right: 18px;
+        top: 132px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 11px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.94);
+        border: 1px solid rgba(45,165,91,0.18);
+        box-shadow: 0 12px 30px -18px rgba(40, 60, 30, 0.45);
+        color: var(--score-good);
+        font-weight: 800;
+        font-size: 12px;
+      }
+      .score-float b { font-size: 16px; line-height: 1; }
+      .score-callout {
+        position: absolute;
+        left: 18px;
+        bottom: 68px;
+        max-width: 148px;
+        padding: 8px 10px;
+        border-radius: 14px;
+        background: rgba(232, 247, 238, 0.94);
+        border: 1px solid rgba(45,165,91,0.18);
+        color: var(--score-good);
+        font-size: 11.5px;
+        line-height: 1.45;
+        font-weight: 700;
+      }
+
+      .mini-flow {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .mini-step {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 11px 12px;
+        border-radius: 16px;
+        background: #f8faf4;
+        border: 1px solid #e8ecdf;
+      }
+      .mini-step .k {
+        width: 34px;
+        height: 34px;
+        border-radius: 11px;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        font-weight: 800;
+        color: #fff;
+        background: linear-gradient(135deg, var(--acc), var(--acc-deep));
+      }
+      .mini-step b {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 3px;
+      }
+      .mini-step span {
+        display: block;
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: var(--ink-soft);
+      }
+
+      /* screenshots */
+      .shot { margin: 16px 22px 10px; }
+      .shot .frame, .stage-body .frame { border-radius: 26px; padding: 7px; background: linear-gradient(160deg, rgba(255,255,255,0.92), rgba(239,247,243,0.9)); border: 1px solid rgba(200, 222, 226, 0.72); box-shadow: var(--shadow); max-width: 280px; margin: 0 auto; cursor: zoom-in; }
+      .shot .frame img, .stage-body .frame img { border-radius: 20px; width: 100%; }
+      .shot .cap { text-align: center; font-size: 12.5px; color: var(--faint); margin-top: 10px; }
+      .shot .cap b { color: var(--ink-soft); }
+      .zoom-hint { text-align: center; font-size: 11px; color: var(--faint); margin-top: 4px; }
+
+      .duo { display: flex; gap: 14px; padding: 6px 22px 0; justify-content: center; }
+      .duo .frame { flex: 1; max-width: 180px; border-radius: 20px; padding: 5px; background: linear-gradient(160deg, rgba(255,255,255,0.92), rgba(239,247,243,0.9)); border: 1px solid rgba(200, 222, 226, 0.72); box-shadow: var(--shadow-sm); cursor: zoom-in; }
+      .duo .frame img { border-radius: 15px; width: 100%; }
+      .duo-caps { display: flex; gap: 12px; padding: 10px 22px 0; }
+      .duo-caps span { flex: 1; text-align: center; font-size: 12px; color: var(--faint); }
+
+      /* carousel + dots */
+      .carousel { display: flex; gap: 13px; overflow-x: auto; padding: 4px 18px 10px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+      .carousel::-webkit-scrollbar { height: 0; }
+      .scard { flex: 0 0 210px; scroll-snap-align: center; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 12px; box-shadow: var(--shadow-sm); }
+      .scard .frame { border-radius: 15px; padding: 5px; background: linear-gradient(160deg, rgba(255,255,255,0.92), rgba(239,247,243,0.9)); border: 1px solid rgba(200, 222, 226, 0.72); margin-bottom: 11px; cursor: zoom-in; }
+      .scard .frame img { border-radius: 11px; width: 100%; }
+      .scard .step { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; margin-bottom: 7px; background: var(--acc-soft); color: var(--acc-deep); }
+      .scard h4 { margin: 0 0 3px; font-size: 15.5px; }
+      .scard p { margin: 0; color: var(--ink-soft); font-size: 12.5px; line-height: 1.5; }
+      .dots { display: flex; justify-content: center; gap: 6px; padding: 0 18px 6px; }
+      .dots i { width: 6px; height: 6px; border-radius: 50%; background: #d5d9c9; transition: all 0.2s; }
+      .dots i.on { width: 16px; border-radius: 4px; background: var(--acc-deep); }
+      .swipe-hint { text-align: center; font-size: 11.5px; color: var(--faint); margin: -4px 18px 2px; }
+
+      .points { margin: 14px 22px 0; display: grid; gap: 11px; }
+      .pt { display: flex; gap: 12px; align-items: flex-start; }
+      .pt .b {
+        flex: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 0;
+        display: grid;
+        place-items: center;
+        margin-top: -2px;
+        background: transparent;
+        border: 0;
+        overflow: visible;
+        box-shadow: none;
+      }
+      .pt .b img {
+        width: 44px;
+        height: 44px;
+        display: block;
+        object-fit: contain;
+        filter: drop-shadow(0 3px 7px rgba(40, 70, 50, 0.16));
+      }
+      .pt .x b { display: block; font-size: 14.5px; line-height: 1.3; }
+      .pt .x span { color: var(--ink-soft); font-size: 13px; line-height: 1.5; }
+
+      .subs { margin: 16px 18px 0; display: grid; gap: 13px; }
+      .sub { background: #fff; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); border-top: 3px solid var(--acc); }
+      .sub .top { display: flex; gap: 11px; align-items: center; padding: 13px 14px 10px; }
+      .sub .top .si { flex: none; width: 42px; height: 42px; border-radius: 0; display: grid; place-items: center; font-size: 18px; background: transparent; border: 0; overflow: visible; }
+      .sub .top .si img { width: 42px; height: 42px; display: block; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(40, 70, 50, 0.14)); }
+      .sub .top h4 { margin: 0; font-size: 15.5px; }
+      .sub .top p { margin: 1px 0 0; font-size: 12.5px; color: var(--ink-soft); }
+      .sub .strip { padding: 0 14px 4px; }
+      .sub .strip .frame { border-radius: 16px; padding: 5px; background: linear-gradient(160deg, rgba(255,255,255,0.92), rgba(239,247,243,0.9)); border: 1px solid rgba(200, 222, 226, 0.72); max-width: 230px; margin: 4px auto 0; cursor: zoom-in; }
+      .sub .strip .frame img { border-radius: 12px; width: 100%; }
+      .sub .points { margin: 10px 14px 14px; }
+
+      .more { margin: 15px 18px 0; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-sm); overflow: hidden; }
+      .more .mt { padding: 12px 15px 4px; font-size: 12.5px; font-weight: 800; color: var(--faint); letter-spacing: 0.04em; }
+      .more .item { display: flex; gap: 10px; align-items: flex-start; padding: 11px 15px; border-top: 1px solid var(--line); }
+      .more .item:first-of-type { border-top: none; }
+      .more .item .e {
+        flex: none;
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 0;
+        background: transparent;
+        overflow: visible;
+      }
+      .more .item .e img { width: 36px; height: 36px; display: block; object-fit: contain; filter: drop-shadow(0 2px 5px rgba(40, 70, 50, 0.14)); }
+      .more .item b { font-size: 14.5px; }
+      .more .item span { display: block; font-size: 12.5px; color: var(--ink-soft); }
+
+      .callout { margin: 16px 18px 0; background: var(--acc-soft); border: 1px solid rgba(60, 171, 131, 0.28); border-radius: 14px; padding: 13px 15px; display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--acc-deep); }
+      .callout .tip-mark {
+        flex: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: #fff;
+        border: 1px solid rgba(60, 171, 131, 0.2);
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--acc-deep);
+        margin-top: 1px;
+      }
+      .callout .tip-mark.warn { color: #b5701a; border-color: rgba(181, 112, 26, 0.28); }
+      .idea-card {
+        margin: 16px 18px 0;
+        border-radius: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        background: linear-gradient(180deg, #fffdf7, #f7fbf4);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+      .idea-card .idea-head {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 12px 14px 8px;
+      }
+      .idea-card .idea-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--acc-soft);
+        color: var(--acc-deep);
+        font-size: 11.5px;
+        font-weight: 800;
+      }
+      .idea-card .idea-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--ink);
+      }
+      .idea-card .idea-body {
+        padding: 0 14px 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .idea-card .idea-item {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 10px;
+        align-items: start;
+      }
+      .idea-card .idea-item i {
+        width: 22px;
+        height: 22px;
+        border-radius: 7px;
+        display: grid;
+        place-items: center;
+        background: var(--acc-soft);
+        color: var(--acc-deep);
+        font-style: normal;
+        font-size: 12px;
+        font-weight: 800;
+        margin-top: 1px;
+      }
+      .idea-card .idea-item b {
+        display: block;
+        font-size: 13.5px;
+        margin-bottom: 2px;
+      }
+      .idea-card .idea-item span {
+        display: block;
+        color: var(--ink-soft);
+        font-size: 12.5px;
+        line-height: 1.58;
+      }
+      .rule { height: 1px; background: linear-gradient(90deg, transparent, rgba(194, 218, 223, 0.82), transparent); margin: 34px 22px 0; }
+      footer { margin-top: 40px; padding: 24px 22px 46px; border-top: 1px solid rgba(194, 218, 223, 0.5); color: var(--faint); font-size: 12px; text-align: center; }
+      footer img { width: 44px; height: 44px; border-radius: 12px; margin: 0 auto 8px; }
+      footer b { color: var(--ink-soft); }
+
+      /* 回到顶部悬浮键 · 果冻兽卡通 */
+      #backTop {
+        position: fixed; right: max(14px, calc(50vw - 230px + 14px));
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 60;
+        width: 58px; height: 58px; border-radius: 999px; border: 0; cursor: pointer;
+        padding: 0; background: transparent;
+        box-shadow: 0 14px 28px -14px rgba(39, 92, 56, 0.34);
+        opacity: 0; pointer-events: none; transform: translateY(10px); transition: all 0.25s;
+      }
+      #backTop img {
+        width: 58px; height: 58px; display: block; object-fit: contain;
+        filter: drop-shadow(0 4px 10px rgba(26, 101, 66, 0.2));
+      }
+      #backTop.show { opacity: 1; pointer-events: auto; transform: none; }
+      #backTop:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 18px 32px -14px rgba(39, 92, 56, 0.42);
+      }
+      #backTop:active { transform: scale(0.96); }
+
+      /* 灯箱 */
+      #lightbox {
+        position: fixed; inset: 0; z-index: 100; background: rgba(20, 26, 18, 0.92);
+        display: none; align-items: center; justify-content: center; padding: 20px; cursor: zoom-out;
+      }
+      #lightbox.open { display: flex; }
+      #lightbox img { max-width: 100%; max-height: 92vh; border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+      #lightbox .tip { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: rgba(255,255,255,0.75); font-size: 12.5px; }
+
+      @media (max-width: 360px) {
+        body { font-size: 15px; }
+        .values, .map, .score-sample { grid-template-columns: 1fr; }
+        .stage-head { align-items: flex-start; flex-wrap: wrap; }
+        .stage-head .st { margin-left: 42px; }
+      }
+
+      @media (min-width: 768px) {
+        .app {
+          max-width: 980px;
+          padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+        }
+        .hero {
+          display: grid;
+          grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+          gap: 26px 34px;
+          align-items: center;
+          padding: 26px 30px 18px;
+        }
+        .hero-visual {
+          grid-column: 1;
+          grid-row: 1 / span 5;
+          margin: 0;
+          align-self: start;
+        }
+        .hero-brand,
+        .eyebrow,
+        .hero h1,
+        .hero .lead,
+        .hero-chips {
+          grid-column: 2;
+        }
+        .hero-brand { margin: 0; }
+        .eyebrow {
+          margin-top: 0;
+          justify-self: start;
+          font-size: 15px;
+          padding: 5px 16px 5px 5px;
+          gap: 8px;
+        }
+        .eyebrow img { width: 36px; height: 36px; }
+        .hero h1 {
+          font-size: 42px;
+          margin: 2px 0 0;
+          line-height: 1.18;
+        }
+        .hero .lead {
+          max-width: none;
+          font-size: 18px;
+          line-height: 1.8;
+        }
+        .hero-chips {
+          gap: 12px;
+          margin-top: 2px;
+        }
+        .hchip {
+          min-height: 48px;
+          padding: 5px 18px 5px 5px;
+          font-size: 14.5px;
+          gap: 8px;
+        }
+        .hchip img { width: 42px; height: 42px; margin: -2px 0; }
+        section { padding: 42px 0 10px; }
+        h2.sec-title {
+          font-size: 28px;
+          margin-left: 30px;
+          margin-right: 30px;
+        }
+        p.sec-desc,
+        .who,
+        .mod-head,
+        .mod-desc,
+        .shot,
+        .flowline,
+        .rule,
+        footer {
+          margin-left: 30px;
+          margin-right: 30px;
+        }
+        .values,
+        .map,
+        .duo,
+        .duo-caps,
+        .carousel,
+        .dots,
+        .swipe-hint,
+        .points,
+        .subs {
+          padding-left: 30px;
+          padding-right: 30px;
+        }
+        .values { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .vcard .ic, .vcard .ic img { width: 96px; height: 96px; }
+        .map { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .shot .frame, .stage-body .frame { max-width: 360px; }
+        .duo { gap: 18px; }
+        .duo .frame { max-width: 240px; }
+        .carousel { gap: 16px; }
+        .scard { flex-basis: 260px; }
+        .stage-block,
+        .more {
+          margin-left: 30px;
+          margin-right: 30px;
+        }
+        .appbar {
+          left: max(18px, calc(50vw - 490px + 18px));
+        }
+        #backTop {
+          right: max(18px, calc(50vw - 490px + 18px));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="top">
+      <!-- HERO -->
+      <header class="hero">
+        <div class="hero-brand">
+          <img loading="eager" fetchpriority="high" decoding="async" src="images/app-logo.png" alt="词句刷刷刷 logo" />
+          <div class="hb"><b>词句刷刷刷</b><span>中小学英语 · 课本同步 · 背单词记句子</span></div>
+        </div>
+        <span class="eyebrow"><img loading="eager" fetchpriority="high" decoding="async" src="images/marketing/hero-chip-icon-book.png" alt="" />新手上手指南</span>
+        <h1>3 步开学，每天 10 分钟<br /><span class="hl">跟着"闯关"把课本单词学扎实</span></h1>
+        <p class="lead">
+          选好年级教材，孩子每天跟着关卡节奏，把课本里的单词、例句、格言谚语一关一关刷熟——开口跟读有 AI 打分，学习进度看得见。
+        </p>
+        <div class="hero-visual rv">
+          <div class="frame"><img loading="eager" fetchpriority="high" decoding="async" src="images/marketing/tutorial-cover-poster-v1.png" alt="词句刷刷刷新手上手指南封面" /></div>
+        </div>
+        <div class="hero-chips">
+          <span class="hchip"><img loading="lazy" decoding="async" src="images/marketing/hero-chip-icon-wechat.png" alt="" />微信小程序 · <b>免安装</b></span>
+          <span class="hchip"><img loading="lazy" decoding="async" src="images/marketing/hero-chip-icon-book.png" alt="" />同步 <b>2026 新教材</b></span>
+          <span class="hchip"><img loading="lazy" decoding="async" src="images/marketing/hero-chip-icon-mic.png" alt="" />跟读 <b>AI 打分</b></span>
+        </div>
+      </header>
+
+      <!-- 1. 产品介绍 -->
+      <section id="intro" class="t-green">
+        <div class="sec-tab rv"><span class="i">01</span> 产品介绍</div>
+        <h2 class="sec-title rv">一款"能闯关"的课本同步背单词工具</h2>
+        <p class="sec-desc rv">学习内容严格对齐孩子正在用的教材版本，把「听、读、记、测」串成一条闯关线，边学边测。核心能力四件套：</p>
+        <div class="values rv">
+          <div class="vcard"><div class="ic g"><img loading="lazy" decoding="async" src="images/marketing/value-textbook-jelly.png" alt="课本同步图标" /></div><h3>课本同步</h3><p>按年级 / 学期 / 教材版本匹配，跟着学校进度走，不多学也不漏学。</p></div>
+          <div class="vcard"><div class="ic a"><img loading="lazy" decoding="async" src="images/marketing/value-mic-jelly.png" alt="跟读 AI 打分图标" /></div><h3>跟读 AI 打分</h3><p>开口朗读即时评分，绿灰红三色标出读得好不好。</p></div>
+          <div class="vcard"><div class="ic b"><img loading="lazy" decoding="async" src="images/marketing/value-listen-jelly.png" alt="原声伴读图标" /></div><h3>原声伴读</h3><p>单词例句课文原声连播，可调速循环，路上也能磨耳朵。</p></div>
+          <div class="vcard"><div class="ic p"><img loading="lazy" decoding="async" src="images/marketing/value-checkin-jelly.png" alt="打卡激励图标" /></div><h3>打卡激励</h3><p>连续打卡、星星关卡、学习报告，正反馈拉满。</p></div>
+        </div>
+        <div class="who rv">
+          <span class="who-ico"><img loading="lazy" decoding="async" src="images/marketing/icon-module-me.png" alt="" /></span>
+          <div class="who-body"><b>适合谁：</b>正在上小学 / 初中 / 高中、需要跟着课本背单词记句子的学生，以及想看到孩子学习进度的家长。</div>
+        </div>
+      </section>
+
+      <!-- 学习闭环 -->
+      <section id="loop" class="t-green">
+        <div class="sec-tab rv"><span class="i"><img loading="lazy" decoding="async" src="images/marketing/icon-nav-loop.png" alt="" /></span> 学习闭环</div>
+        <h2 class="sec-title rv">每天一个完整闭环，10 分钟走完一圈</h2>
+        <p class="sec-desc rv">一关的学习像转一圈：新学 → 跟读 → 小测 → 伴读 → 打卡，环环相扣、循环推进，学完自然通关、进入下一关。</p>
+        <div class="shot rv">
+          <div class="frame"><img loading="lazy" decoding="async" src="images/marketing/learning-loop-v4.png" alt="学习闭环信息图" /></div>
+          <div class="cap"><b>学习闭环</b> · 新学、跟读、小测、伴读、打卡五步连成一圈</div>
+        </div>
+      </section>
+
+      <!-- 2. 核心功能总览 -->
+      <section id="overview" class="t-green">
+        <div class="sec-tab rv"><span class="i">02</span> 核心功能总览</div>
+        <h2 class="sec-title rv">从注册到通关，8 大模块串起学习旅程</h2>
+        <p class="sec-desc rv">点击任意卡片可直接跳到该模块的详细介绍 👇</p>
+        <div class="map rv">
+          <a class="mcard t-green" href="#m-register"><span class="no">1</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-register.png" alt="新手注册图标" /></span><span><span class="mt">新手注册</span><span class="ms">选年级教材</span></span></a>
+          <a class="mcard t-purple" href="#m-exam"><span class="no">2</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-exam.png" alt="入门测图标" /></span><span><span class="mt">入门测</span><span class="ms">摸底 · 出报告</span></span></a>
+          <a class="mcard t-blue" href="#m-level"><span class="no">3</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-level.png" alt="闯关学习图标" /></span><span><span class="mt">闯关学习</span><span class="ms">三环节通关</span></span></a>
+          <a class="mcard t-teal" href="#m-listen"><span class="no">4</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-listen.png" alt="伴读图标" /></span><span><span class="mt">伴读</span><span class="ms">原声磨耳朵</span></span></a>
+          <a class="mcard t-amber" href="#m-checkin"><span class="no">5</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-checkin.png" alt="打卡激励图标" /></span><span><span class="mt">打卡激励</span><span class="ms">连续不断电</span></span></a>
+          <a class="mcard t-indigo" href="#m-record"><span class="no">6</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-record.png" alt="学习记录图标" /></span><span><span class="mt">学习记录</span><span class="ms">成长看得见</span></span></a>
+          <a class="mcard t-coral" href="#m-me"><span class="no">7</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-me.png" alt="我的页面图标" /></span><span><span class="mt">我的页面</span><span class="ms">会员 · 设置 · 客服</span></span></a>
+          <a class="mcard t-amber" href="#m-invite"><span class="no">8</span><span class="mi"><img loading="lazy" decoding="async" src="images/marketing/icon-module-invite.png" alt="邀请好友图标" /></span><span><span class="mt">邀请好友</span><span class="ms">即将上线</span></span></a>
+        </div>
+        <div class="flowline rv">
+          <span>① 注册</span><span>② 摸底</span><span>③ 闯关</span><span>④ 伴读</span><span>⑤ 打卡</span><span>⑥ 记录</span><span>⑦ 我的</span>
+        </div>
+      </section>
+
+      <div class="rule"></div>
+
+      <!-- M1 新手注册 -->
+      <div class="module t-green" id="m-register">
+        <div class="mod-head rv"><div class="mod-no">1</div><div><div class="ek">Step 1 · 开学准备</div><h2>新手注册</h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">微信免安装，第一次进入引导你分三步确认孩子的学习信息，一分钟就能选好教材、直达学习首页。</p>
+        <p class="swipe-hint rv">← 左右滑动查看引导三步 →</p>
+        <div class="carousel rv" data-dots="registerdots">
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-onboarding.png" alt="新手引导 · 选年级学期" /></div>
+            <span class="step">第 1 步</span><h4>选年级学期</h4>
+            <p>先选学段与年级，再选上册 / 下册，进度条提示还剩几步。</p>
+          </div>
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/marketing/onboarding-step-textbook.png" alt="新手引导 · 确认教材" /></div>
+            <span class="step">第 2 步</span><h4>确认同步教材</h4>
+            <p>系统按年级推荐教材版本（标注「新课标」），也可搜索切换。</p>
+          </div>
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/04-me-book.png" alt="我的教材 / 已学书本" /></div>
+            <span class="step">第 3 步</span><h4>随时可改教材</h4>
+            <p>之后在「我的 · 已学书本」也能切换教材，每本书进度单独保存。</p>
+          </div>
+        </div>
+        <div class="dots" id="registerdots"><i class="on"></i><i></i><i></i></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/icon-module-register.png" alt="进入小程序图标" /></div><div class="x"><b>进入小程序</b><span>微信搜索「词句刷刷刷」或扫推广码，点开即用，无需下载安装、无需注册账号——微信身份自动登录。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-register-grade.png" alt="选择年级与学期图标" /></div><div class="x"><b>选择年级与学期</b><span>先选学段（小学 / 初中 / 高中）和具体年级，再选当前学期（上册 / 下册），进度条清晰提示还剩几步。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-register-book.png" alt="确认同步教材图标" /></div><div class="x"><b>确认同步教材</b><span>系统按年级自动推荐教材版本（如"牛津译林四上 24 版"，标注"新课标"），也可以手动搜索切换其他版本。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-register-save.png" alt="随时可改进度不丢图标" /></div><div class="x"><b>随时可改、进度不丢</b><span>年级和教材之后都能在「我的」里点「修改设置」重选；每本教材的学习记录单独保存，切回来接着学。</span></div></div>
+        </div>
+        <div class="callout rv"><span class="tip-mark">!</span><div>完成引导后，首页会推荐做一次<b>入门测</b>摸底（下一模块），也可以直接跳过开始闯关。</div></div>
+      </div>
+
+      <div class="rule"></div>
+
+      <!-- M2 入门测 -->
+      <div class="module t-purple" id="m-exam">
+        <div class="mod-head rv"><div class="mod-no">2</div><div><div class="ek">Step 2 · 先摸个底</div><h2>入门测</h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">正式学习前花几分钟做个摸底测评。系统据此定位孩子当前水平、找出薄弱题型，让后面的闯关节奏更有针对性（可跳过，之后也能在成长页再测）。</p>
+        <div class="duo rv">
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-exam-entry.png" alt="入门测入口" /></div>
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-exam-report.png" alt="入门测报告" /></div>
+        </div>
+        <div class="duo-caps rv"><span>摸底测评 · 共 28 题</span><span>专属测评报告</span></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-exam-sheet.png" alt="测评题量图标" /></div><div class="x"><b>单词 + 句子双维度，共 28 题</b><span>单词 16 题覆盖「词义 · 拼写 · 听辨 · 运用」四类；句子 12 题覆盖「句意 · 翻译 · 完形 · 成句」四类，全面摸底不片面。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-exam-report.png" alt="自动出报告图标" /></div><div class="x"><b>测完自动出报告</b><span>总正确率 + 评级（如"良好"）、单词 / 句子分项正确率进度条、各题型逐项掌握度（词义选择 9/10、听音选词 5/6……），强弱项一眼看懂。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-exam-advice.png" alt="报告建议图标" /></div><div class="x"><b>报告给建议</b><span>报告底部附学习建议（如"基础很扎实，按计划学习会更稳"），家长可以据此和孩子定学习计划。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-exam-finish.png" alt="结业测图标" /></div><div class="x"><b>学完还有结业测</b><span>整本书全部关卡达标后会解锁"结业测"，和入门测对比进步幅度，一头一尾闭环验证学习效果。</span></div></div>
+        </div>
+        <div class="idea-card rv">
+          <div class="idea-head"><span class="idea-badge">💡 设计小讲堂</span><span class="idea-title">为什么要先摸底，不直接开学</span></div>
+          <div class="idea-body">
+            <div class="idea-item"><i>1</i><div><b>先看起点，才好定节奏</b><span>孩子不是从同一水平线开始。先摸底，后面的学习计划和家长预期才不会过松或过紧。</span></div></div>
+            <div class="idea-item"><i>2</i><div><b>报告比“感觉学得还行”更可靠</b><span>把薄弱题型直接亮出来，家长看到的不只是总分，而是具体卡在哪一类能力上。</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <!-- M3 闯关学习 -->
+      <div class="module t-blue" id="m-level">
+        <div class="mod-head rv"><div class="mod-no">3</div><div><div class="ek">Step 3 · 核心玩法</div><h2>闯关学习</h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">整本书拆成一个个「关卡」，每关约 10 词。每关固定按 <b>单词新学 → 跟读背诵 → 关卡小测</b> 推进；<b>第一个关卡可免费体验</b>，通关后会按本关成绩获得不同星级，并继续解锁后续关卡。</p>
+
+        <div class="duo rv">
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-today-route.png" alt="今日学习路线" /></div>
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/01-home-level-list.png" alt="成长页闯关列表" /></div>
+        </div>
+        <div class="duo-caps rv"><span>「今日」锁定当天目标</span><span>「成长」看全书路径</span></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-level-today.png" alt="今日学习路线图标" /></div><div class="x"><b>「今日」页：不用想学什么</b><span>每天打开就是「今日学习路线」：当前关卡、正在做的环节、下一步按钮，跟着点就行；底部还有今日小结（今日单词 / 句子 / 闯关数）。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-level-map.png" alt="成长全书进度图标" /></div><div class="x"><b>「成长」页：全书进度一目了然</b><span>从上到下就是整本书的学习路线：首关可直接免费开始，已通关的关卡会显示对应星级、可看"报告"；当前关高亮"今日要学"；后面的关卡待解锁。还支持列表 / 地图两种视图。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-level-plan.png" alt="学习计划图标" /></div><div class="x"><b>「学习计划」：节奏自己定</b><span>选每天练几组（轻松 1 组 / 标准 2 组 / 高效 3 组 / 冲刺 5 组），系统自动算出关卡数量、预计天数和周数，随时可调。</span></div></div>
+        </div>
+        <div class="shot rv"><div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/06-plan.png" alt="学习计划" /></div><div class="cap"><b>学习计划</b> · 每天练几组自己定，预计天数自动算</div></div>
+
+        <!-- 环节 1 -->
+        <div class="stage-block t-green rv">
+          <div class="stage-head"><span class="sn">①</span><h3>单词新学</h3><span class="st">三步认识一个词</span></div>
+          <div class="stage-body">
+            <p class="swipe-hint" style="margin:2px 0 8px">← 左右滑动看单词新学流程 →</p>
+            <div class="carousel" data-dots="wordstage-dots" style="padding:4px 0 10px">
+              <div class="scard">
+                <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/05-practice-word.png" alt="单词新学主页面" /></div>
+                <span class="step">第 1 步</span><h4>先判断：这个词认不认识</h4>
+                <p>先看单词、音标和例句，孩子先自己判断“认识 / 不认识”；不确定时还能先点「提示一下」再决定。</p>
+              </div>
+              <div class="scard">
+                <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/05-practice-word-choice.png" alt="单词新学 · 释义选择题" /></div>
+                <span class="step">第 2 步</span><h4>再做释义选择，确认是不是认对了</h4>
+                <p>如果孩子点了“认识”，系统不会直接放过，而是马上出一道释义选择题，确认不是“眼熟”，而是真的认识。</p>
+              </div>
+              <div class="scard">
+                <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/05-practice-word-detail.png" alt="单词新学 · 单词详情页" /></div>
+                <span class="step">第 3 步</span><h4>进入单词详情，把这个词真正吃透</h4>
+                <p>详情页会继续展示词义、例句、英译英、近义词、联想记忆、词根和背诵技巧，帮助孩子不只停留在“知道这个词”。</p>
+              </div>
+            </div>
+            <div class="dots" id="wordstage-dots"><i class="on"></i><i></i><i></i></div>
+            <div class="mini-flow">
+              <div class="mini-step"><div class="k">1</div><div><b>先让孩子自己表态“认不认识”</b><span>不是一上来就告诉答案，而是先让孩子做一次主观判断，帮助他把注意力放到“我到底会不会”上。</span></div></div>
+              <div class="mini-step"><div class="k">2</div><div><b>再用选择题校验，不让“眼熟”混过去</b><span>孩子觉得认识，也要再过一道释义选择题；这样能筛掉“看着熟、其实没真正记住”的情况。</span></div></div>
+              <div class="mini-step"><div class="k">3</div><div><b>最后进入详情，把理解补完整</b><span>单词详情页不是装饰页，而是把词义、例句和记忆辅助信息都补齐，让孩子从“会认”走向“会用”。</span></div></div>
+            </div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-word-impression.png" alt="先看词听音例句图标" /></div><div class="x"><b>先看词、听音、看例句</b><span>单词卡先把词形、发音和例句摆在一起，让孩子先对这个词形成整体印象。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-word-choice.png" alt="选择题校验图标" /></div><div class="x"><b>“认识”也要再过一道选择题</b><span>不是点了“认识”就直接进入下一词，而是要用释义选择再确认一遍，减少误判。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-word-bookpage.png" alt="详情页记忆线索图标" /></div><div class="x"><b>详情页继续补充记忆线索</b><span>英译英、近义词、联想记忆、词根和背诵技巧等内容，帮助孩子把单词学得更深，不只停留在表面。</span></div></div>
+            </div>
+            <div class="idea-card">
+              <div class="idea-head"><span class="idea-badge">🧠 学习理念</span><span class="idea-title">先自测，再校验，再深入理解</span></div>
+              <div class="idea-body">
+                <div class="idea-item"><i>1</i><div><b>先让孩子自己判断，学习更主动</b><span>先问“认不认识”，比直接灌输答案更容易唤起已有记忆，也更方便系统看出孩子的真实感觉。</span></div></div>
+                <div class="idea-item"><i>2</i><div><b>用选择题拦住“假会”，用详情页补足“真懂”</b><span>先用校验题挡住误判，再用详情页把词义和记忆线索讲透，这样学习闭环更完整。</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 环节 2 -->
+        <div class="stage-block t-amber rv">
+          <div class="stage-head"><span class="sn">②</span><h3>跟读背诵</h3><span class="st">AI 打分</span></div>
+          <div class="stage-body">
+            <div class="score-shot">
+              <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/05-practice-recite.png" alt="跟读背诵" /></div>
+              <div class="score-float">🟢 <b>92</b> 发音较准</div>
+              <div class="score-callout">读完立刻出分，孩子当场知道这次读得好不好。</div>
+            </div>
+            <div class="mini-flow">
+              <div class="mini-step"><div class="k">1</div><div><b>先听原声，再点麦克风开口</b><span>进入跟读页先听标准示范，确认单词和例句怎么读；准备好后点麦克风，提示音一响就开始朗读。</span></div></div>
+              <div class="mini-step"><div class="k">2</div><div><b>系统现场评分，不用等结果</b><span>录完马上回到页面给出分数和颜色结果，孩子能立刻知道这次发音是“读准了”还是“还需要再来一次”。</span></div></div>
+              <div class="mini-step"><div class="k">3</div><div><b>不满意就重读，直到分数更稳</b><span>喇叭负责回听标准音，刷新键负责重新挑战，整套动作就是“听一遍 → 读一遍 → 再修一遍”，把开口练习做扎实。</span></div></div>
+            </div>
+            <div class="score-panel">
+              <div class="hd"><b>评分结果一眼能看懂</b><span>颜色直接对应表现层级</span></div>
+              <div class="score-legend">
+                <span class="score-pill good">🟢 <b>80+ 分</b> 发音较准</span>
+                <span class="score-pill mid">⚪ <b>60-79 分</b> 基本读对</span>
+                <span class="score-pill low">🔴 <b>60 分以下</b> 建议重读</span>
+              </div>
+              <div class="score-sample">
+                <div class="score-card good"><em>跟读结果</em><strong>92</strong><span>大部分音节到位，可以继续下一词。</span></div>
+                <div class="score-card mid"><em>跟读结果</em><strong>74</strong><span>基本读对，建议再听一遍再读。</span></div>
+                <div class="score-card low"><em>跟读结果</em><strong>53</strong><span>重点回听原声，重新开口练一次。</span></div>
+              </div>
+            </div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-recite-score.png" alt="开口评分图标" /></div><div class="x"><b>开口就有分</b><span>点麦克风，"叮"声后朗读单词和例句，AI 即时打分；页面用绿 / 灰 / 红三档结果态直接提示是否达标。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-recite-repeat.png" alt="听读再来一遍图标" /></div><div class="x"><b>听一遍、读一遍、再来一遍</b><span>喇叭听标准音、麦克风录音评分、刷新键重读，读到满意为止。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-recite-page.png" alt="页码对照图标" /></div><div class="x"><b>P1 页码对照纸质书</b><span>左上角"P1"标注该内容在实体课本的页码，线上线下对照学。</span></div></div>
+            </div>
+            <div class="idea-card">
+              <div class="idea-head"><span class="idea-badge">🎙️ 学习理念</span><span class="idea-title">把“敢开口”放到学习闭环里</span></div>
+              <div class="idea-body">
+                <div class="idea-item"><i>1</i><div><b>不是只背会，还要读出来</b><span>很多孩子认识单词，但真正开口就会犹豫。把口语输出放进必经环节，能把“看会了”推进到“说得出来”。</span></div></div>
+                <div class="idea-item"><i>2</i><div><b>即时反馈比课后纠错更有效</b><span>读完立刻看到分数和结果态，孩子更容易当场调整发音，而不是过了很久才知道哪里不准。</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 环节 3：三步测评 -->
+        <div class="stage-block t-purple rv">
+          <div class="stage-head"><span class="sn">③</span><h3>关卡小测</h3><span class="st">三步测评</span></div>
+          <div class="stage-body">
+            <p class="stage-note">学完马上测，每道题按「<b>听音填空 → 背诵评测 → 单词拼写</b>」三步走完，听、说、写全练到：</p>
+          </div>
+          <p class="swipe-hint">← 左右滑动查看三步测评 →</p>
+          <div class="carousel" data-dots="quizdots">
+            <div class="scard">
+              <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/03-listen-quiz.png" alt="小测第 1 步 听音填空" /></div>
+              <span class="step">第 1 步 · 练听力</span><h4>听音填空</h4>
+              <p>听句子音频，把缺的单词按顺序填进去；点已填词可撤销，不确定可点「提示一下」。</p>
+            </div>
+            <div class="scard">
+              <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/03-listen-quiz-recite.png" alt="小测第 2 步 背诵评测" /></div>
+              <span class="step">第 2 步 · 练口语</span><h4>背诵评测</h4>
+              <p>看着中文默念，开口把整句背出来，AI 语音评测当场打分，背没背下来立见分晓。</p>
+            </div>
+            <div class="scard">
+              <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/03-listen-quiz-spell.png" alt="小测第 3 步 单词拼写" /></div>
+              <span class="step">第 3 步 · 练拼写</span><h4>单词拼写</h4>
+              <p>听单词读音，从字母块中选出缺失部分完成拼写，选错会标红并给出正确答案。</p>
+            </div>
+          </div>
+          <div class="dots" id="quizdots"><i class="on"></i><i></i><i></i></div>
+          <div class="stage-body" style="padding-top:0">
+            <div class="points" style="margin-top:2px">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-review-loop.png" alt="错词进复习图标" /></div><div class="x"><b>错词自动进复习</b><span>小测没过的词句自动进入错词巩固，之后的关卡里还会再出现，直到真正掌握。</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-block t-blue rv">
+          <div class="stage-head"><span class="sn">④</span><h3>复习关卡</h3><span class="st">查漏补缺</span></div>
+          <div class="stage-body">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-unit-report.png" alt="复习关卡与待复习词" /></div>
+            <div class="mini-flow">
+              <div class="mini-step"><div class="k">1</div><div><b>不是所有词都一刀切往下走</b><span>小测里没掌握稳的词，不会被系统“当作学完了”，而是会被单独收进待复习清单，形成后续复习关卡。</span></div></div>
+              <div class="mini-step"><div class="k">2</div><div><b>复习对象来自真实薄弱项</b><span>复习关卡重点盯的是错词、低分词和反复卡壳的内容，不是把整关从头重做，而是针对短板再练一轮。</span></div></div>
+              <div class="mini-step"><div class="k">3</div><div><b>复习过后才真正转成“已掌握”</b><span>报告里会把词分成「待复习」和「已掌握」两栏；复习通过后，待复习词会逐步清空，整关掌握度也更扎实。</span></div></div>
+            </div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-review-focus.png" alt="针对性复习图标" /></div><div class="x"><b>复习不是重复刷整关</b><span>它只抓出真正没记牢的词句回炉，减少无效重复，让孩子把时间花在最需要补的地方。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-review-report.png" alt="复习报告图标" /></div><div class="x"><b>报告直接告诉你该复习什么</b><span>家长和孩子打开学习报告，就能看到待复习词数量、具体词条和对应薄弱分数，知道下一步补哪里。</span></div></div>
+            </div>
+            <div class="idea-card">
+              <div class="idea-head"><span class="idea-badge">🔁 学习理念</span><span class="idea-title">复习不是重复，是针对性回炉</span></div>
+              <div class="idea-body">
+                <div class="idea-item"><i>1</i><div><b>把时间留给真正不会的内容</b><span>不把整关从头再刷一遍，而是优先补低分词、错词和卡壳点，效率更高。</span></div></div>
+                <div class="idea-item"><i>2</i><div><b>让“遗忘”变成系统可管理的过程</b><span>平台把待复习词单独拎出来，孩子不用自己判断该回头复习什么，系统会替他盯住薄弱点。</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 通关反馈 -->
+        <div class="duo rv" style="margin-top:16px">
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/06-finish-word.png" alt="环节完成 · 通关进度" /></div>
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-unit-report.png" alt="关卡学习报告" /></div>
+        </div>
+        <div class="duo-caps rv"><span>每步完成有庆祝</span><span>通关生成学习报告</span></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-level-celebrate.png" alt="即时正反馈图标" /></div><div class="x"><b>即时正反馈</b><span>每做完一环节弹庆祝页、显示本关进度（1/3 → 2/3 → 3/3），一键继续下一环节，随时退出进度保留。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-level-stars.png" alt="星级评分图标" /></div><div class="x"><b>星级按成绩来，不是固定三星</b><span>完成本关后会根据整体表现评出不同星级，成绩越好星级越高；通关后继续解锁下一关，星级也是后面"结业测"的重要参考。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-level-report.png" alt="本关学习报告图标" /></div><div class="x"><b>本关学习报告</b><span>正确率、已掌握 / 待复习单词清单、三个环节各自得分与刷新时间——哪个词是短板、哪个环节要补，全写在报告里。</span></div></div>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <!-- M4 伴读 -->
+      <div class="module t-teal" id="m-listen">
+        <div class="mod-head rv"><div class="mod-no">4</div><div><div class="ek">磨耳朵</div><h2>伴读</h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">底部第二个 Tab「伴读」，把本关的单词、例句、课文原声连成一张"唱片"来播放。课前预习、饭后散步、上学路上——碎片时间全变成磨耳朵时间。</p>
+
+        <div class="stage-block t-teal rv">
+          <div class="stage-head"><span class="sn">①</span><h3>原声连播</h3><span class="st">唱片机</span></div>
+          <div class="stage-body">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/03-listen-player.png" alt="伴读 · 原声播放" /></div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-listen-playall.png" alt="整关连播图标" /></div><div class="x"><b>整关连播，进度清晰</b><span>一键循环听本关全部单词和例句，支持上一句 / 下一句 / 单句循环，还能调播放速度。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-listen-background.png" alt="后台播放图标" /></div><div class="x"><b>后台播放 + 迷你条</b><span>切到其他页面音频不断，底部悬浮迷你播放条随时暂停 / 继续；锁屏路上也能听。</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-block t-teal rv">
+          <div class="stage-head"><span class="sn">②</span><h3>课文跟读</h3><span class="st">AI 打分</span></div>
+          <div class="stage-body">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/03-listen-follow.png" alt="伴读 · 课文跟读评分" /></div>
+            <div class="score-panel">
+              <div class="hd"><b>句子跟读也有评分反馈</b><span>读完立刻知道哪里还要补</span></div>
+              <div class="score-legend">
+                <span class="score-pill good">🟢 <b>高分通过</b> 可以继续往下读</span>
+                <span class="score-pill mid">⚪ <b>中档提醒</b> 建议再顺一遍语调</span>
+                <span class="score-pill low">🔴 <b>低分提示</b> 回听后重新跟读</span>
+              </div>
+            </div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-listen-swipe.png" alt="向左滑图标" /></div><div class="x"><b>向左滑，看课文跟读</b><span>滑到课文页：词条带释义、句子带翻译逐条排开，点任意句子直接录音跟读评分——"听"和"读"无缝衔接。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-listen-score.png" alt="开口评分图标" /></div><div class="x"><b>开口就有分</b><span>跟读完成后即时显示分数，配合绿 / 灰 / 红结果态提示读得好不好，不满意可立即重读。</span></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="rule"></div>
+
+      <!-- M5 打卡激励 -->
+      <div class="module t-amber" id="m-checkin">
+        <div class="mod-head rv"><div class="mod-no">5</div><div><div class="ek">坚持有回报</div><h2>打卡激励</h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">完成今日计划自动点亮当天记录，不用手动打卡。连续天数、日历、奖励、海报分享都在这里，帮孩子把"每天学一点"变成习惯。</p>
+        <p class="swipe-hint rv">← 左右滑动查看更多打卡页面 →</p>
+        <div class="carousel rv" data-dots="checkindots">
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/02-checkin-calendar.png" alt="打卡日历" /></div>
+            <span class="step">日历</span><h4>连续不断电</h4>
+            <p>每天完成计划即自动点亮，顶部大字显示连续天数，月历上一颗颗点亮很有成就感。</p>
+          </div>
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/02-checkin-rules.png" alt="打卡规则" /></div>
+            <span class="step">规则</span><h4>怎么算打卡</h4>
+            <p>完成今日计划关卡自动点亮；今日目标跟学习计划同步；连续 30 天可领礼品。</p>
+          </div>
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/02-checkin-gift.png" alt="连续打卡奖励" /></div>
+            <span class="step">奖励</span><h4>连续达标有礼</h4>
+            <p>连续 30 天不断电可领取听说在线 VIP 等礼品，状态（未达标 / 可领取 / 已领取）看得清。</p>
+          </div>
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/02-checkin-share.png" alt="打卡分享海报" /></div>
+            <span class="step">分享</span><h4>一键晒成绩</h4>
+            <p>「分享打卡」生成漂亮海报，发朋友圈、晒班级群都拿得出手。</p>
+          </div>
+        </div>
+        <div class="dots rv" id="checkindots"><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-checkin-remind.png" alt="打卡提醒图标" /></div><div class="x"><b>打卡提醒防断签</b><span>开启提醒后，到打卡时间微信推送提醒，出差旅游也不怕断签。</span></div></div>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <!-- M6 学习记录 -->
+      <div class="module t-indigo" id="m-record">
+        <div class="mod-head rv"><div class="mod-no">6</div><div><div class="ek">成长看得见</div><h2>学习记录</h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">孩子到底学了多久、学在哪？「我的 → 学习记录」按天 / 按周期给出完整答案，家长检查学习不用猜。</p>
+        <div class="duo rv">
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-study-record.png" alt="学习记录总览" /></div>
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-study-record-detail.png" alt="学习记录 · 每天详情" /></div>
+        </div>
+        <div class="duo-caps rv"><span>今天 / 近 7 天切换</span><span>点某天看明细</span></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-record-time.png" alt="学习时长图标" /></div><div class="x"><b>学习时长统计</b><span>顶部大字显示累计学习分钟，支持「今天 / 近 7 天」切换；日历条上每一天的用时（29m、40m……）都标出来。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-record-summary.png" alt="周期汇总图标" /></div><div class="x"><b>周期汇总分多项</b><span>单词新学、背诵词数、背诵句数、关卡小测、随身听等都会单独统计，学习结构一目了然。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-record-detail.png" alt="每日详情图标" /></div><div class="x"><b>点某天看详情</b><span>点日历上任意一天可展开当天的学习明细，哪天偷懒了、哪天超额了都有据可查。</span></div></div>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <!-- M7 我的页面 -->
+      <div class="module t-coral" id="m-me">
+        <div class="mod-head rv"><div class="mod-no">7</div><div><div class="ek">个人中心</div><h2>我的页面</h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">孩子的学习主页——会员与教材信息、打卡成果，以及会员、消息、客服、账号设置等常用功能都集中在这里。</p>
+        <div class="shot rv"><div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/04-me-profile.png" alt="我的页面" /></div><div class="cap"><b>我的</b> · 学习主页</div></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-me-profile-book.png" alt="身份与教材图标" /></div><div class="x"><b>身份与教材一眼看清</b><span>顶部是头像昵称、VIP 标识、当前年级学期与教材版本徽章，点击即可修改；头像昵称也支持自定义。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-me-stats.png" alt="四格打卡数据图标" /></div><div class="x"><b>四格打卡数据</b><span>连续打卡、累计打卡、累计学词、学习分钟四个数字实时更新，是孩子的"成绩橱窗"。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-me-notify.png" alt="消息与关注区图标" /></div><div class="x"><b>消息与关注区</b><span>开启学习提醒、关注公众号领学习资料，两个待办入口带状态按钮，不错过任何通知。</span></div></div>
+        </div>
+
+        <h2 class="sec-title rv" style="margin-top:22px;font-size:17px">🧩 「我的」里的子功能</h2>
+        <div class="subs">
+          <div class="sub t-amber rv">
+            <div class="top"><div class="si"><img loading="lazy" decoding="async" src="images/marketing/sub-membership.png" alt="会员图标" /></div><div><h4>开通会员</h4><p>解锁完整学习闭环</p></div></div>
+            <div class="strip"><div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-membership.png" alt="会员权益" /></div></div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-membership-unlock.png" alt="会员解锁图标" /></div><div class="x"><span>会员解锁「单词新学 / 跟读背诵 / 随身听 / 报告复习」完整闭环，每天 10 分钟学完一个循环。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-membership-price.png" alt="会员价格图标" /></div><div class="x"><span>三档时长：1 年 ¥109（低至 9 元/月，推荐）/ 2 个月 ¥59（超值）/ 1 个月 ¥39（尝鲜）。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-membership-code.png" alt="兑换码图标" /></div><div class="x"><span>支持<b>兑换码</b>开通；购买记录、开通成功页、用户付费协议一应俱全。</span></div></div>
+            </div>
+            <div class="duo" style="padding-top:8px">
+              <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-membership-success.png" alt="会员开通成功" /></div>
+              <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/07-membership-records.png" alt="会员购买记录" /></div>
+            </div>
+            <div class="duo-caps"><span>开通成功页</span><span>购买记录</span></div>
+          </div>
+          <div class="sub t-green rv">
+            <div class="top"><div class="si"><img loading="lazy" decoding="async" src="images/marketing/sub-notify.png" alt="消息与提醒图标" /></div><div><h4>消息与提醒</h4><p>打卡 / 报告 / 支付通知</p></div></div>
+            <div class="strip"><div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/04-me-notify.png" alt="消息授权状态" /></div></div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-notify-subscribe.png" alt="三类订阅图标" /></div><div class="x"><span>三类订阅：<b>打卡提醒</b>（到点提醒防断签，可累计订阅次数）、<b>支付成功通知</b>、<b>学习报告通知</b>（环节 / 入门测 / 结业测完成后提醒看报告）。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-notify-preview.png" alt="预览通知图标" /></div><div class="x"><span>每类通知都能先<b>点击预览通知样式</b>再决定开不开，授权状态（待授权 / 已开启）清楚标注。</span></div></div>
+            </div>
+            <div class="strip" style="padding-top:0"><div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/04-me-notify-preview.png" alt="消息样式预览" /></div></div>
+          </div>
+          <div class="sub t-blue rv">
+            <div class="top"><div class="si"><img loading="lazy" decoding="async" src="images/marketing/sub-contact.png" alt="联系客服图标" /></div><div><h4>联系客服 & 常见问题</h4><p>遇到问题随时找</p></div></div>
+            <div class="strip"><div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/04-me-contact.png" alt="联系客服与常见问题" /></div></div>
+            <div class="points">
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-support-chat.png" alt="联系客服图标" /></div><div class="x"><span>学习记录同步、教材切换、订阅提醒、订单问题都能一键联系客服反馈。</span></div></div>
+              <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-support-faq.png" alt="常见问题图标" /></div><div class="x"><span>内置常见问题即问即答：记录没同步怎么办、换教材丢不丢进度、"P1"页码什么意思、句子加粗和上箭头代表什么、跟读的绿灰红配色怎么来的……</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="more rv">
+          <div class="mt">更多设置（在「我的 · 常用 / 账号设置」里）</div>
+          <div class="item"><span class="e"><img loading="lazy" decoding="async" src="images/marketing/more-book-archive.png" alt="已学书本图标" /></span><div><b>已学书本</b><span>学完第一关的书本自动归档，随时回看每本书的学习成果。</span></div></div>
+          <div class="item"><span class="e"><img loading="lazy" decoding="async" src="images/marketing/more-avatar-switch.png" alt="学习形象图标" /></span><div><b>学习形象</b><span>男孩 / 女孩形象一键切换，页面插画跟着变。</span></div></div>
+          <div class="item"><span class="e"><img loading="lazy" decoding="async" src="images/marketing/more-phone-verify.png" alt="手机号验证图标" /></span><div><b>手机号验证</b><span>绑定手机号，账号更安全、跨设备找回更方便。</span></div></div>
+          <div class="item"><span class="e"><img loading="lazy" decoding="async" src="images/marketing/more-privacy-lock.png" alt="隐私与协议图标" /></span><div><b>隐私与协议</b><span>隐私政策、用户付费协议等账号安全与数据说明。</span></div></div>
+          <div class="item"><span class="e"><img loading="lazy" decoding="async" src="images/marketing/more-follow-account.png" alt="关注公众号图标" /></span><div><b>关注公众号</b><span>领取学习资料，第一时间收到内容更新。</span></div></div>
+        </div>
+        <div class="shot rv" style="margin-top:10px"><div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/04-me-book.png" alt="已学书本列表" /></div><div class="cap"><b>已学书本</b> · 教材切换与归档</div></div>
+      </div>
+
+      <div class="rule"></div>
+
+      <!-- M8 邀请好友 -->
+      <div class="module t-amber" id="m-invite">
+        <div class="mod-head rv"><div class="mod-no">8</div><div><div class="ek">Coming soon</div><h2>邀请好友 <span class="badge-soon">即将上线</span></h2></div></div>
+        <div class="accbar rv"></div>
+        <p class="mod-desc rv">生成专属邀请海报或邀请码，转发给好友一起学英语。这里先展示邀请页的空态 / 已绑定态，以及可选海报背景预览，方便提前看清正式效果。</p>
+        <div class="duo rv">
+          <div class="frame"><img loading="lazy" decoding="async" src="../exports/invite-page-empty.png" alt="邀请好友空态" /></div>
+          <div class="frame"><img loading="lazy" decoding="async" src="images/mini-app/08-invite-friends.png" alt="邀请好友已绑定态" /></div>
+        </div>
+        <div class="duo-caps rv"><span>邀请页空态</span><span>邀请页已绑定 / 有记录</span></div>
+        <p class="swipe-hint rv">← 左右滑动查看 3 套邀请海报背景 →</p>
+        <div class="carousel rv" data-dots="invitedots">
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="../images/invite/invite-poster-bg-campus.png" alt="邀请海报背景 校园主题" /></div>
+            <span class="step">海报主题 A</span><h4>校园主题</h4>
+            <p>蓝天、校园和挥手果冻兽，更贴近首页主视觉，适合做默认分享底图。</p>
+          </div>
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="../images/invite/invite-poster-bg-gift.png" alt="邀请海报背景 礼物主题" /></div>
+            <span class="step">海报主题 B</span><h4>礼物主题</h4>
+            <p>更偏拉新气氛，礼盒和爱心元素更明显，适合强调“邀请奖励 / 一起学”的场景。</p>
+          </div>
+          <div class="scard">
+            <div class="frame"><img loading="lazy" decoding="async" src="../images/invite/invite-poster-bg-study.png" alt="邀请海报背景 书桌主题" /></div>
+            <span class="step">海报主题 C</span><h4>书桌主题</h4>
+            <p>更偏学习陪伴感，适合放邀请码、小程序码和学习数据文案。</p>
+          </div>
+        </div>
+        <div class="dots" id="invitedots"><i class="on"></i><i></i><i></i></div>
+        <div class="points rv">
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-invite-poster.png" alt="生成海报图标" /></div><div class="x"><b>生成专属海报</b><span>一键生成带你专属邀请码的精美海报，多套主题背景可选，转发朋友圈或好友群。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-invite-bind.png" alt="邀请绑定方式图标" /></div><div class="x"><b>三种绑定方式</b><span>好友扫海报码、点分享卡片、或在新手引导里手动填邀请码，任意一种都能建立邀请关系。</span></div></div>
+          <div class="pt"><div class="b"><img loading="lazy" decoding="async" src="images/marketing/pt-invite-status.png" alt="邀请状态图标" /></div><div class="x"><b>状态实时可见</b><span>好友完成新手引导即算"邀请成功"；列表里每位好友的状态（待完成引导 / 邀请成功）和邀请方式都看得到。</span></div></div>
+        </div>
+        <div class="callout rv"><span class="tip-mark warn">!</span><div>该功能<b>即将上线</b>：目前展示为功能预览，正式开放时间以 App 内通知为准。</div></div>
+      </div>
+
+      <footer>
+        <img loading="lazy" decoding="async" src="images/app-logo.png" alt="词句刷刷刷" />
+        <div>© 词句刷刷刷 · 中小学英语课本同步学习小程序</div>
+        <div style="margin-top:4px"><b>使用教程</b> · 更新于 2026-07-16</div>
+      </footer>
+
+    </div>
+
+    <!-- 底部吸顶导航 -->
+    <div class="appbar" id="toc">
+      <button class="tocfab" id="tocfab" type="button" aria-label="打开章节目录" aria-expanded="false" aria-controls="navpanel">
+        <img loading="eager" decoding="async" src="images/marketing/fab-toc-jelly.png" alt="" />
+        <span class="close-badge" aria-hidden="true">×</span>
+      </button>
+      <div class="navpanel" id="navpanel">
+        <div class="navpanel-title">章节目录</div>
+        <nav class="navchips" id="navchips" aria-label="章节导航">
+          <a class="chip" href="#intro" data-spy="intro"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-nav-intro.png" alt="" /></span><span class="ct">简介</span></a>
+          <a class="chip" href="#loop" data-spy="loop"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-nav-loop.png" alt="" /></span><span class="ct">闭环</span></a>
+          <a class="chip" href="#overview" data-spy="overview"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-nav-overview.png" alt="" /></span><span class="ct">总览</span></a>
+          <a class="chip" href="#m-register" data-spy="m-register"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-register.png" alt="" /></span><span class="ct">注册</span></a>
+          <a class="chip" href="#m-exam" data-spy="m-exam"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-exam.png" alt="" /></span><span class="ct">入门测</span></a>
+          <a class="chip" href="#m-level" data-spy="m-level"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-level.png" alt="" /></span><span class="ct">闯关</span></a>
+          <a class="chip" href="#m-listen" data-spy="m-listen"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-listen.png" alt="" /></span><span class="ct">伴读</span></a>
+          <a class="chip" href="#m-checkin" data-spy="m-checkin"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-checkin.png" alt="" /></span><span class="ct">打卡</span></a>
+          <a class="chip" href="#m-record" data-spy="m-record"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-record.png" alt="" /></span><span class="ct">记录</span></a>
+          <a class="chip" href="#m-me" data-spy="m-me"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-me.png" alt="" /></span><span class="ct">我的</span></a>
+          <a class="chip" href="#m-invite" data-spy="m-invite"><span class="ci"><img loading="lazy" decoding="async" src="images/marketing/icon-module-invite.png" alt="" /></span><span class="ct">邀请</span></a>
+        </nav>
+      </div>
+    </div>
+    <button id="backTop" aria-label="回到顶部" type="button">
+      <img loading="lazy" decoding="async" src="images/marketing/fab-backtop-jelly.png" alt="" />
+    </button>
+    <div id="lightbox" role="dialog" aria-label="查看大图"><img loading="lazy" decoding="async" alt="" /><div class="tip">点击任意处关闭</div></div>
+
+    <script>
+      (function () {
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* 滚动显现 */
+        var rvs = document.querySelectorAll('.rv');
+        if ('IntersectionObserver' in window && !reduced) {
+          var io = new IntersectionObserver(function (es) {
+            es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+          }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+          rvs.forEach(function (el) { io.observe(el); });
+        } else {
+          rvs.forEach(function (el) { el.classList.add('in'); });
+        }
+
+        /* 吸顶导航 scrollspy */
+        var chips = Array.prototype.slice.call(document.querySelectorAll('.chip[data-spy]'));
+        var targets = chips.map(function (c) { return document.getElementById(c.getAttribute('data-spy')); }).filter(Boolean);
+        var nav = document.getElementById('navchips');
+        var toc = document.getElementById('toc');
+        var tocfab = document.getElementById('tocfab');
+        function setToc(open) {
+          toc.classList.toggle('open', open);
+          tocfab.setAttribute('aria-expanded', open ? 'true' : 'false');
+          tocfab.setAttribute('aria-label', open ? '关闭章节目录' : '打开章节目录');
+        }
+        tocfab.addEventListener('click', function () {
+          setToc(!toc.classList.contains('open'));
+        });
+        document.addEventListener('click', function (e) {
+          if (!toc.contains(e.target)) setToc(false);
+        });
+        chips.forEach(function (chip) {
+          chip.addEventListener('click', function () { setToc(false); });
+        });
+        function spy() {
+          var mark = window.scrollY + window.innerHeight * 0.35, cur = targets[0];
+          targets.forEach(function (t) { if (t.offsetTop <= mark) cur = t; });
+          chips.forEach(function (c) {
+            var on = c.getAttribute('data-spy') === cur.id;
+            c.classList.toggle('on', on);
+          });
+        }
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+          if (!ticking) { requestAnimationFrame(function () { spy(); ticking = false; }); ticking = true; }
+        }, { passive: true });
+        spy();
+
+        /* 回到顶部 */
+        var bt = document.getElementById('backTop');
+        window.addEventListener('scroll', function () { bt.classList.toggle('show', window.scrollY > 600); }, { passive: true });
+        bt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }); });
+
+        /* 截图灯箱 */
+        var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+        document.querySelectorAll('.frame img').forEach(function (img) {
+          img.parentElement.addEventListener('click', function () {
+            lbImg.src = img.src; lbImg.alt = img.alt || '';
+            lb.classList.add('open'); document.body.style.overflow = 'hidden';
+          });
+        });
+        lb.addEventListener('click', function () { lb.classList.remove('open'); document.body.style.overflow = ''; });
+
+        /* 横滑指示点 */
+        document.querySelectorAll('.carousel[data-dots]').forEach(function (car) {
+          var dots = document.getElementById(car.getAttribute('data-dots'));
+          if (!dots) return;
+          var is = dots.querySelectorAll('i');
+          car.addEventListener('scroll', function () {
+            var idx = Math.round(car.scrollLeft / (car.scrollWidth - car.clientWidth) * (is.length - 1));
+            if (isNaN(idx)) idx = 0;
+            is.forEach(function (d, i) { d.classList.toggle('on', i === idx); });
+          }, { passive: true });
+        });
+      })();
+    </script>
+  </body>
+</html>
